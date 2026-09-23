@@ -84,6 +84,7 @@ export interface Routine {
   /** A bot routine's owner, or the lead coordinator for a room goal. */
   botId: string;
   groupId?: string;
+  meeting?: boolean;
   runOn: RoutineRunOn;
   enabled: boolean;
   schedule: RoutineSchedule;
@@ -132,6 +133,7 @@ export interface RoutineRun {
   /** Snapshot the room as well as the coordinator so edited definitions do
    * not redirect already-queued team work. */
   groupId?: string;
+  meeting?: boolean;
   botId: string;
   runOn: RoutineRunOn;
   scheduledFor: number;
@@ -206,6 +208,7 @@ export interface RoutineInput {
   botId: string;
   /** `null` deliberately clears a room when changing the target back to a bot. */
   groupId?: string | null;
+  meeting?: boolean;
   runOn?: RoutineRunOn;
   enabled?: boolean;
   schedule: RoutineScheduleInput;
@@ -277,6 +280,7 @@ export interface RoutineManagerOptions {
     coordinatorBotId: string,
     runId: string,
     onDispatchError: (message: string) => void,
+    meeting?: boolean,
   ) => Promise<void>;
   interruptTurn?: (botId: string, threadId: string, runOn: RoutineRunOn) => Promise<void>;
   interruptGoal?: (
@@ -734,6 +738,7 @@ function sanitizeInput(input: RoutineInput, after: number): Omit<Routine, "id" |
     target,
     botId,
     groupId: target === "room-goal" ? groupId : undefined,
+    meeting: target === "room-goal" && input.meeting === true ? true : undefined,
     runOn,
     enabled: input.enabled !== false,
     schedule: cleanSchedule(input.schedule, after),
@@ -772,6 +777,7 @@ export class RoutineManager {
               schedule,
               target,
               groupId: loadGroupId(routine.groupId, target),
+              meeting: target === "room-goal" && routine.meeting === true ? true : undefined,
               runOn: routine.runOn ?? "maus",
               timeoutMinutes: loadTimeoutMinutes(routine.timeoutMinutes),
               attachments: loadAttachments(routine.attachments),
@@ -794,6 +800,7 @@ export class RoutineManager {
               target,
               goalStatus: loadGoalStatus(run.goalStatus, target),
               groupId: loadGroupId(run.groupId, target),
+              meeting: target === "room-goal" && run.meeting === true ? true : undefined,
               runOn: run.runOn ?? "maus",
               timeoutMinutes: loadTimeoutMinutes(run.timeoutMinutes),
               attachments: loadAttachments(run.attachments),
@@ -1034,6 +1041,7 @@ export class RoutineManager {
       target: patch.target ?? routine.target,
       botId: patch.botId ?? routine.botId,
       groupId: Object.hasOwn(patch, "groupId") ? patch.groupId : routine.groupId,
+      meeting: Object.hasOwn(patch, "meeting") ? patch.meeting : routine.meeting,
       runOn: patch.runOn ?? routine.runOn,
       enabled: patch.enabled ?? routine.enabled,
       schedule: patch.schedule ? mergeScheduleUpdate(routine.schedule, patch.schedule) : routine.schedule,
@@ -1563,6 +1571,7 @@ export class RoutineManager {
               run.botId,
               run.id,
               (message) => this.failThread(task.threadId, message),
+              run.meeting,
             );
           } else {
             await this.options.startTurn(
@@ -1755,6 +1764,7 @@ export class RoutineManager {
       attachments: cloneAttachments(routine.attachments),
       target: routine.target,
       groupId: routine.groupId,
+      meeting: routine.meeting,
       botId: routine.botId,
       runOn: routine.runOn ?? "maus",
       scheduledFor,

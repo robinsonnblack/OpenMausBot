@@ -1405,6 +1405,16 @@ describe("agents-proxy MCP surface", () => {
     expect(res.result.isError).toBeFalsy();
   });
 
+  it("passes a selected room into a scheduled meeting proposal", async () => {
+    await callTool("propose_routine", {
+      name: "Team sync", instructions: "Discuss priorities",
+      schedule: { type: "daily", time: "09:00" }, group_id: "room-a",
+    });
+    expect(lastRoutineRequestBody).toMatchObject({
+      routine: { groupId: "room-a", meeting: true, name: "Team sync" },
+    });
+  });
+
   it("forwards for_bot_id when the routine is for another bot", async () => {
     lastRoutineRequestBody = null;
     const res = await callTool("propose_routine", {

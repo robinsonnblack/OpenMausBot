@@ -50,6 +50,9 @@ export type RoutineRequestScheduleChanges =
 export interface RoutineRequestDefinition {
   name: string;
   instructions: string;
+  /** When set, run a group meeting with the room's response mode and limits. */
+  groupId?: string;
+  meeting?: boolean;
   schedule: RoutineRequestSchedule;
   runOn: RoutineRequestRunOn;
   /** Legacy calendar/display length. It does not stop an active run. */
@@ -63,7 +66,7 @@ export interface RoutineRequestDefinition {
 }
 
 export type RoutineRequestChanges =
-  & Omit<Partial<RoutineRequestDefinition>, "schedule" | "timeoutMinutes">
+  & Omit<Partial<RoutineRequestDefinition>, "schedule" | "timeoutMinutes" | "groupId" | "meeting">
   & {
     schedule?: RoutineRequestScheduleChanges;
     /** `null` removes an existing safety cap. */

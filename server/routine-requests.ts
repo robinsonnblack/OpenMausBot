@@ -79,6 +79,8 @@ const routineToolScheduleSchema = z.discriminatedUnion("type", [
 const routineToolDefinitionSchema = z.object({
   name: z.string().max(80),
   instructions: z.string().max(20_000),
+  groupId: z.string().min(1).max(128).optional(),
+  meeting: z.boolean().optional(),
   schedule: routineToolScheduleSchema,
   runOn: z.enum(["maus", "cloud"]).optional(),
   durationMinutes: z.number().optional(),
@@ -88,7 +90,7 @@ const routineToolDefinitionSchema = z.object({
 }).strict();
 
 const routineToolChangesSchema = routineToolDefinitionSchema
-  .omit({ timeoutMinutes: true })
+  .omit({ timeoutMinutes: true, groupId: true, meeting: true })
   .partial()
   .extend({ timeoutMinutes: z.number().nullable().optional() })
   .strict()
@@ -206,6 +208,8 @@ const storedScheduleChangesSchema = z.discriminatedUnion("type", [
 const storedDefinitionSchema = z.object({
   name: z.string().trim().min(1).max(80),
   instructions: z.string().trim().min(1).max(20_000),
+  groupId: z.string().min(1).max(128).optional(),
+  meeting: z.boolean().optional(),
   schedule: storedScheduleSchema,
   runOn: z.enum(["maus", "cloud"]),
   durationMinutes: z.number().int().min(5).max(240),
@@ -214,7 +218,7 @@ const storedDefinitionSchema = z.object({
   overlap: z.enum(["skip", "queue"]).optional(),
 }).strict();
 const storedChangesSchema = storedDefinitionSchema
-  .omit({ schedule: true, timeoutMinutes: true })
+  .omit({ schedule: true, timeoutMinutes: true, groupId: true, meeting: true })
   .partial()
   .extend({
     schedule: storedScheduleChangesSchema.optional(),
@@ -309,6 +313,8 @@ export interface RoutineRequestServiceOptions {
    * bot is deleted or moved to another section). Returns the sentence to
    * refuse with, or null to allow. Checked at propose AND confirm time. */
   validateTarget?: (proposerBotId: string, target: { botId: string; name: string }) => string | null;
+  /** Revalidate room membership when proposed and again on confirmation. */
+  validateRoom?: (ownerBotId: string, groupId: string) => string | null;
 }
 
 export interface ProposeRoutineRequestArgs {
@@ -545,9 +551,14 @@ function normalizeScheduleChanges(
 
 function normalizeDefinition(input: RoutineToolDefinitionInput, now: number): RoutineRequestDefinition {
   const timeoutMinutes = timeout(input.timeoutMinutes);
+  const groupId = input.groupId?.trim();
+  if ((input.groupId !== undefined || input.meeting) && !groupId) throw new RoutineRequestError("Choose a group for this meeting");
+  if (groupId && input.runOn === "cloud") throw new RoutineRequestError("Group meetings run on this computer");
+  if (groupId && input.continuity) throw new RoutineRequestError("Group meetings do not carry routine continuity");
   return {
     name: text(input.name, "name", 80),
     instructions: text(input.instructions, "instructions", 20_000),
+    ...(groupId ? { groupId, meeting: true } : {}),
     schedule: normalizeSchedule(input.schedule, now),
     runOn: runOn(input.runOn),
     durationMinutes: duration(input.durationMinutes),
@@ -774,6 +785,7 @@ function effectiveDefinition(operation: RoutineRequestOperation, manager: Routin
   const base: RoutineRequestDefinition = {
     name: existing.name,
     instructions: existing.prompt,
+    ...(existing.meeting && existing.groupId ? { groupId: existing.groupId, meeting: true } : {}),
     schedule: existing.schedule.type === "interval"
       ? {
           ...existing.schedule,
@@ -826,7 +838,8 @@ function cardCopy(
   const nextRunAt = nextForOperation(operation, manager, now);
   const scheduleTimeZone = definition.schedule.type === "cron" ? definition.schedule.timeZone : timeZone;
   const when = operation.action === "run_now" ? "Now" : scheduleText(definition.schedule, timeZone);
-  const destination = definition.runOn === "cloud" ? "Box-hosted agent" : "Bot’s current model and configured computer";
+  const destination = definition.groupId ? "Group meeting on this computer" :
+    definition.runOn === "cloud" ? "Box-hosted agent" : "Bot’s current model and configured computer";
   const current = operation.action === "create"
     ? null
     : manager.listRoutines().find((routine) => routine.id === operation.routineId) ?? null;
@@ -869,6 +882,7 @@ function cardCopy(
         ? [`Next 3 runs (${scheduleTimeZone}): ${nextCronRuns(definition.schedule, now, 3).map((at) => formatInstant(at, scheduleTimeZone)).join(" · ")}`]
         : []),
       `Runs on: ${destination}`,
+      ...(definition.groupId ? [`Group: ${definition.groupId} (current response mode and meeting limits)`] : []),
       `Run limit: ${definition.timeoutMinutes === undefined ? "No limit" : `${definition.timeoutMinutes} minutes`}`,
       `Continuity: ${definition.continuity ? "Carries the previous run's report into the next run" : "Each run starts fresh"}`,
       `While busy: ${definition.overlap === "queue" ? "Queue one scheduled run; skip further occurrences until it starts" : "Skip overlapping scheduled occurrences"}`,
@@ -888,6 +902,7 @@ function cardCopy(
 
 function inputFromDefinition(definition: RoutineRequestDefinition, botId: string, now: number): RoutineInput {
   return {
+    ...(definition.groupId ? { target: "room-goal" as const, groupId: definition.groupId, meeting: true } : {}),
     name: definition.name,
     prompt: definition.instructions,
     botId,
@@ -983,7 +998,8 @@ function revalidateOperation(operation: RoutineRequestOperation, manager: Routin
     const owner = operation.forBot?.botId ?? botId;
     const schedule = asSchedule(definition.schedule, now);
     const duplicate = manager.listRoutines().find((routine) => {
-      if (!routine.enabled || routine.target !== "bot" || routine.botId !== owner
+      if (!routine.enabled || routine.target !== (definition.groupId ? "room-goal" : "bot") || routine.botId !== owner
+        || routine.groupId !== definition.groupId || Boolean(routine.meeting) !== Boolean(definition.meeting)
         || routine.runOn !== definition.runOn || routine.prompt !== definition.instructions
         || routine.durationMinutes !== definition.durationMinutes
         || routine.timeoutMinutes !== definition.timeoutMinutes
@@ -1072,6 +1088,7 @@ export class RoutineRequestService {
   private readonly cloudReady?: () => Promise<{ ready: boolean; reason?: string }>;
   private readonly canPersist?: RoutineRequestServiceOptions["canPersist"];
   private readonly validateTarget?: RoutineRequestServiceOptions["validateTarget"];
+  private readonly validateRoom?: RoutineRequestServiceOptions["validateRoom"];
   private readonly autoApply?: RoutineRequestServiceOptions["autoApply"];
 
   constructor(options: RoutineRequestServiceOptions) {
@@ -1082,6 +1099,7 @@ export class RoutineRequestService {
     this.cloudReady = options.cloudReady;
     this.canPersist = options.canPersist;
     this.validateTarget = options.validateTarget;
+    this.validateRoom = options.validateRoom;
     this.autoApply = options.autoApply;
   }
 
@@ -1107,6 +1125,10 @@ export class RoutineRequestService {
     const operation = normalizedOperation(this.routines, botId, parsedProposal.data, at);
     if (operation.action === "create" && operation.forBot && this.validateTarget) {
       const refusal = this.validateTarget(botId, operation.forBot);
+      if (refusal) throw new RoutineRequestError(refusal, 403);
+    }
+    if (operation.action === "create" && operation.routine.groupId && this.validateRoom) {
+      const refusal = this.validateRoom(operation.forBot?.botId ?? botId, operation.routine.groupId);
       if (refusal) throw new RoutineRequestError(refusal, 403);
     }
     await this.requireCloudReadiness(operation);
@@ -1304,6 +1326,10 @@ export class RoutineRequestService {
       revalidateOperation(payload.operation, this.routines, payload.botId, this.now());
       if (payload.operation.action === "create" && payload.operation.forBot && this.validateTarget) {
         const refusal = this.validateTarget(payload.botId, payload.operation.forBot);
+        if (refusal) throw new RoutineRequestError(refusal, 404);
+      }
+      if (payload.operation.action === "create" && payload.operation.routine.groupId && this.validateRoom) {
+        const refusal = this.validateRoom(payload.operation.forBot?.botId ?? payload.botId, payload.operation.routine.groupId);
         if (refusal) throw new RoutineRequestError(refusal, 404);
       }
       const resultId = this.apply(payload, message.id, fingerprint);

@@ -394,6 +394,7 @@ function EventEditor({
   };
   const [routineTarget, setRoutineTarget] = useState<RoutineTarget>(existingRoutine?.target ?? "bot");
   const [groupId, setGroupId] = useState(existingRoutine?.groupId ?? "");
+  const [meeting, setMeeting] = useState(existingRoutine?.meeting === true);
   const [runOn, setRunOn] = useState<RoutineRunOn>(existingRoutine?.runOn ?? defaultRunOn ?? "maus");
   const [attachments, setAttachments] = useState<Array<RoutineContextAttachment | CalendarCallAttachment>>(
     existingRoutine?.target === "room-goal" ? [] : existingRoutine?.attachments ?? existingCall?.attachments ?? [],
@@ -537,6 +538,7 @@ function EventEditor({
           target: routineTarget,
           botId: lockedBotId ?? botIds[0] ?? "",
           groupId: routineTarget === "room-goal" ? groupId : null,
+          meeting: routineTarget === "room-goal" && meeting,
           runOn: routineTarget === "room-goal" ? "maus" : runOn,
           enabled: existingRoutine ? undefined : true,
           schedule: nextSchedule,
@@ -898,12 +900,18 @@ function EventEditor({
                     )}
                   </div>
                   {selectedRoom && (
+                    <label className="flex items-center gap-2 text-[12.5px] text-ink">
+                      <input type="checkbox" checked={meeting} onChange={(event) => setMeeting(event.target.checked)} />
+                      Run as a group meeting using this room's response mode and limits
+                    </label>
+                  )}
+                  {selectedRoom && (
                     <div>
-                      <div className="mb-2 text-[12.5px] font-medium text-ink">Choose the lead</div>
+                      <div className="mb-2 text-[12.5px] font-medium text-ink">{meeting ? "Choose the meeting owner" : "Choose the lead"}</div>
                       {roomMembers.length > 0 ? (
                         <>
                           <BotPicker bots={roomMembers} selected={botIds} multiple={false} onChange={selectBots} />
-                          <div className="mt-2 text-[11.5px] text-ink-secondary">The lead coordinates {selectedRoom.name} and assigns work to its active members.</div>
+                          <div className="mt-2 text-[11.5px] text-ink-secondary">{meeting ? `${selectedRoom.name} uses its current response mode and meeting limits.` : `The lead coordinates ${selectedRoom.name} and assigns work to its active members.`}</div>
                         </>
                       ) : (
                         <div className="rounded-xl border border-warning/30 bg-warning/10 px-3.5 py-3 text-[11.5px] text-warning">This group has no active members. Add or restore a bot before scheduling the goal.</div>
@@ -982,7 +990,7 @@ function EventEditor({
 
         <div className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-hairline/40 bg-panel/95 px-5 py-3.5 backdrop-blur">
           <button onClick={onClose} className="rounded-lg px-4 py-2 text-[12.5px] text-ink-secondary hover:bg-raised hover:text-ink">Cancel</button>
-          <button onClick={save} disabled={saving || attachmentPending || !valid} className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-[12.5px] font-semibold text-white hover:brightness-110 disabled:opacity-40">{(saving || attachmentPending) && <Loader2 size={14} className="animate-spin" />}{attachmentPending ? "Attaching…" : existingRoutine || existingCall ? "Save" : kind === "call" ? "Schedule call" : isRoomGoal ? "Schedule team goal" : "Schedule routine"}</button>
+          <button onClick={save} disabled={saving || attachmentPending || !valid} className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-[12.5px] font-semibold text-white hover:brightness-110 disabled:opacity-40">{(saving || attachmentPending) && <Loader2 size={14} className="animate-spin" />}{attachmentPending ? "Attaching…" : existingRoutine || existingCall ? "Save" : kind === "call" ? "Schedule call" : isRoomGoal ? meeting ? "Schedule meeting" : "Schedule team goal" : "Schedule routine"}</button>
         </div>
       </div>
     </div>
@@ -1572,7 +1580,7 @@ function PausedList({
                 {room ? <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/12 text-accent"><UsersRound size={17} /></span> : bot && <BotAvatar bot={bot} state="sleeping" size={36} animated={false} />}
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[12.5px] font-medium text-ink">{routine.name}</div>
-                  <div className="mt-0.5 truncate text-[10.5px] text-ink-secondary">{room ? `Team goal · ${room.name} · ` : ""}{scheduleLabel(routine.schedule)}</div>
+                  <div className="mt-0.5 truncate text-[10.5px] text-ink-secondary">{room ? `${routine.meeting ? "Group meeting" : "Team goal"} · ${room.name} · ` : ""}{scheduleLabel(routine.schedule)}</div>
                 </div>
                 {room && <button onClick={() => { onOpenRoom(room.id); onClose(); }} className="rounded-lg px-2 py-1.5 text-[11px] text-ink-secondary hover:bg-inset">Group</button>}
                 <button onClick={() => dispatch({ type: "updateRoutine", routineId: routine.id, patch: { enabled: true } })} className="rounded-lg bg-accent/15 px-2.5 py-1.5 text-[11px] font-medium text-accent">Resume</button>
