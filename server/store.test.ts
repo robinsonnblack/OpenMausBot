@@ -89,6 +89,66 @@ describe("Store", () => {
     expect(room.section).toBe("Delivery");
   });
 
+  it("deletes a populated team while preserving bots, archived members and room history across restart", () => {
+    const store = new Store(selection);
+    const bot = store.createBot({ section: "Studio" });
+    const archived = store.createBot({ section: "Studio" });
+    store.patchBot(archived.id, { hidden: true });
+    const chief = store.createBot({ section: "Office" });
+    store.setChiefOfStaff(chief.id);
+    store.patchBot(chief.id, { managedSections: ["Studio", "Other"] });
+    const room = store.createGroup("Discussion", [bot.id], false, "Studio");
+    store.appendMessage(bot.threadId, { role: "user", kind: "text", text: "Keep private history" });
+    store.appendMessage(room.threadId, { role: "user", kind: "text", text: "Keep shared history" });
+    writeSectionContext("Studio", "Old brief");
+    writeSectionContext("", "General brief");
+    const before = [store.messagesFor(bot.threadId), store.messagesFor(room.threadId)];
+    expect(store.deleteSection("Studio")).toBeUndefined();
+    const restored = new Store(selection);
+    expect(restored.sections).not.toContain("Studio");
+    expect(restored.bot(bot.id)).toMatchObject({ threadId: bot.threadId, modelSelection: bot.modelSelection });
+    expect(restored.bot(bot.id)?.section).toBeUndefined();
+    expect(restored.bot(archived.id)?.hidden).toBe(true);
+    expect(restored.bot(archived.id)?.section).toBeUndefined();
+    expect(restored.group(room.id)).toMatchObject({ memberIds: [bot.id], threadId: room.threadId });
+    expect(restored.group(room.id)?.section).toBeUndefined();
+    expect([restored.messagesFor(bot.threadId), restored.messagesFor(room.threadId)]).toEqual(before);
+    expect(restored.bot(chief.id)?.managedSections).toEqual(["Other"]);
+    expect(readSectionContext("Studio")).toBeNull();
+    expect(readSectionContext("")?.text).toBe("General brief");
+    restored.createBot({ section: "Studio" });
+    expect(restored.bot(chief.id)?.managedSections).toEqual(["Other"]);
+  });
+
+  it("refuses active work and Chief conflicts without silently demoting a Chief", () => {
+    const store = new Store(selection);
+    const chief = store.createBot({ section: "Studio" });
+    store.setChiefOfStaff(chief.id);
+    store.patchBot(chief.id, { busy: true });
+    expect(store.deleteSection("Studio")).toMatch(/Stop/);
+    store.patchBot(chief.id, { busy: false });
+    const general = store.createBot();
+    store.setChiefOfStaff(general.id);
+    expect(store.deleteSection("Studio")).toMatch(/Chief/);
+    expect(store.bot(chief.id)).toMatchObject({ chiefOfStaff: true, section: "Studio" });
+    expect(store.deleteSection("missing")).toBe("No such team");
+    expect(store.deleteSection("")).toBe("No such team");
+  });
+
+  it("restores persisted membership if deleting the team cannot finish", () => {
+    const store = new Store(selection);
+    const bot = store.createBot({ section: "Studio" });
+    const room = store.createGroup("Discussion", [bot.id], false, "Studio");
+    const write = vi.spyOn(store as any, "saveGroups").mockImplementationOnce(() => { throw new Error("disk unavailable"); });
+    expect(() => store.deleteSection("Studio")).toThrow("disk unavailable");
+    write.mockRestore();
+    const restored = new Store(selection);
+    expect(restored.bot(bot.id)?.section).toBe("Studio");
+    expect(restored.group(room.id)?.section).toBe("Studio");
+    expect(store.bot(bot.id)?.section).toBe("Studio");
+    expect(restored.sections).toContain("Studio");
+  });
+
   it("persists compaction records but keeps session bookkeeping off the wire", () => {
     const store = new Store(selection);
     const bot = store.createBot({}, { seedMessages: false });

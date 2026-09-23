@@ -1499,6 +1499,25 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const [menu, setMenu] = useState<MenuState | null>(null);
   const [sectionPicker, setSectionPicker] = useState<MenuState | null>(null);
   const [newTeam, setNewTeam] = useState(false);
+  const [teamMenu, setTeamMenu] = useState<{ name: string; x: number; y: number } | null>(null);
+  const teamMenuReturn = useRef<HTMLElement | null>(null);
+  const closeTeamMenu = () => {
+    (teamMenuReturn.current?.isConnected ? teamMenuReturn.current : sidebarRef.current)?.focus();
+    setTeamMenu(null);
+  };
+  const renamedTeam = (oldName: string, newName: string) => {
+    const replace = (ids: string[]) => [...new Set(ids.map(id => id === userSectionId(oldName) ? userSectionId(newName) : id))];
+    setCollapsedSections(current => { const next = replace(current); saveCollapsedSections(next); return next; });
+    setSectionOrder(current => { const next = replace(current); saveSectionOrder(next); return next; });
+    requestAnimationFrame(() => {
+      const header = [...(sidebarRef.current?.querySelectorAll<HTMLElement>("[data-section]") ?? [])]
+        .find(element => element.dataset.section === newName);
+      (header?.querySelector<HTMLElement>("button") ?? header ?? sidebarRef.current)?.focus();
+    });
+  };
+  const [deletingTeam, setDeletingTeam] = useState<string | null>(null);
+  const [teamDeletePending, setTeamDeletePending] = useState(false);
+  const teamDeleteRunning = useRef(false);
   const [moveToTeam, setMoveToTeam] = useState<string | null>(null);
   const [renameTeam, setRenameTeam] = useState<string | null>(null);
   const [teamMenu, setTeamMenu] = useState<{ name: string; x: number; y: number } | null>(null);
@@ -2095,7 +2114,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
                 {density !== "icons" && (
                   <SidebarSectionHeader
                     name={sectionLabel(id)}
-                    onContextMenu={!remoteClient && sectionName ? (event) => {
+                    onContextMenu={!remoteClient && layoutInteractive && sectionName ? (event) => {
                       event.preventDefault();
                       teamMenuReturn.current = event.currentTarget.querySelector<HTMLElement>("button") ?? event.currentTarget;
                       setTeamMenu({ name: sectionName, x: Math.max(8, Math.min(event.clientX, window.innerWidth - 230)), y: Math.max(8, Math.min(event.clientY, window.innerHeight - 110)) });
@@ -2314,8 +2333,23 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             onClick={() => { closeTeamMenu(); setMoveToTeam(teamMenu.name); }}><Users size={14} />{t("team.addBots")}</button>
           <button type="button" role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] hover:bg-raised"
             onClick={() => { closeTeamMenu(); setRenameTeam(teamMenu.name); }}><Pencil size={14} />{t("team.rename")}</button>
+          <button type="button" role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[13px] text-danger hover:bg-raised"
+            onClick={() => { closeTeamMenu(); setDeletingTeam(teamMenu.name); }}><Trash2 size={14} />{t("team.delete")}</button>
         </div>
       </div>, document.body)}
+      <ConfirmDialog open={deletingTeam !== null} title={t("team.deleteTitle", { name: deletingTeam ?? "" })}
+        body={t("team.deleteKeepBotsDescription")} confirmLabel={t("team.delete")} returnFocusRef={sidebarRef}
+        pending={teamDeletePending}
+        onCancel={() => { if (!teamDeleteRunning.current) setDeletingTeam(null); }} onConfirm={() => {
+          const name = deletingTeam;
+          if (!name || teamDeleteRunning.current) return;
+          teamDeleteRunning.current = true;
+          setTeamDeletePending(true);
+          void api(`/api/sidebar-sections?section=${encodeURIComponent(name)}`, { method: "DELETE" })
+            .then(({ sections }) => { dispatch({ type: "sectionDeleted", section: name, sections }); setDeletingTeam(null); })
+            .catch(cause => setTeamFeedback({ error: true, text: cause instanceof Error ? cause.message : String(cause) }))
+            .finally(() => { teamDeleteRunning.current = false; setTeamDeletePending(false); });
+        }} />
       {moveToTeam && <TeamDialog section={moveToTeam} onClose={() => setMoveToTeam(null)} />}
       {sectionPicker && (
         <SectionPicker
