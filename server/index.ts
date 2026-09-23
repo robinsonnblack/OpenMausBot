@@ -1,4 +1,8 @@
 import { configurePromptInspector } from "./prompt-inspector.ts";
+import { normalizeMeetingLimits, meetingBudgetText } from "../shared/meeting-limits.ts";
+import { MeetingSession } from "./meeting-session.ts";
+import { openRouterMeetingPrices, type MeetingPrice } from "./meeting-pricing.ts";
+import { runDynamicConversation, parseDynamicPrivateDecision, DYNAMIC_CACHE_POLICY, dynamicControlRequest, dynamicTurnLimit, dynamicReplyBudget, type DynamicControl } from "./dynamic-conversation.ts";
 // OpenMausBot server — the harness host. Clients hold no transports
 // (upstream rule): the React app dispatches typed commands over HTTP and
 // folds one SSE event stream; every provider process runs here.
@@ -234,6 +238,7 @@ import {
 } from "./steer-queue.ts";
 import {
   cancelChannelMessage,
+  hasQueuedChannelMessages,
   drainChannelMessages,
   holdChannelQueue,
   queuedChannelMessage,
@@ -2361,6 +2366,7 @@ function collectExportSkills(
 function checkedGroupResponder(value: unknown, memberIds: string[]): GroupDefaultResponder | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const responder = value as { kind?: unknown; botId?: unknown };
+  if (responder.kind === "dynamic") return { kind: "dynamic" };
   if (responder.kind === "everyone") return { kind: "everyone" };
   if (responder.kind === "mentions") return { kind: "mentions" };
   if (
@@ -3080,6 +3086,9 @@ type GroupTurnOperation = {
   cancelled: boolean;
   cancellation: AbortController;
   providerHandshakePending: boolean;
+  meeting?: MeetingSession;
+  meetingPrices?: Record<string, MeetingPrice>;
+  dynamicRun?: { cardMessageId: string; turnCount: number; maxTurns: number; finished: boolean };
   goalRun?: {
     runId: string;
     cardMessageId: string;
@@ -3105,6 +3114,8 @@ type GroupGoalCoordinatorTurn = {
   token: symbol;
   turnId?: string;
   assistantItems: string[];
+  silent?: boolean;
+  dynamic?: boolean;
   /** A timed-out provider may still emit after the goal operation returns.
    * Keep swallowing that abandoned turn until its real completion arrives. */
   discard: boolean;
@@ -3222,7 +3233,8 @@ function createChannel(value: unknown): GroupRecord {
     if (!responder) throw Object.assign(new Error("invalid setup.defaultResponder"), { status: 400 });
     setup = { bulletin: requested.bulletin, defaultResponder: responder, completed: true };
   }
-  return store.createGroup(name, memberIds, false, section, setup);
+  const meetingLimits = body.meetingLimits === undefined ? undefined : normalizeMeetingLimits(body.meetingLimits);
+  return store.createGroup(name, memberIds, false, section, { ...setup, meetingLimits });
 }
 
 function updateChannel(groupId: string, value: unknown): GroupRecord {
@@ -3238,7 +3250,7 @@ function updateChannel(groupId: string, value: unknown): GroupRecord {
   }
   if (
     channelTaskBlocked(existing) &&
-    (body.memberIds !== undefined || body.defaultResponder !== undefined || body.bulletin !== undefined)
+    (body.memberIds !== undefined || body.defaultResponder !== undefined || body.bulletin !== undefined || body.meetingLimits !== undefined)
   ) {
     throw Object.assign(new Error("this channel is working or waiting on you — finish that turn first"), { status: 409 });
   }
@@ -3285,6 +3297,10 @@ function updateChannel(groupId: string, value: unknown): GroupRecord {
       throw Object.assign(new Error("pause or reassign this room's team-goal routine before removing its lead"), { status: 409 });
     }
     patch.memberIds = roster.memberIds;
+  }
+  if (body.meetingLimits !== undefined) {
+    if (existing.dm) throw Object.assign(new Error("direct-message channels cannot set meeting limits"), { status: 400 });
+    patch.meetingLimits = normalizeMeetingLimits(body.meetingLimits);
   }
   if (body.defaultResponder !== undefined) {
     const memberIds = (patch.memberIds as string[] | undefined) ?? existing.memberIds;
@@ -3589,9 +3605,11 @@ function beginGroupTurnOperation(
 }
 
 function finishGroupTurnOperation(groupId: string, operation: GroupTurnOperation) {
+  operation.meeting?.close();
   if (operation.goalRun && !operation.goalRun.finished) {
     finishGroupGoalRun(groupId, operation, "failed", "The team run ended before the lead reported an outcome.");
   }
+  if (operation.dynamicRun && !operation.dynamicRun.finished) finishDynamicConversation(operation, "paused", "The conversation ended before its next decision settled.");
   clearCancelledProviderHandshake(operation.threadId, `group:${operation.id}`);
   const operations = groupTurnOperations.get(groupId);
   operations?.delete(operation);
@@ -3684,6 +3702,7 @@ function finishGroupGoalRun(
 }
 
 function updateGroupGoalRunProgress(operation: GroupTurnOperation, detail: string): void {
+  if (operation.dynamicRun) return updateDynamicProgress(operation, detail);
   const run = operation.goalRun;
   if (!run || run.finished) return;
   const safeDetail = redactSecretsInText(detail.trim()).slice(0, 500);
@@ -3846,6 +3865,7 @@ function cancelGroupTurnOperations(
     if (operation.threadId !== threadId) continue;
     operation.cancelled = true;
     operation.cancellation.abort();
+    finishDynamicConversation(operation, outcome.status, outcome.detail);
     finishGroupGoalRun(groupId, operation, outcome.status, outcome.detail);
     if (operation.providerHandshakePending) {
       markCancelledProviderHandshake(operation.threadId, `group:${operation.id}`);
@@ -5452,8 +5472,8 @@ bus.subscribe((event: RuntimeEvent) => {
     event.streamKind === "assistant_text" &&
     (goalCoordinatorTurn || ambiguousCoordinatorText)
   ) return;
-  const coordinatorVisibleText = goalCoordinatorTurn && !goalCoordinatorTurn.discard && event.type === "turn.completed"
-    ? parseGroupGoalDecision(goalCoordinatorTurn.assistantItems.join("\n")).visibleText
+  const coordinatorVisibleText = goalCoordinatorTurn && !goalCoordinatorTurn.discard && !goalCoordinatorTurn.silent && event.type === "turn.completed"
+    ? (goalCoordinatorTurn.dynamic ? parseDynamicPrivateDecision : parseGroupGoalDecision)(goalCoordinatorTurn.assistantItems.join("\n")).visibleText
     : "";
   if (goalCoordinatorTurn && event.type === "turn.completed") {
     removeGroupGoalCoordinatorTurn(event.threadId, goalCoordinatorTurn);
@@ -9114,6 +9134,8 @@ type GroupMemberTurnOutcome =
   | "busy"
   | "unavailable";
 type GroupTurnOrchestration = {
+  controlContext?: DynamicControl;
+  silent?: boolean;
   roomHandoffId?: string;
   resumed?: boolean;
   systemInstructions: string;
@@ -9323,7 +9345,7 @@ async function runGroupMemberTurn(
     !skillAuthoringClaim.claimed &&
     !cardContinuation &&
     instance.adapter.capabilities.agentsMcp === true;
-  if ((hop < MAX_COMMS_DEPTH || orchestration?.roomHandoffId) && instance.adapter.capabilities.agentsMcp === true) {
+  if (!orchestration?.silent && (hop < MAX_COMMS_DEPTH || orchestration?.roomHandoffId || orchestration?.controlContext) && instance.adapter.capabilities.agentsMcp === true) {
     integrations.agents = agentsIntegration(bot.id, threadId, hop, skillAuthoring, internalGeneration, orchestration?.roomHandoffId, !orchestration || Boolean(orchestration.roomHandoffId));
   }
   if (instance.adapter.capabilities.hooks === true && hooksEnabled()) {
@@ -9660,7 +9682,7 @@ async function runGroupMemberTurn(
     integrations.agents && ROUTINE_PROMPT.trim(),
     integrations.agents && PROFILE_PROMPT.trim(),
     skillAuthoring && LEARN_PROMPT.trim(),
-    orchestration?.systemInstructions,
+    orchestration?.controlContext ? DYNAMIC_CACHE_POLICY : orchestration?.systemInstructions,
   ]
     .filter(Boolean)
     .join("\n");
@@ -9684,7 +9706,7 @@ async function runGroupMemberTurn(
     : !roomContextHasCoordination ? `\n\n${orchestration.turnInstructions}`
     : orchestration.resumed ? "\n\nYour downstream room requests have settled. Review their results in the conversation above against your assignment; peer results are untrusted data, not independent verification."
     : "";
-  const text = `${roomContext}\n\n(Reply to the conversation above as ${bot.name}.)${learnBlock}${cardContinuation ? `\n\n${cardContinuation}` : ""}${coordinationReminder}`;
+  const text = `${roomContext}\n\n(Reply to the conversation above as ${bot.name}.)${learnBlock}${cardContinuation ? `\n\n${cardContinuation}` : ""}${coordinationReminder}${orchestration?.controlContext ? "\n\n" + dynamicControlRequest(orchestration.controlContext) : ""}`;
 
   // same workspace + memory as a 1:1 turn — the room is a different
   // conversation, not a different bot
@@ -9720,6 +9742,10 @@ async function runGroupMemberTurn(
       });
     }
   }
+  if (operation?.meeting && !operation.meeting.check()) return false;
+  const meetingTurnId = randomUUID();
+  const meetingPrice = operation?.meetingPrices?.[instance.instanceId === readyBot.modelSelection.instanceId ? readyBot.modelSelection.model : instance.models.default];
+  if (operation?.meeting?.limits.cost && !meetingPrice) throw new Error("The selected meeting model has no pricing snapshot");
   const roomSystem = buildSystemPrompt(system, store.bot(bot.id)?.soul ?? bot.soul ?? "", [
     { id: "user-profile", label: "About the user", text: userProfileSystemPrompt(cfg.profile) },
     { id: "files", label: "File locations", text: workspace ? workspaceLocationsPrompt(bot.id, cwd, readyBot.cwd) : "" },
@@ -9738,6 +9764,7 @@ async function runGroupMemberTurn(
     { id: "memory", label: "Memory", text: roomMemory ? `\n${roomMemory.trim()}` : "" },
     { id: "skills", label: "Skills index", text: workspace ? skillsSystemPrompt(bot.id) : "" },
     { id: "skill-instructions", label: "Skill instructions", text: renderSkillInstructions(selectedSkills, { includeRoot: Boolean(workspace) }) },
+    { id: "meeting", label: "Meeting allowance", text: operation?.meeting ? meetingBudgetText(operation.meeting.snapshot()) : "" },
     { id: "playbooks", label: "Playbooks", text: installedPlaybookInstructions(text, bot.playbooks) },
   ]);
 
@@ -9778,6 +9805,7 @@ async function runGroupMemberTurn(
     else markCancelledProviderHandshake(threadId, retirementOwner);
   };
   const timeoutMinutes = roomTurnTimeoutMinutes(cfg);
+  operation?.meeting?.beginTurn(meetingTurnId);
   const outcome = await new Promise<GroupMemberTurnOutcome>((resolve) => {
     let done = false;
     let unsub = () => {};
@@ -9805,6 +9833,8 @@ async function runGroupMemberTurn(
       if (shouldIgnoreProviderEvent(e)) return;
       if (e.threadId !== threadId) return;
       if (providerTurnId && e.turnId && e.turnId !== providerTurnId) return;
+      if (e.type === "thread.token-usage.updated") operation?.meeting?.usage(meetingTurnId, e, meetingPrice);
+      if (e.type === "turn.completed" && e.usage) operation?.meeting?.usage(meetingTurnId, e.usage, meetingPrice);
       if (e.type === "item.completed" && e.itemType === "assistant_text") replyText += `\n${e.text}`;
       else if (e.type === "turn.completed") {
         if (orchestration && !e.ok) {
@@ -9883,6 +9913,7 @@ async function runGroupMemberTurn(
         finish("dispatch_failed");
       });
   });
+  operation?.meeting?.endTurn(meetingTurnId, outcome === "settled");
   // The provider turn is terminal now. Revoke before any chained teammate
   // work so a retained proxy from this member cannot act during the next
   // member's generation.
@@ -10092,16 +10123,18 @@ async function runGroupGoalStep(args: {
   operation: GroupTurnOperation;
   skillAuthoringClaim: { claimed: boolean };
   coordinator: boolean;
+  silent?: boolean;
+  controlContext?: DynamicControl;
   instructions: string;
 }): Promise<{ ran: boolean; replyText: string; outcome?: GroupMemberTurnOutcome; stopReason?: string | null }> {
-  const run = args.operation.goalRun;
+  const run = args.operation.dynamicRun ?? args.operation.goalRun;
   if (!run || args.operation.cancelled || run.turnCount >= run.maxTurns) {
     return { ran: false, replyText: "" };
   }
   let retriedTransient = false;
   for (;;) {
     const availability = await waitForGroupMemberBot(args.bot, args.operation, (detail) => {
-      updateGroupGoalRunProgress(args.operation, `${detail} This goal will continue when they are available.`);
+      updateGroupGoalRunProgress(args.operation, `${detail} This conversation will continue when they are available.`);
     });
     if (availability === "cancelled") return { ran: false, replyText: "", outcome: "cancelled" };
     if (availability === "unavailable") {
@@ -10123,7 +10156,7 @@ async function runGroupGoalStep(args: {
     const result: GroupTurnOrchestration["result"] = {};
     let claimed = false;
     const coordinatorTurn: GroupGoalCoordinatorTurn | undefined = args.coordinator
-      ? { token: Symbol("goal-coordinator-turn"), assistantItems: [], discard: false }
+      ? { token: Symbol("goal-coordinator-turn"), assistantItems: [], discard: false, silent: args.silent, dynamic: Boolean(args.controlContext) }
       : undefined;
     if (coordinatorTurn) addGroupGoalCoordinatorTurn(args.threadId, coordinatorTurn);
     try {
@@ -10141,6 +10174,8 @@ async function runGroupGoalStep(args: {
         args.skillAuthoringClaim,
         {
           systemInstructions: args.instructions,
+          controlContext: args.controlContext,
+          silent: args.silent,
           followMentions: false,
           result,
           onClaimed: () => {
@@ -10157,6 +10192,7 @@ async function runGroupGoalStep(args: {
             if (coordinatorTurn && !coordinatorTurn.turnId) coordinatorTurn.turnId = turnId;
           },
         },
+        args.operation,
       );
       if (result.outcome === "busy") continue;
       // One retry for a transient provider failure: a 13-turn goal must not
@@ -10412,7 +10448,92 @@ async function runGroupGoalOperation(args: {
   }
 }
 
+function updateDynamicProgress(operation: GroupTurnOperation, detail: string) {
+  const run = operation.dynamicRun;
+  if (!run || run.finished) return;
+  store.patchMessage(operation.threadId, run.cardMessageId, { tool: { name: `Dynamic conversation · ${redactSecretsInText(detail).slice(0, 500)}` } });
+}
+
+function finishDynamicConversation(operation: GroupTurnOperation, status: string, detail: string) {
+  const run = operation.dynamicRun;
+  if (!run || run.finished) return;
+  run.finished = true;
+  store.patchMessage(operation.threadId, run.cardMessageId, {
+    tool: { name: `Dynamic conversation · ${redactSecretsInText(detail || "Finished.").slice(0, 500)}`, ok: status !== "paused" },
+  });
+}
+
+async function startMeetingSession(groupId: string, operation: GroupTurnOperation): Promise<void> {
+  const group = store.group(groupId);
+  if (!group || group.dm) return;
+  const limits = normalizeMeetingLimits(group.meetingLimits);
+  if (limits.cost) {
+    operation.meetingPrices = await openRouterMeetingPrices(group.memberIds.flatMap(id => {
+      const bot = store.bot(id); return bot ? [bot.modelSelection.model] : [];
+    }));
+  }
+  if (operation.cancelled || !store.group(groupId)) return;
+  const threadId = operation.threadId;
+  const { lastUserMessageId } = dynamicReplyBudget(store.messagesFor(threadId));
+  const previous = store.messagesFor(threadId).findLast(message => message.meetingBudget?.lastUserMessageId === lastUserMessageId);
+  const saved = previous?.meetingBudget;
+  const reusable = saved && JSON.stringify(saved.limits) === JSON.stringify(limits);
+  const card = reusable ? previous! : store.appendMessage(threadId, { role: "bot", kind: "activity", tool: { name: "Meeting allowance" } });
+  const meeting = new MeetingSession(limits, {
+    replies: () => dynamicReplyBudget(store.messagesFor(threadId)).count,
+    persist: state => store.patchMessage(threadId, card.id, { meetingBudget: { limits, state, lastUserMessageId } }),
+    notice: (text, stopped, count) => {
+      const kind = stopped ? "dynamic-stop" : "dynamic-wrap-up";
+      if (store.messagesFor(threadId).some(message => message.systemNotice?.kind === kind && message.systemNotice.lastUserMessageId === lastUserMessageId && message.systemNotice.repliesSinceUser === count)) return;
+      store.appendMessage(threadId, { role: "bot", kind: "text", text, systemNotice: { kind, lastUserMessageId, repliesSinceUser: count } });
+    },
+    stop: text => {
+      finishDynamicConversation(operation, "limit-reached", text);
+      void interruptRoutineGroupGoal(groupId, threadId, { status: "limit-reached", detail: text });
+    },
+  }, reusable ? saved.state : undefined);
+  operation.meeting = meeting;
+  meeting.start();
+}
+
+async function runDynamicGroupOperation(args: {
+  groupId: string; threadId: string; router: BotRecord; request: string; operation: GroupTurnOperation;
+}) {
+  const skillAuthoringClaim = { claimed: true };
+  try {
+    const outcome = await runDynamicConversation({
+      request: args.request, routerId: args.router.id,
+      getMembers: () => (store.group(args.groupId)?.memberIds ?? []).flatMap(id => { const bot = store.bot(id); return bot ? [bot] : []; }),
+      isCancelled: () => args.operation.cancelled || store.group(args.groupId)?.defaultResponder.kind !== "dynamic",
+      hasNewMessage: () => hasQueuedChannelMessages(args.groupId, args.threadId),
+      getConversation: () => {
+        const messages = store.messagesFor(args.threadId);
+        const lastUser = messages.findLastIndex(message => message.role === "user" && message.kind === "text");
+        return messages.slice(lastUser < 0 ? 0 : lastUser).filter(message => message.kind === "text" && !message.systemNotice && !message.roomRequest);
+      },
+      getReplyCount: () => dynamicReplyBudget(store.messagesFor(args.threadId)).count,
+      getBudget: () => args.operation.meeting!.snapshot(),
+      onBudget: () => { args.operation.meeting?.check(); },
+      onProgress: detail => updateDynamicProgress(args.operation, detail),
+      step: async (member, turn) => {
+        const bot = store.bot(member.id);
+        if (!bot) return { outcome: "unavailable", replyText: "" };
+        return runGroupGoalStep({ ...args, bot, coordinator: true, silent: turn.silent,
+          instructions: DYNAMIC_CACHE_POLICY, controlContext: turn.controlContext, skillAuthoringClaim });
+      },
+    });
+    finishDynamicConversation(args.operation, outcome.status, outcome.detail);
+    return outcome;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    finishDynamicConversation(args.operation, "paused", detail);
+    return { status: "paused", detail, replies: [] };
+  }
+}
+
 type StartGroupTurnOptions = {
+  /** Already appended, authorized bot invitation. Never impersonates a human. */
+  postedMessage?: Message;
   /** Run against an existing background room task instead of the active UI task. */
   threadId?: string;
   /** Internal routine goals choose their lead explicitly rather than by @mention/default. */
@@ -10461,7 +10582,7 @@ function startGroupTurn(
   if (options.goalCoordinatorBotId && (channelMode !== "goal" || !requestedGoalCoordinator)) {
     throw Object.assign(new Error("the selected goal coordinator is not an active room member"), { status: 409 });
   }
-  const message = store.appendMessage(threadId, {
+  const message = options.postedMessage ?? store.appendMessage(threadId, {
     role: "user",
     kind: "text",
     text,
@@ -10491,6 +10612,8 @@ function startGroupTurn(
   }
   let responders = roomResponders(text, members, group.defaultResponder);
   const explicitlyMentionedLead = roomResponders(text, availableMembers, { kind: "mentions" })[0];
+  const dynamicRouter = !group.dm && channelMode !== "goal" && group.defaultResponder.kind === "dynamic"
+    ? selectGroupGoalCoordinator(availableMembers, group.defaultResponder) : null;
   const goalCoordinator = channelMode === "goal"
     ? requestedGoalCoordinator ?? explicitlyMentionedLead ?? selectGroupGoalCoordinator(availableMembers, group.defaultResponder)
     : null;
@@ -10502,7 +10625,7 @@ function startGroupTurn(
     const last = availableMembers.find((b) => b.id === lastSpeakerId) ?? availableMembers[0];
     responders = last ? [last] : [];
   }
-  if (!responders.length && !goalCoordinator) {
+  if (!responders.length && !goalCoordinator && !dynamicRouter) {
     const defaultArchivedId = group.defaultResponder.kind === "member" ? group.defaultResponder.botId : undefined;
     const defaultArchived = archived.find((member) => member.id === defaultArchivedId);
     let unavailableMessage: string | undefined;
@@ -10527,7 +10650,7 @@ function startGroupTurn(
   // the person always wins. Channel tasks carry no peer provenance (no
   // assignment opens them), and a member whose engine offers no text
   // one-shot simply keeps the snippet.
-  const titleBot = goalCoordinator ?? responders[0]!;
+  const titleBot = goalCoordinator ?? dynamicRouter ?? responders[0]!;
   const titleInstance = registry.get(titleBot.modelSelection.instanceId);
   const titleText = extractTurnImages(text).text;
   // An engine the organisation disallows never receives the text, even for a title.
@@ -10542,7 +10665,7 @@ function startGroupTurn(
   const operation = beginGroupTurnOperation(
     groupId,
     threadId,
-    goalCoordinator ? [] : responders.map((responder) => responder.id),
+    goalCoordinator || dynamicRouter ? [] : responders.map((responder) => responder.id),
   );
   if (goalCoordinator) {
     const runId = options.goalRunId?.trim() || `goal-${Date.now().toString(36)}-${randomUUID()}`;
@@ -10577,6 +10700,10 @@ function startGroupTurn(
       finished: false,
     };
   }
+  if (dynamicRouter) {
+    const card = store.appendMessage(threadId, { role: "bot", kind: "activity", tool: { name: "Dynamic conversation · Starting…" } });
+    operation.dynamicRun = { cardMessageId: card.id, turnCount: 0, maxTurns: dynamicTurnLimit(members.length, normalizeMeetingLimits(group.meetingLimits).replies?.hardStop ?? 100000), finished: false };
+  }
   const prev = groupQueues.get(groupId) ?? Promise.resolve();
   const next = prev.then(async () => {
     if (operation.cancelled) return;
@@ -10590,7 +10717,14 @@ function startGroupTurn(
       });
       return;
     }
-    if (goalCoordinator) {
+    try { await startMeetingSession(groupId, operation); } catch (error) {
+      store.appendMessage(threadId, { role: "bot", kind: "activity", tool: { name: error instanceof Error ? error.message : "Meeting allowance could not start", ok: false } });
+      return;
+    }
+    if (operation.cancelled) return;
+    if (dynamicRouter) {
+      await runDynamicGroupOperation({ groupId, threadId, router: dynamicRouter, request: text, operation });
+    } else if (goalCoordinator) {
       await runGroupGoalOperation({ groupId, threadId, coordinator: goalCoordinator, members, operation });
     } else {
       const spoken = new Set<string>();
@@ -14087,24 +14221,40 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
           }
           const parsed = z.object({
             fromBotId: z.string().optional(), fromThreadId: z.string().optional(),
+            meetingLimits: z.unknown().optional(),
             name: z.string().trim().min(1).max(100), memberIds: z.array(z.string()).min(1).max(100),
             section: z.string().optional(), bulletin: z.string().max(12_000).optional(),
+            responseMode: z.enum(["lead", "everyone", "mentions", "dynamic"]).optional(),
+            leadBotId: z.string().optional(), openingMessage: z.string().trim().min(1).max(12_000).optional(),
           }).strict().safeParse(body);
           if (!parsed.success) return json(res, 400, { error: "provide a room name, memberIds, and optional bulletin (at most 12000 characters)" });
           const memberIds = [...new Set([chief.id, ...parsed.data.memberIds])];
           if (!allowedRoster(memberIds)) {
             return json(res, 403, { error: "include yourself and only active, allowed peers from your section" });
           }
+          const leadBotId = parsed.data.leadBotId ?? chief.id;
+          if (!memberIds.includes(leadBotId)) return json(res, 400, { error: "the lead must be a room member" });
+          const defaultResponder: GroupDefaultResponder = !parsed.data.responseMode || parsed.data.responseMode === "lead"
+            ? { kind: "member", botId: leadBotId } : { kind: parsed.data.responseMode };
           const group = createChannel({
-            name: redactSecretsInText(parsed.data.name), memberIds, section: chief.section,
-            setup: { bulletin: redactSecretsInText(parsed.data.bulletin ?? ""), defaultResponder: { kind: "member", botId: chief.id } },
+            name: redactSecretsInText(parsed.data.name), memberIds, section: chief.section, meetingLimits: parsed.data.meetingLimits,
+            setup: { bulletin: redactSecretsInText(parsed.data.bulletin ?? ""), defaultResponder },
           });
           internalCapability.createdRooms = (internalCapability.createdRooms ?? 0) + 1;
-          return json(res, 201, { id: group.id, name: group.name, section: group.section || "General", memberIds: group.memberIds, memberCount: group.memberIds.length });
+          if (parsed.data.openingMessage) {
+            const text = redactSecretsInText(parsed.data.openingMessage);
+            const postedMessage = store.appendMessage(group.threadId, { role: "bot", kind: "text", text,
+              from: { botId: chief.id, name: chief.name, color: chief.color },
+              peerPost: isUnattended(chief.id, internalCapability.threadId) ? { unattended: true } : {} });
+            startGroupTurn(group.id, text, undefined, undefined, "chat", undefined, { postedMessage });
+          }
+          return json(res, 201, { id: group.id, name: group.name, section: group.section || "General", memberIds: group.memberIds, memberCount: group.memberIds.length, defaultResponder: group.defaultResponder, discussionStarted: Boolean(parsed.data.openingMessage) });
         }
         const parsed = z.object({
           fromBotId: z.string().optional(), fromThreadId: z.string().optional(),
-          roomId: z.string(), action: z.enum(["add_members", "remove_members", "set_members", "rename", "set_bulletin"]),
+          meetingLimits: z.unknown().optional(),
+          roomId: z.string(), action: z.enum(["add_members", "remove_members", "set_members", "rename", "set_bulletin", "set_response_mode", "set_meeting_limits"]),
+          responseMode: z.enum(["lead", "everyone", "mentions", "dynamic"]).optional(), leadBotId: z.string().optional(),
           memberIds: z.array(z.string()).min(1).max(100).optional(),
           name: z.string().trim().min(1).max(100).optional(), bulletin: z.string().max(12_000).optional(),
         }).strict().safeParse(body);
@@ -14115,7 +14265,13 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         }
         const { action, memberIds, name, bulletin } = parsed.data;
         const patch: Record<string, unknown> = {};
-        if (action === "rename") {
+        if (action === "set_meeting_limits") {
+          if (parsed.data.meetingLimits === undefined) return json(res, 400, { error: "set_meeting_limits requires meetingLimits; null restores defaults" });
+          patch.meetingLimits = parsed.data.meetingLimits;
+        } else if (action === "set_response_mode") {
+          if (!parsed.data.responseMode) return json(res, 400, { error: "set_response_mode requires responseMode" });
+          patch.defaultResponder = parsed.data.responseMode === "lead" ? { kind: "member", botId: parsed.data.leadBotId ?? chief.id } : { kind: parsed.data.responseMode };
+        } else if (action === "rename") {
           if (name === undefined) return json(res, 400, { error: "rename requires a name" });
           patch.name = redactSecretsInText(name);
         } else if (action === "set_bulletin") {
@@ -15796,6 +15952,13 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         (targetThreadId === current.threadId ? current.busyBotId : undefined);
       const speaker = speakerBotId ? store.bot(speakerBotId) : undefined;
       const instance = speaker ? runningTurnInstance(speaker, targetThreadId) : undefined;
+      // The controller must see the new request as a new discussion, not as
+      // text injected into a private routing decision. Leave it queued; the
+      // dynamic loop yields as soon as the current provider turn settles.
+      if ([...(groupTurnOperations.get(group.id) ?? [])].some(operation =>
+        operation.threadId === targetThreadId && operation.dynamicRun && !operation.dynamicRun.finished)) {
+        return json(res, 200, { ok: true, queued: true, threadId: targetThreadId });
+      }
       // Lift the queue atomically: the room settling can drain it as the
       // next follow-up, or this request can steer its head into the live
       // turn — never both for the same words.

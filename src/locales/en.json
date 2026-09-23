@@ -2461,5 +2461,7 @@
   "promptInspector.noPrevious": "No previous capture of the same kind and provider.",
   "promptInspector.copyFailed": "Copy failed.",
   "promptInspector.loadFailed": "Cannot load requests ({status}).",
-  "promptInspector.previewLimit": "Preview limited; copy or export for full content."
+  "promptInspector.previewLimit": "Preview limited; copy or export for full content.",
+  "room.responder.dynamicOption": "Dynamic",
+  "room.setup.dynamic": "Members follow the topic and reply to one another."
 }

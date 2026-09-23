@@ -1,4 +1,5 @@
 import { forgetPromptCaptures } from "./prompt-inspector.ts";
+import type { MeetingLimits } from "../shared/meeting-limits.ts";
 // Bot + thread persistence. bots.json holds bot records (including the
 // thread→instance binding and per-instance resume cursors — upstream's
 // ProviderSessionDirectory, recipe step 6: persist the binding from day
@@ -447,6 +448,7 @@ export function normalizeGroupDefaultResponder(
   if (dm) return { kind: "mentions" };
   if (value && typeof value === "object") {
     const candidate = value as { kind?: unknown; botId?: unknown };
+    if (candidate.kind === "dynamic") return { kind: "dynamic" };
     if (candidate.kind === "everyone") return { kind: "everyone" };
     if (candidate.kind === "mentions") return { kind: "mentions" };
     if (
@@ -1025,6 +1027,7 @@ export class Store {
       bulletin?: string;
       defaultResponder?: GroupDefaultResponder;
       completed?: boolean;
+      meetingLimits?: MeetingLimits;
     },
   ): GroupRecord {
     this.rememberSections([section]);
@@ -1039,6 +1042,7 @@ export class Store {
         ? { kind: "mentions" }
         : normalizeGroupDefaultResponder(setup?.defaultResponder, memberIds, false),
       bulletin: setup?.bulletin ?? "",
+      meetingLimits: setup?.meetingLimits,
       unread: false,
       createdAt,
       dm: dm || undefined,

@@ -1,3 +1,4 @@
+import type { MeetingLimits, MeetingBudgetState } from "./meeting-limits.ts";
 /** The client-visible wire model: the exact shapes the server serializes
  * for tasks, bots, messages, and rooms. One home so the server records, the
  * desktop client, and (later) the mobile trees cannot drift apart.
@@ -327,6 +328,8 @@ export interface WireMessage {
   /** One idempotently updated status card for a routine run. */
   routineRun?: RoutineRunCardData;
   /** Terminal receipt for a bounded multi-bot channel goal. */
+  meetingBudget?: { limits: MeetingLimits; state: MeetingBudgetState; lastUserMessageId: string | null };
+  systemNotice?: { kind: "dynamic-stop" | "dynamic-wrap-up"; lastUserMessageId: string | null; repliesSinceUser: number };
   goalRun?: GroupGoalRunCardData;
   /** activity messages: tool name + outcome. */
   tool?: {
@@ -463,7 +466,8 @@ export interface SecretRequestCardData {
 export type GroupDefaultResponder =
   | { kind: "member"; botId: string }
   | { kind: "everyone" }
-  | { kind: "mentions" };
+  | { kind: "mentions" }
+  | { kind: "dynamic" };
 
 /** One independent conversation inside a user-created channel. */
 export interface GroupTask {
@@ -494,6 +498,7 @@ export interface WireGroup {
   name: string;
   memberIds: string[];
   defaultResponder: GroupDefaultResponder;
+  meetingLimits?: MeetingLimits;
   /** The room's shared instructions. */
   bulletin: string;
   unread: boolean;
