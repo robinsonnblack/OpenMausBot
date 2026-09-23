@@ -9,7 +9,7 @@ import { track } from "@/lib/analytics";
 import { BOT_ROLES, type BotRole } from "@/lib/bot-roles";
 import { cn } from "@/lib/cn";
 import { t } from "@/lib/i18n";
-import { useStore } from "@/state/store";
+import { useStore, type Bot } from "@/state/store";
 import { useOwnerOrAdmin } from "@/lib/use-owner-or-admin";
 import { visibilityFromForm, type VisibilityMode } from "./bot-settings/VisibilitySection";
 
@@ -23,7 +23,12 @@ const APP_LABELS: Record<string, string> = {
   linear: "Linear",
 };
 
-export function NewBotDialog() {
+export function NewBotDialog({ section, onClose, onCreated, preserveSelection = false }: {
+  section?: string;
+  onClose?: () => void;
+  onCreated?: (bot: Bot) => void;
+  preserveSelection?: boolean;
+} = {}) {
   const { state, dispatch } = useStore();
   const dialogRef = useRef<HTMLDivElement>(null);
   const alive = useRef(true);
@@ -31,7 +36,9 @@ export function NewBotDialog() {
   const [error, setError] = useState<string | null>(null);
   const [audience, setAudience] = useState<VisibilityMode>("everyone");
   const [people, setPeople] = useState("");
-  const close = () => dispatch({ type: "toggleNewBot", open: false });
+  const close = () => onClose ? onClose() : dispatch({ type: "toggleNewBot", open: false });
+  const closeRef = useRef(close);
+  closeRef.current = close;
 
   useEffect(() => {
     alive.current = true;
@@ -40,7 +47,7 @@ export function NewBotDialog() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        dispatch({ type: "toggleNewBot", open: false });
+        closeRef.current();
         return;
       }
       if (event.key !== "Tab") return;
@@ -82,9 +89,10 @@ export function NewBotDialog() {
       setError(t("botSettings.visibility.needPeople"));
       return;
     }
-    dispatch({ type: "newBot", role, ...(visibility?.ok ? { visibility: visibility.visibility } : {}),
-      onCreated: () => {
+    dispatch({ type: "newBot", role, section, preserveSelection, ...(visibility?.ok ? { visibility: visibility.visibility } : {}),
+      onCreated: (bot) => {
         track("bot_created", { role: role?.id ?? "blank" });
+        onCreated?.(bot);
         if (alive.current) close();
       },
       onError: (message: string) => {

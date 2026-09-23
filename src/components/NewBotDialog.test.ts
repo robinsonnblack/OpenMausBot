@@ -21,9 +21,9 @@ function nodes(value: ReactNode): Node[] {
   const node = value as Node;
   return [node, ...Children.toArray(node.props.children).flatMap(nodes)];
 }
-function render() {
+function render(props: Parameters<typeof NewBotDialog>[0] = {}) {
   let tree!: ReturnType<typeof NewBotDialog>;
-  function Capture() { tree = NewBotDialog(); return tree; }
+  function Capture() { tree = NewBotDialog(props); return tree; }
   const html = renderToStaticMarkup(createElement(Capture));
   return { html, nodes: nodes(tree) };
 }
@@ -31,13 +31,26 @@ beforeEach(() => { fixture.effects = []; fixture.dispatch.mockReset(); fixture.c
 afterEach(() => vi.unstubAllGlobals());
 
 describe("new bot role dialog", () => {
+  it("returns a newly created team member to the enclosing membership dialog", () => {
+    const onClose = vi.fn(), onCreated = vi.fn();
+    const { nodes } = render({ section: "Studio", preserveSelection: true, onClose, onCreated });
+    const blank = nodes.find(node => node.type === "button" && renderToStaticMarkup(node).includes("Blank bot"))!;
+    blank.props.onClick!();
+    const action = fixture.dispatch.mock.calls[0][0];
+    expect(action).toMatchObject({ type: "newBot", section: "Studio", preserveSelection: true });
+    const bot = { id: "new", section: "Studio" };
+    action.onCreated(bot);
+    expect(onCreated).toHaveBeenCalledWith(bot);
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(fixture.dispatch).toHaveBeenCalledOnce();
+  });
   it("waits for creation before closing the current dialog", () => {
     const { nodes } = render();
     const blank = nodes.find((node) => node.type === "button" && renderToStaticMarkup(node).includes("Blank bot"))!;
     blank.props.onClick!();
     expect(fixture.dispatch).toHaveBeenCalledOnce();
     const action = fixture.dispatch.mock.calls[0][0];
-    expect(action).toMatchObject({ type: "newBot", onCreated: expect.any(Function), onError: expect.any(Function) });
+    expect(action).toMatchObject({ type: "newBot", preserveSelection: false, onCreated: expect.any(Function), onError: expect.any(Function) });
     action.onCreated();
     expect(fixture.dispatch).toHaveBeenLastCalledWith({ type: "toggleNewBot", open: false });
   });
@@ -81,7 +94,7 @@ describe("new bot role dialog", () => {
     expect(render().html).not.toContain("Who can see it");
   });
 
-  it("traps Tab, restores focus, and ignores callbacks after unmount", () => {
+  it("restores focus after dismissal but still reports an asynchronously created team member", async () => {
     let keydown!: (event: KeyboardEvent) => void;
     const doc = { activeElement: null as unknown };
     class Control { isConnected = true; focus() { doc.activeElement = this; } }
@@ -92,7 +105,8 @@ describe("new bot role dialog", () => {
     vi.stubGlobal("HTMLElement", Control);
     vi.stubGlobal("document", doc);
     vi.stubGlobal("window", { addEventListener: (_name: string, callback: typeof keydown) => { keydown = callback; }, removeEventListener: vi.fn() });
-    const rendered = render();
+    const onCreated = vi.fn();
+    const rendered = render({ section: "Studio", onCreated });
     const dialog = rendered.nodes.find((node) => node.props.role === "dialog")!;
     dialog.props.ref!.current = { querySelector: () => first, querySelectorAll: () => [first, last], contains: (element: unknown) => element === first || element === last } as unknown as HTMLDivElement;
     const cleanup = fixture.effects[0]();
@@ -107,7 +121,10 @@ describe("new bot role dialog", () => {
     expect(fixture.dispatch).toHaveBeenLastCalledWith({ type: "toggleNewBot", open: false });
     cleanup?.();
     expect(doc.activeElement).toBe(opener);
-    fixture.dispatch.mock.calls[0][0].onCreated();
+    const bot = { id: "created-after-dismissal", section: "Studio" };
+    await Promise.resolve().then(() => fixture.dispatch.mock.calls[0][0].onCreated(bot));
     expect(fixture.dispatch).toHaveBeenCalledTimes(2);
+    expect(onCreated).toHaveBeenCalledOnce();
+    expect(onCreated).toHaveBeenCalledWith(bot);
   });
 });
