@@ -2419,5 +2419,16 @@
   "room.usage.inputUnknown": "{tokens} input (cache split unknown)",
   "room.usage.total": "This thread: {details}",
   "room.usage.last": "Last turn · {name}: {details}",
-  "room.usage.cost": "Reported costs: {cost}"
+  "room.usage.cost": "Reported costs: {cost}",
+  "newBot.defaults": "Defaults for new bots",
+  "newBot.sections": "Bot settings",
+  "newBot.saveDefaults": "Save defaults",
+  "newBot.create": "Create bot",
+  "newBot.startingRole": "Starting role",
+  "newBot.customSettings": "Custom settings",
+  "newBot.randomName": "Random name",
+  "newBot.edit": "Edit",
+  "newBot.loading": "Loading settings…",
+  "newBot.randomFemaleName": "Random female name",
+  "newBot.randomMaleName": "Random male name"
 }

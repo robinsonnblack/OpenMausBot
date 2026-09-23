@@ -1387,7 +1387,18 @@
       "chat.usage.output": "65b2a1660c2efb922455502ddb797671020beb17d4715716a4eafa80c1adaae8",
       "chat.usage.lastTurnSplit": "55929d7adebc56e083a4319656fbbb1aacda1efe1ed93d557fdb1e346fd3be71",
       "chat.usage.uncachedShort": "7a73055733db064c72db1586ab766e2cf2f85906303bdfebee57c2450d161205",
-      "chat.usage.inputShort": "f395b71f2dcf7bffbabca8569ee189fa33cffecc0305ef826c4434cc14cec058"
+      "chat.usage.inputShort": "f395b71f2dcf7bffbabca8569ee189fa33cffecc0305ef826c4434cc14cec058",
+      "newBot.defaults": "8dae021ad71ce77832497c747c9af35228afdd9ee764d1720e2fcca2213481ce",
+      "newBot.sections": "96aaf01d33821a759e2717373f35baed07ac0f97cd51b3604ba7518fa49892fc",
+      "newBot.saveDefaults": "a91af2a1efd13b3acf835b14b69569aa57f45f39fe9daf4c246a06b5b2c482b8",
+      "newBot.create": "b23572a60492be71fc1ea5ba2ff20c60227c79d78d2da189e7ce7759ce9cfafd",
+      "newBot.startingRole": "15991e2e341d9d99002bc1b742002f570055fdd98c3fcb0bce45bf9fbccbd46a",
+      "newBot.customSettings": "4229eea49bd9ea3a8927c12ac696e16a43ff2f3a2ccb020a00f8f2c91b53ba28",
+      "newBot.randomName": "f34ba9fc922c5020df9669b51d955d501ce9a0f0914045839795bfa96715bb4e",
+      "newBot.edit": "464c4ffd019e1e9691dcf0537c797353ef2b1c1d4833d3d463e5b74ae4547344",
+      "newBot.loading": "e71a13459ccdcc885ea1f141d67fe1a6a6fd78e70d584abdf05324561b2b4309",
+      "newBot.randomFemaleName": "2b67fc9d54f33b8cd239035188c2f9b65f4523dc11e5d90bf284d8821bb0750c",
+      "newBot.randomMaleName": "752337a9d91f9b876d0ac8dea4a413fc72906ed34aed7b3b4f562ce23a972379"
     },
     "es": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
