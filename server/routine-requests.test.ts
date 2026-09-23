@@ -111,6 +111,15 @@ function cardFingerprint(card: RoutineRequestOptionCard, messageId: string): str
 }
 
 describe("RoutineRequestService", () => {
+  it("creates a scheduled room meeting from a bot proposal", async () => {
+    const { service, routines } = harness();
+    const proposal = createProposal({ groupId: "room-a", meeting: true });
+    const card = await service.propose({ botId: "bot-a", threadId: "thread-a", proposal });
+    expect(service.resolve({ botId: "bot-a", threadId: "thread-a", requestId: card.requestId, behavior: "allow" }))
+      .toMatchObject({ state: "applied" });
+    expect(routines.listRoutines()[0]).toMatchObject({ target: "room-goal", groupId: "room-a", meeting: true });
+  });
+
   describe("duplicate creation", () => {
     const existingInput: RoutineInput = {
       botId: "bot-a", name: "Already scheduled", prompt: "Summarize the overnight support queue.",

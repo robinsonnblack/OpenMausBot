@@ -9,6 +9,13 @@ it. The existing confirmation card shows the rule, its timezone and the next
 three dates. Nothing is scheduled until you confirm. The scheduler wakes the
 bot at the matching time; no model runs in the background to check the date.
 
+For a recurring group discussion, choose a group in the routine editor and
+enable **Run as a group meeting**. It uses that group's current response mode,
+members and meeting limits when each occurrence starts. You can also ask a bot
+to schedule it; the bot selects a group from `list_rooms` and sends its id with
+`propose_routine`. The confirmation card shows the group before you approve.
+Scheduled meetings run while OpenMausBot is open, just like other routines.
+
 In **Automations → Schedule**, choose **Monthly**, **Yearly**, or **Custom cron
 (advanced)** in the existing routine editor. Monthly offers days 1–31 and
 **Last day**. The timezone defaults to your browser's zone for a new preset and

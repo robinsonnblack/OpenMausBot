@@ -91,6 +91,7 @@ export interface Routine {
   target: RoutineTarget;
   botId: string;
   groupId?: string;
+  meeting?: boolean;
   runOn: RoutineRunOn;
   enabled: boolean;
   schedule: RoutineSchedule;
@@ -121,6 +122,7 @@ export interface RoutineRun {
   goalStatus?: RoutineGoalStatus;
   botId: string;
   groupId?: string;
+  meeting?: boolean;
   runOn: RoutineRunOn;
   scheduledFor: number;
   status: RoutineRunStatus;
@@ -151,6 +153,7 @@ export interface RoutineInput {
   target?: RoutineTarget;
   botId: string;
   groupId?: string | null;
+  meeting?: boolean;
   runOn?: RoutineRunOn;
   enabled?: boolean;
   schedule: RoutineScheduleInput;

@@ -35,6 +35,7 @@ function harness(start = new Date(2026, 7, 17, 8, 0, 0).getTime()) {
     coordinatorBotId: string;
     runId: string;
     onDispatchError: (message: string) => void;
+    meeting?: boolean;
   }> = [];
   const runOns: string[] = [];
   const triggerSources: string[] = [];
@@ -69,8 +70,8 @@ function harness(start = new Date(2026, 7, 17, 8, 0, 0).getTime()) {
       runOns.push(runOn);
       triggerSources.push(triggerSource);
     },
-    startGoal: async (groupId, threadId, prompt, coordinatorBotId, runId, onDispatchError) => {
-      startedGoals.push({ groupId, threadId, prompt, coordinatorBotId, runId, onDispatchError });
+    startGoal: async (groupId, threadId, prompt, coordinatorBotId, runId, onDispatchError, meeting) => {
+      startedGoals.push({ groupId, threadId, prompt, coordinatorBotId, runId, onDispatchError, meeting });
     },
     interruptTurn: async (botId, threadId, runOn) => {
       interruptedTurns.push({ botId, threadId, runOn });
@@ -638,6 +639,19 @@ describe("persistent routine results destinations", () => {
     expect(h.created()).toBe(0);
     expect(h.taskActivations).toEqual([true]);
     expect(h.startedGoals).toHaveLength(1);
+  });
+
+  it("persists a scheduled meeting and dispatches it with its room mode", async () => {
+    const h = harness();
+    const routine = h.manager.create({ name: "Team sync", prompt: "Discuss priorities", botId: "maus-1",
+      target: "room-goal", groupId: "room", meeting: true,
+      schedule: { type: "once", at: Date.now() + 60_000 } });
+    const run = h.manager.runNow(routine.id)!;
+    expect(run).toMatchObject({ groupId: "room", meeting: true });
+    await h.manager.tick();
+    expect(h.startedGoals).toHaveLength(1);
+    expect(h.startedGoals[0].meeting).toBe(true);
+    expect(h.manager.listRoutines()[0].meeting).toBe(true);
   });
 });
 
