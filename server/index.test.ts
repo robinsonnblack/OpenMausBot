@@ -7058,6 +7058,44 @@ describe("harness HTTP API", () => {
     }
   });
 
+  it("dispatches a scheduled meeting through the room's conversation mode", async () => {
+    const bot = (await api("POST", "/api/bots", {
+      modelSelection: { instanceId: "claude", model: "claude-sonnet-5" }, requireAvailableModel: true,
+    })).body.bot;
+    const room = (await api("POST", "/api/groups", {
+      name: "Routine meeting fixture", memberIds: [bot.id],
+      setup: { bulletin: "", defaultResponder: { kind: "member", botId: bot.id } },
+    })).body.group;
+    let routineId = "";
+    let runId = "";
+    try {
+      const created = await api("POST", "/api/routines", {
+        name: "Team sync", prompt: "Discuss today's work", target: "room-goal", meeting: true,
+        groupId: room.id, botId: bot.id, runOn: "maus", enabled: false,
+        schedule: { type: "daily", time: "10:00", weekdays: [1] },
+      });
+      expect(created.status).toBe(201);
+      routineId = created.body.routine.id;
+      runId = (await api("POST", `/api/routines/${routineId}/run`)).body.run.id;
+      await expect.poll(async () => {
+        const runs = (await api("GET", "/api/routines")).body.runs;
+        return runs.find((run: { id: string }) => run.id === runId)?.status;
+      }, { timeout: 5_000 }).toBe("running");
+      const runs = (await api("GET", "/api/routines")).body.runs;
+      const threadId = runs.find((run: { id: string }) => run.id === runId)?.threadId;
+      const messages = (await api("GET", `/api/threads/${threadId}/messages`)).body.messages;
+      expect(messages.some((message: { text?: string; channelMode?: string }) =>
+        message.text === "Discuss today's work" && message.channelMode === "chat")).toBe(true);
+      expect(messages.some((message: { kind?: string }) => message.kind === "goal.run")).toBe(false);
+    } finally {
+      if (runId) await api("POST", `/api/routine-runs/${runId}/cancel`).catch(() => undefined);
+      if (routineId) await api("DELETE", `/api/routines/${routineId}`).catch(() => undefined);
+      await api("POST", `/api/groups/${room.id}/interrupt`, {}).catch(() => undefined);
+      await api("DELETE", `/api/groups/${room.id}`).catch(() => undefined);
+      await api("DELETE", `/api/bots/${bot.id}`).catch(() => undefined);
+    }
+  });
+
   it("stops a local bot's exact channel and routine work through the emergency endpoint", async () => {
     const bot = (await api("POST", "/api/bots", {
       modelSelection: { instanceId: "claude", model: "claude-sonnet-5" },

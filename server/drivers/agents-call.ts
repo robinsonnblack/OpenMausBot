@@ -850,6 +850,11 @@ export async function callTool(name: string, args: Json, context: ToolCallContex
   if (name === "propose_routine") {
     const { fields: routine, error: scheduleError } = routineFields(args);
     if (scheduleError) return { text: scheduleError, isError: true };
+    if (args.group_id !== undefined) {
+      if (typeof args.group_id !== "string" || !args.group_id.trim()) return { text: "Choose a group id from list_rooms.", isError: true };
+      routine.groupId = args.group_id.trim();
+      routine.meeting = true;
+    }
     if (!routine.name || !routine.instructions || !routine.schedule) {
       return { text: "propose_routine needs name, instructions, and schedule.", isError: true };
     }
