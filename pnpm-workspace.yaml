@@ -16,6 +16,8 @@ allowBuilds:
   electron: true # postinstall downloads the Electron dist
   esbuild: true # postinstall validates the platform binary
   electron-winstaller: false # unused — Windows builds ship NSIS
+  core-js: false # optional postinstall message; package runs without it
+  workerd: false # Cloudflare dev binary is not used by the desktop build
 onlyBuiltDependencies:
   - electron
   - esbuild
