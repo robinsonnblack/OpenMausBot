@@ -28,7 +28,8 @@ The installed 0.1.83-based app was saved outside Git at `work/personal-build-bac
 
 - Stable Codex prompt/cache routing and any associated session behavior. The installed proxy hard-codes the ChatGPT backend; a source port must retain the newer upstream provider and Company routing.
 - Message selection and deletion, including the server-side scrub of stored transcripts and references and the matching UI.
-- Scheduled group meetings that use a room's conversation mode and meeting allowances, as distinct from scheduled coordinator goals.
 - Final provider HTTP request capture in Prompt Inspector, beyond the existing agent-input capture.
+
+Scheduled group meetings have now been ported from the installed app into editable source. The scheduler, bot proposal, tool catalog and room-dispatch tests pass; this does not clear the other cutover gates above.
 
 Check each port against the saved executable in an isolated fixture. Then verify a built installer without touching the live data. At cutover, fully quit the tray process and copy both user-data directories before installing. Keep the previous installer and both data copies together for rollback.
