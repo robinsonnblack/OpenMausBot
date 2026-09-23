@@ -3088,6 +3088,9 @@ type GroupTurnOperation = {
   providerHandshakePending: boolean;
   meeting?: MeetingSession;
   meetingPrices?: Record<string, MeetingPrice>;
+  scheduledMeetingRunId?: string;
+  scheduledMeetingStarted?: boolean;
+  scheduledMeetingOutcome?: { status: Exclude<GroupGoalRunStatus, "working">; detail: string };
   dynamicRun?: { cardMessageId: string; turnCount: number; maxTurns: number; finished: boolean };
   goalRun?: {
     runId: string;
@@ -3610,6 +3613,12 @@ function finishGroupTurnOperation(groupId: string, operation: GroupTurnOperation
     finishGroupGoalRun(groupId, operation, "failed", "The team run ended before the lead reported an outcome.");
   }
   if (operation.dynamicRun && !operation.dynamicRun.finished) finishDynamicConversation(operation, "paused", "The conversation ended before its next decision settled.");
+  if (operation.scheduledMeetingRunId) {
+    const outcome = operation.scheduledMeetingOutcome ?? (operation.scheduledMeetingStarted
+      ? { status: operation.cancelled ? "stopped" : "completed", detail: operation.cancelled ? "Meeting stopped." : "Scheduled meeting finished." }
+      : { status: "failed", detail: "Scheduled meeting could not start." });
+    routines?.finishGoalRun(operation.scheduledMeetingRunId, outcome.status, outcome.detail);
+  }
   clearCancelledProviderHandshake(operation.threadId, `group:${operation.id}`);
   const operations = groupTurnOperations.get(groupId);
   operations?.delete(operation);
@@ -3865,6 +3874,9 @@ function cancelGroupTurnOperations(
     if (operation.threadId !== threadId) continue;
     operation.cancelled = true;
     operation.cancellation.abort();
+    if (operation.scheduledMeetingRunId && outcome.status === "limit-reached") {
+      operation.scheduledMeetingOutcome = { status: "completed", detail: "Meeting finished at its configured limit." };
+    }
     finishDynamicConversation(operation, outcome.status, outcome.detail);
     finishGroupGoalRun(groupId, operation, outcome.status, outcome.detail);
     if (operation.providerHandshakePending) {
@@ -8422,7 +8434,11 @@ routines = new RoutineManager({
     }
     await startTurn(botId, prompt, { threadId, runOn, automationSource: triggerSource, onDispatchError });
   },
-  startGoal: async (groupId, threadId, prompt, coordinatorBotId, runId, _onDispatchError) => {
+  startGoal: async (groupId, threadId, prompt, coordinatorBotId, runId, _onDispatchError, meeting) => {
+    if (meeting) {
+      startGroupTurn(groupId, prompt, undefined, undefined, "chat", undefined, { threadId, scheduledMeetingRunId: runId });
+      return;
+    }
     startGroupTurn(groupId, prompt, undefined, undefined, "goal", undefined, {
       threadId,
       goalCoordinatorBotId: coordinatorBotId,
@@ -8567,6 +8583,12 @@ const routineRequests = new RoutineRequestService({
     if (!proposer || !canReachPeer(proposer, targetBot)) {
       return `@${target.name} is no longer in this section, so this routine cannot be scheduled for it`;
     }
+    return null;
+  },
+  validateRoom: (ownerBotId, groupId) => {
+    const group = store.group(groupId);
+    if (!group || group.dm || roomSetupPending(group)) return "Choose a ready group for this meeting";
+    if (!group.memberIds.includes(ownerBotId)) return "The meeting owner must belong to that group";
     return null;
   },
 });
@@ -8934,6 +8956,12 @@ const agentRoutine = (
     name: safeName,
     instructions: safeInstructions.slice(0, 2_000),
     instructionsTruncated: safeInstructions.length > 2_000,
+    ...(routine.meeting && routine.groupId ? {
+      groupId: routine.groupId,
+      meeting: true,
+      responseMode: store.group(routine.groupId)?.defaultResponder,
+      meetingLimits: store.group(routine.groupId)?.meetingLimits,
+    } : {}),
     continuity: routine.continuity === true,
     overlap: routine.overlap ?? "skip",
     skippedRuns: routine.skippedRuns ?? 0,
@@ -10458,6 +10486,14 @@ function finishDynamicConversation(operation: GroupTurnOperation, status: string
   const run = operation.dynamicRun;
   if (!run || run.finished) return;
   run.finished = true;
+  if (operation.scheduledMeetingRunId && !operation.scheduledMeetingOutcome) {
+    const outcomeStatus = status === "yielded" ? "completed" : status;
+    operation.scheduledMeetingOutcome = {
+      status: outcomeStatus === "completed" || outcomeStatus === "needs-input" || outcomeStatus === "blocked" || outcomeStatus === "paused" || outcomeStatus === "stopped" || outcomeStatus === "limit-reached"
+        ? outcomeStatus : "failed",
+      detail,
+    };
+  }
   store.patchMessage(operation.threadId, run.cardMessageId, {
     tool: { name: `Dynamic conversation · ${redactSecretsInText(detail || "Finished.").slice(0, 500)}`, ok: status !== "paused" },
   });
@@ -10540,6 +10576,7 @@ type StartGroupTurnOptions = {
   goalCoordinatorBotId?: string;
   /** Correlates a room goal card with its durable RoutineRun receipt. */
   goalRunId?: string;
+  scheduledMeetingRunId?: string;
   /** The message came through the HTTP API with nothing to say a person
    * sent it (see Message.via). */
   via?: "api";
@@ -10641,6 +10678,7 @@ function startGroupTurn(
         tool: { name: unavailableMessage, ok: false },
       });
     }
+    if (options.scheduledMeetingRunId) throw new Error("The selected room mode has no responder for this meeting");
     return message;
   }
 
@@ -10667,6 +10705,7 @@ function startGroupTurn(
     threadId,
     goalCoordinator || dynamicRouter ? [] : responders.map((responder) => responder.id),
   );
+  operation.scheduledMeetingRunId = options.scheduledMeetingRunId;
   if (goalCoordinator) {
     const runId = options.goalRunId?.trim() || `goal-${Date.now().toString(36)}-${randomUUID()}`;
     const startedAt = Date.now();
@@ -10717,7 +10756,8 @@ function startGroupTurn(
       });
       return;
     }
-    try { await startMeetingSession(groupId, operation); } catch (error) {
+    try { await startMeetingSession(groupId, operation); operation.scheduledMeetingStarted = true; } catch (error) {
+      operation.scheduledMeetingOutcome = { status: "failed", detail: error instanceof Error ? error.message : "Meeting allowance could not start" };
       store.appendMessage(threadId, { role: "bot", kind: "activity", tool: { name: error instanceof Error ? error.message : "Meeting allowance could not start", ok: false } });
       return;
     }
