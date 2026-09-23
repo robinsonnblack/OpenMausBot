@@ -2448,6 +2448,13 @@ ipcMain.handle("stt:voice-typing", localOnly("stt:voice-typing", async (event) =
   win.focus();
   await openWindowsVoiceTyping();
 }));
+ipcMain.handle("desktop:relaunch", localOnly("desktop:relaunch", (event) => {
+  if (process.platform !== "darwin") return false;
+  requireMainWindowSender(event);
+  relaunchAfterDesktopRemoteChange();
+  return true;
+}));
+
 ipcMain.handle("speech:start", localOnly("speech:start", (event, options) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (!win) return;
@@ -2526,7 +2533,7 @@ function relaunchAfterDesktopRemoteChange() {
     // Electron's default uses its original native argv, not the JS array
     // from which we consumed the one-shot organisation action.
     app.relaunch({ args: process.argv.slice(1) });
-    app.exit(0);
+    app.quit();
   }, 250);
   timer.unref?.();
 }
