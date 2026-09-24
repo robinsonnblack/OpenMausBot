@@ -352,8 +352,8 @@ class CompanionClient(
         ).bot
     }
 
-    suspend fun managedSkills(botId: String): List<ManagedSkill> =
-        send<ManagedSkillList>(makeRequest("GET", "/api/bots/${segment(botId)}/skills")).skills
+    suspend fun managedSkills(botId: String): ManagedSkillList =
+        send(makeRequest("GET", "/api/bots/${segment(botId)}/skills"))
 
     suspend fun managedSkillText(botId: String, name: String): String =
         send<SkillText>(makeRequest("GET", "/api/bots/${segment(botId)}/skills/${segment(name)}")).text

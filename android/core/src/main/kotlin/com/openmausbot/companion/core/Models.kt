@@ -943,7 +943,13 @@ data class ManagedSkill(
 )
 
 @Serializable
-data class ManagedSkillList(val skills: List<ManagedSkill>)
+data class StagedSkillSummary(val id: String, val name: String, val gist: String)
+
+@Serializable
+data class ManagedSkillList(
+    val skills: List<ManagedSkill>,
+    val staged: List<StagedSkillSummary> = emptyList(),
+)
 
 @Serializable
 data class SkillText(val text: String)

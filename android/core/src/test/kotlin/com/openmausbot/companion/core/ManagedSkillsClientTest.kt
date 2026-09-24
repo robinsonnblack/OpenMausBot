@@ -20,7 +20,7 @@ class ManagedSkillsClientTest {
             server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
                 .setBody("""{"skills":[{"name":"research","description":"Research sources","enabled":false,"source":"owner/repo","warnings":[]}],"staged":[]}"""))
             val skills = client.managedSkills("bot-1")
-            assertFalse(skills.single().enabled)
+            assertFalse(skills.skills.single().enabled)
             assertEquals("/api/bots/bot-1/skills", server.takeRequest().path)
 
             server.enqueue(MockResponse().setHeader("Content-Type", "application/json")

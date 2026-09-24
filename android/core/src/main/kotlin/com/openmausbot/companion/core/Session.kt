@@ -1853,7 +1853,7 @@ class Session(
         }
     }
 
-    suspend fun managedSkills(botId: String): List<ManagedSkill> =
+    suspend fun managedSkills(botId: String): ManagedSkillList =
         (client ?: throw APIError.Transport("This computer is offline.")).managedSkills(botId)
 
     suspend fun managedSkillText(botId: String, name: String): String =
