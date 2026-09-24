@@ -11,6 +11,12 @@ Group settings include Dynamic response routing when paired with a server that
 supports that mode. The setting is sent through the normal room PATCH endpoint;
 older servers reject unsupported modes instead of silently changing behavior.
 
+An admin-scoped pairing can open Prompt Inspector from a chat header. It shows
+the paired computer's captured model input, full request, usage, diagnostics and
+changes between compatible captures. Captures may include private conversations;
+the screen loads them on demand, does not retain them in app storage, and offers
+an explicit JSON export.
+
 - `applicationId` — `com.openmausbot.companion`
 - `minSdk` 26 (Android 8.0), `targetSdk` / `compileSdk` 37
 - Deep-link scheme — `openmausbot`

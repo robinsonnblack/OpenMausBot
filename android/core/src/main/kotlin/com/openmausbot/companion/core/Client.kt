@@ -215,6 +215,11 @@ class CompanionClient(
         ),
     )
 
+    /** Admin-scoped: captured model input may contain complete private conversations. */
+    suspend fun promptCaptures(threadId: String): List<PromptCapture> = send<PromptCaptureResponse>(
+        makeRequest("GET", "/api/threads/${segment(threadId)}/prompt-inspector"),
+    ).records
+
     suspend fun messagesAround(threadId: String, messageId: String, limit: Int = 50): ThreadPage = send(
         makeRequest(
             "GET",

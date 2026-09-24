@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -254,6 +255,7 @@ private fun LoadedChat(
     var showingProfile by rememberSaveable { mutableStateOf(false) }
     var showingRoomSettings by rememberSaveable { mutableStateOf(false) }
     var showingDeletion by remember(threadId) { mutableStateOf(false) }
+    var showingPromptInspector by remember(threadId) { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -535,6 +537,7 @@ private fun LoadedChat(
 
     val connection by session.connection.collectAsState()
     val canDeleteMessages = connection?.serverScopes?.contains("admin") == true
+    val canInspectPrompt = connection?.serverScopes?.contains("admin") == true
     LaunchedEffect(chatId, threadId, connection?.id) {
         environment.chatPreferences.rememberThread(chat, connection?.id)
     }
@@ -920,6 +923,9 @@ private fun LoadedChat(
                             showingDeletion = true
                         }
                     } else null,
+                    onInspectPrompt = if (canInspectPrompt) {
+                        { dictation.stop(); showingPromptInspector = true }
+                    } else null,
                     onOpenThreads = {
                         dictation.stop()
                         focusManager.clearFocus()
@@ -1091,6 +1097,8 @@ private fun LoadedChat(
         onDismiss = { showingDeletion = false },
     )
 
+    if (showingPromptInspector) PromptInspectorSheet(threadId = threadId, onDismiss = { showingPromptInspector = false })
+
     filePreview?.let { item ->
         FilePreviewSheet(
             item = item,
@@ -1154,6 +1162,7 @@ private fun ChatHeader(
     unreadElsewhere: Int,
     onBack: () -> Unit,
     onDeleteMessages: (() -> Unit)?,
+    onInspectPrompt: (() -> Unit)?,
     onWatchComputer: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenThreads: () -> Unit,
@@ -1188,6 +1197,11 @@ private fun ChatHeader(
                 icon = Icons.Filled.Delete,
                 contentDescription = "Delete messages",
                 onClick = onDeleteMessages,
+            )
+            if (onInspectPrompt != null) ChromeButton(
+                icon = Icons.Filled.Info,
+                contentDescription = "Prompt inspector",
+                onClick = onInspectPrompt,
             )
             // The computer is a bot idea; a room has none (§12).
             if (chat is Chat.BotChat) {
