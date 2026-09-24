@@ -361,6 +361,27 @@ class CompanionClient(
             "/api/bots/${segment(botId)}/history/rollback",
             body = jsonBody("id" to rowId, "expectedRevision" to revision),
         )).bot
+    suspend fun memoryOverview(botId: String): MemoryOverview =
+        send(makeRequest("GET", "/api/bots/${segment(botId)}/memory"))
+
+    suspend fun memoryDoc(botId: String, path: String): MemoryDoc =
+        send(makeRequest("GET", "/api/bots/${segment(botId)}/memory/file", query = listOf("path" to path)))
+
+    suspend fun saveMemoryDoc(botId: String, path: String, text: String, expectedHash: String): MemoryWriteResult =
+        send(makeRequest(
+            "PUT",
+            "/api/bots/${segment(botId)}/memory/file",
+            body = jsonBody("path" to path, "text" to text, "expectedHash" to expectedHash),
+        ))
+
+    suspend fun deleteMemoryDoc(botId: String, path: String): MemoryDeleteResult =
+        send(makeRequest("DELETE", "/api/bots/${segment(botId)}/memory/file", query = listOf("path" to path)))
+
+    suspend fun memoryJournal(botId: String): MemoryJournal =
+        send(makeRequest("GET", "/api/bots/${segment(botId)}/memory/journal"))
+
+    suspend fun revertMemoryChange(botId: String, entryId: String): MemoryWriteResult =
+        send(makeRequest("POST", "/api/bots/${segment(botId)}/memory/journal/${segment(entryId)}/revert"))
 
     /**
      * A captured task changes only that task's model. The optional legacy form

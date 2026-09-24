@@ -1901,6 +1901,23 @@ class Session(
             _state.update { it.apply(Frame.Bot(updated)) }
         }
     }
+    suspend fun memoryOverview(botId: String): MemoryOverview =
+        (client ?: throw APIError.Transport("This computer is offline.")).memoryOverview(botId)
+
+    suspend fun memoryDoc(botId: String, path: String): MemoryDoc =
+        (client ?: throw APIError.Transport("This computer is offline.")).memoryDoc(botId, path)
+
+    suspend fun saveMemoryDoc(botId: String, path: String, text: String, expectedHash: String): MemoryWriteResult =
+        (client ?: throw APIError.Transport("This computer is offline.")).saveMemoryDoc(botId, path, text, expectedHash)
+
+    suspend fun deleteMemoryDoc(botId: String, path: String): MemoryDeleteResult =
+        (client ?: throw APIError.Transport("This computer is offline.")).deleteMemoryDoc(botId, path)
+
+    suspend fun memoryJournal(botId: String): MemoryJournal =
+        (client ?: throw APIError.Transport("This computer is offline.")).memoryJournal(botId)
+
+    suspend fun revertMemoryChange(botId: String, entryId: String): MemoryWriteResult =
+        (client ?: throw APIError.Transport("This computer is offline.")).revertMemoryChange(botId, entryId)
 
     /**
      * The model catalog lives on the paired computer because availability

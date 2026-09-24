@@ -129,6 +129,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
     var showingHistory by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -549,6 +550,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { showingHistory = !showingHistory },
                     )
                     if (showingHistory) ProfileHistorySection(opened.id)
+                }
+
+                FormSection(header = "Memory") {
+                    ActionRow(
+                        text = if (showingMemory) "Hide memory" else "Open memory",
+                        icon = Icons.Filled.Info,
+                        onClick = { showingMemory = !showingMemory },
+                    )
+                    if (showingMemory) BotMemorySection(opened.id)
                 }
 
                 VoiceSection(

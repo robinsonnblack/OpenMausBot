@@ -31,6 +31,10 @@ phone does not silently overwrite it.
 Bot settings can show profile change history from the paired computer. The
 list omits full standing-instruction text; an eligible SOUL.md change can be
 undone only after confirmation, using the server's revision check.
+Bot settings can browse and edit the paired computer's MEMORY.md, topic files,
+and daily logs. Saves include the hash of the version opened on the phone so
+an intervening bot edit cannot be overwritten silently. Memory history can be
+read and eligible changes reverted after confirmation.
 
 ## Build and test
 
