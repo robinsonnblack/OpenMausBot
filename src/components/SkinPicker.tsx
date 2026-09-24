@@ -19,7 +19,12 @@ function Miniature({ skin, custom }: { skin: SkinId; custom?: CustomTheme }) {
   return (
     <div
       data-skin={skin}
-      style={skin === "custom" && custom ? Object.fromEntries(COLOR_ROLES.map((role) => [`--color-${role}`, custom[role]])) as CSSProperties : undefined}
+      style={skin === "custom" && custom ? {
+        ...Object.fromEntries(COLOR_ROLES.map((role) => [`--color-${role}`, custom[role]])),
+        "--font-sans": custom.fontSans,
+        "--radius-lg": custom.radiusLg,
+        "--radius-xl": custom.radiusXl,
+      } as CSSProperties : undefined}
       aria-hidden="true"
       className="flex h-[78px] w-full overflow-hidden rounded-lg bg-app ring-1 ring-hairline/60"
     >

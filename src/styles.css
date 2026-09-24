@@ -1406,11 +1406,10 @@ body {
   color: var(--color-bubble-user-ink);
 }
 
-/* Daylight's inverted bubble is a dark surface, including its editor,
-   quoted replies and attachment controls. Keep their normal semantic tokens
-   together; overriding only the parent's color leaves explicit child ink dark.
-   Stop at a nested skin so the picker previews retain their own palettes. */
-@scope ([data-skin="daylight"]) to ([data-skin]) {
+/* Light themes with a dark user bubble need light semantic colors inside the
+   bubble too: quotes, edits and attachments set their own text tokens. This
+   also applies to custom palettes that reproduce Daylight or ChatGPT. */
+@scope ([data-inverted-user-bubble="true"]) to ([data-skin]) {
   .bg-bubble-user {
     --color-ink: #fcfcfc;
     --color-ink-secondary: #c4c4c4;

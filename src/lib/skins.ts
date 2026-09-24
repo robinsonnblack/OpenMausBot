@@ -53,7 +53,13 @@ export const COLOR_ROLES = [
   "danger", "danger-ink", "warning", "scrollbar", "maus-line",
 ] as const;
 export type ColorRole = (typeof COLOR_ROLES)[number];
-export type CustomTheme = Record<ColorRole, string> & { layout?: "standard" | "chatgpt" };
+export type CustomTheme = Record<ColorRole, string> & {
+  layout?: "standard" | "chatgpt";
+  fontSans?: string;
+  radiusLg?: string;
+  radiusXl?: string;
+  codeColorScheme?: "light" | "dark";
+};
 
 const colorValue = (value: unknown): value is string =>
   typeof value === "string" && (value === "transparent" || /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(value));
@@ -67,6 +73,10 @@ export function readCustomTheme(): CustomTheme | null {
     return {
       ...Object.fromEntries(COLOR_ROLES.map((role) => [role, values[role]])),
       layout: values.layout === "chatgpt" ? "chatgpt" : "standard",
+      fontSans: typeof values.fontSans === "string" && values.fontSans.length < 300 && !/url\s*\(/i.test(values.fontSans) ? values.fontSans : undefined,
+      radiusLg: typeof values.radiusLg === "string" && /^\d+(\.\d+)?(px|rem)$/.test(values.radiusLg) ? values.radiusLg : undefined,
+      radiusXl: typeof values.radiusXl === "string" && /^\d+(\.\d+)?(px|rem)$/.test(values.radiusXl) ? values.radiusXl : undefined,
+      codeColorScheme: values.codeColorScheme === "dark" || values.codeColorScheme === "light" ? values.codeColorScheme : undefined,
     } as CustomTheme;
   } catch { return null; }
 }
@@ -91,6 +101,10 @@ export function colorsFromSkin(id: Exclude<SkinId, "custom">): CustomTheme {
         [role, computed.getPropertyValue(`--color-${role}`).trim()]
       )),
       layout: id === "chatgpt" ? "chatgpt" : "standard",
+      fontSans: computed.getPropertyValue("--font-sans").trim(),
+      radiusLg: computed.getPropertyValue("--radius-lg").trim(),
+      radiusXl: computed.getPropertyValue("--radius-xl").trim(),
+      codeColorScheme: computed.getPropertyValue("--code-color-scheme").trim() === "dark" ? "dark" : "light",
     } as CustomTheme;
   } finally { probe.remove(); }
 }
@@ -139,18 +153,24 @@ export function readSkin(): SkinId {
 export function applySkin(id: SkinId, providedCustom?: CustomTheme): void {
   for (const role of COLOR_ROLES) document.documentElement.style.removeProperty(`--color-${role}`);
   document.documentElement.style.removeProperty("--code-color-scheme");
+  document.documentElement.style.removeProperty("--font-sans");
+  document.documentElement.style.removeProperty("--radius-lg");
+  document.documentElement.style.removeProperty("--radius-xl");
   document.documentElement.dataset.skin = id;
   const custom = id === "custom" ? providedCustom ?? readCustomTheme() : null;
   document.documentElement.dataset.chatLayout = id === "chatgpt" || custom?.layout === "chatgpt" ? "chatgpt" : "standard";
+  const palette = id === "custom" ? custom : id === "daylight" || id === "chatgpt" ? colorsFromSkin(id) : null;
+  const brightness = (value: string) => value.startsWith("#") ? Number.parseInt(value.slice(1, 3), 16) * 0.2126 + Number.parseInt(value.slice(3, 5), 16) * 0.7152 + Number.parseInt(value.slice(5, 7), 16) * 0.0722 : 0;
+  document.documentElement.dataset.invertedUserBubble = palette && brightness(palette.ink) < 128 && brightness(palette["bubble-user"]) < 128 && brightness(palette["bubble-user-ink"]) > 128 ? "true" : "false";
   if (id === "custom") {
     if (custom) for (const role of COLOR_ROLES) {
       document.documentElement.style.setProperty(`--color-${role}`, custom[role]);
     }
     if (custom) {
-      const red = Number.parseInt(custom.app.slice(1, 3), 16);
-      const green = Number.parseInt(custom.app.slice(3, 5), 16);
-      const blue = Number.parseInt(custom.app.slice(5, 7), 16);
-      document.documentElement.style.setProperty("--code-color-scheme", 0.2126 * red + 0.7152 * green + 0.0722 * blue > 128 ? "light" : "dark");
+      document.documentElement.style.setProperty("--code-color-scheme", custom.codeColorScheme ?? (brightness(custom.app) > 128 ? "light" : "dark"));
+      if (custom.fontSans) document.documentElement.style.setProperty("--font-sans", custom.fontSans);
+      if (custom.radiusLg) document.documentElement.style.setProperty("--radius-lg", custom.radiusLg);
+      if (custom.radiusXl) document.documentElement.style.setProperty("--radius-xl", custom.radiusXl);
     }
   }
   try {
