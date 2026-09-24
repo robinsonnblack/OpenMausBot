@@ -82,18 +82,20 @@ export function uncachedInput(u: TokenUsage): number {
   return Math.max(0, u.input - cachedInput(u));
 }
 
-export function cachedKnown(u: Pick<TaskUsage, "cachedInput">): boolean {
-  return hasFiniteCost(u.cachedInput);
-}
-
-/** Existing usage pages use a single cache-adjusted total. The chat header
- * keeps input and output separate through usageChip and usageDetail. */
+/** Non-cached input plus generated output for aggregate token counters.
+ * This is a token count, not a price: cached input may still be billed. */
 export function freshTokens(u: TaskUsage): number {
   return uncachedInput(u) + u.output;
 }
 
+/** Aggregate counters preserve the existing input-plus-output meaning.
+ * Chat input chips label their narrower count explicitly. */
 export function headlineTokens(u: TaskUsage): number {
   return cachedKnown(u) ? freshTokens(u) : u.input + u.output;
+}
+
+export function cachedKnown(u: Pick<TaskUsage, "cachedInput">): boolean {
+  return hasFiniteCost(u.cachedInput);
 }
 
 export type ContextTone = "quiet" | "warning" | "danger";

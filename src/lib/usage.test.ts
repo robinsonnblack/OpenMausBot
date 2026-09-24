@@ -123,6 +123,12 @@ describe("usage formatting", () => {
     expect(costCaption(undefined)).toMatch(/reported/);
   });
 
+  it("keeps aggregate token counters distinct from input-only chat chips", () => {
+    const longThread = { input: 1_900_000, output: 12_000, cachedInput: 1_862_000, costUsd: null, turns: 12 };
+    expect(headlineTokens(longThread)).toBe(50_000);
+    // an engine that never reported a cached share has only the raw total
+    expect(headlineTokens({ input: 1_900_000, output: 12_000, costUsd: null, turns: 12 })).toBe(1_912_000);
+  });
   it("headlines cost, otherwise input without mixing in output", () => {
     // Input includes the full request, not only text typed by the person.
     const longThread = { input: 1_900_000, output: 12_000, cachedInput: 1_862_000, costUsd: null, turns: 12 };
