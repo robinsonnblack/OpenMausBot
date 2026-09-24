@@ -214,8 +214,7 @@ import { BUILT_IN_DRIVERS } from "./drivers/builtIn.ts";
 import { getOrCreateChannel, mirrorActivity, mirrorExchange, mirrorReply, type CommsBus } from "./comms-visibility.ts";
 import { readMessageText, recallMessages, recentMessages, searchMessages, closeMessageDb, chatFollowups, cancelledChatFollowup, settleChatFollowups, threadsReferencing, messageDeletionDatabase } from "./message-db.ts";
 import { briefCrossingLabel, claimRecallCrossings, recallCrossingLabel } from "./recall-disclosure.ts";
-import { parseSince, parseUntil, turnOutcomeLine } from "./recent-work.ts";
-import { sharedHistory, withSharedHistory } from "./shared-history.ts";
+import { parseSince, parseUntil, recentWork, recentWorkPrompt, turnOutcomeLine } from "./recent-work.ts";
 import { chiefForBot, INCIDENTS_THREAD_TITLE, IncidentLedger, incidentChip, incidentText, type Incident, type IncidentKind } from "./incidents.ts";
 
 /** A session_read answer competes with the transcript for the context
@@ -897,14 +896,12 @@ function settleRoomFloor(group: GroupRecord): void {
   store.patchGroup(group.id, { audienceFloor: next === "everyone" ? undefined : next });
 }
 
-/** The conversations a bot's shared history may draw on: its own, and the
+/** The conversations a bot's recent-work brief may draw on: its own, and the
  * rooms roomFeedsBot allows. */
-function sharedHistorySources(bot: BotRecord) {
+function recentWorkSources(bot: BotRecord) {
   return {
     groups: store.groups.filter((group) => !group.memberIds.includes(bot.id) || roomFeedsBot(group, bot)),
     taskByThread: (botId: string, threadId: string) => store.taskByThread(botId, threadId),
-    activeTextTail: (threadId: string, limit: number) => store.activeTextTail(threadId, limit),
-    latestThreadMessageAt: (threadId: string) => store.latestThreadMessageAt(threadId),
   };
 }
 
@@ -8191,6 +8188,7 @@ async function startTurn(
         { id: "profile", label: "Profile changes", text: profilePrompt },
         { id: "learn", label: "Skill authoring", text: learnPrompt },
         { id: "section-context", label: "Section context", text: sectionContextSystemPrompt(bot.section) },
+        { id: "recent", label: "Recent work", text: recentWorkPrompt(recentWork(recentWorkSources(bot), bot, { userName: cfg.profile?.name?.trim() || "User", currentThreadId: threadId })) },
         { id: "memory", label: "Memory", text: memorySystemPrompt(bot.id, { managedWrites: Boolean(integrations.agents), fileTools: worksInWorkspace }) },
         { id: "skills", label: "Skills index", text: privateWorkspace ? skillsSystemPrompt(bot.id) : "" },
         { id: "skill-instructions", label: "Skill instructions", text: skillInstructions },
@@ -8220,11 +8218,7 @@ async function startTurn(
       const dispatch = await guardTurnDispatch(instance.adapter.sendTurn({
         threadId,
         botId: bot.id,
-        // Continuations already carry their queued updates through the handoff
-        // ledger. Re-reading other chats here can duplicate those updates or
-        // expose a later reply before its continuation has been dispatched.
-        // Delegated tasks keep their explicit task scope for the same reason.
-        text: opts?.cardContinuation || commsDepth > 0 || opts?.coordination || opts?.automationSource || opts?.unattended ? dispatchContext.turnText : withSharedHistory(sharedHistory(sharedHistorySources(bot), bot, { userName: cfg.profile?.name?.trim() || "User", currentThreadId: threadId }), dispatchContext.turnText),
+        text: dispatchContext.turnText,
         refreshSystemPrompt: true,
         images: turnImages,
         approvalMode: approvalModeForTurn(bot, commsDepth > 0),
@@ -9973,13 +9967,9 @@ async function runGroupMemberTurn(
     if (drift.drift !== Boolean(bot.soulDrift)) store.patchBot(bot.id, { soulDrift: drift.drift });
   }
   const roomMemory = memorySystemPrompt(bot.id, { managedWrites: Boolean(integrations.agents), fileTools: worksInWorkspace });
-  // Exact records retain the user's handoff as well as the bot's replies.
-  // Keep the existing visible notice when private sources enter a room.
-  const history = orchestration?.roomHandoffId
-    ? { text: "", privateThreadIds: [], omitted: 0 }
-    : sharedHistory(sharedHistorySources(bot), bot, { userName, currentThreadId: threadId });
+  const recentLines = recentWork(recentWorkSources(bot), bot, { userName, currentThreadId: threadId });
   {
-    const crossing = claimRecallCrossings(threadId, history.privateThreadIds);
+    const crossing = claimRecallCrossings(threadId, recentLines.filter((line) => line.private).map((line) => line.threadId));
     if (crossing.count) {
       store.appendMessage(threadId, {
         role: "bot",
@@ -10002,6 +9992,7 @@ async function runGroupMemberTurn(
     { id: "plan", label: "Surface", text: surfacePrompt({ computer: roomTeamComputer ? "cloud" : roomVmTarget ? "vm" : surfaceOfComputerKind(roomComputerKind), browser: Boolean(integrations.browser) }, { note: roomPlan.note }) },
     { id: "browser", label: "Browser", text: integrations.browser ? BUILT_IN_BROWSER_SYSTEM_PROMPT : "" },
     { id: "recall", label: "Recall", text: integrations.agents ? SESSION_SEARCH_SYSTEM_PROMPT : "" },
+    { id: "recent", label: "Recent work", text: recentWorkPrompt(recentLines) },
     { id: "section-context", label: "Section context", text: sectionContextSystemPrompt(bot.section) },
     // the room path has always put a newline before memory and trimmed
     // the block's leading space; keep that so existing prompts are
@@ -10123,7 +10114,7 @@ async function runGroupMemberTurn(
     guardTurnDispatch(instance.adapter.sendTurn({
         threadId,
         botId: readyBot.id,
-        text: withSharedHistory(history, text),
+        text,
         refreshSystemPrompt: true,
         images: turnImages,
         approvalMode: roomTurnApprovalMode(readyBot, orchestration),
