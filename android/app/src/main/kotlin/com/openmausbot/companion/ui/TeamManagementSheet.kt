@@ -31,18 +31,42 @@ import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.Bot
 import kotlinx.coroutines.launch
 
+/** Keeps unsaved team edits while the bot creation sheet is in front. */
+internal class TeamManagementDraft {
+    val selectedState = mutableStateOf<String?>(null)
+    val nameDraftState = mutableStateOf("")
+    val originalIdsState = mutableStateOf<Set<String>>(emptySet())
+    val pickedIdsState = mutableStateOf<Set<String>>(emptySet())
+
+    fun includeCreatedBot(id: String) {
+        originalIdsState.value = originalIdsState.value + id
+        pickedIdsState.value = pickedIdsState.value + id
+    }
+
+    fun clear() {
+        selectedState.value = null
+        nameDraftState.value = ""
+        originalIdsState.value = emptySet()
+        pickedIdsState.value = emptySet()
+    }
+}
+
 /** Admin pairing only. Team membership lives on the paired computer. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TeamManagementSheet(onDismiss: () -> Unit, onCreateBot: (String) -> Unit) {
+internal fun TeamManagementSheet(
+    draft: TeamManagementDraft,
+    onDismiss: () -> Unit,
+    onCreateBot: (String) -> Unit,
+) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
     var names by remember { mutableStateOf<List<String>>(emptyList()) }
-    var selected by remember { mutableStateOf<String?>(null) }
-    var nameDraft by remember { mutableStateOf("") }
-    var originalIds by remember { mutableStateOf<Set<String>>(emptySet()) }
-    var pickedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var selected by draft.selectedState
+    var nameDraft by draft.nameDraftState
+    var originalIds by draft.originalIdsState
+    var pickedIds by draft.pickedIdsState
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }

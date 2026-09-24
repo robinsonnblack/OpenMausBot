@@ -76,7 +76,8 @@ or Tailscale route; a plain LAN pairing cannot send them.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
-paired computer as well.
+paired computer as well. Unsaved membership choices and a pending team name
+stay in place while the creation form is open.
 This server endpoint requires an admin-scoped pairing. Cost estimates and
 unpriced turns are labeled; the phone does not alter budget settings.
 If the paired workspace has an organization library, bot settings also list
