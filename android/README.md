@@ -7,6 +7,10 @@ An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a
 second confirmation and applies the server's deletion event to open chats.
 
+Group settings include Dynamic response routing when paired with a server that
+supports that mode. The setting is sent through the normal room PATCH endpoint;
+older servers reject unsupported modes instead of silently changing behavior.
+
 - `applicationId` — `com.openmausbot.companion`
 - `minSdk` 26 (Android 8.0), `targetSdk` / `compileSdk` 37
 - Deep-link scheme — `openmausbot`

@@ -72,6 +72,16 @@ class ClientTest {
     }
 
     @Test
+    fun dynamicRoomModeUsesTheResponderContract() = runBlocking {
+        server.enqueue(json("""{"group":{"id":"room-1","threadId":"thread-1","name":"Planning","memberIds":["bot-1"],"defaultResponder":{"kind":"dynamic"},"bulletin":"","unread":false,"createdAt":0}}"""))
+        val result = client.updateRoom("room-1", defaultResponder = GroupResponder("dynamic"))
+        assertEquals("dynamic", result.defaultResponder.kind)
+        val request = server.takeRequest()
+        assertEquals("PATCH", request.method)
+        assertEquals("""{"defaultResponder":{"kind":"dynamic"}}""", request.body.readUtf8())
+    }
+
+    @Test
     fun pairingUsesTheRightCredentialFieldAndNoAuthorization() = runBlocking {
         server.enqueue(json(fixtureText("pair-response")))
         val older = CompanionClient.pair(connection, "004209", "Ada's phone")
