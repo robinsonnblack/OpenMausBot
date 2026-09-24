@@ -1,12 +1,13 @@
 package com.openmausbot.companion.ui
 
-/** Read-only labels; the paired-safe profile endpoint cannot edit these permissions. */
+/** The bot-wide value is editable only by an admin pairing. */
 internal fun computerAccessLabel(computer: String?): String = when (computer) {
     "browser" -> "Browser"
     "local" -> "This computer"
     "vm" -> "Local virtual machine"
     "cloud" -> "Cloud computer"
     "off" -> "Off"
+    null -> "Automatic"
     else -> "Not reported by this computer"
 }
 
