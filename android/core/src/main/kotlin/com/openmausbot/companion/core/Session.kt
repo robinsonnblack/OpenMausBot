@@ -1773,6 +1773,12 @@ class Session(
         true
     }
 
+    suspend fun setTaskSurface(task: BotTask, forBot: Bot, surface: String?): Boolean = mutateTask(false) { client ->
+        client.setTaskSurface(forBot.id, task.threadId, surface)
+        refresh()
+        true
+    }
+
     suspend fun pinTask(task: BotTask, chat: Chat, pinned: Boolean): Boolean = mutateTask(false) { client ->
         when (chat) {
             is Chat.BotChat -> client.setTaskPinned(chat.bot.id, task.threadId, pinned)

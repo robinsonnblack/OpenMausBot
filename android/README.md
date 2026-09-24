@@ -10,9 +10,10 @@ running OpenMausBot, then read and answer from the phone.
   `:app` (Compose UI, Android platform)
 
 Bot settings show the computer destination and approval mode reported by the
-paired computer for the current chat. These are read-only on Android because
-the paired-safe profile endpoint cannot change execution permissions; edit
-them on the computer.
+paired computer for the current chat. Android can select the computer
+destination for that chat through the server's task endpoint, or follow the
+bot default again. The bot-wide default and elevated approval levels remain
+desktop-only.
 
 ## Build and test
 

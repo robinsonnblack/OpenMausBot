@@ -314,6 +314,8 @@ data class BotTask(
     val unread: Boolean? = null,
     val approvalMode: String? = null,
     val autoApprove: Boolean? = null,
+    /** Per-conversation computer destination; null follows the bot default. */
+    val surface: String? = null,
     val alwaysAllow: List<String>? = null,
     val projectId: String? = null,
     val openedBy: ThreadOpener? = null,
