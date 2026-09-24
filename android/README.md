@@ -9,6 +9,10 @@ running OpenMausBot, then read and answer from the phone.
 - Two modules: `:core` (protocol, ported from `ios/Sources/CompanionCore`) and
   `:app` (Compose UI, Android platform)
 
+Bot settings can list skills stored on the paired computer, read their full
+SKILL.md text, disable or remove them, and import from GitHub. Imports remain
+disabled until you read the skill and explicitly enable it on the phone.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so

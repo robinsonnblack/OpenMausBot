@@ -117,6 +117,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -475,6 +476,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         checked = form.notifications,
                         onCheckedChange = { form = form.copy(notifications = it) },
                     )
+                }
+
+                FormSection(header = "Skills") {
+                    ActionRow(
+                        text = if (showingSkills) "Hide skills" else "Manage skills",
+                        icon = Icons.Filled.Info,
+                        onClick = { showingSkills = !showingSkills },
+                    )
+                    if (showingSkills) BotSkillsSection(opened.id)
                 }
 
                 VoiceSection(

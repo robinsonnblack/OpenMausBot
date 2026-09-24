@@ -1853,6 +1853,21 @@ class Session(
         }
     }
 
+    suspend fun managedSkills(botId: String): List<ManagedSkill> =
+        (client ?: throw APIError.Transport("This computer is offline.")).managedSkills(botId)
+
+    suspend fun managedSkillText(botId: String, name: String): String =
+        (client ?: throw APIError.Transport("This computer is offline.")).managedSkillText(botId, name)
+
+    suspend fun setManagedSkillEnabled(botId: String, name: String, enabled: Boolean) =
+        (client ?: throw APIError.Transport("This computer is offline.")).setManagedSkillEnabled(botId, name, enabled)
+
+    suspend fun removeManagedSkill(botId: String, name: String) =
+        (client ?: throw APIError.Transport("This computer is offline.")).removeManagedSkill(botId, name)
+
+    suspend fun importManagedSkills(botId: String, source: String) =
+        (client ?: throw APIError.Transport("This computer is offline.")).importManagedSkills(botId, source)
+
     /**
      * The model catalog lives on the paired computer because availability
      * depends on which engines are installed and signed in there.
