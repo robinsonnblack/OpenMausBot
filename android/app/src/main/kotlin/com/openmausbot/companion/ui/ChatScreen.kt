@@ -46,6 +46,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -251,6 +252,7 @@ private fun LoadedChat(
     // Saveable: the profile form is a form, and a rotation must not throw away
     // what was typed into it — the sheet has to come back for that to matter.
     var showingProfile by rememberSaveable { mutableStateOf(false) }
+    var showingPromptInspector by remember(threadId) { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -531,6 +533,7 @@ private fun LoadedChat(
     LaunchedEffect(showingProfile) { if (showingProfile) dictation.stop() }
 
     val connection by session.connection.collectAsState()
+    val canInspectPrompt = connection?.serverScopes?.contains("admin") == true
     LaunchedEffect(chatId, threadId, connection?.id) {
         environment.chatPreferences.rememberThread(chat, connection?.id)
     }
@@ -906,6 +909,9 @@ private fun LoadedChat(
                         (state.unreadCount - if (chat.unread) 1 else 0).coerceAtLeast(0)
                     },
                     onBack = { leaveToRoster() },
+                    onInspectPrompt = if (canInspectPrompt) {
+                        { dictation.stop(); showingPromptInspector = true }
+                    } else null,
                     onOpenThreads = {
                         dictation.stop()
                         focusManager.clearFocus()
@@ -1038,6 +1044,8 @@ private fun LoadedChat(
         )
     }
 
+    if (showingPromptInspector) PromptInspectorSheet(threadId = threadId, onDismiss = { showingPromptInspector = false })
+
     filePreview?.let { item ->
         FilePreviewSheet(
             item = item,
@@ -1100,6 +1108,7 @@ private fun ChatHeader(
     face: MausState,
     unreadElsewhere: Int,
     onBack: () -> Unit,
+    onInspectPrompt: (() -> Unit)?,
     onWatchComputer: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenThreads: () -> Unit,
@@ -1130,6 +1139,11 @@ private fun ChatHeader(
         ) {
             BackPill(unreadElsewhere = unreadElsewhere, onBack = onBack)
             Spacer(Modifier.weight(1f))
+            if (onInspectPrompt != null) ChromeButton(
+                icon = Icons.Filled.Info,
+                contentDescription = "Prompt inspector",
+                onClick = onInspectPrompt,
+            )
             // The computer is a bot idea; a room has none (§12).
             if (chat is Chat.BotChat) {
                 ChromeButton(

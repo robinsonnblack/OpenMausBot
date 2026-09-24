@@ -3,6 +3,12 @@
 The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
+An admin-scoped pairing can open Prompt Inspector from a chat header. It shows
+the paired computer's captured model input, full request, usage, diagnostics and
+changes between compatible captures. Captures may include private conversations;
+the screen loads them on demand, does not retain them in app storage, and offers
+an explicit JSON export.
+
 - `applicationId` — `com.openmausbot.companion`
 - `minSdk` 26 (Android 8.0), `targetSdk` / `compileSdk` 37
 - Deep-link scheme — `openmausbot`

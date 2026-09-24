@@ -1577,6 +1577,9 @@ class Session(
             null
         }
 
+    suspend fun promptCaptures(threadId: String): List<PromptCapture> =
+        (client ?: error("Connect to the computer first.")).promptCaptures(threadId)
+
     suspend fun search(query: String): List<SearchHit> {
         val trimmed = query.trim()
         if (trimmed.length < 2) return emptyList()
