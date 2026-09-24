@@ -2033,6 +2033,9 @@ class Session(
         }
     }
 
+    suspend fun workspaceUsage(from: String, to: String, groupBy: String): WorkspaceUsage =
+        (client ?: throw APIError.Transport("This computer is offline.")).workspaceUsage(from, to, groupBy)
+
     suspend fun configStatus(): ConfigStatus? = try {
         client?.config()
     } catch (error: Throwable) {

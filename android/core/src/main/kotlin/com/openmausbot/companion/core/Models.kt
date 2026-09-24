@@ -1047,6 +1047,41 @@ data class ManagedSkillList(
 @Serializable
 data class SkillText(val text: String)
 
+@Serializable
+data class WorkspaceUsageGroup(
+    val key: String,
+    val label: String,
+    val turns: Long,
+    val input: Long,
+    val output: Long,
+    val cachedInput: Long,
+    val costUsd: Double? = null,
+    val estimatedUsd: Double? = null,
+    val unpriced: Long = 0,
+    val billableUsd: Double? = null,
+)
+
+@Serializable
+data class WorkspaceSpendBudget(
+    val month: String,
+    val monthlyUsd: Double,
+    val spentUsd: Double,
+    val percent: Double,
+    val warnAtPercent: Double,
+    val warn: Boolean,
+    val exceeded: Boolean,
+)
+
+@Serializable
+data class WorkspaceUsage(
+    val from: String,
+    val to: String,
+    val groupBy: String,
+    val groups: List<WorkspaceUsageGroup>,
+    val total: WorkspaceUsageGroup,
+    val budget: WorkspaceSpendBudget? = null,
+)
+
 object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
     private val fieldNames = setOf(
         "name",

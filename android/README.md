@@ -38,6 +38,10 @@ read and eligible changes reverted after confirmation.
 Bot settings can list skills stored on the paired computer, read their full
 SKILL.md text, disable or remove them, and import from GitHub. Imports remain
 disabled until you read the skill and explicitly enable it on the phone.
+Settings can show the paired computer's read-only workspace usage ledger for
+this month, last month, or the last 30 days, grouped by bot, model, or day.
+This server endpoint requires an admin-scoped pairing. Cost estimates and
+unpriced turns are labeled; the phone does not alter budget settings.
 
 ## Build and test
 
