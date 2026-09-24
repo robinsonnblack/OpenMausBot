@@ -357,7 +357,29 @@ class CompanionClient(
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 
+    suspend fun botCreationOptions(): BotCreationOptions =
+        send(makeRequest("GET", "/api/bot-defaults"))
+
+    /** Legacy defaults-based creation remains available to existing callers. */
     suspend fun createBot(): Bot = send<CreatedBot>(makeRequest("POST", "/api/bots")).bot
+
+    suspend fun createBot(
+        name: String,
+        title: String,
+        description: String,
+        selection: ModelSelection,
+        section: String? = null,
+    ): Bot = send<CreatedBot>(makeRequest(
+        "POST", "/api/bots",
+        body = buildJsonObject {
+            put("name", name)
+            put("title", title)
+            put("description", description)
+            put("modelSelection", CompanionJson.encodeToJsonElement(ModelSelection.serializer(), selection))
+            put("requireAvailableModel", true)
+            section?.let { put("section", it) }
+        },
+    )).bot
 
     /**
      * Atomically file visible bots under one shared sidebar heading. This is

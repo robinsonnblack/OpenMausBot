@@ -1398,6 +1398,12 @@ internal data class SidebarSectionResponse(val section: String, val bots: List<B
 data class TeamSectionsResponse(val sections: List<String>)
 
 @Serializable
+data class BotCreationOptions(
+    val modelSelection: ModelSelection,
+    val suggestedName: String,
+)
+
+@Serializable
 internal data class VoiceListResponse(val voices: List<Voice>, val error: String? = null)
 
 @Serializable

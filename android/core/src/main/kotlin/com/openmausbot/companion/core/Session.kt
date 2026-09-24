@@ -1470,10 +1470,19 @@ class Session(
         perform { it.alwaysAllow(bot.id, key, bot.threadId) }
     }
 
-    suspend fun createBot(): Bot? {
+    suspend fun botCreationOptions(): BotCreationOptions =
+        (client ?: throw APIError.Transport("This computer is offline.")).botCreationOptions()
+
+    suspend fun createBot(
+        name: String,
+        title: String,
+        description: String,
+        selection: ModelSelection,
+        section: String? = null,
+    ): Bot? {
         val activeClient = client ?: return null
         return try {
-            val bot = activeClient.createBot()
+            val bot = activeClient.createBot(name, title, description, selection, section)
             _state.update { it.apply(Frame.Bot(bot)) }
             bot
         } catch (error: Throwable) {

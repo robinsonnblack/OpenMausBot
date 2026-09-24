@@ -119,12 +119,10 @@ fun RosterScreen(navigator: CompanionNavigator) {
     var showingUpdates by remember { mutableStateOf(false) }
     var showingNewGroup by remember { mutableStateOf(false) }
     var showingNewSection by remember { mutableStateOf(false) }
+    var showingNewBot by remember { mutableStateOf(false) }
     var expandedBots by rememberSaveable(stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
     var collapsedFolders by rememberSaveable(stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
     var creatingThreads by remember { mutableStateOf(emptySet<String>()) }
-    // One createBot at a time: a second tap while the first is in flight
-    // would race two bots into existence.
-    var creatingBot by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf<Chat?>(null) }
 
     val query = bar.query
@@ -435,21 +433,9 @@ fun RosterScreen(navigator: CompanionNavigator) {
                 bar = bar.openSearch()
             },
             onCreateBot = {
-                if (!creatingBot) {
-                    creatingBot = true
-                    scope.launch {
-                        try {
-                            session.createBot()?.let {
-                                haptics.play(TactileAction.CREATE_BOT_SUCCESS)
-                                navigator.open(Chat.BotChat(it))
-                            }
-                        } finally {
-                            creatingBot = false
-                        }
-                    }
-                }
+                if (!showingNewBot) showingNewBot = true
             },
-            canCreateBot = !creatingBot,
+            canCreateBot = !showingNewBot,
             onCreateSection = {
                 haptics.play(TactileAction.START_NEW_SECTION)
                 showingNewSection = true
@@ -483,6 +469,16 @@ fun RosterScreen(navigator: CompanionNavigator) {
 
     if (showingNewSection) {
         NewSectionSheet(onDismiss = { showingNewSection = false })
+    }
+    if (showingNewBot) {
+        NewBotModelSheet(
+            onCreated = {
+                showingNewBot = false
+                haptics.play(TactileAction.CREATE_BOT_SUCCESS)
+                navigator.open(Chat.BotChat(it))
+            },
+            onDismiss = { showingNewBot = false },
+        )
     }
 
     managingThreads?.let { chat ->
