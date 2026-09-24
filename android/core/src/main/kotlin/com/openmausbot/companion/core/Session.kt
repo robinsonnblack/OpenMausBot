@@ -1526,6 +1526,33 @@ class Session(
         }
     }
 
+    private fun requireTeamAdmin(): CompanionClient {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Managing teams requires an admin pairing.")
+        }
+        return client ?: throw APIError.Transport("This computer is offline.")
+    }
+
+    suspend fun teamSections(): List<String> = requireTeamAdmin().teamSections()
+
+    suspend fun renameTeam(current: String, next: String) {
+        val activeClient = requireTeamAdmin()
+        activeClient.renameTeam(current, next)
+        _state.update { it.hydrate(activeClient.fleet()) }
+    }
+
+    suspend fun deleteTeam(name: String) {
+        val activeClient = requireTeamAdmin()
+        activeClient.deleteTeam(name)
+        _state.update { it.hydrate(activeClient.fleet()) }
+    }
+
+    suspend fun updateTeamMembers(name: String, addBotIds: List<String>, removeBotIds: List<String>) {
+        val activeClient = requireTeamAdmin()
+        activeClient.updateTeamMembers(name, addBotIds, removeBotIds)
+        _state.update { it.hydrate(activeClient.fleet()) }
+    }
+
     suspend fun interrupt(bot: Bot) {
         perform { it.interrupt(bot.id, bot.threadId) }
     }

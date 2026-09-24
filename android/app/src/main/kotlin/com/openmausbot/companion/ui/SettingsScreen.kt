@@ -102,6 +102,7 @@ fun SettingsScreen(
     var aboutMeLoading by remember { mutableStateOf(false) }
     var aboutMeSaving by remember { mutableStateOf(false) }
     var aboutMeError by remember { mutableStateOf<String?>(null) }
+    var managingTeams by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -276,6 +277,12 @@ fun SettingsScreen(
                     showingUsage = !showingUsage
                 }
                 if (showingUsage) WorkspaceUsageSection()
+            }
+
+            if (connection?.serverScopes?.contains("admin") == true) {
+                SettingsSection("Teams") {
+                    SettingsButton("Manage teams") { managingTeams = true }
+                }
             }
 
             // Routine schedules live on the computer this phone is bound to.
@@ -461,7 +468,6 @@ fun SettingsScreen(
         )
     }
     if (editingTheme) ThemeEditor(environment.chatPreferences) { editingTheme = false }
-
     if (editingAboutMe) {
         AlertDialog(
             onDismissRequest = { if (!aboutMeSaving) editingAboutMe = false },
@@ -514,6 +520,7 @@ fun SettingsScreen(
             dismissButton = { TextButton(onClick = { editingAboutMe = false }) { Text("Cancel") } },
         )
     }
+    if (managingTeams) TeamManagementSheet { managingTeams = false }
 }
 
 @Composable

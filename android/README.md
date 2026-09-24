@@ -8,6 +8,10 @@ the paired computer's "About me" text, which is shared with all bots. The
 editor checks for a change made elsewhere before saving. A client-scoped
 pairing cannot read or edit that text.
 
+Admin-paired phones can manage teams under Settings: rename a team, move bots
+into or out of it, or remove the team heading without deleting bots or chats.
+The server checks team membership conflicts before applying a change.
+
 An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a
 second confirmation and applies the server's deletion event to open chats.
