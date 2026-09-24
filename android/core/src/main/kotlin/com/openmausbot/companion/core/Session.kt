@@ -1906,6 +1906,24 @@ class Session(
         }
     }
 
+    suspend fun setBotWorkingFolder(forBot: Bot, cwd: String?): Bot? {
+        val activeClient = client ?: return null
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            _actionError.value = "Changing a bot's working folder requires an admin pairing."
+            return null
+        }
+        return try {
+            val updated = activeClient.setBotWorkingFolder(forBot.id, cwd)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated.forTask(forBot.threadId)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun uploadAvatar(
         data: ByteArray,
         mime: String,
