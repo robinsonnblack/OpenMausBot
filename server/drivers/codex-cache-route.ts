@@ -5,9 +5,10 @@ import { createServer, type Server, type IncomingMessage } from "node:http";
 import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { gunzipSync, inflateSync, zstdDecompressSync } from "node:zlib";
+import { captureNativeCodexRequest, diagnosticHeaders } from "../prompt-inspector.ts";
 
 type PromptItem = { type?: string; role?: string; content?: Array<{ type?: string; text?: string }> };
-type Route = { key: string; pending: Set<ReturnType<typeof httpsRequest>> };
+type Route = { key: string; botId: string; threadId: string; pending: Set<ReturnType<typeof httpsRequest>> };
 const routes = new Map<string, Route>();
 let listener: Promise<Server> | undefined;
 const UPSTREAM = "https://chatgpt.com/backend-api/codex";
@@ -85,14 +86,20 @@ async function ensureListener(upstream = UPSTREAM): Promise<Server> {
         "content-length": String(encoded.length) };
       for (const key of ["connection", "proxy-authorization", "proxy-connection", "content-encoding", "transfer-encoding"]) delete headers[key];
       const target = upstream + match[2];
+      let capture: ReturnType<typeof captureNativeCodexRequest>;
+      try { capture = captureNativeCodexRequest(route.botId, route.threadId, JSON.parse(encoded.toString("utf8")), target); } catch {}
       const request = target.startsWith("https:") ? httpsRequest : httpRequest;
       const upstreamReq = request(target, { method: "POST", headers }, reply => {
+        try { capture?.patch({ httpStatus: reply.statusCode, responseHeaders: diagnosticHeaders(new Headers(reply.headers as Record<string, string>)) }); } catch {}
+        reply.once("end", () => capture?.finish((reply.statusCode ?? 500) < 400 ? "completed" : "failed"));
+        reply.once("error", error => capture?.finish("failed", error.message));
         res.writeHead(reply.statusCode ?? 502, reply.headers);
         reply.pipe(res);
       });
       route.pending.add(upstreamReq);
       upstreamReq.once("close", () => route.pending.delete(upstreamReq));
       upstreamReq.on("error", () => {
+        capture?.finish("failed", "Provider connection interrupted");
         if (!res.headersSent) res.writeHead(502, { "content-type": "application/json" }).end('{"error":"Provider connection interrupted"}');
         else res.destroy();
       });
@@ -109,7 +116,7 @@ async function ensureListener(upstream = UPSTREAM): Promise<Server> {
 
 export async function openCodexCacheRoute(botId: string, threadId: string, upstream = UPSTREAM) {
   const server = await ensureListener(upstream), id = randomUUID();
-  const route: Route = { key: codexCacheIdentity(botId, threadId), pending: new Set() };
+  const route: Route = { key: codexCacheIdentity(botId, threadId), botId, threadId, pending: new Set() };
   routes.set(id, route);
   return {
     provider: { name: "OpenAI", base_url: `http://127.0.0.1:${(server.address() as { port: number }).port}/${id}`,

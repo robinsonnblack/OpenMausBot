@@ -233,6 +233,17 @@ export function captureApiRequest(body: unknown, endpoint: string): Handle | und
       finish: (...args) => { try { handle.finish(...args); } catch {} },
     }; } catch { return; }
 }
+/** The native Codex HTTP relay is a separate async request, outside the
+ * sendTurn context. Bind its capture to the owning conversation explicitly. */
+export function captureNativeCodexRequest(botId: string, threadId: string, body: unknown, endpoint: string): Handle | undefined {
+  try {
+    const handle = configured?.capture({ provider: "codex", botId, threadId, epoch: configured.epoch(threadId) }, "api-request", body, endpoint);
+    return handle && {
+      patch: (...args) => { try { handle.patch(...args); } catch {} },
+      finish: (...args) => { try { handle.finish(...args); } catch {} },
+    };
+  } catch { return; }
+}
 const wrapped = new WeakSet<ProviderInstance>();
 export function inspectProvider(instance: ProviderInstance): ProviderInstance {
   if (wrapped.has(instance)) return instance;
