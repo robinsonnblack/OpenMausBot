@@ -93,6 +93,7 @@ fun SettingsScreen(
     var aboutMeError by remember { mutableStateOf<String?>(null) }
     var managingTeams by remember { mutableStateOf(false) }
     var creatingBotForTeam by remember { mutableStateOf<String?>(null) }
+    val teamDraft = remember { TeamManagementDraft() }
     var configuringMistral by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
 
@@ -519,7 +520,8 @@ fun SettingsScreen(
         )
     }
     if (managingTeams) TeamManagementSheet(
-        onDismiss = { managingTeams = false },
+        draft = teamDraft,
+        onDismiss = { managingTeams = false; teamDraft.clear() },
         onCreateBot = { team ->
             managingTeams = false
             creatingBotForTeam = team
@@ -528,11 +530,12 @@ fun SettingsScreen(
     creatingBotForTeam?.let { team ->
         NewBotModelSheet(
             initialSection = team,
-            onCreated = {
+            onCreated = { bot ->
+                teamDraft.includeCreatedBot(bot.id)
                 creatingBotForTeam = null
                 managingTeams = true
             },
-            onDismiss = { creatingBotForTeam = null },
+            onDismiss = { creatingBotForTeam = null; managingTeams = true },
         )
     }
     if (configuringMistral) MistralSetupSheet { configuringMistral = false }

@@ -76,7 +76,8 @@ or Tailscale route; a plain LAN pairing cannot send them.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
-paired computer as well.
+paired computer as well. Unsaved membership choices and a pending team name
+stay in place while the creation form is open.
 
 From the same team screen, an admin can appoint or remove its Chief of Staff.
 Handing the role to another bot is confirmed before the server makes the
