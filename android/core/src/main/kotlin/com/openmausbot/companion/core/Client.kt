@@ -275,6 +275,27 @@ class CompanionClient(
         ))
     }
 
+    /** The credential is sent to the paired computer; it is never retained in phone storage. */
+    suspend fun setMistralKey(key: String): ConfigStatus = send(makeRequest(
+        "PUT", "/api/config",
+        body = buildJsonObject { put("mistral", buildJsonObject { put("key", key) }) },
+    ).also { requireProtectedProviderRoute() })
+
+    suspend fun testMistralKey(key: String? = null): ProviderKeyVerdict = send(makeRequest(
+        "POST", "/api/keys/test",
+        body = buildJsonObject {
+            put("provider", "mistral")
+            key?.let { put("key", it) }
+        },
+    ).also { requireProtectedProviderRoute() })
+
+    private fun requireProtectedProviderRoute() {
+        if (connection.activeEndpoint?.protectsCredentials == true) return
+        val host = connection.baseUrl?.host?.lowercase()
+        if (host == "localhost" || host == "127.0.0.1" || host == "::1") return
+        throw APIError.Transport("API keys require secure HTTPS or a Tailscale connection. Switch routes before continuing.")
+    }
+
     suspend fun workspaceUsage(from: String, to: String, groupBy: String): WorkspaceUsage =
         send(makeRequest("GET", "/api/usage", query = listOf(
             "from" to from, "to" to to, "groupBy" to groupBy,

@@ -103,6 +103,7 @@ fun SettingsScreen(
     var aboutMeSaving by remember { mutableStateOf(false) }
     var aboutMeError by remember { mutableStateOf<String?>(null) }
     var managingTeams by remember { mutableStateOf(false) }
+    var configuringMistral by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -282,6 +283,9 @@ fun SettingsScreen(
             if (connection?.serverScopes?.contains("admin") == true) {
                 SettingsSection("Teams") {
                     SettingsButton("Manage teams") { managingTeams = true }
+                }
+                SettingsSection("Providers") {
+                    SettingsButton("Mistral API and models") { configuringMistral = true }
                 }
             }
 
@@ -521,6 +525,7 @@ fun SettingsScreen(
         )
     }
     if (managingTeams) TeamManagementSheet { managingTeams = false }
+    if (configuringMistral) MistralSetupSheet { configuringMistral = false }
 }
 
 @Composable
