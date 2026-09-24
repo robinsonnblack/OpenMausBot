@@ -12,6 +12,9 @@ running OpenMausBot, then read and answer from the phone.
 Bot settings can list skills stored on the paired computer, read their full
 SKILL.md text, disable or remove them, and import from GitHub. Imports remain
 disabled until you read the skill and explicitly enable it on the phone.
+If the paired workspace has an organization library, bot settings also list
+skills the admin published for that bot. Adding one requires confirmation and
+enables it immediately, matching the desktop's organization-skill behavior.
 
 ## Build and test
 
