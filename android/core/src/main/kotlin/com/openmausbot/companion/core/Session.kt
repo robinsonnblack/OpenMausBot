@@ -1853,6 +1853,18 @@ class Session(
         }
     }
 
+    suspend fun profileHistory(botId: String): ProfileHistory {
+        val activeClient = client ?: throw APIError.Transport("This computer is offline.")
+        return activeClient.profileHistory(botId)
+    }
+
+    suspend fun undoStandingInstructionChange(botId: String, rowId: String, revision: String): Bot {
+        val activeClient = client ?: throw APIError.Transport("This computer is offline.")
+        return activeClient.undoStandingInstructionChange(botId, rowId, revision).also { updated ->
+            _state.update { it.apply(Frame.Bot(updated)) }
+        }
+    }
+
     /**
      * The model catalog lives on the paired computer because availability
      * depends on which engines are installed and signed in there.

@@ -933,6 +933,21 @@ data class BotProfilePatch(
     }
 }
 
+@Serializable
+data class ProfileHistoryRow(
+    val id: String,
+    val at: Double,
+    val actor: String,
+    val via: String,
+    val field: String,
+    val summary: String,
+    val canRestore: Boolean? = null,
+    val restoreUnavailableReason: String? = null,
+)
+
+@Serializable
+data class ProfileHistory(val rows: List<ProfileHistoryRow>, val revision: String)
+
 object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
     private val fieldNames = setOf(
         "name",
