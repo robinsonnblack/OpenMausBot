@@ -17,6 +17,12 @@ sealed class Chat {
             is RoomChat -> "room:$id:$threadId"
         }
 
+    val pinnedMessageId: String?
+        get() = when (this) {
+            is BotChat -> bot.pinnedMessageId
+            is RoomChat -> room.pinnedMessageId
+        }
+
     val threadTitle: String
         get() = when (this) {
             is BotChat -> bot.tasks?.firstOrNull { it.threadId == threadId }?.displayTitle ?: "Untitled thread"

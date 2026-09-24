@@ -283,6 +283,18 @@ fun MessageRow(
                     },
                 )
             }
+            if (message.kind == Message.Kind.TEXT && !isPendingEdit &&
+                (chat is Chat.BotChat || (chat is Chat.RoomChat && chat.room.dm != true))) {
+                val pinned = chat.pinnedMessageId == message.id
+                HorizontalDivider()
+                DropdownMenuItem(
+                    text = { Text(if (pinned) "Unpin message" else "Pin message") },
+                    onClick = {
+                        menuOpen = false
+                        scope.launch { session.pinMessage(chat, if (pinned) null else message.id) }
+                    },
+                )
+            }
             // Attachment messages cannot be reconstructed by a text-only edit.
             // The policy also keeps their private transport paths out of the UI.
             val editableText = MessageActions.editableText(message)

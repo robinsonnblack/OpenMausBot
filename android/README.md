@@ -13,6 +13,10 @@ For a bot's current thread, open its thread picker to see token usage reported
 by the paired computer. Cached and uncached input are shown separately when
 the provider reports a cache split; cost and context appear only when known.
 
+Long-press a text message in a bot or non-DM room chat to pin it. The pinned
+message stays above the transcript; tapping it loads older history when needed
+and jumps to the message. Each conversation can have one pin.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so

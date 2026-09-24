@@ -36,6 +36,30 @@ class ClientTest {
     }
 
     @Test
+    fun pinnedMessagesUseTheMatchingThreadAndRoomPatchRoutes() = runBlocking {
+        repeat(4) { server.enqueue(json("""{"ok":true}""")) }
+        client.setBotPinnedMessage("b1", "t2", "m3")
+        client.setBotPinnedMessage("b1", "t2", null)
+        client.setRoomPinnedMessage("g1", "m4")
+        client.setRoomPinnedMessage("g1", null)
+        val requests = List(4) { server.takeRequest() }
+        assertEquals(
+            listOf(
+                "/api/bots/b1/tasks/t2",
+                "/api/bots/b1/tasks/t2",
+                "/api/groups/g1",
+                "/api/groups/g1",
+            ),
+            requests.map { it.path },
+        )
+        assertTrue(requests.all { it.method == "PATCH" })
+        assertEquals(
+            listOf("m3", "", "m4", ""),
+            requests.map { stringBody(it.body.readUtf8())["pinnedMessageId"] },
+        )
+    }
+
+    @Test
     fun pairingUsesTheRightCredentialFieldAndNoAuthorization() = runBlocking {
         server.enqueue(json(fixtureText("pair-response")))
         val older = CompanionClient.pair(connection, "004209", "Ada's phone")

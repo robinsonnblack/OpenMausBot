@@ -336,6 +336,7 @@ data class BotTask(
     val snoozedUntil: Double? = null,
     /** The computer's accounting for this thread; absent on older hosts. */
     val usage: TaskUsage? = null,
+    val pinnedMessageId: String? = null,
 )
 
 @Serializable
@@ -427,6 +428,7 @@ data class Bot(
      * harness included) means the shipped `cursor` silhouette.
      */
     val mascotBody: String? = null,
+    val pinnedMessageId: String? = null,
     val tasks: List<BotTask>? = null,
     val messages: List<Message>? = null,
     val activeLeafId: String? = null,
@@ -449,6 +451,7 @@ fun Bot.forTask(requestedThreadId: String): Bot? {
         approvalMode = task.approvalMode ?: task.autoApprove?.let { if (it) "auto" else "ask" } ?: approvalMode,
         autoApprove = task.autoApprove ?: autoApprove,
         alwaysAllow = task.alwaysAllow ?: alwaysAllow,
+        pinnedMessageId = task.pinnedMessageId ?: if (selected) pinnedMessageId else null,
         messages = if (selected) messages else null,
         activeLeafId = if (selected) activeLeafId else null,
         hasMore = if (selected) hasMore else null,
@@ -489,6 +492,7 @@ data class Room(
     /** Desktop sidebar section. Missing or blank means the built-in Channels area. */
     val section: String? = null,
     val busyBotId: String? = null,
+    val pinnedMessageId: String? = null,
     /** Independent user conversations in this channel. DMs omit this field. */
     val tasks: List<BotTask>? = null,
     val messages: List<Message>? = null,

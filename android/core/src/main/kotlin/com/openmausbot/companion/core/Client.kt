@@ -666,6 +666,22 @@ class CompanionClient(
         ))
     }
 
+    suspend fun setBotPinnedMessage(botId: String, threadId: String, messageId: String?) {
+        sendUnit(makeRequest(
+            "PATCH",
+            "/api/bots/${segment(botId)}/tasks/${segment(threadId)}",
+            body = jsonBody("pinnedMessageId" to (messageId ?: "")),
+        ))
+    }
+
+    suspend fun setRoomPinnedMessage(groupId: String, messageId: String?) {
+        sendUnit(makeRequest(
+            "PATCH",
+            "/api/groups/${segment(groupId)}",
+            body = jsonBody("pinnedMessageId" to (messageId ?: "")),
+        ))
+    }
+
     /** Title is echoed so an older server does not rename the thread to empty. */
     suspend fun setRoomTaskPinned(groupId: String, threadId: String, pinned: Boolean, title: String) {
         sendUnit(makeRequest(
