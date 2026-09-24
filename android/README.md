@@ -9,6 +9,11 @@ running OpenMausBot, then read and answer from the phone.
 - Two modules: `:core` (protocol, ported from `ios/Sources/CompanionCore`) and
   `:app` (Compose UI, Android platform)
 
+Bot settings show the computer destination and approval mode reported by the
+paired computer for the current chat. These are read-only on Android because
+the paired-safe profile endpoint cannot change execution permissions; edit
+them on the computer.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so

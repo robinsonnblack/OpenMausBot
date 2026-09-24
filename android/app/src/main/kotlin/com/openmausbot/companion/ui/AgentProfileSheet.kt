@@ -477,6 +477,12 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     )
                 }
 
+                FormSection(header = "Computer access") {
+                    Text("Computer: ${computerAccessLabel(current.computer)}")
+                    Text("Approvals for this chat: ${approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)}")
+                    Text("Change computer and approval permissions on the paired computer.")
+                }
+
                 VoiceSection(
                     config = config,
                     switching = switchingEngine,
