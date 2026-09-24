@@ -598,6 +598,10 @@ private fun LoadedChat(
     }
 
     val bot = (chat as? Chat.BotChat)?.bot
+    val pinnedId = chat.pinnedMessageId
+    val pinnedSnippet = pinnedId?.let { id ->
+        rawTranscript.firstOrNull { it.id == id }?.text?.trim()?.take(100)
+    }?.takeIf { it.isNotEmpty() } ?: "Tap to view pinned message"
     // The computer is bot-only; a non-DM room exposes task navigation when the
     // paired desktop supplied a task list. Both answers are constants.
     val commands = SlashCommands.forChat(chat)
@@ -796,7 +800,7 @@ private fun LoadedChat(
                         start = 16.dp,
                         end = 16.dp,
                         // Room for the floating face when scrolled to the top.
-                        top = HEADER_CLEARANCE,
+                        top = HEADER_CLEARANCE + if (pinnedId != null) 56.dp else 0.dp,
                         bottom = 12.dp,
                     ),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -931,6 +935,33 @@ private fun LoadedChat(
                         .align(Alignment.TopCenter)
                         .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
                 )
+                if (pinnedId != null) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .widthIn(max = CHAT_CONTENT_MAX_WIDTH)
+                            .fillMaxWidth()
+                            .padding(top = HEADER_CLEARANCE, start = 16.dp, end = 16.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { scope.launch { session.focusMessage(threadId, pinnedId) } }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = "Pinned · $pinnedSnippet",
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        TextButton(onClick = { scope.launch { session.pinMessage(chat, null) } }) {
+                            Text("Unpin")
+                        }
+                    }
+                }
             }
 
             Composer(

@@ -9,6 +9,10 @@ running OpenMausBot, then read and answer from the phone.
 - Two modules: `:core` (protocol, ported from `ios/Sources/CompanionCore`) and
   `:app` (Compose UI, Android platform)
 
+Long-press a text message in a bot or non-DM room chat to pin it. The pinned
+message stays above the transcript; tapping it loads older history when needed
+and jumps to the message. Each conversation can have one pin.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so

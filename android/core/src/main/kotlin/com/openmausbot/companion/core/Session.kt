@@ -1782,6 +1782,30 @@ class Session(
         true
     }
 
+    suspend fun pinMessage(chat: Chat, messageId: String?): Boolean = mutateTask(false) { client ->
+        when (chat) {
+            is Chat.BotChat -> client.setBotPinnedMessage(chat.id, chat.threadId, messageId)
+            is Chat.RoomChat -> client.setRoomPinnedMessage(chat.id, messageId)
+        }
+        refresh()
+        true
+    }
+
+    /** Load an older pinned message before asking the transcript to scroll to it. */
+    suspend fun focusMessage(threadId: String, messageId: String): Boolean {
+        val activeClient = client ?: return false
+        return try {
+            val page = activeClient.messagesAround(threadId, messageId)
+            _state.update { it.merge(page, threadId) }
+            _focusedMessageId.value = messageId
+            true
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            false
+        }
+    }
+
     suspend fun archiveTask(task: BotTask, forBot: Bot, archivedAt: Double?): Boolean = mutateTask(false) { client ->
         client.setTaskArchived(forBot.id, task.threadId, archivedAt)
         refresh()
