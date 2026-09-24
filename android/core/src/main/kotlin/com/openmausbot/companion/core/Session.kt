@@ -1933,6 +1933,12 @@ class Session(
     suspend fun importManagedSkills(botId: String, source: String) =
         (client ?: throw APIError.Transport("This computer is offline.")).importManagedSkills(botId, source)
 
+    suspend fun offeredOrganizationSkills(botId: String): OrganizationSkillCatalog =
+        (client ?: throw APIError.Transport("This computer is offline.")).offeredOrganizationSkills(botId)
+
+    suspend fun addOrganizationSkill(botId: String, installId: String, name: String) =
+        (client ?: throw APIError.Transport("This computer is offline.")).addOrganizationSkill(botId, installId, name)
+
     /**
      * The model catalog lives on the paired computer because availability
      * depends on which engines are installed and signed in there.

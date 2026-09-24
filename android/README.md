@@ -42,6 +42,9 @@ Settings can show the paired computer's read-only workspace usage ledger for
 this month, last month, or the last 30 days, grouped by bot, model, or day.
 This server endpoint requires an admin-scoped pairing. Cost estimates and
 unpriced turns are labeled; the phone does not alter budget settings.
+If the paired workspace has an organization library, bot settings also list
+skills the admin published for that bot. Adding one requires confirmation and
+enables it immediately, matching the desktop's organization-skill behavior.
 
 ## Build and test
 

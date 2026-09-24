@@ -410,6 +410,16 @@ class CompanionClient(
         ))
     }
 
+    suspend fun offeredOrganizationSkills(botId: String): OrganizationSkillCatalog =
+        send(makeRequest("GET", "/api/org-library/skills", query = listOf("botId" to botId)))
+
+    suspend fun addOrganizationSkill(botId: String, installId: String, name: String) {
+        send<kotlinx.serialization.json.JsonObject>(makeRequest(
+            "POST", "/api/org-library/skills",
+            body = jsonBody("botId" to botId, "installId" to installId, "name" to name),
+        ))
+    }
+
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.

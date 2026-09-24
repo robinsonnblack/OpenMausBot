@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.ManagedSkill
+import com.openmausbot.companion.core.OfferedOrganizationSkill
 import kotlinx.coroutines.launch
 
 /** Manage skills on the paired computer. A disabled skill must be read before enabling. */
@@ -38,6 +39,9 @@ internal fun BotSkillsSection(botId: String) {
     var source by remember(botId) { mutableStateOf("") }
     var preview by remember(botId) { mutableStateOf<Pair<ManagedSkill, String>?>(null) }
     var removePending by remember(botId) { mutableStateOf<ManagedSkill?>(null) }
+    var organization by remember(botId) { mutableStateOf<String?>(null) }
+    var offered by remember(botId) { mutableStateOf<List<OfferedOrganizationSkill>>(emptyList()) }
+    var addPending by remember(botId) { mutableStateOf<OfferedOrganizationSkill?>(null) }
 
     suspend fun refresh() {
         val result = session.managedSkills(botId)
@@ -46,11 +50,18 @@ internal fun BotSkillsSection(botId: String) {
         error = null
     }
 
+    suspend fun refreshOrganization() {
+        val catalog = session.offeredOrganizationSkills(botId)
+        organization = catalog.organization?.name
+        offered = catalog.skills
+    }
+
     LaunchedEffect(botId) {
         loading = true
         try { refresh() } catch (failure: Exception) {
             error = failure.message ?: "Could not load skills."
         } finally { loading = false }
+        runCatching { refreshOrganization() }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -116,6 +127,19 @@ internal fun BotSkillsSection(botId: String) {
             }
         }) { Text("Import") }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        if (organization != null && offered.isNotEmpty()) {
+            Text("From $organization", style = MaterialTheme.typography.titleSmall)
+            Text("These skills were published by your organization's admin. Adding one enables it for this bot.")
+            offered.forEach { skill ->
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(skill.name, style = MaterialTheme.typography.titleSmall)
+                    Text(skill.description)
+                    Text("${skill.packageName} · ${skill.release} · ${skill.publisher}")
+                    if (skill.added) Text("Added")
+                    else TextButton(enabled = !busy, onClick = { addPending = skill }) { Text("Add to bot") }
+                }
+            }
+        }
     }
 
     preview?.let { (skill, text) ->
@@ -163,6 +187,27 @@ internal fun BotSkillsSection(botId: String) {
                 }
             }) { Text("Remove") } },
             dismissButton = { TextButton(onClick = { removePending = null }) { Text("Cancel") } },
+        )
+    }
+    addPending?.let { skill ->
+        AlertDialog(
+            onDismissRequest = { addPending = null },
+            title = { Text("Add ${skill.name}?") },
+            text = { Text("This organization skill will be enabled for the bot immediately. Source: ${skill.packageName} by ${skill.publisher}.") },
+            confirmButton = { TextButton(enabled = !busy, onClick = {
+                addPending = null
+                busy = true
+                scope.launch {
+                    try {
+                        session.addOrganizationSkill(botId, skill.installId, skill.name)
+                        refresh()
+                        refreshOrganization()
+                    } catch (failure: Exception) {
+                        error = failure.message ?: "Could not add organization skill."
+                    } finally { busy = false }
+                }
+            }) { Text("Add and enable") } },
+            dismissButton = { TextButton(onClick = { addPending = null }) { Text("Cancel") } },
         )
     }
 }

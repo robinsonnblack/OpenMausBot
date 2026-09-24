@@ -1082,6 +1082,26 @@ data class WorkspaceUsage(
     val budget: WorkspaceSpendBudget? = null,
 )
 
+@Serializable
+data class OfferedOrganizationSkill(
+    val installId: String,
+    val packageName: String,
+    val publisher: String,
+    val release: String,
+    val name: String,
+    val description: String,
+    val added: Boolean,
+)
+
+@Serializable
+data class OrganizationSkillCatalogOwner(val id: String, val name: String)
+
+@Serializable
+data class OrganizationSkillCatalog(
+    val organization: OrganizationSkillCatalogOwner? = null,
+    val skills: List<OfferedOrganizationSkill> = emptyList(),
+)
+
 object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
     private val fieldNames = setOf(
         "name",
