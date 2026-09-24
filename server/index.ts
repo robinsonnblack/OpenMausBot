@@ -5249,6 +5249,10 @@ function turnInstance(bot: BotRecord, runOn?: RoutineRunOn, threadId?: string): 
     : registry.get(bot.modelSelection.instanceId);
 }
 
+function meetingModelKey(bot: BotRecord, instance: NonNullable<ReturnType<typeof registry.get>>): string {
+  return instance.instanceId === bot.modelSelection.instanceId ? bot.modelSelection.model : instance.models.default;
+}
+
 /** Preview requests carry the selected conversation, not whichever thread
  * happens to be the bot's default. A query never grants lifecycle authority. */
 function computerPreviewBot(botId: string, url: URL): BotRecord | null {
@@ -9896,7 +9900,7 @@ async function runGroupMemberTurn(
   }
   if (operation?.meeting && !operation.meeting.check()) return false;
   const meetingTurnId = randomUUID();
-  const meetingPrice = operation?.meetingPrices?.[instance.instanceId === readyBot.modelSelection.instanceId ? readyBot.modelSelection.model : instance.models.default];
+  const meetingPrice = operation?.meetingPrices?.[meetingModelKey(readyBot, instance)];
   if (operation?.meeting?.limits.cost && !meetingPrice) throw new Error("The selected meeting model has no pricing snapshot");
   const roomSystem = buildSystemPrompt(system, store.bot(bot.id)?.soul ?? bot.soul ?? "", [
     { id: "user-profile", label: "About the user", text: userProfileSystemPrompt(cfg.profile) },
@@ -10629,7 +10633,8 @@ async function startMeetingSession(groupId: string, operation: GroupTurnOperatio
   const limits = normalizeMeetingLimits(group.meetingLimits);
   if (limits.cost) {
     operation.meetingPrices = await openRouterMeetingPrices(group.memberIds.flatMap(id => {
-      const bot = store.bot(id); return bot ? [bot.modelSelection.model] : [];
+      const bot = store.bot(id), instance = bot && turnInstance(bot);
+      return bot && instance ? [meetingModelKey(bot, instance)] : [];
     }));
   }
   if (operation.cancelled || !store.group(groupId)) return;
