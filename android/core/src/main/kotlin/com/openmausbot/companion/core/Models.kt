@@ -831,7 +831,7 @@ data class ConfigFlag(
 )
 
 @Serializable
-data class Profile(val name: String, val email: String)
+data class Profile(val name: String, val email: String, val aboutMe: String? = null)
 
 @Serializable
 data class ConfigStatus(
