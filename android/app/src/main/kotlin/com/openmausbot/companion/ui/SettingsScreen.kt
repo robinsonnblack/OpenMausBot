@@ -96,6 +96,7 @@ fun SettingsScreen(
     var editingQuickReplies by remember { mutableStateOf(false) }
     var editingTheme by remember { mutableStateOf(false) }
     var showingUsage by remember { mutableStateOf(false) }
+    var managingTeams by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -247,6 +248,12 @@ fun SettingsScreen(
                     showingUsage = !showingUsage
                 }
                 if (showingUsage) WorkspaceUsageSection()
+            }
+
+            if (connection?.serverScopes?.contains("admin") == true) {
+                SettingsSection("Teams") {
+                    SettingsButton("Manage teams") { managingTeams = true }
+                }
             }
 
             // Routine schedules live on the computer this phone is bound to.
@@ -432,6 +439,7 @@ fun SettingsScreen(
         )
     }
     if (editingTheme) ThemeEditor(environment.chatPreferences) { editingTheme = false }
+    if (managingTeams) TeamManagementSheet { managingTeams = false }
 }
 
 @Composable

@@ -366,6 +366,32 @@ class CompanionClient(
         ),
     ).bots
 
+    /** Admin-scoped team management. The server preserves conversations on delete. */
+    suspend fun teamSections(): List<String> =
+        send<TeamSectionsResponse>(makeRequest("GET", "/api/sidebar-sections")).sections
+
+    suspend fun renameTeam(current: String, next: String): List<String> =
+        send<TeamSectionsResponse>(makeRequest(
+            "PATCH", "/api/sidebar-sections",
+            query = listOf("section" to current),
+            body = jsonBody("name" to next),
+        )).sections
+
+    suspend fun deleteTeam(name: String): List<String> =
+        send<TeamSectionsResponse>(makeRequest(
+            "DELETE", "/api/sidebar-sections", query = listOf("section" to name),
+        )).sections
+
+    suspend fun updateTeamMembers(name: String, addBotIds: List<String>, removeBotIds: List<String>): List<String> =
+        send<TeamSectionsResponse>(makeRequest(
+            "PUT", "/api/sidebar-sections",
+            query = listOf("section" to name),
+            body = buildJsonObject {
+                put("addBotIds", JsonArray(addBotIds.map(::JsonPrimitive)))
+                put("removeBotIds", JsonArray(removeBotIds.map(::JsonPrimitive)))
+            },
+        )).sections
+
     suspend fun updateProfile(botId: String, patch: BotProfilePatch): Bot {
         val body = CompanionJson.encodeToJsonElement(BotProfilePatch.serializer(), patch).jsonObject
         return send<BotResponse>(

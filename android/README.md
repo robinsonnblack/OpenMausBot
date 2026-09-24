@@ -3,6 +3,10 @@
 The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
+Admin-paired phones can manage teams under Settings: rename a team, move bots
+into or out of it, or remove the team heading without deleting bots or chats.
+The server checks team membership conflicts before applying a change.
+
 An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a
 second confirmation and applies the server's deletion event to open chats.

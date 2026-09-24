@@ -1395,6 +1395,9 @@ internal data class RoomResponse(val group: Room)
 internal data class SidebarSectionResponse(val section: String, val bots: List<Bot>)
 
 @Serializable
+data class TeamSectionsResponse(val sections: List<String>)
+
+@Serializable
 internal data class VoiceListResponse(val voices: List<Voice>, val error: String? = null)
 
 @Serializable
