@@ -250,6 +250,11 @@ class CompanionClient(
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
+    suspend fun workspaceUsage(from: String, to: String, groupBy: String): WorkspaceUsage =
+        send(makeRequest("GET", "/api/usage", query = listOf(
+            "from" to from, "to" to to, "groupBy" to groupBy,
+        )))
+
     /**
      * The engine is a setting, not a secret, so it rides the ordinary config
      * write — the same one `VoiceSettings.tsx` sends from its Voice engine

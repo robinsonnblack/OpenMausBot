@@ -94,6 +94,7 @@ fun SettingsScreen(
     var pendingComputerRemoval by remember { mutableStateOf<Connection?>(null) }
     var choosingActivity by remember { mutableStateOf(false) }
     var editingQuickReplies by remember { mutableStateOf(false) }
+    var showingUsage by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -233,6 +234,13 @@ fun SettingsScreen(
                 SettingsButton("Change activity detail") { choosingActivity = true }
                 SettingsButton("Quick replies") { editingQuickReplies = true }
                 Footnote(activityDetail.caption)
+            }
+
+            if (connection != null) SettingsSection("Usage") {
+                SettingsButton(if (showingUsage) "Hide workspace usage" else "Show workspace usage") {
+                    showingUsage = !showingUsage
+                }
+                if (showingUsage) WorkspaceUsageSection()
             }
 
             // Routine schedules live on the computer this phone is bound to.

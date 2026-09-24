@@ -9,6 +9,11 @@ running OpenMausBot, then read and answer from the phone.
 - Two modules: `:core` (protocol, ported from `ios/Sources/CompanionCore`) and
   `:app` (Compose UI, Android platform)
 
+Settings can show the paired computer's read-only workspace usage ledger for
+this month, last month, or the last 30 days, grouped by bot, model, or day.
+This server endpoint requires an admin-scoped pairing. Cost estimates and
+unpriced turns are labeled; the phone does not alter budget settings.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so
