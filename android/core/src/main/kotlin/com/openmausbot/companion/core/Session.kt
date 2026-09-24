@@ -1986,6 +1986,24 @@ class Session(
         }
     }
 
+    suspend fun setBotComputerDefault(forBot: Bot, computer: String?, acknowledgeLocalAuto: Boolean = false): Bot? {
+        val activeClient = client ?: return null
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            _actionError.value = "Changing a bot's default computer requires an admin pairing."
+            return null
+        }
+        return try {
+            val updated = activeClient.setBotComputerDefault(forBot.id, computer, acknowledgeLocalAuto)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated.forTask(forBot.threadId)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun uploadAvatar(
         data: ByteArray,
         mime: String,

@@ -97,6 +97,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     val environment = LocalCompanion.current
     val session = environment.session
     val state by session.state.collectAsState()
+    val connection by session.connection.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -134,6 +135,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
+    var choosingBotComputer by remember(opened.id) { mutableStateOf(false) }
+    var confirmingLocalAuto by remember(opened.id) { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -576,6 +579,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
 
                 FormSection(header = "Computer access") {
                     Text("Bot default: ${computerAccessLabel(current.computer)}")
+                    if (connection?.serverScopes?.contains("admin") == true) {
+                        ActionRow(
+                            text = "Change bot default computer",
+                            enabled = current.busy != true && !busy,
+                            onClick = { choosingBotComputer = true },
+                        )
+                    }
                     Text("This chat: ${taskSurfaceLabel(currentTaskRecord?.surface, current.computer)}")
                     ActionRow(
                         text = "Change this chat's computer",
@@ -583,7 +593,9 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { choosingTaskSurface = true },
                     )
                     Text("Approvals for this chat: ${approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)}")
-                    Text("Change the bot-wide default and elevated approval permissions on the paired computer.")
+                    Text(if (connection?.serverScopes?.contains("admin") == true)
+                        "Elevated approval permissions can only be changed in the packaged desktop app."
+                    else "Changing the bot-wide default requires an admin pairing. Elevated approval permissions require the packaged desktop app.")
                 }
 
                 VoiceSection(
@@ -728,6 +740,57 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             },
             confirmButton = {},
             dismissButton = { TextButton(onClick = { choosingTaskSurface = false }) { Text("Cancel") } },
+        )
+    }
+    if (choosingBotComputer) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) choosingBotComputer = false },
+            title = { Text("Default computer for this bot") },
+            text = {
+                Column {
+                    listOf(
+                        null to "Automatic",
+                        "browser" to "Browser",
+                        "local" to "This computer",
+                        "cloud" to "Cloud computer",
+                        "vm" to "Local VM",
+                        "off" to "Off",
+                    ).forEach { (computer, label) ->
+                        TextButton(
+                            enabled = !busy,
+                            onClick = {
+                                if (computer == "local" && (liveBot().approvalMode == "auto" || liveBot().autoApprove == true)) {
+                                    choosingBotComputer = false
+                                    confirmingLocalAuto = true
+                                } else scope.launch {
+                                    busy = true
+                                    if (session.setBotComputerDefault(liveBot(), computer) != null) choosingBotComputer = false
+                                    busy = false
+                                }
+                            },
+                        ) { Text(if (current.computer == computer) "✓ $label" else label) }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { choosingBotComputer = false }) { Text("Cancel") } },
+        )
+    }
+    if (confirmingLocalAuto) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) confirmingLocalAuto = false },
+            title = { Text("Allow automatic use of this computer?") },
+            text = { Text("This bot is set to Auto approval. Choosing This computer lets it use the paired computer without asking for every action.") },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    scope.launch {
+                        busy = true
+                        if (session.setBotComputerDefault(liveBot(), "local", acknowledgeLocalAuto = true) != null) confirmingLocalAuto = false
+                        busy = false
+                    }
+                }) { Text("Allow") }
+            },
+            dismissButton = { TextButton(onClick = { confirmingLocalAuto = false }) { Text("Cancel") } },
         )
     }
 }

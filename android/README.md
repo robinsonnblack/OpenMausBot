@@ -62,7 +62,10 @@ enables it immediately, matching the desktop's organization-skill behavior.
 Bot settings show the computer destination and approval mode reported by the
 paired computer for the current chat. Android can select the computer
 destination for that chat through the server's task endpoint, or follow the
-bot default again. The bot-wide default and elevated approval levels remain
+bot default again. A phone paired with the `admin` scope can also change the
+bot-wide computer default; an ordinary `client` pairing cannot. Choosing This
+computer while Auto approval is active requires a separate confirmation, and
+the server still validates the change. Elevated approval levels remain
 desktop-only.
 
 ## Build and test

@@ -436,6 +436,19 @@ class CompanionClient(
         ))
     }
 
+    /** Admin-only bot-wide destination. The server enforces the pairing scope and
+     * rejects transitions that would grant unattended access without confirmation. */
+    suspend fun setBotComputerDefault(botId: String, computer: String?, acknowledgeLocalAuto: Boolean = false): Bot {
+        require(computer == null || computer in setOf("cloud", "vm", "local", "browser", "off"))
+        return send<BotResponse>(makeRequest(
+            "PATCH", "/api/bots/${segment(botId)}",
+            body = buildJsonObject {
+                put("computer", computer?.let(::JsonPrimitive) ?: JsonNull)
+                if (acknowledgeLocalAuto) put("acknowledgeLocalAuto", true)
+            },
+        )).bot
+    }
+
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.
