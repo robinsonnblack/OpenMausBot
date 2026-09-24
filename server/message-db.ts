@@ -181,6 +181,10 @@ function db(): DatabaseSync {
   return handle;
 }
 
+/** The message-deletion transaction also scrubs references in auxiliary
+ * tables before a selected message can be considered gone. */
+export function messageDeletionDatabase(): DatabaseSync { return db(); }
+
 /** Nested writes use savepoints: even a caught inner error must not commit
  * half of an inner command. The outer transaction still owns durability. */
 let transactionDepth = 0;
