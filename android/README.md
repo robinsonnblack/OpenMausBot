@@ -23,6 +23,11 @@ an active turn can temporarily block changes to members or routing. Direct
 messages have no group settings. Existing dynamic routing remains active if
 you leave the responder unchanged.
 
+Open a bot's settings to edit its standing instructions. Android enforces the
+same 24,000-byte UTF-8 limit as the computer. When the computer reports an
+external SOUL.md edit, resolve that difference on the computer first; the
+phone does not silently overwrite it.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so

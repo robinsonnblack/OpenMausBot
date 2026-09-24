@@ -70,6 +70,22 @@ class ProfileClientTest {
     }
 
     @Test
+    fun standingInstructionsPatchPreservesUnicodeAndExplicitClear() = runBlocking {
+        server.enqueue(json(botResponse()))
+        client.updateProfile("avatar-bot", BotProfilePatch(soul = "Remember café ☕"))
+        val request = server.takeRequest()
+        assertEquals("/api/bots/avatar-bot/profile", request.path)
+        assertEquals(
+            "Remember café ☕",
+            CompanionJson.parseToJsonElement(request.body.readUtf8()).jsonObject.getValue("soul").jsonPrimitive.content,
+        )
+        val clear = CompanionJson.parseToJsonElement(
+            CompanionJson.encodeToString(BotProfilePatch(soul = "")),
+        ).jsonObject
+        assertEquals("", clear.getValue("soul").jsonPrimitive.content)
+    }
+
+    @Test
     fun profilePatchOmitsUnsetFieldsAndCanSendAnEmptyPayload() = runBlocking {
         server.enqueue(json(botResponse()))
         client.updateProfile("avatar-bot", BotProfilePatch())
