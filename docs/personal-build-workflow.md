@@ -20,16 +20,8 @@ If a feature depends on another unmerged contribution, use a stacked feature bra
 3. Fully quit OpenMausBot from its system-tray menu. Back up the installed program plus `C:\Users\joshu\.openmausbot` and `C:\Users\joshu\AppData\Roaming\openmausbot`. Keep the data backup outside Git.
 4. Install the generated Windows package, then verify an existing chat, a saved provider key, and the features touched by the update. If verification fails, quit the app and restore the previous program and data backup together.
 
-Do not install this branch until its remaining installed-only features have been ported and verified. The current installed app remains the working copy during that migration.
-
 ## Cutover checklist
 
-The installed 0.1.83-based app was saved outside Git at `work/personal-build-backup-2026-09-24/installed-program`. The following live behaviors are not yet present in the combined 0.1.86 source and must be ported before replacing the installed app:
+The installed 0.1.83-based app was backed up outside Git before the first personal-build installation. Codex cache routing, message deletion, final native request capture in Prompt Inspector, and scheduled group meetings have since been ported into editable source. Keep their focused tests in the package verification, alongside the full project checks above.
 
-- Stable Codex prompt/cache routing and any associated session behavior. The installed proxy hard-codes the ChatGPT backend; a source port must retain the newer upstream provider and Company routing.
-- Message selection and deletion, including the server-side scrub of stored transcripts and references and the matching UI.
-- Final provider HTTP request capture in Prompt Inspector, beyond the existing agent-input capture.
-
-Scheduled group meetings have now been ported from the installed app into editable source. The scheduler, bot proposal, tool catalog and room-dispatch tests pass; this does not clear the other cutover gates above.
-
-Check each port against the saved executable in an isolated fixture. Then verify a built installer without touching the live data. At cutover, fully quit the tray process and copy both user-data directories before installing. Keep the previous installer and both data copies together for rollback.
+Before each installation, fully quit the tray process and make a fresh copy of the program and both user-data directories. Keep the previous program and data copies together for rollback.
