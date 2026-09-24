@@ -266,6 +266,15 @@ class CompanionClient(
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
+    /** Admin-scoped workspace profile shared by bots on the paired computer. */
+    suspend fun updateAboutMe(text: String): ConfigStatus {
+        require(text.length <= 24_000) { "About me is limited to 24,000 characters." }
+        return send(makeRequest(
+            "PUT", "/api/config",
+            body = buildJsonObject { put("profile", buildJsonObject { put("aboutMe", text) }) },
+        ))
+    }
+
     suspend fun workspaceUsage(from: String, to: String, groupBy: String): WorkspaceUsage =
         send(makeRequest("GET", "/api/usage", query = listOf(
             "from" to from, "to" to to, "groupBy" to groupBy,

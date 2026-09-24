@@ -2121,6 +2121,13 @@ class Session(
         null
     }
 
+    suspend fun updateAboutMe(text: String): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Editing the shared profile requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline.")).updateAboutMe(text)
+    }
+
     /**
      * Switch the workspace's voice engine. The sheet reloads the voice list
      * afterwards, because every engine names its own voices.

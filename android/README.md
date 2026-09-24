@@ -3,6 +3,11 @@
 The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
+With an admin-scoped pairing, Settings → Shared profile lets the phone edit
+the paired computer's "About me" text, which is shared with all bots. The
+editor checks for a change made elsewhere before saving. A client-scoped
+pairing cannot read or edit that text.
+
 An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a
 second confirmation and applies the server's deletion event to open chats.

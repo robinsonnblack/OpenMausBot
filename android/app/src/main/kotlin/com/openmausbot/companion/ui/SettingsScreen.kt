@@ -96,6 +96,12 @@ fun SettingsScreen(
     var editingQuickReplies by remember { mutableStateOf(false) }
     var editingTheme by remember { mutableStateOf(false) }
     var showingUsage by remember { mutableStateOf(false) }
+    var editingAboutMe by remember { mutableStateOf(false) }
+    var aboutMeText by remember { mutableStateOf("") }
+    var aboutMeOriginal by remember { mutableStateOf("") }
+    var aboutMeLoading by remember { mutableStateOf(false) }
+    var aboutMeSaving by remember { mutableStateOf(false) }
+    var aboutMeError by remember { mutableStateOf<String?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -214,6 +220,29 @@ fun SettingsScreen(
             SettingsSection("Appearance") {
                 val themeId by environment.chatPreferences.themeId.collectAsState()
                 SettingsButton("Theme: ${themeId.replaceFirstChar(Char::uppercase)}") { editingTheme = true }
+            }
+
+            if (connection?.serverScopes?.contains("admin") == true) {
+                SettingsSection("Shared profile") {
+                    SettingsButton("About me") {
+                        editingAboutMe = true
+                        aboutMeLoading = true
+                        aboutMeError = null
+                        scope.launch {
+                            try {
+                                val text = session.configStatus()?.profile?.aboutMe
+                                    ?: throw IllegalStateException("Could not load the shared profile.")
+                                aboutMeText = text
+                                aboutMeOriginal = text
+                            } catch (error: Exception) {
+                                aboutMeError = error.message ?: "Could not load the shared profile."
+                            } finally {
+                                aboutMeLoading = false
+                            }
+                        }
+                    }
+                    Footnote("Shared with bots on this computer. Editing requires an admin pairing.")
+                }
             }
 
             SettingsSection("Background connection") {
@@ -432,6 +461,59 @@ fun SettingsScreen(
         )
     }
     if (editingTheme) ThemeEditor(environment.chatPreferences) { editingTheme = false }
+
+    if (editingAboutMe) {
+        AlertDialog(
+            onDismissRequest = { if (!aboutMeSaving) editingAboutMe = false },
+            title = { Text("About me") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("This profile is shared with every bot on the paired computer.")
+                    if (aboutMeLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    else if (aboutMeError == null || aboutMeText.isNotEmpty() || aboutMeOriginal.isNotEmpty()) {
+                        OutlinedTextField(
+                            value = aboutMeText,
+                            onValueChange = {
+                                if (it.length <= 24_000) aboutMeText = it
+                                aboutMeError = null
+                            },
+                            label = { Text("What should bots know about you?") },
+                            minLines = 5,
+                            maxLines = 12,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Text("${aboutMeText.length} / 24,000", color = secondaryTint, fontSize = 12.sp)
+                    }
+                    aboutMeError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !aboutMeLoading && !aboutMeSaving && aboutMeError == null && aboutMeText != aboutMeOriginal,
+                    onClick = {
+                        scope.launch {
+                            aboutMeSaving = true
+                            try {
+                                val current = session.configStatus()?.profile?.aboutMe
+                                    ?: throw IllegalStateException("Could not verify the current shared profile.")
+                                if (current != aboutMeOriginal) {
+                                    throw IllegalStateException("The profile changed on the computer. Close and reopen to review it.")
+                                }
+                                val saved = session.updateAboutMe(aboutMeText).profile?.aboutMe
+                                if (saved != aboutMeText) throw IllegalStateException("The computer did not confirm the saved profile.")
+                                editingAboutMe = false
+                            } catch (error: Exception) {
+                                aboutMeError = error.message ?: "Could not save the shared profile."
+                            } finally {
+                                aboutMeSaving = false
+                            }
+                        }
+                    },
+                ) { Text(if (aboutMeSaving) "Saving…" else "Save") }
+            },
+            dismissButton = { TextButton(onClick = { editingAboutMe = false }) { Text("Cancel") } },
+        )
+    }
 }
 
 @Composable
