@@ -444,6 +444,13 @@ class CompanionClient(
             },
         )).sections
 
+    /** The server atomically hands the team role to the selected bot. */
+    suspend fun setChiefOfStaff(botId: String, enabled: Boolean): Bot =
+        send<BotResponse>(makeRequest(
+            "PATCH", "/api/bots/${segment(botId)}",
+            body = buildJsonObject { put("chiefOfStaff", enabled) },
+        )).bot
+
     suspend fun updateProfile(botId: String, patch: BotProfilePatch): Bot {
         val body = CompanionJson.encodeToJsonElement(BotProfilePatch.serializer(), patch).jsonObject
         return send<BotResponse>(

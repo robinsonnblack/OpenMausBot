@@ -786,6 +786,8 @@ data class Instance(
 data class InstanceCapabilities(
     val images: Boolean? = null,
     val effortLevels: List<String>? = null,
+    /** A Chief needs this engine's ability to contact and coordinate other bots. */
+    val agentsMcp: Boolean? = null,
     /**
      * The engine can take a message into a turn that is already running.
      * Engines without it hold mid-turn sends until the turn settles, which is

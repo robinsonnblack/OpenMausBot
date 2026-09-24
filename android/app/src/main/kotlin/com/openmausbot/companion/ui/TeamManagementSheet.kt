@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.Instance
 import kotlinx.coroutines.launch
 
 /** Admin pairing only. Team membership lives on the paired computer. */
@@ -46,10 +47,14 @@ internal fun TeamManagementSheet(onDismiss: () -> Unit, onCreateBot: (String) ->
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var pendingChief by remember { mutableStateOf<Bot?>(null) }
+    var instances by remember { mutableStateOf<List<Instance>>(emptyList()) }
 
     LaunchedEffect(Unit) {
         try { names = session.teamSections() }
         catch (failure: Exception) { error = failure.message ?: "Could not load teams." }
+        try { instances = session.modelInstances() }
+        catch (failure: Exception) { error = failure.message ?: "Could not load model capabilities." }
     }
 
     fun openTeam(name: String) {
@@ -134,6 +139,25 @@ internal fun TeamManagementSheet(onDismiss: () -> Unit, onCreateBot: (String) ->
                         }
                     },
                 ) { Text("Save members") }
+                Text("Chief of Staff")
+                val teamBots = state.bots.filter { it.section == team && it.hidden != true }
+                val chief = teamBots.firstOrNull { it.chiefOfStaff == true }
+                Text(chief?.let { "Current Chief: ${it.name}" } ?: "No Chief appointed")
+                teamBots.forEach { bot ->
+                    val canCoordinate = instances.firstOrNull {
+                        it.instanceId == bot.modelSelection.instanceId
+                    }?.capabilities?.agentsMcp == true
+                    TextButton(
+                        enabled = !busy && (bot.chiefOfStaff == true || canCoordinate),
+                        onClick = { pendingChief = bot },
+                    ) {
+                        Text(if (bot.chiefOfStaff == true) "Remove ${bot.name} as Chief"
+                            else "Make ${bot.name} Chief")
+                    }
+                    if (bot.chiefOfStaff != true && !canCoordinate) {
+                        Text("${bot.name}'s provider cannot coordinate bots.")
+                    }
+                }
                 TextButton(enabled = !busy, onClick = { confirmDelete = true }) {
                     Text("Delete team")
                 }
@@ -165,4 +189,36 @@ internal fun TeamManagementSheet(onDismiss: () -> Unit, onCreateBot: (String) ->
         },
         dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
     )
+
+    pendingChief?.let { bot ->
+        val previous = state.bots.firstOrNull {
+            it.section == bot.section && it.chiefOfStaff == true && it.id != bot.id
+        }
+        val appoint = bot.chiefOfStaff != true
+        AlertDialog(
+            onDismissRequest = { pendingChief = null },
+            title = { Text(if (appoint) "Appoint ${bot.name} as Chief?" else "Remove ${bot.name} as Chief?") },
+            text = {
+                Text(if (appoint && previous != null)
+                    "This hands the team role over from ${previous.name} to ${bot.name}."
+                    else if (appoint) "${bot.name} can create and coordinate specialists in this team."
+                    else "This team will have no Chief until you appoint another bot.")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingChief = null
+                    scope.launch {
+                        busy = true
+                        try {
+                            session.setChiefOfStaff(bot.id, appoint)
+                            selected?.let(::openTeam)
+                        } catch (failure: Exception) {
+                            error = failure.message ?: "Could not change the Chief."
+                        } finally { busy = false }
+                    }
+                }) { Text(if (appoint) "Appoint" else "Remove") }
+            },
+            dismissButton = { TextButton(onClick = { pendingChief = null }) { Text("Cancel") } },
+        )
+    }
 }
