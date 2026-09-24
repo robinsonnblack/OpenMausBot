@@ -488,6 +488,23 @@ class CompanionClient(
         return send<CreatedRoom>(makeRequest("POST", "/api/groups", body = body)).group
     }
 
+    /** Only send changed fields; an existing dynamic responder cannot be PATCHed by this API. */
+    suspend fun updateRoom(
+        groupId: String,
+        name: String? = null,
+        memberIds: List<String>? = null,
+        bulletin: String? = null,
+        defaultResponder: GroupResponder? = null,
+    ): Room {
+        val body = buildJsonObject {
+            name?.let { put("name", it) }
+            memberIds?.let { put("memberIds", JsonArray(it.map(::JsonPrimitive))) }
+            bulletin?.let { put("bulletin", it) }
+            defaultResponder?.let { put("defaultResponder", CompanionJson.encodeToJsonElement(it)) }
+        }
+        return send<RoomResponse>(makeRequest("PATCH", "/api/groups/${segment(groupId)}", body = body)).group
+    }
+
     suspend fun sendToBot(botId: String, text: String, threadId: String? = null): SendReceipt =
         sendForReceipt(
             makeRequest("POST", "/api/bots/${segment(botId)}/messages", body = jsonBody("text" to text, "threadId" to threadId)),

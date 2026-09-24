@@ -1,0 +1,150 @@
+package com.openmausbot.companion.ui
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
+import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.GroupResponder
+import com.openmausbot.companion.core.Room
+import kotlinx.coroutines.launch
+
+/** Edit the same room fields as the desktop, using the paired computer's validation. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun RoomSettingsSheet(
+    room: Room,
+    bots: List<Bot>,
+    onDismiss: () -> Unit,
+) {
+    val session = LocalCompanion.current.session
+    val scope = rememberCoroutineScope()
+    var name by remember(room.id) { mutableStateOf(room.name) }
+    var bulletin by remember(room.id) { mutableStateOf(room.bulletin) }
+    var members by remember(room.id) { mutableStateOf(room.memberIds.toSet()) }
+    var responder by remember(room.id) { mutableStateOf(room.defaultResponder) }
+    var saving by remember(room.id) { mutableStateOf(false) }
+    var error by remember(room.id) { mutableStateOf<String?>(null) }
+    val available = bots.filter { it.hidden != true || it.id in room.memberIds }
+    val orderedMembers = room.memberIds.filter { it in members } +
+        available.map { it.id }.filter { it in members && it !in room.memberIds }
+    val validResponder = responder.kind != "member" || responder.botId in members
+    val changed = name.trim() != room.name || bulletin != room.bulletin ||
+        orderedMembers != room.memberIds || responder != room.defaultResponder
+
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text("Group settings", style = MaterialTheme.typography.titleLarge)
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = bulletin,
+                onValueChange = { bulletin = it },
+                label = { Text("Group instructions") },
+                minLines = 3,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text("Members", style = MaterialTheme.typography.titleMedium)
+            available.forEach { bot ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().toggleable(
+                        value = bot.id in members,
+                        role = Role.Checkbox,
+                        onValueChange = { selected ->
+                            members = if (selected) members + bot.id else members - bot.id
+                            if (!selected && responder.botId == bot.id) responder = GroupResponder("everyone")
+                        },
+                    ),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(checked = bot.id in members, onCheckedChange = null)
+                    Text(bot.name, modifier = Modifier.padding(start = 8.dp))
+                }
+            }
+            Text("Who responds by default", style = MaterialTheme.typography.titleMedium)
+            if (responder.kind == "dynamic") {
+                Text("Dynamic routing is active. Keep it, or choose a supported mode below.")
+            }
+            listOf("everyone" to "Everyone", "mentions" to "Only @mentions").forEach { (kind, label) ->
+                FilterChip(
+                    selected = responder.kind == kind,
+                    onClick = { responder = GroupResponder(kind) },
+                    label = { Text(label) },
+                )
+            }
+            orderedMembers.forEach { id ->
+                val bot = available.firstOrNull { it.id == id } ?: return@forEach
+                FilterChip(
+                    selected = responder.kind == "member" && responder.botId == id,
+                    onClick = { responder = GroupResponder("member", id) },
+                    label = { Text("Only ${bot.name}") },
+                )
+            }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(
+                    enabled = !saving && changed && name.trim().isNotEmpty() &&
+                        name.trim().length <= 100 && bulletin.length <= 12_000 &&
+                        members.isNotEmpty() && validResponder,
+                    onClick = {
+                        saving = true
+                        error = null
+                        scope.launch {
+                            try {
+                                session.updateRoom(
+                                    room = room,
+                                    name = name.trim().takeIf { it != room.name },
+                                    memberIds = orderedMembers.takeIf { it != room.memberIds },
+                                    bulletin = bulletin.takeIf { it != room.bulletin },
+                                    defaultResponder = responder.takeIf { it != room.defaultResponder },
+                                )
+                                onDismiss()
+                            } catch (failure: Exception) {
+                                error = failure.message ?: "Could not save group settings."
+                            } finally {
+                                saving = false
+                            }
+                        }
+                    },
+                ) {
+                    if (saving) CircularProgressIndicator() else Text("Save")
+                }
+            }
+        }
+    }
+}

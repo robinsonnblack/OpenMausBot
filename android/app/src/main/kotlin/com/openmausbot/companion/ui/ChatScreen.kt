@@ -251,6 +251,7 @@ private fun LoadedChat(
     // Saveable: the profile form is a form, and a rotation must not throw away
     // what was typed into it — the sheet has to come back for that to matter.
     var showingProfile by rememberSaveable { mutableStateOf(false) }
+    var showingRoomSettings by rememberSaveable { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -915,16 +916,14 @@ private fun LoadedChat(
                         dictation.stop()
                         if (bot != null) onOpenComputer(bot.id)
                     },
-                    // A bot's face and its name pill are both the door to its
-                    // profile; a room has no profile, so its pill opens the same
-                    // sheet the + does.
+                    // The avatar opens settings; the name pill opens threads.
                     onOpenProfile = {
                         if (bot != null) {
                             showingProfile = true
                         } else {
                             dictation.stop()
                             focusManager.clearFocus()
-                            showingPlus = true
+                            showingRoomSettings = true
                         }
                     },
                     modifier = Modifier
@@ -1035,6 +1034,14 @@ private fun LoadedChat(
                 onOpenOverview(it)
                 showingProfile = false
             },
+        )
+    }
+
+    if (showingRoomSettings && chat is Chat.RoomChat && chat.room.dm != true) {
+        RoomSettingsSheet(
+            room = chat.room,
+            bots = state.bots,
+            onDismiss = { showingRoomSettings = false },
         )
     }
 
@@ -1153,13 +1160,11 @@ private fun ChatHeader(
                 chat = chat,
                 size = 60.dp,
                 state = face,
-                modifier = if (chat is Chat.BotChat) {
+                modifier = if (chat is Chat.BotChat || chat is Chat.RoomChat && chat.room.dm != true) {
                     Modifier
                         .clickable(role = Role.Button, onClick = onOpenProfile)
                         .semantics { contentDescription = "Open ${chat.name} settings" }
-                } else {
-                    Modifier
-                },
+                } else Modifier,
             )
             NamePill(chat = chat, onOpen = if (chat.supportsTasks) onOpenThreads else onOpenProfile)
         }

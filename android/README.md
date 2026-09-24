@@ -9,6 +9,12 @@ running OpenMausBot, then read and answer from the phone.
 - Two modules: `:core` (protocol, ported from `ios/Sources/CompanionCore`) and
   `:app` (Compose UI, Android platform)
 
+In a group chat, tap the group avatar to edit its name, members, instructions,
+and default responder. The paired computer validates and saves these changes;
+an active turn can temporarily block changes to members or routing. Direct
+messages have no group settings. Existing dynamic routing remains active if
+you leave the responder unchanged.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so
