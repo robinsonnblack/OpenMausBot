@@ -137,6 +137,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
     var choosingBotComputer by remember(opened.id) { mutableStateOf(false) }
     var confirmingLocalAuto by remember(opened.id) { mutableStateOf(false) }
+    var workingFolderDraft by rememberSaveable(opened.id) { mutableStateOf(opened.cwd.orEmpty()) }
+    var workingFolderBaseline by rememberSaveable(opened.id) { mutableStateOf(opened.cwd.orEmpty()) }
+    val workingFolderConflict = workingFolderDraft != workingFolderBaseline && current.cwd.orEmpty() != workingFolderBaseline
+    LaunchedEffect(current.cwd) {
+        if (workingFolderDraft == workingFolderBaseline) {
+            workingFolderDraft = current.cwd.orEmpty()
+            workingFolderBaseline = workingFolderDraft
+        }
+    }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -596,6 +605,62 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     Text(if (connection?.serverScopes?.contains("admin") == true)
                         "Elevated approval permissions can only be changed in the packaged desktop app."
                     else "Changing the bot-wide default requires an admin pairing. Elevated approval permissions require the packaged desktop app.")
+                }
+
+                FormSection(
+                    header = "Working folder",
+                    footer = "This path is on the paired computer, not on your phone. New tasks use the new folder; existing tasks may remain pinned to their earlier folder.",
+                ) {
+                    Text(current.cwd?.takeIf { it.isNotBlank() } ?: "Private bot folder")
+                    if (currentTaskRecord?.cwd != null && currentTaskRecord.cwd != current.cwd) {
+                        Text("This chat is still pinned to ${currentTaskRecord.cwd}.")
+                    }
+                    if (connection?.serverScopes?.contains("admin") == true) {
+                        if (workingFolderConflict) {
+                            IconNote(text = "The working folder changed on the computer while you were editing. Close and reopen this sheet before saving.", icon = Icons.Filled.Warning)
+                        }
+                        OutlinedTextField(
+                            value = workingFolderDraft,
+                            onValueChange = { workingFolderDraft = it },
+                            label = { Text("Absolute path on the computer") },
+                            singleLine = true,
+                            enabled = !busy,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        ActionRow(
+                            text = "Save working folder",
+                            icon = Icons.Filled.Check,
+                            enabled = !busy && !workingFolderConflict && workingFolderDraft != workingFolderBaseline,
+                            onClick = {
+                                scope.launch {
+                                    busy = true
+                                    val updated = session.setBotWorkingFolder(liveBot(), workingFolderDraft.trim().ifEmpty { null })
+                                    if (updated != null) {
+                                        workingFolderDraft = updated.cwd.orEmpty()
+                                        workingFolderBaseline = workingFolderDraft
+                                    }
+                                    busy = false
+                                }
+                            },
+                        )
+                        if (!current.cwd.isNullOrBlank()) {
+                            ActionRow(
+                                text = "Use private bot folder",
+                                enabled = !busy,
+                                onClick = {
+                                    scope.launch {
+                                        busy = true
+                                        val updated = session.setBotWorkingFolder(liveBot(), null)
+                                        if (updated != null) {
+                                            workingFolderDraft = ""
+                                            workingFolderBaseline = ""
+                                        }
+                                        busy = false
+                                    }
+                                },
+                            )
+                        }
+                    } else Text("Changing this folder requires an admin pairing.")
                 }
 
                 VoiceSection(

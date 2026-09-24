@@ -66,7 +66,10 @@ bot default again. A phone paired with the `admin` scope can also change the
 bot-wide computer default; an ordinary `client` pairing cannot. Choosing This
 computer while Auto approval is active requires a separate confirmation, and
 the server still validates the change. Elevated approval levels remain
-desktop-only.
+desktop-only. Admin-scoped phones can enter an absolute working-folder path
+on the paired computer or return to the private bot folder. The server checks
+that the path exists and is a directory; an existing task may retain its old
+folder until a new task starts.
 
 ## Build and test
 

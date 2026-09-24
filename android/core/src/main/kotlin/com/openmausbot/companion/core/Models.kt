@@ -316,6 +316,8 @@ data class BotTask(
     val autoApprove: Boolean? = null,
     /** Per-conversation computer destination; null follows the bot default. */
     val surface: String? = null,
+    /** Folder pinned for this task by the server after its first turn. */
+    val cwd: String? = null,
     val alwaysAllow: List<String>? = null,
     val projectId: String? = null,
     val openedBy: ThreadOpener? = null,
@@ -422,6 +424,8 @@ data class Bot(
     val alwaysAllow: List<String>? = null,
     val computer: String? = null,
     val cloudBackend: String? = null,
+    /** Server-side working folder; null uses the bot's private folder. */
+    val cwd: String? = null,
     val speakReplies: Boolean? = null,
     val voice: String? = null,
     val mascotExpression: String? = null,

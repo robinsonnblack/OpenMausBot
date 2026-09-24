@@ -449,6 +449,12 @@ class CompanionClient(
         )).bot
     }
 
+    /** A path on the paired computer, validated by that computer before it is saved. */
+    suspend fun setBotWorkingFolder(botId: String, cwd: String?): Bot = send<BotResponse>(makeRequest(
+        "PATCH", "/api/bots/${segment(botId)}",
+        body = buildJsonObject { put("cwd", cwd?.let(::JsonPrimitive) ?: JsonNull) },
+    )).bot
+
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.
