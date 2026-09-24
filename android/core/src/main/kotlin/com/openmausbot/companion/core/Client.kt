@@ -488,7 +488,7 @@ class CompanionClient(
         return send<CreatedRoom>(makeRequest("POST", "/api/groups", body = body)).group
     }
 
-    /** Only send changed fields; an existing dynamic responder cannot be PATCHed by this API. */
+    /** Send only changed fields; the server validates the selected responder mode. */
     suspend fun updateRoom(
         groupId: String,
         name: String? = null,

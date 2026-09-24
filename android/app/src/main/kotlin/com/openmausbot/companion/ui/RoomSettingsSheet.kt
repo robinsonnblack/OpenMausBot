@@ -96,10 +96,12 @@ internal fun RoomSettingsSheet(
                 }
             }
             Text("Who responds by default", style = MaterialTheme.typography.titleMedium)
-            if (responder.kind == "dynamic") {
-                Text("Dynamic routing is active. Keep it, or choose a supported mode below.")
-            }
-            listOf("everyone" to "Everyone", "mentions" to "Only @mentions").forEach { (kind, label) ->
+            Text("Dynamic lets the bots decide who should reply and when to stop.")
+            listOf(
+                "everyone" to "Everyone",
+                "mentions" to "Only @mentions",
+                "dynamic" to "Dynamic",
+            ).forEach { (kind, label) ->
                 FilterChip(
                     selected = responder.kind == kind,
                     onClick = { responder = GroupResponder(kind) },
