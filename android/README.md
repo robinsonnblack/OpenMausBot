@@ -3,6 +3,11 @@
 The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
+The Android New bot sheet loads the paired computer's suggested defaults and
+available model catalog before creation. The person can choose provider,
+model, reasoning effort and team before the first turn; the server validates
+that the selected model is available.
+
 An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a
 second confirmation and applies the server's deletion event to open chats.
