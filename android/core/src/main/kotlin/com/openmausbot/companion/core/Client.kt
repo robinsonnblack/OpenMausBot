@@ -381,6 +381,15 @@ class CompanionClient(
     suspend fun botCreationOptions(): BotCreationOptions =
         send(makeRequest("GET", "/api/bot-defaults"))
 
+    suspend fun setDefaultBotModel(selection: ModelSelection): BotCreationOptions {
+        val model = CompanionJson.encodeToJsonElement(ModelSelection.serializer(), selection)
+        send<ConfigStatus>(makeRequest(
+            "PATCH", "/api/config",
+            body = buildJsonObject { put("defaultModelSelection", model) },
+        ))
+        return botCreationOptions()
+    }
+
     /** Legacy defaults-based creation remains available to existing callers. */
     suspend fun createBot(): Bot = send<CreatedBot>(makeRequest("POST", "/api/bots")).bot
 

@@ -82,6 +82,10 @@ From the same team screen, an admin can appoint or remove its Chief of Staff.
 Handing the role to another bot is confirmed before the server makes the
 change. The appointment option requires a model engine that supports bot
 coordination; the computer enforces the final role change.
+
+Settings → Bot defaults lets an admin choose the provider, model and reasoning
+effort inherited by future bots. Saving rereads the computer's effective
+default; it does not change existing bots.
 This server endpoint requires an admin-scoped pairing. Cost estimates and
 unpriced turns are labeled; the phone does not alter budget settings.
 If the paired workspace has an organization library, bot settings also list

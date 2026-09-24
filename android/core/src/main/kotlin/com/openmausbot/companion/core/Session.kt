@@ -1473,6 +1473,14 @@ class Session(
     suspend fun botCreationOptions(): BotCreationOptions =
         (client ?: throw APIError.Transport("This computer is offline.")).botCreationOptions()
 
+    suspend fun setDefaultBotModel(selection: ModelSelection): BotCreationOptions {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Changing bot defaults requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .setDefaultBotModel(selection)
+    }
+
     suspend fun createBot(
         name: String,
         title: String,

@@ -94,6 +94,7 @@ fun SettingsScreen(
     var managingTeams by remember { mutableStateOf(false) }
     var creatingBotForTeam by remember { mutableStateOf<String?>(null) }
     var configuringMistral by remember { mutableStateOf(false) }
+    var editingDefaultBotModel by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -271,6 +272,9 @@ fun SettingsScreen(
             }
 
             if (connection?.serverScopes?.contains("admin") == true) {
+                SettingsSection("Bot defaults") {
+                    SettingsButton("Default model for new bots") { editingDefaultBotModel = true }
+                }
                 SettingsSection("Teams") {
                     SettingsButton("Manage teams") { managingTeams = true }
                 }
@@ -532,6 +536,7 @@ fun SettingsScreen(
         )
     }
     if (configuringMistral) MistralSetupSheet { configuringMistral = false }
+    if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
 }
 
 @Composable
