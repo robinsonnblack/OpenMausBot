@@ -15,6 +15,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+import { parse as parseYaml } from "yaml";
 import { LICENSE_FILES } from "./cua-linux-release.mjs";
 import {
   CLOUDFLARED_ASSETS,
@@ -74,9 +75,12 @@ function requirePackageType(resources, label, expected) {
 function requireUpdaterTarget(resources, label) {
   const updateFile = path.join(resources, "app-update.yml");
   requireFile(updateFile);
-  const update = readFileSync(updateFile, "utf8");
-  if (!/^owner: milind-soni$/m.test(update) || !/^repo: OpenMausBot$/m.test(update)) {
-    fail(`${label} app-update.yml does not point at milind-soni/OpenMausBot`);
+  const target = parseYaml(readFileSync(path.join(root, "electron-builder.yml"), "utf8"))
+    ?.publish?.find((publisher) => publisher.provider === "github");
+  if (!target?.owner || !target?.repo) fail("electron-builder.yml has no GitHub publish target");
+  const update = parseYaml(readFileSync(updateFile, "utf8"));
+  if (update?.owner !== target.owner || update?.repo !== target.repo) {
+    fail(`${label} app-update.yml does not match the configured GitHub publish target`);
   }
 }
 
