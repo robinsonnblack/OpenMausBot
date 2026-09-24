@@ -45,6 +45,10 @@ unpriced turns are labeled; the phone does not alter budget settings.
 If the paired workspace has an organization library, bot settings also list
 skills the admin published for that bot. Adding one requires confirmation and
 enables it immediately, matching the desktop's organization-skill behavior.
+Bot settings show the computer destination and approval mode reported by the
+paired computer for the current chat. These are read-only on Android because
+the paired-safe profile endpoint cannot change execution permissions; edit
+them on the computer.
 
 ## Build and test
 
