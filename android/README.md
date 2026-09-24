@@ -28,6 +28,10 @@ same 24,000-byte UTF-8 limit as the computer. When the computer reports an
 external SOUL.md edit, resolve that difference on the computer first; the
 phone does not silently overwrite it.
 
+Bot settings can show profile change history from the paired computer. The
+list omits full standing-instruction text; an eligible SOUL.md change can be
+undone only after confirmation, using the server's revision check.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so

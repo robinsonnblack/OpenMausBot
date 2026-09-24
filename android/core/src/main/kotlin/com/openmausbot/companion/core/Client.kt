@@ -352,6 +352,16 @@ class CompanionClient(
         ).bot
     }
 
+    suspend fun profileHistory(botId: String): ProfileHistory =
+        send(makeRequest("GET", "/api/bots/${segment(botId)}/history"))
+
+    suspend fun undoStandingInstructionChange(botId: String, rowId: String, revision: String): Bot =
+        send<BotResponse>(makeRequest(
+            "POST",
+            "/api/bots/${segment(botId)}/history/rollback",
+            body = jsonBody("id" to rowId, "expectedRevision" to revision),
+        )).bot
+
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.

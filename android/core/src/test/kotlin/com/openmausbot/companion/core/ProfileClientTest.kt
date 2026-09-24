@@ -37,6 +37,24 @@ class ProfileClientTest {
     }
 
     @Test
+    fun historyReadsWithoutFullBodiesAndRollbackSendsRevision() = runBlocking {
+        server.enqueue(json("""{"revision":"rev-2","rows":[{"id":"row-1","at":1234,"actor":"user","via":"api","field":"soul","summary":"soul: 10 → 20 bytes","canRestore":true}]}"""))
+        val history = client.profileHistory("avatar-bot")
+        assertEquals("rev-2", history.revision)
+        assertEquals("row-1", history.rows.single().id)
+        assertEquals("/api/bots/avatar-bot/history", server.takeRequest().path)
+
+        server.enqueue(json(botResponse()))
+        client.undoStandingInstructionChange("avatar-bot", "row-1", history.revision)
+        val request = server.takeRequest()
+        assertEquals("POST", request.method)
+        assertEquals("/api/bots/avatar-bot/history/rollback", request.path)
+        val body = CompanionJson.parseToJsonElement(request.body.readUtf8()).jsonObject
+        assertEquals("row-1", body.getValue("id").jsonPrimitive.content)
+        assertEquals("rev-2", body.getValue("expectedRevision").jsonPrimitive.content)
+    }
+
+    @Test
     fun profilePatchPreservesServerLimitsWithoutClientTruncation() = runBlocking {
         val name = "n".repeat(100)
         val title = "t".repeat(200)
