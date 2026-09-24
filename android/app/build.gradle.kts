@@ -135,6 +135,15 @@ android {
             // the separately signed release and keeps its own pairing/data.
             signingConfig = signingConfigs.getByName("debug")
         }
+        create("personal") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".personal"
+            versionNameSuffix = "-personal"
+            matchingFallbacks += "debug"
+            // Stable on this development machine, independent from the official
+            // app. Later personal APKs can update this one without erasing it.
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             // Null whenever no signing material was supplied — the unsigned
             // handover build — and the "release" config whenever it was.

@@ -27,12 +27,9 @@ data class QuickReply(
     val icon: String,
 ) {
     companion object {
-        val DEFAULTS: List<QuickReply> = listOf(
-            QuickReply("default.diff", "Show diff", "Show latest git diff", "diff"),
-            QuickReply("default.tests", "Run tests", "Run all automated tests", "tests"),
-            QuickReply("default.explain", "Explain steps", "Explain the changes in detail", "explain"),
-            QuickReply("default.next", "What's next?", "What should we do next?", "next"),
-        )
+        // Private build: suggestions are opt-in. They are generic actions and
+        // should never masquerade as context-aware advice in an unrelated chat.
+        val DEFAULTS: List<QuickReply> = emptyList()
 
         val ICON_CHOICES: List<String> = listOf(
             "next", "diff", "tests", "explain", "build", "bug", "document", "terminal",

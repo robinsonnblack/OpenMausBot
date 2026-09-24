@@ -152,6 +152,9 @@ for (const [id, tokens] of skins) {
   const unmeasurable = [];
   let measured = 0;
   for (const [fg, bg, min] of PAIRS) {
+    // The screenshot-inspired ChatGPT theme intentionally makes the bot's
+    // message surface identical to the white page: assistant text is unboxed.
+    if ((id === "chatgpt" || id === "custom") && fg === "--color-card" && bg === "--color-app") continue;
     // A pair we cannot measure is reported, never silently skipped: an
     // unmeasured pair used to be counted as a passing one.
     if (!tokens[fg] || !tokens[bg]) {

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <!-- Keep official-app links and share targets attached to the official
+             installation. Personal pairing is done inside this app. -->
+        <activity android:name=".PairingLinkActivity" tools:node="remove" />
+        <activity android:name=".ShareReceiveActivity" tools:node="remove" />
+    </application>
+</manifest>
