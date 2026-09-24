@@ -31,6 +31,7 @@ import type {
 import { newEventId, newId } from "../contracts.ts";
 import { decodeCodexSelection, readCodexModelCatalog, STATIC_CODEX_MODELS } from "./codex-catalog.ts";
 import { codexLocalProviderArgs } from "./local-inject.ts";
+import { openCodexCacheRoute } from "./codex-cache-route.ts";
 import { augmentedPath, splitCliString } from "../env-path.ts";
 import { classifyError, computeBackoff, interruptibleDelay, RETRY_MAX_ATTEMPTS } from "./retry.ts";
 import { appendNative } from "./native.ts";
@@ -666,7 +667,14 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
 
       const launchAttempt = async (attempt: number): Promise<void> => {
         const env = childEnv();
+        const selectedProvider = decodeCodexSelection(turn.model).modelProvider ?? "openai";
+        const cacheRoute = !config.managed && selectedProvider === "openai" && turn.botId
+          ? await openCodexCacheRoute(turn.botId, turn.threadId) : null;
         const appServerArgs = ["app-server", ...(config.managed ? managedCodexArgs(config.managed) : codexLocalProviderArgs(env, turn.model))];
+        if (cacheRoute) {
+          const definition = "{" + Object.entries(cacheRoute.provider).map(([key, value]) => `${key}=${JSON.stringify(value)}`).join(",") + "}";
+          appServerArgs.push("-c", `model_providers.openmaus_cache=${definition}`);
+        }
         if (turn.integrations?.composio) {
           mountMcpServer(appServerArgs, env, "openmausbot_connectors", turn.integrations.composio);
         }
@@ -838,6 +846,7 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
       const settle = async (ok: boolean, stopReason: string | null) => {
         if (state.settled) return;
         state.settled = true;
+        cacheRoute?.close();
         for (const finish of Array.from(asks.values())) finish("deny", "OpenMausBot: the turn ended", "system");
         for (const p of rpcPending.values()) p.reject(new Error("turn settled"));
         rpcPending.clear();
@@ -1322,6 +1331,7 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
           // rpc timer rejection in the handshake catch cannot relaunch
           // a second time on top of this one.
           abandoned = true;
+          cacheRoute?.close();
           void (async () => {
             const alreadyDead = child.exitCode !== null || child.signalCode !== null;
             if (!alreadyDead && !(await terminate())) {
@@ -1455,7 +1465,7 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
               developerInstructions,
               cwd: turn.cwd ?? homedir(),
               model: selection.model,
-              ...(selection.modelProvider ? { modelProvider: selection.modelProvider } : {}),
+              ...(cacheRoute ? { modelProvider: "openmaus_cache" } : selection.modelProvider ? { modelProvider: selection.modelProvider } : {}),
               ...approvalParams.thread,
               ephemeral: false,
             });
@@ -1524,6 +1534,7 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
           // This app-server never exits by itself. Retire the failed attempt
           // and silence its late handlers before the replacement launches.
           abandoned = true;
+          cacheRoute?.close();
           if (!await terminate()) {
             void settle(false, "shutdown_timeout");
             return;
