@@ -839,6 +839,7 @@ data class ConfigStatus(
     val box: ConfigFlag? = null,
     val tts: ConfigFlag? = null,
     val imageGen: ConfigFlag? = null,
+    val mistral: ConfigFlag? = null,
     val profile: Profile? = null,
 ) {
     /**
@@ -864,6 +865,15 @@ data class ConfigStatus(
     val voiceProvider: VoiceProvider
         get() = VoiceProvider.fromWire(tts?.provider)
 }
+
+@Serializable
+data class ProviderKeyVerdict(
+    val ok: Boolean,
+    val check: String? = null,
+    val models: List<String> = emptyList(),
+    val reason: String? = null,
+    val status: Int? = null,
+)
 
 object ConnectedAppsRules {
     const val MAX_ACCOUNT_ALIAS_LENGTH = 64

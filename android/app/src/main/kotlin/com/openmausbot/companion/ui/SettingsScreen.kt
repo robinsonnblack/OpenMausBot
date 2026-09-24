@@ -96,6 +96,7 @@ fun SettingsScreen(
     var editingQuickReplies by remember { mutableStateOf(false) }
     var editingTheme by remember { mutableStateOf(false) }
     var showingUsage by remember { mutableStateOf(false) }
+    var configuringMistral by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -247,6 +248,12 @@ fun SettingsScreen(
                     showingUsage = !showingUsage
                 }
                 if (showingUsage) WorkspaceUsageSection()
+            }
+
+            if (connection?.serverScopes?.contains("admin") == true) {
+                SettingsSection("Providers") {
+                    SettingsButton("Mistral API and models") { configuringMistral = true }
+                }
             }
 
             // Routine schedules live on the computer this phone is bound to.
@@ -432,6 +439,7 @@ fun SettingsScreen(
         )
     }
     if (editingTheme) ThemeEditor(environment.chatPreferences) { editingTheme = false }
+    if (configuringMistral) MistralSetupSheet { configuringMistral = false }
 }
 
 @Composable

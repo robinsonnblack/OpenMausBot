@@ -2121,6 +2121,17 @@ class Session(
         null
     }
 
+    private fun requireProviderAdmin(): CompanionClient {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Provider setup requires an admin pairing.")
+        }
+        return client ?: throw APIError.Transport("This computer is offline.")
+    }
+
+    suspend fun setMistralKey(key: String): ConfigStatus = requireProviderAdmin().setMistralKey(key)
+    suspend fun testMistralKey(key: String? = null): ProviderKeyVerdict =
+        requireProviderAdmin().testMistralKey(key)
+
     /**
      * Switch the workspace's voice engine. The sheet reloads the voice list
      * afterwards, because every engine names its own voices.

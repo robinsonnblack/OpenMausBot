@@ -54,6 +54,11 @@ SKILL.md text, disable or remove them, and import from GitHub. Imports remain
 disabled until you read the skill and explicitly enable it on the phone.
 Settings can show the paired computer's read-only workspace usage ledger for
 this month, last month, or the last 30 days, grouped by bot, model, or day.
+
+An admin-paired phone can set, test, discover models for, and remove the paired
+computer's Mistral API key in Settings → Providers. The key is stored by the
+computer, not in Android preferences. Key operations require a protected HTTPS
+or Tailscale route; a plain LAN pairing cannot send them.
 This server endpoint requires an admin-scoped pairing. Cost estimates and
 unpriced turns are labeled; the phone does not alter budget settings.
 If the paired workspace has an organization library, bot settings also list
