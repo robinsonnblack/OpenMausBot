@@ -34,8 +34,8 @@
     ]
   },
   "direct+voice": {
-    "bytes": 42447,
-    "sha256": "ebd12cfa4b53120382d8fe1515d3d5b8aa7180479139b64335a003d5d4c35e5e",
+    "bytes": 42701,
+    "sha256": "5b6e955137569797836e1c08b595f9a97376a3703dcd7b8e017ee07c6452c5c8",
     "tools": [
       "tool_result_read",
       "list_bots",
@@ -105,8 +105,8 @@
     ]
   },
   "direct+shared+voice": {
-    "bytes": 44192,
-    "sha256": "600ccabb66a8b4ac64aa576aea21a65da5420d537b2ff0e343332fece30db1f8",
+    "bytes": 44446,
+    "sha256": "68f628f5d1f917c9559671f06bf11c2034a4b76949cd9f3cafb4acf484fbf71f",
     "tools": [
       "tool_result_read",
       "list_shared_computers",
@@ -178,8 +178,8 @@
     ]
   },
   "direct+skills+voice": {
-    "bytes": 44373,
-    "sha256": "fdba3d0b306590973202c51420a14ee6d0d1a04d02f8a1a64d52c3ab6ddb8e87",
+    "bytes": 44627,
+    "sha256": "ab864fee394a9b584c1008bb707d16ca57ddc35984d5de41b3cfb9cf7097e3b0",
     "tools": [
       "tool_result_read",
       "list_bots",
@@ -253,8 +253,8 @@
     ]
   },
   "direct+skills+shared+voice": {
-    "bytes": 46118,
-    "sha256": "9f0d4f74867203e94bcbd60eda88a8f97fcdee572982016ef30995ad5e001b04",
+    "bytes": 46372,
+    "sha256": "d2c2d3558d7cb7bf3a53d76d3ad136dbce2ad5271099e7aaf7d447d4d69049e4",
     "tools": [
       "tool_result_read",
       "list_shared_computers",
@@ -323,8 +323,8 @@
     ]
   },
   "room+voice": {
-    "bytes": 40465,
-    "sha256": "3873653a9f21fea25f4f5eb490e4b4b571e5ff8e914cedd4a99b137269052ddd",
+    "bytes": 40719,
+    "sha256": "037bf4de89365f07a4d62aacad0246e63fae421dc2c686d589689dea7a5e9994",
     "tools": [
       "tool_result_read",
       "list_room_targets",
@@ -388,8 +388,8 @@
     ]
   },
   "room+shared+voice": {
-    "bytes": 42210,
-    "sha256": "0b57c799143e902548c040849d719cfff6c14664b0080f239dc46bde1e6f72e2",
+    "bytes": 42464,
+    "sha256": "d6f1338ead733e0c68bc0d52505f04a29f9d1b0a0cde8e3538b6dea1664e2d70",
     "tools": [
       "tool_result_read",
       "list_shared_computers",
@@ -455,8 +455,8 @@
     ]
   },
   "room+skills+voice": {
-    "bytes": 42391,
-    "sha256": "4185bfc2f6e825620049317b1d9fcdc39807f5c53018d1e9035903fce0740e76",
+    "bytes": 42645,
+    "sha256": "1c2471a2974ea82998096aa37421b3bab69b7c4e39927a10b17beae45e891d57",
     "tools": [
       "tool_result_read",
       "list_room_targets",
@@ -524,8 +524,8 @@
     ]
   },
   "room+skills+shared+voice": {
-    "bytes": 44136,
-    "sha256": "f192d022f38bbc7cb2bd7e5a0d49e6730970553b5af04b86b5c5d62bb0d916d9",
+    "bytes": 44390,
+    "sha256": "cd06801d60c02a77db722fc434667ca5c8735e12ea73bc5353602638c9788065",
     "tools": [
       "tool_result_read",
       "list_shared_computers",
@@ -592,8 +592,8 @@
     ]
   },
   "room+own-thread+voice": {
-    "bytes": 41752,
-    "sha256": "f4237517463977aba27c2cfb762d04fa1f38bb63fea121e3435039799a02a224",
+    "bytes": 42006,
+    "sha256": "c7e9f4c74ba9458d15bec5fe757402bdbe19a4f0556a2caa46470073e9c18429",
     "tools": [
       "tool_result_read",
       "list_room_targets",
@@ -659,8 +659,8 @@
     ]
   },
   "room+own-thread+shared+voice": {
-    "bytes": 43497,
-    "sha256": "98a270f0e0add3ab0b8ec6c3ffff61517eda2be07749d5d4907c2c52559fb456",
+    "bytes": 43751,
+    "sha256": "893042bbab0d49091f80568971711ba16410d9d6cd1d92bd49fe2058ce77d72e",
     "tools": [
       "tool_result_read",
       "list_shared_computers",
@@ -728,8 +728,8 @@
     ]
   },
   "room+own-thread+skills+voice": {
-    "bytes": 43678,
-    "sha256": "2e6ab94f0526c042fc63e01389114f077febe4375ddb2dfdc64caf05420e474d",
+    "bytes": 43932,
+    "sha256": "b758b43df6f7a757f08cc3d27287608e2b9dfd15255d178c11681ca4f93f39e5",
     "tools": [
       "tool_result_read",
       "list_room_targets",
@@ -799,8 +799,8 @@
     ]
   },
   "room+own-thread+skills+shared+voice": {
-    "bytes": 45423,
-    "sha256": "1834ede8a23d19518cced1f1d656488fe040910eadcdec31ad227bfdb5692786",
+    "bytes": 45677,
+    "sha256": "5f083421eb9581cce26593bd67a7d41db88ca2f31d4c21655fa79ac264917df9",
     "tools": [
       "tool_result_read",
       "list_shared_computers",
