@@ -1494,6 +1494,19 @@ class Session(
         }
     }
 
+    suspend fun updateRoom(
+        room: Room,
+        name: String? = null,
+        memberIds: List<String>? = null,
+        bulletin: String? = null,
+        defaultResponder: GroupResponder? = null,
+    ): Room {
+        val activeClient = client ?: throw APIError.Transport("This computer is offline.")
+        return activeClient.updateRoom(room.id, name, memberIds, bulletin, defaultResponder).also { updated ->
+            _state.update { it.apply(Frame.Room(updated)) }
+        }
+    }
+
     /**
      * Create or extend a derived sidebar section in one server transaction.
      * The desktop has no standalone section resource yet, so we merge the

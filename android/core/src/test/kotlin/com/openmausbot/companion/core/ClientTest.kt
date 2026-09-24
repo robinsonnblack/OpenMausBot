@@ -60,6 +60,18 @@ class ClientTest {
     }
 
     @Test
+    fun roomSettingsPatchSendsOnlyChangedFields() = runBlocking {
+        server.enqueue(json("""{"group":{"id":"room-1","threadId":"thread-1","name":"Planning","memberIds":["bot-1"],"defaultResponder":{"kind":"dynamic"},"bulletin":"Updated","unread":false,"createdAt":0}}"""))
+        val updated = client.updateRoom("room-1", bulletin = "Updated")
+        assertEquals("Updated", updated.bulletin)
+        assertEquals("dynamic", updated.defaultResponder.kind)
+        val request = server.takeRequest()
+        assertEquals("PATCH", request.method)
+        assertEquals("/api/groups/room-1", request.path)
+        assertEquals(mapOf("bulletin" to "Updated"), stringBody(request.body.readUtf8()))
+    }
+
+    @Test
     fun pairingUsesTheRightCredentialFieldAndNoAuthorization() = runBlocking {
         server.enqueue(json(fixtureText("pair-response")))
         val older = CompanionClient.pair(connection, "004209", "Ada's phone")

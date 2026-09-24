@@ -17,6 +17,12 @@ Long-press a text message in a bot or non-DM room chat to pin it. The pinned
 message stays above the transcript; tapping it loads older history when needed
 and jumps to the message. Each conversation can have one pin.
 
+In a group chat, tap the group avatar to edit its name, members, instructions,
+and default responder. The paired computer validates and saves these changes;
+an active turn can temporarily block changes to members or routing. Direct
+messages have no group settings. Existing dynamic routing remains active if
+you leave the responder unchanged.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so
