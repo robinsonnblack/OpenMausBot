@@ -9,7 +9,7 @@ import { createMessageDeletion } from "./message-deletion.mjs";
 // folds one SSE event stream; every provider process runs here.
 import { AsyncLocalStorage } from "node:async_hooks";
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
-import { existsSync, readFileSync, rmSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync, rmSync, mkdirSync } from "node:fs";
 import { writeFileAtomic } from "./atomic.ts";
 import { rm as removeDirectory } from "node:fs/promises";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -48,6 +48,8 @@ import {
 } from "../shared/credential-request.ts";
 
 import { approvalHeldNote, approvalHeldReason, approvalModeForOrigin, autoVerdict, deliverFullAccessApproval, delegationInheritsFullAccess } from "./auto-approve.ts";
+import { CommandAllowlistStore, commandAllowlistCandidate } from "./command-allowlist.ts";
+import type { CommandAllowlistCandidate, CommandAllowlistResponse } from "../shared/command-allowlist.ts";
 import { updateClaudeCli } from "./claude-update.ts";
 import { configuredAccountDirectory, assertSeparateClaudeAccount, claudeAccountInfo, createClaudeAccountSchema, instanceSettingsSchema, newClaudeAccount } from "./claude-accounts.ts";
 import { providerIconPatchSchema, withInstanceIcon } from "./provider-icon.ts";
@@ -335,6 +337,7 @@ import {
   applyStagedSkillWrite,
   applySkillWriteWithReceipt,
   getStagedSkillWrite,
+  installOrgSkill,
   installSkill,
   parseSkillMd,
   scanSkillText,
@@ -345,6 +348,7 @@ import {
   rejectStagedSkillWrite,
   removeSkill,
   setSkillEnabled,
+  skillPackageStamps,
   skillsSystemPrompt,
   stageSkillWrite,
 } from "./skills.ts";
@@ -423,9 +427,14 @@ import type { WebhookTrigger } from "../shared/webhooks.ts";
 import { SPAWNED_PROXIES } from "./proxy-paths.ts";
 import { loadBundledSkills, loadUserSkills, mergeSkills, renderSkillInstructions, selectBundledSkills } from "./skill-library.ts";
 import { installedPlaybookInstructions } from "./installed-playbooks.ts";
-import { createBotPackageExport, createTeamPackageExport, TeamExportError, type ExportablePackageSkill, type TeamExportSkip } from "./package-export.ts";
+import { createBotPackageExport, createLibraryPackageExport, createTeamPackageExport, picture as sharedPicture, TeamExportError, type ExportablePackageSkill, type TeamExportSkip } from "./package-export.ts";
 import { importPackageDocument, importTeamManifest, PackageImportError, type PackageImportDeps, type PackageImportResult } from "./package-import.ts";
+import {
+  applyPresetToBot, createPresetStore, DEFAULTS_PRESET_KEY, PRESET_UNAVAILABLE_MESSAGE,
+  presetFromDefaults, presetOffered, readOrgInstallStatuses, readPublishedLibrary, writePublishedLibrary,
+} from "./presets.ts";
 import { readPublishedTeam, writePublishedTeam } from "./published-teams.ts";
+import { OrgLibrary } from "./org-library.ts";
 import { createTeamBackup, importTeamBackup } from "./team-backup.ts";
 import { MAX_TEAM_BACKUP_BYTES } from "../shared/team-backup.ts";
 import { shouldMountLocalComputer } from "./local-routing.ts";
@@ -524,6 +533,7 @@ import {
 import { json, onJsonBody, parsedBodyOf, readBody } from "./harness/http.ts";
 import { ROUTES, dispatchRoutes } from "./routes/table.ts";
 import { createHostedSlackRoutes } from "./routes/hosted-slack.ts";
+import { createBotPresetRoutes } from "./routes/bot-presets.ts";
 
 const PORT = Number(process.env.OMB_PORT || process.env.OGB_PORT || 8799);
 const WEBHOOK_PORT = Number(process.env.OMB_WEBHOOK_PORT || PORT + 1);
@@ -589,6 +599,7 @@ const sessions = new SessionRegistry({
 const sharedComputers = new SharedComputers(id => sessions.isLive(id));
 // Who each thread is for, when a signed-in person can be named (server-private).
 const threadStarters = new ThreadStarters(join(DATA_DIR, "thread-starters.json"));
+const commandAllowlist = new CommandAllowlistStore(join(DATA_DIR, "command-allowlist.json"));
 const SESSION_COOKIE = sessionCookieName(PORT, ENVIRONMENT_ID);
 const HOSTED_WORKSPACE = hostedWorkspaceConfigured();
 let workspaceAccess: WorkspaceAccess | null = null;
@@ -752,6 +763,30 @@ function cardAnswerRefusal(auth: RequestAuth, threadId: string, requestId: strin
   const known = [threadStarters.get(threadId), cardRequesterKey(threadId, requestId)].filter((person): person is string => Boolean(person));
   if (!known.length || known.includes(personKey(auth.session))) return null;
   return "Only the person who started this conversation or sent this request, or a workspace admin, can answer this card.";
+}
+
+function canManageCommandAllowlist(auth: RequestAuth): boolean {
+  return auth.kind === "loopback" ? auth.trust !== "service" : auth.scopes.includes("admin");
+}
+
+const COMMAND_ALLOWLIST_DRIVERS = new Set([
+  "claudeAgent", "codex", "antigravityAgent", "grokAgent", "opencodeGo", "kimiAgent",
+  "droidAgent", "cursorAgent", "qwenAgent", "geminiAgent", "hermesAgent", "customAcp",
+]);
+
+function commandAllowlistResponse(bot: BotRecord): CommandAllowlistResponse {
+  const instance = registry.get(bot.modelSelection.instanceId);
+  const task = store.taskByThread(bot.id, bot.threadId);
+  let cwd = task?.cwd !== undefined ? task.cwd : bot.cwd ?? join(realpathSync(DATA_DIR), "task-workspaces", bot.id, bot.threadId);
+  if (cwd && existsSync(cwd)) cwd = realpathSync(cwd);
+  return {
+    rules: commandAllowlist.list(bot.id),
+    supported: COMMAND_ALLOWLIST_DRIVERS.has(instance?.driverKind ?? ""),
+    context: {
+      providerInstanceId: bot.modelSelection.instanceId,
+      cwd,
+    },
+  };
 }
 
 function decisionActorFor(auth: RequestAuth): DecisionActor {
@@ -1006,7 +1041,7 @@ function adminAuditPlan(method: string, path: string): AuditPlan | null {
   if (path.startsWith("/api/internal/") || path.startsWith("/api/testing/")) return null;
   const plan: AuditPlan = {
     config: requiredScope(method, path, { sharedComputers: sharedComputersEnabled(cfg) }) === "admin",
-    createsBots: method === "POST" && (path === "/api/bots" || path === "/api/teams/import"),
+    createsBots: method === "POST" && (path === "/api/bots" || path === "/api/teams/import" || path === "/api/org-library/add"),
     createsWebhook: method === "POST" && path === "/api/webhooks",
     pairing: method === "POST" && path === "/api/auth/pairing",
   };
@@ -1352,6 +1387,21 @@ utilityParentPort?.on("message", event => {
   const requestId = typeof message.requestId === "string" && message.requestId.length <= 100 ? message.requestId : undefined;
   let ok = true;
   try { managedPolicy.apply(message.policy); } catch { ok = false; }
+  utilityParentPort.postMessage({ type: "openmausbot:managed-desktop-result", requestId, ok });
+});
+// The organization library (server/org-library.ts): Electron relays the
+// verified catalog; the runtime swaps it and acknowledges at once, then
+// reconciles and reports on its own. A relay that arrives before the library
+// exists waits for it (the acknowledgement does not).
+let orgLibrary: OrgLibrary | null = null;
+let pendingOrgLibraryRelay: { library: unknown } | null = null;
+utilityParentPort?.on("message", event => {
+  const message = event.data as { type?: unknown; requestId?: unknown; library?: unknown } | undefined;
+  if (message?.type !== "openmausbot:managed-library") return;
+  const requestId = typeof message.requestId === "string" && message.requestId.length <= 100 ? message.requestId : undefined;
+  let ok = true;
+  if (orgLibrary) ok = orgLibrary.applyRelay(message.library ?? null).ok;
+  else pendingOrgLibraryRelay = { library: message.library ?? null };
   utilityParentPort.postMessage({ type: "openmausbot:managed-desktop-result", requestId, ok });
 });
 // Only Electron owns this port. There is deliberately no HTTP equivalent or
@@ -2452,18 +2502,21 @@ function collectExportSkills(
 /** Skills on one team's bots for a whole-team share. "all" skips a skill
  * whose stored SKILL.md changed (listed to the person); an explicit list
  * refuses instead, because the person asked for that exact skill. */
+/** The team's skills for a whole-team export. `available` (every skill name
+ * on the team's bots) comes back on refusals too: the Share dialog draws its
+ * skill choices from it, so a refused choice can always be changed. */
 function collectTeamSkills(
   bots: readonly BotRecord[],
   selection: unknown,
-): { ok: true; skillsByBot: Map<string, ExportablePackageSkill[]>; skipped: TeamExportSkip[]; available: string[] } | { ok: false; error: string } {
+): { ok: true; all: boolean; skillsByBot: Map<string, ExportablePackageSkill[]>; skipped: TeamExportSkip[]; available: string[] } | { ok: false; error: string; available: string[] } {
   const all = selection === undefined || selection === "all";
-  if (!all && (!Array.isArray(selection) || selection.some((name) => typeof name !== "string" || !isSkillName(name)))) {
-    return { ok: false, error: "skills must be \"all\" or a list of skill names" };
-  }
   const available = [...new Set(bots.flatMap((bot) => listSkills(bot.id).map((skill) => skill.name)))].sort();
+  if (!all && (!Array.isArray(selection) || selection.some((name) => typeof name !== "string" || !isSkillName(name)))) {
+    return { ok: false, error: "skills must be \"all\" or a list of skill names", available };
+  }
   const chosen = new Set(all ? available : selection as string[]);
   const unknown = [...chosen].find((name) => !available.includes(name));
-  if (unknown) return { ok: false, error: `This team has no skill named "${unknown}"` };
+  if (unknown) return { ok: false, error: `This team has no skill named "${unknown}"`, available };
   const skillsByBot = new Map<string, ExportablePackageSkill[]>();
   const skipped: TeamExportSkip[] = [];
   for (const bot of bots) {
@@ -2472,7 +2525,7 @@ function collectTeamSkills(
       if (!chosen.has(listing.name)) continue;
       const instructions = readSkillFile(bot.id, listing.name);
       if (instructions === null) {
-        if (!all) return { ok: false, error: `Skill "${listing.name}" changed or is unavailable and cannot be shared safely` };
+        if (!all) return { ok: false, error: `Skill "${listing.name}" changed or is unavailable and cannot be shared safely`, available };
         const part = `skills[${listing.name}]`;
         if (!skipped.some((skip) => skip.part === part)) skipped.push({ part, reason: "skill_changed" });
         continue;
@@ -2484,11 +2537,12 @@ function collectTeamSkills(
         ...(listing.license ? { license: listing.license } : {}),
         ...(listing.compatibility ? { compatibility: listing.compatibility } : {}),
         instructions,
+        enabled: listing.enabled,
       });
     }
     if (assigned.length) skillsByBot.set(bot.id, assigned);
   }
-  return { ok: true, skillsByBot, skipped, available };
+  return { ok: true, all, skillsByBot, skipped, available };
 }
 
 /** A bot's starter notes: MEMORY.md and its topic files. Daily logs never
@@ -2511,7 +2565,7 @@ function packageImportDeps(selection: ModelSelection): PackageImportDeps {
   return {
     store,
     routines: routines!,
-    skills: { install: installSkill, setEnabled: setSkillEnabled },
+    skills: { install: installSkill, setEnabled: setSkillEnabled, installOrg: installOrgSkill },
     memory: { writeIndex: writeMemoryFile, writeTopic: writeMemoryTopic },
     mcp: { servers: () => cfg.mcpServers ?? {}, refusal: mcpPolicyRefusal, persist: persistMcpServers },
     sections: { writeBrief: (section, text) => void writeSectionContext(section, text) },
@@ -2526,7 +2580,27 @@ function packageImportDeps(selection: ModelSelection): PackageImportDeps {
       ? broadcast({ kind: "bot", bot: publicBot(event.bot) })
       : broadcast({ kind: "group", group: publicGroupState(event.group) }),
     defaultSelection: () => selection,
+    presets: presetStore,
   };
+}
+
+/** "Include my New bot defaults as a preset" from an export body: the saved
+ * defaults through the allowlist, with the picture the dialog prepared. */
+function defaultsPresetFor(body: Record<string, unknown>, includeNotes: boolean) {
+  const skipped: TeamExportSkip[] = [];
+  let avatar: Exclude<ReturnType<typeof sharedPicture>, string> | null = null;
+  if (body.presetAvatar !== undefined && body.presetAvatar !== null && body.presetAvatar !== "") {
+    const offered = sharedPicture(body.presetAvatar);
+    if (typeof offered === "string") skipped.push({ part: `presets[${DEFAULTS_PRESET_KEY}].bot.appearance.avatar`, reason: offered });
+    else avatar = offered;
+  }
+  const built = presetFromDefaults(cfg.newBotDefaults, {
+    name: typeof body.presetName === "string" ? body.presetName : undefined,
+    description: typeof body.presetDescription === "string" ? body.presetDescription : undefined,
+    includeNotes,
+    avatar,
+  });
+  return { preset: built.value, skipped: [...skipped, ...built.skipped] };
 }
 
 function checkedGroupResponder(value: unknown, memberIds: string[]): GroupDefaultResponder | null {
@@ -2567,6 +2641,8 @@ function checkedMemberIds(value: unknown): { ok: true; memberIds: string[] } | {
   return { ok: true, memberIds };
 }
 let bootSelection = { instanceId: "", model: "" };
+/** Preset bots for New bot, from shared files and the organization (presets.ts). */
+const presetStore = createPresetStore();
 const store = new Store(
   () => bootSelection,
   (selection) => withNewBotEffort(selection, cfg.newBots?.effort, registry.get(selection.instanceId)?.adapter.capabilities.effortLevels),
@@ -2650,7 +2726,7 @@ const wireTask = (task: TaskRecord): WireTask => {
 };
 
 const wireBot = (bot: BotRecord): WireBot => {
-  const { resumeCursors: _resumeCursors, tasks, approvalGrant, lastProfileRequestId: _lastProfileRequestId, lastTeamSetupReceipt: _lastTeamSetupReceipt, ...rest } = bot;
+  const { resumeCursors: _resumeCursors, tasks, approvalGrant, lastProfileRequestId: _lastProfileRequestId, lastTeamSetupReceipt: _lastTeamSetupReceipt, packageBase: _packageBase, ...rest } = bot;
   // An elevated selection is inert until the desktop confirms its exact
   // private reply. Every ordinary client sees the effective Ask state during
   // that two-phase window, never a grant that may still roll back.
@@ -2664,7 +2740,7 @@ const wireBot = (bot: BotRecord): WireBot => {
 /** The correlated private response carries the requested value so Electron
  * can validate it before sending the confirmation that makes it effective. */
 const wireTrustedApprovalBot = (bot: NonNullable<ReturnType<typeof store.bot>>) => {
-  const { resumeCursors: _resumeCursors, tasks, approvalGrant: _approvalGrant, lastProfileRequestId: _lastProfileRequestId, lastTeamSetupReceipt: _lastTeamSetupReceipt, ...rest } = bot;
+  const { resumeCursors: _resumeCursors, tasks, approvalGrant: _approvalGrant, lastProfileRequestId: _lastProfileRequestId, lastTeamSetupReceipt: _lastTeamSetupReceipt, packageBase: _packageBase, ...rest } = bot;
   return { ...rest, approvalMode: approvalModeFor(rest), avatarUrl: rest.avatarUrl ?? null, ...(tasks ? { tasks: tasks.map(wireTask) } : {}) };
 };
 
@@ -3789,7 +3865,9 @@ const roomHandoffs = new RoomHandoffs(join(DATA_DIR, "room-handoffs.json"), {
 activeCoordinationForThread = threadId => roomHandoffs.activeDirect(threadId);
 const groupUsageReader = new GroupUsageReader(DATA_DIR);
 try { groupUsageReader.refresh(); } catch { /* accounting must not block startup */ }
-function publicGroupState(group: GroupRecord): WireGroup {
+function publicGroupState(record: GroupRecord): WireGroup {
+  // The organization library's part hashes stay server-side.
+  const { installedPackage: _installedPackage, ...group } = record;
   let usage: WireGroup["usage"];
   try { usage = groupUsageReader.forThread(group.threadId); } catch { /* accounting must not block chat */ }
   return { ...group, usage: usage ?? null, working: groupIsWorking(group) || [...roomHandoffs.nodes.values()].some(n => n.groupId === group.id && !["completed", "failed", "cancelled"].includes(n.status)) };
@@ -4182,6 +4260,8 @@ store.onChange((change) => {
       break;
     }
     case "bot.deleted":
+      try { commandAllowlist.clear(change.botId); }
+      catch { console.error("[command-allowlist] Could not remove deleted bot's saved rules."); }
       broadcast({ kind: "bot.deleted", botId: change.botId });
       break;
     case "group": {
@@ -4468,6 +4548,17 @@ onSteeredQueueChange(() => broadcast({ kind: "bot.queued", queues: publicBotQueu
 // once can collide on a bare id and patch each other's messages.
 const toolMessageByItem = new Map<string, string>(); // threadId:itemId -> messageId
 const askMessageByRequest = new Map<string, string>(); // threadId:requestId -> messageId
+// Only native, live permission metadata can become a remembered grant. Never
+// rebuild executable authority from an imported transcript or display summary.
+const pendingCommandRules = new Map<string, { botId: string; candidate: CommandAllowlistCandidate }>();
+
+function commandRememberRefusal(auth: RequestAuth, threadId: string, requestId: string, behavior: string): string | null {
+  if (!canManageCommandAllowlist(auth)) return "Only the workspace owner or an admin can save bot-wide command permissions.";
+  if (behavior !== "allow" || !pendingCommandRules.has(`${threadId}:${requestId}`)) {
+    return "This live request does not contain a command that can be saved. Allow it once instead.";
+  }
+  return null;
+}
 
 /** Deliver a person's answer to the engine that asked, and tell the truth
  * about what happened. `unavailable` — the turn ended, the ask timed out,
@@ -4483,6 +4574,7 @@ async function answerRequest(
   decidedFor?: { id: string; name: string },
   /** "Always allow this session": the provider keeps the allow, not the app */
   always?: boolean,
+  rememberCommand?: boolean,
 ): Promise<RequestOutcome> {
   // Snapshot the card BEFORE delivering the answer: a delivered answer
   // resolves the request synchronously through the fold, which consumes
@@ -4496,6 +4588,7 @@ async function answerRequest(
     ? thread.find((m) => m.id === cardMessageId)
     : thread.find((m) => m.card?.requestId === requestId);
   const card = cardMessage?.card;
+  const remembered = rememberCommand ? pendingCommandRules.get(`${threadId}:${requestId}`) : undefined;
   // Cloud routing and a model change can differ from the bot's current
   // settings. The live turn owns this question, just as it owns Stop/steer.
   const instance = runningTurnEngines.get(threadId) ?? registry.get(instanceId);
@@ -4505,6 +4598,17 @@ async function answerRequest(
       outcome = await instance.adapter.respondToRequest(threadId, requestId, { behavior, message, always: always && behavior === "allow" });
     } catch {
       outcome = "unavailable";
+    }
+  }
+  if (remembered && outcome === "allowed-once" && behavior === "allow" && store.bot(remembered.botId)) {
+    // Persist only after the provider accepted this exact live request. A dead
+    // card, denied request, failed delivery or process restart saves no grant.
+    try {
+      commandAllowlist.add(remembered.botId, remembered.candidate);
+    } catch {
+      store.appendMessage(threadId, { role: "bot", kind: "activity", tool: {
+        name: "Command allowed once, but its allowlist rule could not be saved. Try again from the permissions menu.", ok: false,
+      } });
     }
   }
   // An answered question keeps its words. `request.resolved` only records
@@ -4560,6 +4664,7 @@ async function answerRequest(
  * be answered. Routine proposals are harness-owned and durable, so they stay
  * actionable even after the proposing turn has stopped. */
 function closeOpenApprovals(threadId: string): void {
+  for (const key of pendingCommandRules.keys()) if (key.startsWith(`${threadId}:`)) pendingCommandRules.delete(key);
   // Peer approvals also hold an in-memory promise. Resolve those first; merely
   // patching their cards would leave the delegation queue waiting 15 minutes.
   cancelPeerApprovalsForThread(threadId);
@@ -5736,7 +5841,12 @@ bus.subscribe((event: RuntimeEvent) => {
   const privateImageEvent = event.type === "item.completed" && event.itemType === "assistant_image";
   // The durable message patch below is the public frame. Sending raw base64
   // through runtime SSE would multiply large bytes across every app window.
-  if (!privateImageEvent) broadcast({ kind: "runtime", event });
+  if (!privateImageEvent) {
+    // Exact executable input is internal matching metadata, not inspector UI.
+    // The event bus's persistence redactor does not scrub its live event.
+    const publicEvent = event.type === "request.opened" ? { ...event, command: undefined } : event;
+    broadcast({ kind: "runtime", event: publicEvent });
+  }
   const routineRun = privateImageEvent ? null : (routines?.handleRuntimeEvent(event) ?? null);
   const ownerBot = store.botByThread(event.threadId);
   const bot = ownerBot ? botForThread(ownerBot.id, event.threadId) ?? undefined : undefined;
@@ -5855,14 +5965,22 @@ bus.subscribe((event: RuntimeEvent) => {
       const permission = event.requestType === "permission" && !event.questions?.length;
       // A permission request here is one the provider left for a person: its
       // own mode already ran (Ask, Edits, Auto's reviewer, Custom's config).
-      // OpenMausBot decides nothing about the action itself. Only Full access
-      // answers, because that is exactly what the person granted. A QUESTION
+      // Only the person's explicit Full access or exact saved command answers.
+      // The app does not guess whether the action is safe. A QUESTION
       // always reaches the human — even Full access never invents an answer.
       const asker = bot ?? (speaker ? store.bot(speaker.botId) : undefined);
       const unattended = permission && asker && event.requestId ? isUnattended(asker.id, event.threadId) : false;
       const effectiveApprovalMode = asker ? approvalModeForTurn(asker, isInternalTurn(event.threadId)) : "ask";
+      // Native shell descriptors are distinct from computer/MCP permissions;
+      // choosing a local desktop must not disable an exact shell grant.
+      const command = permission && asker && event.requestId && !event.requiresExplicitApproval && event.command
+        ? commandAllowlistCandidate({ ...event.command, providerInstanceId: event.providerInstanceId ?? asker.modelSelection.instanceId })
+        : null;
       const verdict = permission && asker && event.requestId
-        ? autoVerdict(effectiveApprovalMode, event.tool, { requiresExplicitApproval: event.requiresExplicitApproval })
+        ? autoVerdict(effectiveApprovalMode, event.tool, {
+          requiresExplicitApproval: event.requiresExplicitApproval,
+          commandAllowed: Boolean(command && commandAllowlist.matches(asker.id, command)),
+        })
         : null;
       // Auto's reviewer is the engine's own. Claude accepts `--permission-mode
       // auto` for any model and starts in Manual without a word when auto is
@@ -5911,8 +6029,8 @@ bus.subscribe((event: RuntimeEvent) => {
             if (outcome !== "unavailable") pushMessage({
               role: "bot", kind: "activity",
               tool: { name: outcome === "rejected"
-                ? "The provider rejected this action despite Full access."
-                : "error: could not deliver Full access to the provider; retry the task after reconnecting.", ok: false },
+                ? `The provider rejected this action despite ${verdict.source === "command-allowlist" ? "the saved command permission" : "Full access"}.`
+                : "error: could not deliver approval to the provider; retry the task after reconnecting.", ok: false },
             });
             return;
           }
@@ -5935,7 +6053,7 @@ bus.subscribe((event: RuntimeEvent) => {
         })().catch(() => {
           // A receipt failure must neither crash the server nor manufacture
           // a new permission request after the provider took our answer.
-          console.error("[full-access] Could not record the provider approval result.");
+          console.error("[approval] Could not record the provider approval result.");
         });
         break;
       }
@@ -5961,8 +6079,8 @@ bus.subscribe((event: RuntimeEvent) => {
           questionRequest: questions
             ? { version: 1, questions, ...(event.origin === "output" ? { origin: "output" as const } : {}) }
             : undefined,
-          // the provider can keep an allow for its session; the app keeps
-          // no grant of its own for a provider's tool
+          commandAllowlist: command ?? undefined,
+          // Provider-owned session grants remain separate from exact commands.
           allowSession: permission && event.allowSession && !event.requiresExplicitApproval ? true : undefined,
           // The text stays for cards saved before heldCode existed, and for
           // clients that do not know the key yet.
@@ -5972,6 +6090,7 @@ bus.subscribe((event: RuntimeEvent) => {
         },
       });
       if (event.requestId) askMessageByRequest.set(`${event.threadId}:${event.requestId}`, message.id);
+      if (command && asker && event.requestId) pendingCommandRules.set(`${event.threadId}:${event.requestId}`, { botId: asker.id, candidate: command });
       // Every card that reaches a human is a decision too: "the provider
       // left this for you, in this mode". `question` marks the cards no
       // rule may ever answer; a permission card without a verdict (no known
@@ -6010,6 +6129,7 @@ bus.subscribe((event: RuntimeEvent) => {
       break;
     }
     case "request.resolved": {
+      if (event.requestId) pendingCommandRules.delete(`${event.threadId}:${event.requestId}`);
       // answered (by whoever): the turn is working again, unless it settled
       const waiting = bot ?? (speaker ? store.bot(speaker.botId) : undefined);
       if (bot && store.taskByThread(bot.id, event.threadId)?.activity === "waiting-on-you") {
@@ -8820,6 +8940,22 @@ routines = new RoutineManager({
     notify(buildNotification("routine-deferred", notificationBot, routineSourceThread(run) ?? bot.threadId, detail));
   },
 });
+orgLibrary = new OrgLibrary({
+  dataDir: DATA_DIR,
+  store,
+  routines: routines!,
+  skills: { list: listSkills, stamps: skillPackageStamps, setEnabled: setSkillEnabled, installOrg: installOrgSkill },
+  presets: presetStore,
+  // Runtime → Electron main, which posts the report to Admin. Plain Node
+  // (no parentPort) keeps it in memory only.
+  postState: (message) => utilityParentPort?.postMessage(message),
+});
+{
+  // Set by the port listener above, which TypeScript cannot see run first.
+  const early = pendingOrgLibraryRelay as { library: unknown } | null;
+  if (early) orgLibrary.applyRelay(early.library);
+  pendingOrgLibraryRelay = null;
+}
 // The scheduler receipt and room transcript live in separate durable stores.
 // If the process exited between those two writes, prefer the correlated
 // RoutineRun's terminal truth; an uncorrelated manual goal is simply failed
@@ -12651,6 +12787,7 @@ const workspaceBackupRoutes = createWorkspaceBackupRoutes({
 // Route modules (server/routes/README.md). `workspaceAccess` is assigned at
 // boot, after this line, so the dependency reads it per request.
 ROUTES.push(createHostedSlackRoutes({ bot: (id) => store.bot(id), hostedReady: () => Boolean(workspaceAccess) && entitled("admin") }));
+ROUTES.push(createBotPresetRoutes({ presets: presetStore, orgStatuses: readOrgInstallStatuses }));
 
 const toolResults = new ToolResults();
 const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
@@ -13043,6 +13180,21 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
     // through a per-process high-entropy test key. The route does not exist
     // unless the launcher explicitly sets that key; production builds never
     // set it.
+    // Isolated fixtures have no Electron parent to relay an organization's
+    // library, so a test relays one here instead. Like the capability route
+    // below, it exists only when the launcher sets its high-entropy key.
+    if (method === "POST" && path === "/api/testing/org-library") {
+      const expected = Buffer.from(process.env.OMB_TEST_ORG_LIBRARY_KEY ?? "");
+      const header = req.headers["x-openmausbot-test-org-library"];
+      const actual = Buffer.from(Array.isArray(header) ? "" : String(header ?? ""));
+      if (expected.length < 32 || actual.length !== expected.length || !timingSafeEqual(actual, expected) || !orgLibrary) {
+        return json(res, 404, { error: "not found" });
+      }
+      const body = await readBody(req);
+      const applied = orgLibrary.applyRelay(body?.library ?? null);
+      await orgLibrary.settled();
+      return json(res, applied.ok ? 200 : 400, { ...applied, report: orgLibrary.lastReport() });
+    }
     if (method === "POST" && path === "/api/testing/internal-capability") {
       const expected = process.env.OMB_TEST_INTERNAL_CAPABILITY_KEY ?? "";
       const actual = Array.isArray(req.headers["x-openmausbot-test-capability"])
@@ -15812,6 +15964,36 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       // than the default JSON limit (the document itself is capped at 4 MB).
       const body = await readBody(req, 8 * 1024 * 1024);
       const profileName = cfg.profile?.name?.trim();
+      if (body.format === "package" && body.version === 2 && body.kind === "library") {
+        // Preset bots and their skills, no team: my New bot defaults as a
+        // preset someone else picks in New bot (presets.ts has the allowlist).
+        const optional = (value: unknown) => (typeof value === "string" ? value : undefined);
+        const built = defaultsPresetFor(body, body.includeMemory === true);
+        try {
+          const exported = createLibraryPackageExport({
+            name: optional(body.name),
+            tagline: optional(body.tagline),
+            summary: optional(body.summary),
+            release: optional(body.release),
+            notes: optional(body.notes),
+            authorName: profileName,
+            published: readPublishedLibrary(),
+            preset: built.preset,
+            skipped: built.skipped,
+          });
+          if (body.dryRun !== true) writePublishedLibrary(exported.published);
+          return json(res, 200, {
+            document: exported.document,
+            filename: exported.filename,
+            redacted: exported.redacted,
+            skipped: exported.skipped,
+            summary: packageSummary(exported.document),
+          });
+        } catch (error) {
+          if (error instanceof TeamExportError) return json(res, error.status, { error: error.message });
+          throw error;
+        }
+      }
       if (body.format === "package" && body.version === 2) {
         // One team, whole, except its chat history (package format v2).
         if (typeof body.team !== "string") return json(res, 400, { error: "Choose a team to share." });
@@ -15822,10 +16004,12 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         const optional = (value: unknown) => (typeof value === "string" ? value : undefined);
         const teamBots = store.bots.filter((bot) => !bot.hidden && sectionKey(bot.section) === team);
         const skills = collectTeamSkills(teamBots, body.skills);
-        if (!skills.ok) return json(res, 400, { error: skills.error });
+        if (!skills.ok) return json(res, 400, { error: skills.error, choices: { skills: skills.available } });
         const avatars = body.avatars && typeof body.avatars === "object" && !Array.isArray(body.avatars)
           ? body.avatars as Record<string, unknown>
           : undefined;
+        // Off unless asked: New bot defaults are personal until shared.
+        const defaults = body.includeDefaultsPreset === true ? defaultsPresetFor(body, body.includeMemory === true) : null;
         try {
           const exported = createTeamPackageExport({
             team,
@@ -15841,10 +16025,12 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
             brief: readSectionContext(team)?.text,
             published: readPublishedTeam(team),
             skillsByBot: skills.skillsByBot,
+            skillSelection: skills.all ? "all" : "chosen",
             memoryByBot: body.includeMemory === true ? new Map(teamBots.map((bot) => [bot.id, starterNotes(bot.id)])) : undefined,
             avatars,
             mcpServers: cfg.mcpServers ?? {},
-            skipped: skills.skipped,
+            skipped: [...skills.skipped, ...(defaults?.skipped ?? [])],
+            preset: defaults?.preset ?? null,
           });
           // A preview (the dialog's live counts) never records keys; saving
           // the file does, so renaming anything later keeps its identity.
@@ -15858,7 +16044,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
             choices: { skills: skills.available },
           });
         } catch (error) {
-          if (error instanceof TeamExportError) return json(res, error.status, { error: error.message });
+          if (error instanceof TeamExportError) return json(res, error.status, { error: error.message, choices: { skills: skills.available } });
           throw error;
         }
       }
@@ -15967,6 +16153,57 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       }
       return json(res, 200, { directory });
     }
+    // ── the organization library (server/org-library.ts) ─────────────────
+    // Admin scope, as import is. With no organization every read answers
+    // {organization: null} and nothing else changes.
+    if (method === "GET" && path === "/api/org-library") {
+      return json(res, 200, orgLibrary?.list() ?? { organization: null, packages: [] });
+    }
+    m = path.match(/^\/api\/org-library\/packages\/([a-f0-9-]{36})$/);
+    if (m && method === "GET") {
+      const outcome = orgLibrary?.preview(m[1]!);
+      if (!outcome) return json(res, 404, { error: "This package is not in your organization's library.", code: "not_listed" });
+      return outcome.ok ? json(res, 200, outcome.value) : json(res, outcome.status, { error: outcome.error, code: outcome.code });
+    }
+    if (method === "POST" && path === "/api/org-library/add") {
+      // One click, no confirmation: the person's click is the decision.
+      const body = await readBody(req);
+      const packageId = typeof body?.packageId === "string" && /^[a-f0-9-]{36}$/.test(body.packageId) ? body.packageId : null;
+      if (!packageId) return json(res, 400, { error: "Choose a package from your organization's library." });
+      if (!orgLibrary) return json(res, 404, { error: "This package is not in your organization's library.", code: "not_listed" });
+      const outcome = orgLibrary.add(packageId, packageImportDeps(await defaultSelection()));
+      if (!outcome.ok) return json(res, outcome.status, { error: outcome.error, code: outcome.code });
+      if (outcome.value.alreadyAdded) return json(res, 200, outcome.value);
+      const imported = outcome.value.result;
+      return json(res, 201, {
+        alreadyAdded: false,
+        installId: imported.installId,
+        name: imported.name,
+        section: imported.section,
+        bots: imported.bots.map((bot) => publicBot(store.bot(bot.id) ?? bot)),
+        groups: imported.groups.map((created) => ({ ...publicGroupState(store.group(created.id) ?? created), messages: [] })),
+        routines: imported.routines,
+        offeredSkills: imported.offeredSkills,
+        connections: imported.connections,
+        skipped: imported.skipped,
+        brief: imported.brief,
+        notes: imported.notes,
+        presets: imported.presets ?? [],
+      });
+    }
+    if (method === "GET" && path === "/api/org-library/skills") {
+      const botId = url.searchParams.get("botId") ?? undefined;
+      return json(res, 200, orgLibrary?.offeredSkills(botId) ?? { organization: null, skills: [] });
+    }
+    if (method === "POST" && path === "/api/org-library/skills") {
+      const body = await readBody(req);
+      const parsed = z.object({ botId: z.string().min(1).max(128), installId: z.string().regex(/^[a-f0-9]{32}$/), name: z.string().min(1).max(64) })
+        .safeParse(body);
+      if (!parsed.success) return json(res, 400, { error: "Choose a bot and a skill from your organization's library." });
+      if (!orgLibrary) return json(res, 404, { error: "This package is not in your organization's library.", code: "not_listed" });
+      const outcome = orgLibrary.addOfferedSkill(parsed.data.botId, parsed.data.installId, parsed.data.name);
+      return outcome.ok ? json(res, 201, { skill: outcome.value }) : json(res, outcome.status, { error: outcome.error, code: outcome.code });
+    }
     if (method === "POST" && path === "/api/teams/import") {
       // Import is additive-only. A manifest is untrusted input (catalog,
       // GitHub, a shared file), so it must be structurally unable to reach
@@ -16070,6 +16307,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         skipped: imported.skipped,
         brief: imported.brief,
         notes: imported.notes,
+        presets: imported.presets ?? [],
       });
     }
     m = path.match(/^\/api\/groups\/([\w-]+)\/setup$/);
@@ -16710,10 +16948,18 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       const settings = template.profile;
       if (auth.kind === "session" && !auth.scopes.includes("admin")) {
         const field = clientBotPatchViolation(settings);
-        if (field || template.skills.length || template.routines.length || Object.keys(template.memory).length) {
+        if (field || body.preset !== undefined || template.skills.length || template.routines.length || Object.keys(template.memory).length) {
           return json(res, 403, { error: "Creating a bot with these defaults needs the admin scope" });
         }
       }
+      // A preset (presets.ts) supplies content: playbooks, skills and
+      // starter notes. Name, look and instructions stay the request's own.
+      if (body.preset !== undefined && (typeof body.preset !== "string" || !/^[\w-]{1,64}$/.test(body.preset))) {
+        return json(res, 400, { error: "preset must be a preset id from New bot" });
+      }
+      const resolvedPreset = typeof body.preset === "string" ? presetStore.resolve(body.preset) : null;
+      const preset = resolvedPreset && presetOffered(resolvedPreset.row, readOrgInstallStatuses()) ? resolvedPreset : null;
+      if (body.preset !== undefined && !preset) return json(res, 404, { error: PRESET_UNAVAILABLE_MESSAGE });
       body = { ...body, ...settings, name: settings.name };
       if (settings.approvalMode === "full" || settings.approvalMode === "custom") {
         return json(res, 403, { error: "This approval level requires the desktop permission flow. Use the bot creation dialog or explicitly choose Ask/Auto for API creation." });
@@ -16795,10 +17041,23 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
           browserProfile: ordinary.browserProfile || undefined,
           autoApprove: ordinary.approvalMode === "auto",
         });
+        // What the preset brings wins over the saved defaults for the same
+        // skill name or note file.
+        const presetSkills = new Set(preset?.preset.skills ?? []);
+        const presetNotes = new Set(Object.keys(preset?.preset.seed?.memory ?? {}));
         for (const [file, text] of Object.entries(template.memory)) {
+          if (presetNotes.has(file)) continue;
           journalMemoryWrite(bot.id, file, text, { actor: "person", via: "api" });
         }
+        if (preset) {
+          applyPresetToBot(bot.id, preset, {
+            store,
+            skills: { install: installSkill, setEnabled: setSkillEnabled },
+            memory: { writeIndex: writeMemoryFile, writeTopic: writeMemoryTopic },
+          });
+        }
         for (const skill of template.skills) {
+          if (presetSkills.has(skill.name)) continue;
           const parsed = parseSkillMd(skill.text);
           if ("error" in parsed || parsed.name !== skill.name) throw Object.assign(new Error("Skill name does not match its contents"), { status: 400 });
           const installed = installSkill(bot.id, skill.source, [{ path: "SKILL.md", content: skill.text }]);
@@ -16946,6 +17205,27 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       const visible = wireBot(bot);
       broadcast({ kind: "bot", bot: visible });
       return json(res, 200, { bot: visible });
+    }
+    m = path.match(/^\/api\/bots\/([\w-]+)\/command-allowlist(?:\/([\w-]+))?$/);
+    if (m && ["GET", "POST", "DELETE"].includes(method)) {
+      if (!canManageCommandAllowlist(auth)) return json(res, 403, { error: "Only the workspace owner or an admin can manage command permissions." });
+      const bot = requestedTaskBot(m[1], url.searchParams.get("threadId") ?? undefined);
+      if (method === "GET" && !m[2]) return json(res, 200, commandAllowlistResponse(bot));
+      if (method === "POST" && !m[2]) {
+        const candidate = commandAllowlistCandidate(await readBody(req));
+        if (!candidate) return json(res, 400, { error: "Enter an exact command without secret values, an absolute working folder, and a provider." });
+        const instance = registry.get(candidate.providerInstanceId);
+        if (!instance || !COMMAND_ALLOWLIST_DRIVERS.has(instance.driverKind)) {
+          return json(res, 400, { error: "This provider does not supply structured command approvals." });
+        }
+        commandAllowlist.add(bot.id, candidate);
+        return json(res, 200, commandAllowlistResponse(bot));
+      }
+      if (method === "DELETE" && m[2]) {
+        commandAllowlist.remove(bot.id, m[2]);
+        return json(res, 200, commandAllowlistResponse(bot));
+      }
+      return json(res, 405, { error: "Unsupported command allowlist operation" });
     }
     m = path.match(/^\/api\/bots\/([\w-]+)\/always-allow$/);
     if (m && method === "POST") {
@@ -18336,6 +18616,10 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       if (!behavior) return json(res, 400, { error: "behavior must be allow, deny, or answer" });
       const refusal = cardAnswerRefusal(auth, bot.threadId, String(body.requestId), behavior);
       if (refusal) return json(res, 403, { error: refusal });
+      if (body.rememberCommand === true) {
+        const refusal = commandRememberRefusal(auth, bot.threadId, String(body.requestId), behavior);
+        if (refusal) return json(res, 403, { error: refusal });
+      }
       return await answeringCardAs(auth, bot.threadId, String(body.requestId), async () => {
         if (await resolveAndSendTeamSetup(res, {
           botId: bot.id, threadId: bot.threadId, requestId: String(body.requestId), behavior,
@@ -18369,7 +18653,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
           resolvePeerComms(approvalBus, String(body.requestId), behavior)) {
           return json(res, 200, { ok: true, outcome: behavior === "allow" ? "allowed-once" : "rejected" });
         }
-        const outcome = await answerRequest(bot.threadId, bot.modelSelection.instanceId, String(body.requestId), behavior, body.message, { id: bot.id, name: bot.name }, body.always === true);
+        const outcome = await answerRequest(bot.threadId, bot.modelSelection.instanceId, String(body.requestId), behavior, body.message, { id: bot.id, name: bot.name }, body.always === true, body.rememberCommand === true);
         return json(res, 200, { ok: true, outcome });
       });
     }
@@ -18386,6 +18670,10 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       const requestId = String(body.requestId);
       const refusal = cardAnswerRefusal(auth, threadId, requestId, behavior);
       if (refusal) return json(res, 403, { error: refusal });
+      if (body.rememberCommand === true) {
+        const refusal = commandRememberRefusal(auth, threadId, requestId, behavior);
+        if (refusal) return json(res, 403, { error: refusal });
+      }
       return await answeringCardAs(auth, threadId, requestId, async () => {
         const skillCard = store.messagesFor(threadId).find(
           (message) => message.card?.requestId === requestId && message.card.skillRequest,
@@ -18463,7 +18751,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
           : store.botByThread(threadId);
         if (!owner && !pending) return json(res, 404, { error: "nothing is waiting on an answer in this conversation" });
         const requestOwner = owner ? botForThread(owner.id, threadId) : null;
-        const outcome = await answerRequest(threadId, requestOwner?.modelSelection.instanceId ?? "", requestId, behavior, body.message, owner ? { id: owner.id, name: owner.name } : undefined, body.always === true);
+        const outcome = await answerRequest(threadId, requestOwner?.modelSelection.instanceId ?? "", requestId, behavior, body.message, owner ? { id: owner.id, name: owner.name } : undefined, body.always === true, body.rememberCommand === true);
         return json(res, 200, { ok: true, outcome });
       });
     }

@@ -36,6 +36,7 @@ import { openCodexCacheRoute } from "./codex-cache-route.ts";
 import { augmentedPath, splitCliString } from "../env-path.ts";
 import { classifyError, computeBackoff, interruptibleDelay, RETRY_MAX_ATTEMPTS } from "./retry.ts";
 import { appendNative } from "./native.ts";
+import { permissionCommand, permissionLaunchCwd } from "./permission-command.ts";
 import { commandSummary, toolDetailPreview } from "../tool-summary.ts";
 import { codexDeveloperInstructions, syncCodexInstructions } from "./codex-instructions.ts";
 import { volatileContextNote, withContextNote } from "./prompt-split.ts";
@@ -711,6 +712,7 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
           );
         }
 
+        const commandCwd = permissionLaunchCwd(turn.cwd ?? homedir());
         const child = spawnCli(config.cli, appServerArgs, {
           cwd: turn.cwd ?? homedir(),
           env,
@@ -1030,10 +1032,18 @@ export const CodexDriver: ProviderDriver<CodexConfig> = {
           requestType: isQuestion ? "question" : "permission",
           tool,
           summary,
+          command: method === "execCommandApproval" || method === "item/commandExecution/requestApproval"
+            ? permissionCommand(params.command, params.cwd ?? (
+              // Helpers may have a different workspace from their parent.
+              !params.threadId || params.threadId === codexThreadId ? commandCwd : undefined
+            )) : undefined,
           choices,
           ...(protocolQuestions ? { questions: protocolQuestions.map((pair) => pair.question) } : {}),
           approvalScope: controlsHost ? "local-computer" : undefined,
-          requiresExplicitApproval: isAdditionalPermission || undefined,
+          requiresExplicitApproval: isAdditionalPermission || (
+            (method === "execCommandApproval" || method === "item/commandExecution/requestApproval") &&
+            (params.additionalPermissions != null || params.networkApprovalContext != null)
+          ) || undefined,
         });
       };
 

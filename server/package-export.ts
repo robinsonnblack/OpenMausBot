@@ -1,4 +1,5 @@
 import { parseBotPackage, type BotPackageDefinition, type BotPackagePlaybook, type BotPackageSkill, type ParsedBotPackage } from "./bot-package.ts";
+import type { DefaultsPreset, PublishedLibrary } from "./presets.ts";
 import type { PublishedTeam } from "./published-teams.ts";
 import { nextPatchRelease } from "./published-teams.ts";
 import type { Routine } from "./routines.ts";
@@ -23,6 +24,7 @@ import {
   type PackageConnection,
   type PackageDefinition,
   type PackageDocument,
+  type PackagePreset,
   type PackageRoom,
   type PackageRoutine,
   type PackageRoutineSchedule,
@@ -50,6 +52,13 @@ function samePlaybook(a: InstalledPlaybook, b: BotPackagePlaybook): boolean {
 export interface ExportablePackageSkill extends Omit<BotPackageSkill, "name" | "description"> {
   name: string;
   description: string;
+  /** Whether the bot has it switched on. Only ranks what fits; never written to the file. */
+  enabled?: boolean;
+}
+
+function sameSkill(a: ExportablePackageSkill, b: ExportablePackageSkill): boolean {
+  return a.instructions === b.instructions && a.description === b.description &&
+    a.source === b.source && a.license === b.license && a.compatibility === b.compatibility;
 }
 
 /** One playbook definition per distinct content; same-key conflicts get the
@@ -86,14 +95,13 @@ function assignSkills(bots: readonly BotRecord[], skillsByBot?: ReadonlyMap<stri
     const assignedSkills: string[] = [];
     for (const skill of skillsByBot?.get(bot.id) ?? []) {
       const existing = packageSkills.get(skill.name);
-      if (existing && (
-        existing.instructions !== skill.instructions || existing.description !== skill.description ||
-        existing.source !== skill.source || existing.license !== skill.license ||
-        existing.compatibility !== skill.compatibility
-      )) {
+      if (existing && !sameSkill(existing, skill)) {
         throw new Error(`Skill "${skill.name}" has conflicting content across selected bots`);
       }
-      if (!existing) packageSkills.set(skill.name, { ...skill });
+      if (!existing) {
+        const { enabled: _enabled, ...entry } = skill;
+        packageSkills.set(skill.name, entry);
+      }
       if (!assignedSkills.includes(skill.name)) assignedSkills.push(skill.name);
     }
     agentSkills.set(bot.id, assignedSkills);
@@ -257,7 +265,12 @@ export type TeamExportSkipReason =
   | "files_not_shared"
   | "lead_not_in_group_chat"
   | "notes_too_large"
-  | "skill_changed";
+  | "skill_changed"
+  | "skill_conflict"
+  | "bot_skill_limit"
+  | "team_skill_limit"
+  | "preset_empty"
+  | "preset_skill_conflict";
 
 export interface TeamExportSkip { part: string; reason: TeamExportSkipReason }
 
@@ -266,7 +279,7 @@ export class TeamExportError extends Error {
   readonly status = 400;
 }
 
-export const TEAM_TOO_LARGE_MESSAGE = "This team is too large to share (4 MB). Leave out pictures or starter notes and try again.";
+export const TEAM_TOO_LARGE_MESSAGE = "This team is too large to share (4 MB). Leave out pictures, starter notes or some skills and try again.";
 
 export interface TeamExportInput {
   /** Section name; "" is General. */
@@ -286,6 +299,11 @@ export interface TeamExportInput {
   published: PublishedTeam | null;
   /** Already filtered to the chosen skills, per bot. */
   skillsByBot?: ReadonlyMap<string, readonly ExportablePackageSkill[]>;
+  /** "all" (the API default, and the Share dialog's first look) shares the
+   * skills that fit a file and lists the rest as skipped, so a team is never
+   * refused over its skills before the person has seen them. "chosen" (the
+   * default here) shares exactly skillsByBot or refuses with a sentence. */
+  skillSelection?: "all" | "chosen";
   /** Starter notes per bot, "MEMORY.md" and "memory/<topic>.md" only. */
   memoryByBot?: ReadonlyMap<string, ReadonlyArray<{ path: string; text: string }>>;
   /** Pictures the dialog prepared, as data URLs, per bot id. */
@@ -294,6 +312,8 @@ export interface TeamExportInput {
   mcpServers?: Readonly<Record<string, unknown>>;
   /** Earlier skips found while gathering inputs (e.g. unreadable skills). */
   skipped?: readonly TeamExportSkip[];
+  /** "Include my New bot defaults as a preset" (presets.ts presetFromDefaults). */
+  preset?: DefaultsPreset | null;
 }
 
 export interface TeamExportResult {
@@ -339,7 +359,8 @@ function stableKeys<T extends { id: string; name: string }>(
   return keys;
 }
 
-function picture(value: unknown): { mime: "image/png" | "image/jpeg" | "image/webp"; data: string } | "picture_invalid" | "picture_too_large" {
+/** A picture the dialog prepared (a data URL), or why it stays out. */
+export function picture(value: unknown): { mime: "image/png" | "image/jpeg" | "image/webp"; data: string } | "picture_invalid" | "picture_too_large" {
   const match = typeof value === "string" ? DATA_URL.exec(value) : null;
   if (!match) return "picture_invalid";
   const bytes = decodeBase64(match[2]!);
@@ -363,6 +384,154 @@ function sharableAddress(value: string): boolean {
     return url.protocol === "https:" || (url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "[::1]" || /^127(?:\.\d{1,3}){3}$/.test(url.hostname)));
   } catch {
     return false;
+  }
+}
+
+/** A run of token characters long enough to be a key. */
+const TOKEN_RUN = /[A-Za-z0-9_-]{16,}/g;
+/** One word of a readable name: letters with at most a short number after
+ * them ("server", "v2", "oauth2"), or a short number alone ("2024"). */
+const NAME_WORD = /^[A-Za-z]*\d{0,4}$/;
+
+/** Whether one piece of an address (a path segment, a host label, a query or
+ * matrix parameter name) holds a key: somewhere in it, a run of 16 or more
+ * token characters that mixes letters and digits, or that has 24 or more
+ * letters or 24 or more digits in a row. A run that reads as words joined by
+ * hyphens or underscores ("github-mcp-server-2024") is a name, not a key.
+ * Percent-escapes are decoded first: "path%20with%20spaces" is words, and an
+ * escaped key is still a key. Deliberately broad; the sharer sees the
+ * address before saving. */
+function keyShaped(piece: string): boolean {
+  let text = piece;
+  try {
+    text = decodeURIComponent(piece);
+  } catch {
+    // A stray "%" is not an escape; test the text as it is.
+  }
+  return (text.match(TOKEN_RUN) ?? []).some((run) => {
+    if (/[A-Za-z]{24,}|\d{24,}/.test(run)) return true;
+    if (!/[A-Za-z]/.test(run) || !/\d/.test(run)) return false;
+    const words = run.split(/[-_]+/).filter(Boolean);
+    return !(words.length > 1 && words.every((word) => NAME_WORD.test(word)));
+  });
+}
+
+/** What replaces a key-shaped part of an address. */
+export const ADDRESS_KEY_PLACEHOLDER = "redacted";
+
+/** One path segment as it may travel. A segment with a key-shaped part is
+ * replaced whole, so no piece of a key split by ":" or ";" is left behind;
+ * otherwise its `;name=value` matrix parameters and `name=value` pieces keep
+ * their names and lose their values, like query parameters. */
+function shareableSegment(segment: string): string {
+  const parts = segment.split(";");
+  if (parts.some((part) => keyShaped(part.split("=")[0]!))) return ADDRESS_KEY_PLACEHOLDER;
+  return parts.map((part) => (part.includes("=") ? `${part.slice(0, part.indexOf("="))}=` : part)).join(";");
+}
+
+/** A connection address as it may travel. Hosted MCP servers often carry
+ * their credential in the address itself, where text redaction does not
+ * look, so an address loses its sign-in part and fragment; keeps its query
+ * and matrix parameter names with the values emptied (like header names: the
+ * recipient fills them in); and has every key-shaped path segment, parameter
+ * name and host label left of the registrable domain (taken as the last two
+ * labels) replaced. An address with none of these is returned exactly as it
+ * was. */
+export function shareableAddress(value: string): { url: string; changed: boolean } {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    return { url: value, changed: false };
+  }
+  let changed = false;
+  if (url.username || url.password) {
+    url.username = "";
+    url.password = "";
+    changed = true;
+  }
+  if (url.hash) {
+    url.hash = "";
+    changed = true;
+  }
+  const labels = url.hostname.split(".");
+  const hostLabels = labels.map((label, index) => (index < labels.length - 2 && keyShaped(label) ? ADDRESS_KEY_PLACEHOLDER : label));
+  if (hostLabels.some((label, index) => label !== labels[index])) {
+    url.hostname = hostLabels.join(".");
+    changed = true;
+  }
+  const params = [...url.searchParams];
+  const names = params.map(([name]) => (keyShaped(name) ? ADDRESS_KEY_PLACEHOLDER : name));
+  if (params.some(([name, value], index) => value || names[index] !== name)) {
+    url.search = new URLSearchParams(names.map((name) => [name, ""])).toString();
+    changed = true;
+  }
+  const segments = url.pathname.split("/");
+  const shareable = segments.map(shareableSegment);
+  if (shareable.some((segment, index) => segment !== segments[index])) {
+    url.pathname = shareable.join("/");
+    changed = true;
+  }
+  return changed ? { url: url.toString(), changed } : { url: value, changed };
+}
+
+/** The skills that fit one file, for skillSelection "all": a name two bots
+ * hold with different content stays out whole; each bot keeps at most
+ * AGENT_MAX_SKILLS (switched-on skills first, then by name) and the team at
+ * most PACKAGE_MAX_SKILLS names (the same order). Everything left out is
+ * listed, so the person sees it and can choose instead. */
+function fitSkills(
+  bots: readonly BotRecord[],
+  botKeys: ReadonlyMap<string, string>,
+  skillsByBot: ReadonlyMap<string, readonly ExportablePackageSkill[]> | undefined,
+  skipped: TeamExportSkip[],
+): Map<string, ExportablePackageSkill[]> {
+  const firstByName = new Map<string, ExportablePackageSkill>();
+  const conflicted = new Set<string>();
+  for (const bot of bots) {
+    for (const skill of skillsByBot?.get(bot.id) ?? []) {
+      const first = firstByName.get(skill.name);
+      if (!first) firstByName.set(skill.name, skill);
+      else if (!sameSkill(first, skill)) conflicted.add(skill.name);
+    }
+  }
+  for (const name of [...conflicted].sort()) skipped.push({ part: `skills[${name}]`, reason: "skill_conflict" });
+  const on = (skill: ExportablePackageSkill) => skill.enabled !== false;
+  const fitted = new Map<string, ExportablePackageSkill[]>();
+  for (const bot of bots) {
+    const own = (skillsByBot?.get(bot.id) ?? []).filter((skill) => !conflicted.has(skill.name));
+    const ranked = [...own].sort((a, b) => Number(on(b)) - Number(on(a)) || a.name.localeCompare(b.name));
+    for (const skill of ranked.slice(AGENT_MAX_SKILLS)) {
+      skipped.push({ part: `agents[${botKeys.get(bot.id)}].skills[${skill.name}]`, reason: "bot_skill_limit" });
+    }
+    const kept = new Set(ranked.slice(0, AGENT_MAX_SKILLS).map((skill) => skill.name));
+    fitted.set(bot.id, own.filter((skill) => kept.has(skill.name)));
+  }
+  const names = new Map<string, boolean>();
+  for (const list of fitted.values()) {
+    for (const skill of list) names.set(skill.name, names.get(skill.name) === true || on(skill));
+  }
+  if (names.size > PACKAGE_MAX_SKILLS) {
+    const ranked = [...names].sort(([a, aOn], [b, bOn]) => Number(bOn) - Number(aOn) || a.localeCompare(b));
+    const left = new Set(ranked.slice(PACKAGE_MAX_SKILLS).map(([name]) => name));
+    for (const name of [...left].sort()) skipped.push({ part: `skills[${name}]`, reason: "team_skill_limit" });
+    for (const [id, list] of fitted) fitted.set(id, list.filter((skill) => !left.has(skill.name)));
+  }
+  return fitted;
+}
+
+/** For an exact choice: the same name with different content on two bots
+ * cannot be one skill in the file. */
+function refuseSkillConflicts(bots: readonly BotRecord[], skillsByBot: ReadonlyMap<string, readonly ExportablePackageSkill[]> | undefined) {
+  const firstByName = new Map<string, ExportablePackageSkill>();
+  for (const bot of bots) {
+    for (const skill of skillsByBot?.get(bot.id) ?? []) {
+      const first = firstByName.get(skill.name);
+      if (!first) firstByName.set(skill.name, skill);
+      else if (!sameSkill(first, skill)) {
+        throw new TeamExportError(`Two bots in this team have different skills named "${skill.name}". Leave that skill out and try again.`);
+      }
+    }
   }
 }
 
@@ -394,7 +563,10 @@ export function createTeamPackageExport(input: TeamExportInput): TeamExportResul
   const botKeys = stableKeys(bots, recorded?.bots,
     (bot) => (bot.installedPackage?.id === packageId ? bot.installedPackage.agentKey : undefined), "bot");
   const { playbooks, agentPlaybooks } = assignPlaybooks(bots, botKeys);
-  const { packageSkills, agentSkills } = assignSkills(bots, input.skillsByBot);
+  let skillsByBot = input.skillsByBot;
+  if (input.skillSelection === "all") skillsByBot = fitSkills(bots, botKeys, skillsByBot, skipped);
+  else refuseSkillConflicts(bots, skillsByBot);
+  const { packageSkills, agentSkills } = assignSkills(bots, skillsByBot);
   if (packageSkills.size > PACKAGE_MAX_SKILLS) {
     throw new TeamExportError(`A team can share at most ${PACKAGE_MAX_SKILLS} skills. Choose fewer skills and try again.`);
   }
@@ -409,6 +581,7 @@ export function createTeamPackageExport(input: TeamExportInput): TeamExportResul
   const connectionUsers = new Map<string, string[]>();
   const connectionKeys = new Set<string>();
   const agentConnections = new Map<string, string[]>();
+  const addressRedactions: string[] = [];
   for (const bot of bots) {
     const assigned: string[] = [];
     for (const name of bot.mcpServers ?? []) {
@@ -429,11 +602,13 @@ export function createTeamPackageExport(input: TeamExportInput): TeamExportResul
         for (let suffix = 2; connectionKeys.has(key); suffix++) key = `${stem}-${suffix}`;
         connectionKeys.add(key);
         connectionKeyByServer.set(name, key);
+        const address = shareableAddress(server.url);
+        if (address.changed) addressRedactions.push(`connections[${key}].mcp.url`);
         connections.push({
           key,
           label: name.slice(0, 100),
           reason: "",
-          mcp: { transport: server.transport, url: server.url, valueNames: server.valueNames },
+          mcp: { transport: server.transport, url: address.url, valueNames: server.valueNames },
         });
       }
       const key = connectionKeyByServer.get(name);
@@ -564,6 +739,7 @@ export function createTeamPackageExport(input: TeamExportInput): TeamExportResul
   if (rooms.length) definition.rooms = rooms;
   if (routines.length) definition.routines = routines;
   if (playbooks.length) definition.playbooks = playbooks;
+  if (input.preset) definition.presets = [withPresetSkills(input.preset, packageSkills, skipped)];
   if (packageSkills.size) definition.skills = { version: 1, entries: [...packageSkills.values()].map((skill) => ({ ...skill })) };
   if (connections.length) definition.connections = connections;
 
@@ -584,7 +760,7 @@ export function createTeamPackageExport(input: TeamExportInput): TeamExportResul
   return {
     document,
     filename: `${document.package.id}-${document.package.release}.openmaus.json`,
-    redacted,
+    redacted: [...new Set([...addressRedactions, ...redacted])],
     skipped,
     published: {
       packageId,
@@ -597,5 +773,114 @@ export function createTeamPackageExport(input: TeamExportInput): TeamExportResul
         routines: { ...recorded?.routines, ...toRecord(routineKeys, (id) => exportedRoutines.has(routineKeys.get(id)!)) },
       },
     },
+  };
+}
+
+// ── presets: my New bot defaults, with a team or on their own ──────────────
+
+/** Add a preset's skills to the file's skills. A preset never pushes the
+ * team's own skills out: a name the team holds with different content, or
+ * room past the team's 60, leaves that skill out of the preset and says so.
+ * The skill entries never carry whether a skill was switched on; whoever
+ * adds the file decides that by where it came from. */
+function withPresetSkills(
+  value: DefaultsPreset,
+  packageSkills: Map<string, ExportablePackageSkill>,
+  skipped: TeamExportSkip[],
+): PackagePreset {
+  const kept: string[] = [];
+  for (const skill of value.skills) {
+    const part = `presets[${value.preset.key}].skills[${skill.name}]`;
+    const existing = packageSkills.get(skill.name);
+    if (existing) {
+      if (sameSkill(existing, skill)) kept.push(skill.name);
+      else skipped.push({ part, reason: "preset_skill_conflict" });
+      continue;
+    }
+    if (packageSkills.size >= PACKAGE_MAX_SKILLS) {
+      skipped.push({ part, reason: "team_skill_limit" });
+      continue;
+    }
+    const { enabled: _enabled, ...entry } = skill;
+    packageSkills.set(skill.name, entry);
+    kept.push(skill.name);
+  }
+  const { skills: _skills, ...preset } = value.preset;
+  return { ...preset, ...(kept.length ? { skills: kept } : {}) };
+}
+
+export const PRESET_TOO_LARGE_MESSAGE = "This preset is too large to share (4 MB). Leave out starter notes or some skills and try again.";
+
+export interface LibraryExportInput {
+  name?: string;
+  tagline?: string;
+  summary?: string;
+  release?: string;
+  notes?: string;
+  authorName?: string;
+  /** What this installation last shared as a preset file. */
+  published: PublishedLibrary | null;
+  preset: DefaultsPreset | null;
+  skipped?: readonly TeamExportSkip[];
+}
+
+export interface LibraryExportResult {
+  document: PackageDocument;
+  filename: string;
+  redacted: string[];
+  skipped: TeamExportSkip[];
+  /** Persist after a successful (non-preview) export. */
+  published: PublishedLibrary;
+}
+
+/** A library package: preset bots and their skills, no team (contract §1.3
+ * rule 1). Everything a team file promises holds here too: redaction, the
+ * one parser, the 4 MB limit, and a stable package id with the next patch
+ * release suggested. */
+export function createLibraryPackageExport(input: LibraryExportInput): LibraryExportResult {
+  if (!input.preset) throw new TeamExportError("Your New bot defaults are empty. Give them a name, instructions, skills or starter notes first.");
+  const skipped: TeamExportSkip[] = [...(input.skipped ?? [])];
+  const release = input.release?.trim() || nextPatchRelease(input.published?.lastRelease);
+  if (!SEMVER.test(release)) throw new TeamExportError("Use a version like 1.2.3.");
+  const notes = input.notes?.trim();
+  if (notes && notes.length > RELEASE_NOTES_MAX) throw new TeamExportError(`Release notes must be at most ${RELEASE_NOTES_MAX} characters.`);
+  const displayName = (input.name?.trim() || input.preset.preset.name).slice(0, 100).trim();
+  const packageId = input.published?.packageId ?? portableKey(displayName, "preset", new Set());
+  const packageSkills = new Map<string, ExportablePackageSkill>();
+  const preset = withPresetSkills(input.preset, packageSkills, skipped);
+  const definition: PackageDefinition = {
+    id: packageId,
+    release,
+    name: displayName,
+    tagline: input.tagline?.trim() || "A preset bot for OpenMausBot's New bot dialog.",
+    summary: input.summary?.trim() ||
+      "Shared from OpenMausBot. Adds a preset bot to New bot. Its skills arrive switched off; model choices, computers, approval levels and connected apps never travel.",
+    ...(notes ? { notes } : {}),
+    category: "Community",
+    author: { name: input.authorName?.trim() || "OpenMausBot user" },
+    license: "Unspecified",
+    outcomes: ["Start new bots from a shared preset."],
+    setupMinutes: 2,
+    requirements: { apps: [], capabilities: [] },
+    agents: [],
+    presets: [preset],
+  };
+  if (packageSkills.size) definition.skills = { version: 1, entries: [...packageSkills.values()].map((skill) => ({ ...skill })) };
+  const { document: redactedDocument, redacted } = redactPackageSecrets({
+    format: PACKAGE_FORMAT, version: PACKAGE_VERSION, package: definition,
+  } as PackageDocument);
+  let document: PackageDocument;
+  try {
+    document = parsePackageDocument(redactedDocument, { trust: "file" });
+  } catch (error) {
+    if (error instanceof PackageFormatError && error.code === "too_large") throw new TeamExportError(PRESET_TOO_LARGE_MESSAGE);
+    throw new TeamExportError(error instanceof Error ? error.message : "This preset could not be shared.");
+  }
+  return {
+    document,
+    filename: `${document.package.id}-${document.package.release}.openmaus.json`,
+    redacted,
+    skipped,
+    published: { packageId, lastRelease: release },
   };
 }
