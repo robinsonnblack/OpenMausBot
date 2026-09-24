@@ -11,6 +11,7 @@ import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -47,6 +48,7 @@ sealed interface Frame {
     data class Hello(val cursor: String, val resumed: Boolean) : Frame
     data class Message(val threadId: String, val message: com.openmausbot.companion.core.Message) : Frame
     data class MessagePatch(val threadId: String, val message: com.openmausbot.companion.core.Message) : Frame
+    data class MessagesDeleted(val threadId: String, val ids: List<String>, val activeLeafId: String?) : Frame
     data class Thread(val threadId: String, val activeLeafId: String?) : Frame
     data class Bot(val bot: com.openmausbot.companion.core.Bot) : Frame
     data class BotDeleted(val botId: String) : Frame
@@ -66,6 +68,7 @@ val Frame.threadId: String?
     get() = when (this) {
         is Frame.Message -> threadId
         is Frame.MessagePatch -> threadId
+        is Frame.MessagesDeleted -> threadId
         is Frame.Thread -> threadId
         is Frame.Notify -> notification.threadId
         is Frame.Runtime -> event.threadId
@@ -99,6 +102,11 @@ object FrameSerializer : KSerializer<Frame> {
                     com.openmausbot.companion.core.Message.serializer(),
                     objectValue.required("message"),
                 ),
+            )
+            "messages.deleted" -> Frame.MessagesDeleted(
+                threadId = objectValue.requiredString("threadId"),
+                ids = objectValue.required("ids").jsonArray.map { it.jsonPrimitive.content },
+                activeLeafId = objectValue["activeLeafId"]?.jsonPrimitive?.contentOrNull,
             )
             "thread" -> Frame.Thread(
                 threadId = objectValue.requiredString("threadId"),
@@ -212,6 +220,12 @@ private fun Frame.toJsonObject(output: JsonEncoder): JsonObject = buildJsonObjec
             put("kind", "message.patch")
             put("threadId", threadId)
             put("message", output.json.encodeToJsonElement(com.openmausbot.companion.core.Message.serializer(), message))
+        }
+        is Frame.MessagesDeleted -> {
+            put("kind", "messages.deleted")
+            put("threadId", threadId)
+            put("ids", JsonArray(ids.map(::JsonPrimitive)))
+            activeLeafId?.let { put("activeLeafId", it) }
         }
         is Frame.Thread -> {
             put("kind", "thread")

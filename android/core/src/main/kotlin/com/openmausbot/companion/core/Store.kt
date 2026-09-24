@@ -303,6 +303,17 @@ data class CompanionState(
                 .let { next -> if (index >= 0) next else next.noteThreadActivity(frame.threadId, frame.message.at) }
         }
 
+        is Frame.MessagesDeleted -> {
+            val gone = frame.ids.toSet()
+            copy(
+                messages = messages + (frame.threadId to transcript(frame.threadId).filterNot { it.id in gone }),
+                activeLeafIds = activeLeafIds + (frame.threadId to frame.activeLeafId),
+                bots = bots.map { bot ->
+                    if (bot.threadId == frame.threadId) bot.copy(activeLeafId = frame.activeLeafId) else bot
+                },
+            )
+        }
+
         is Frame.Thread -> copy(
             activeLeafIds = activeLeafIds + (frame.threadId to frame.activeLeafId),
             bots = bots.map {

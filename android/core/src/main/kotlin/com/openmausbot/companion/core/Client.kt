@@ -204,6 +204,17 @@ class CompanionClient(
         return send(makeRequest("GET", "/api/threads/${segment(threadId)}/messages", query))
     }
 
+    suspend fun messageDeletionSelection(threadId: String): MessageDeletionSelection = send(
+        makeRequest("GET", "/api/threads/${segment(threadId)}/message-selection"),
+    )
+
+    suspend fun deleteMessages(threadId: String, ids: List<String>): MessageDeletionResult = send(
+        makeRequest(
+            "POST", "/api/threads/${segment(threadId)}/messages/delete",
+            body = buildJsonObject { put("ids", JsonArray(ids.map(::JsonPrimitive))) },
+        ),
+    )
+
     suspend fun messagesAround(threadId: String, messageId: String, limit: Int = 50): ThreadPage = send(
         makeRequest(
             "GET",
