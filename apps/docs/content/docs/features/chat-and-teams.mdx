@@ -158,9 +158,11 @@ export help compare requests. **Refresh** loads newly captured requests.
 Uncached input, cached input and output are separate. A dash means the provider
 did not report the value. **Agent input** shows what OpenMausBot passed to the
 provider client, with whole-turn usage; that client may add its own context.
-**API request** shows a redacted HTTP body and that request's usage, available
-for connections using the direct chat-completions runtime. External CLI/ACP
-clients' final model HTTP requests are not captured by this view.
+**API request** shows a redacted HTTP body. It is available for direct
+chat-completions connections and official Codex turns through OpenMausBot's
+loopback relay. For Codex, the record is the final outbound request after
+cache routing; whole-turn usage remains on **Agent input**. Other external
+CLI/ACP clients' final HTTP requests are not captured.
 
 The inspector is administrator-only and retains the latest six records per
 conversation. Oversized bodies are omitted; diagnostics remain available.
