@@ -1,4 +1,5 @@
-import { configurePromptInspector } from "./prompt-inspector.ts";
+import { configurePromptInspector, forgetPromptCaptures } from "./prompt-inspector.ts";
+import { createMessageDeletion } from "./message-deletion.mjs";
 // OpenMausBot server — the harness host. Clients hold no transports
 // (upstream rule): the React app dispatches typed commands over HTTP and
 // folds one SSE event stream; every provider process runs here.
@@ -206,7 +207,7 @@ import type { GroupGoalRunCardData, GroupGoalRunStatus } from "../shared/group-g
 
 import { BUILT_IN_DRIVERS } from "./drivers/builtIn.ts";
 import { getOrCreateChannel, mirrorActivity, mirrorExchange, mirrorReply, type CommsBus } from "./comms-visibility.ts";
-import { readMessageText, recallMessages, recentMessages, searchMessages, closeMessageDb, chatFollowups, cancelledChatFollowup, settleChatFollowups, threadsReferencing } from "./message-db.ts";
+import { readMessageText, recallMessages, recentMessages, searchMessages, closeMessageDb, chatFollowups, cancelledChatFollowup, settleChatFollowups, threadsReferencing, messageDeletionDatabase } from "./message-db.ts";
 import { briefCrossingLabel, claimRecallCrossings, recallCrossingLabel } from "./recall-disclosure.ts";
 import { parseSince, parseUntil, recentWork, recentWorkPrompt, turnOutcomeLine } from "./recent-work.ts";
 import { chiefForBot, INCIDENTS_THREAD_TITLE, IncidentLedger, incidentChip, incidentText, type Incident, type IncidentKind } from "./incidents.ts";
@@ -2388,6 +2389,36 @@ function checkedMemberIds(value: unknown): { ok: true; memberIds: string[] } | {
 }
 let bootSelection = { instanceId: "", model: "" };
 const store = new Store(() => bootSelection);
+let messageDeletion: ReturnType<typeof createMessageDeletion> | undefined;
+function deletionService() {
+  return messageDeletion ??= createMessageDeletion({
+    store, getDb: messageDeletionDatabase, dataDir: DATA_DIR, broadcast,
+    configFile: join(DATA_DIR, "message-deletion-storage.json"),
+    purgeCaptures: (_clean, threadId) => forgetPromptCaptures(threadId),
+    quiesce: async threadId => {
+      const owner = store.botByThread(threadId), group = store.groupByThread(threadId);
+      const affected = new Set(owner ? [owner.id] : group?.memberIds ?? []);
+      for (const id of affected) await interruptAllDirectThreads(id);
+      for (const [tid, instance] of runningTurnEngines) {
+        const runningGroup = store.groupByThread(tid);
+        const runningOwner = groupSpeakers.get(tid)?.botId ?? runningGroup?.busyBotId ?? store.botByThread(tid)?.id;
+        if (tid !== threadId && (!runningOwner || !affected.has(runningOwner))) continue;
+        if (runningGroup) cancelGroupTurnOperations(runningGroup.id, tid);
+        revokeInternalCapabilitiesForThread(tid);
+        await instance.adapter.interruptTurn(tid);
+        closeOpenApprovals(tid);
+      }
+      cancelTeamSetupResumesForThread(threadId);
+      pendingDelegationWakes.delete(threadId);
+      discardDelegations(commsBus, threadId);
+    },
+    clearRuntime: (_ids, _threadId, scrubber) => {
+      lastReply.clear(); turnContext.clear(); toolMessageByItem.clear(); askMessageByRequest.clear(); sessionModelByThread.clear();
+      roomHandoffs.scrub(node => scrubber.clean(node) as RoomHandoff | null);
+      cleanupStaleAttachmentPartials();
+    },
+  });
+}
 const teamComputers = new TeamComputers(join(DATA_DIR, "team-computers.json"), ENVIRONMENT_ID);
 let followupsReady = false;
 const sendSequencer = new SendSequencer();
@@ -14652,6 +14683,25 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
           }),
         ),
       });
+    }
+
+    const deletionMatch = path.match(/^\/api\/threads\/([\w-]+)\/messages\/delete$/);
+    if (deletionMatch && method === "POST") {
+      if (!visible.everything) return json(res, 403, { error: "Only the workspace owner can delete messages" });
+      const threadId = deletionMatch[1];
+      if (!store.botByThread(threadId) && !store.groupByThread(threadId)) return json(res, 404, { error: "No such conversation" });
+      const selection = await readBody(req, 1_000_000) as { all?: boolean; ids?: string[]; excludedIds?: string[] };
+      return json(res, 200, await deletionService().execute(threadId, selection));
+    }
+
+    const selectionMatch = path.match(/^\/api\/threads\/([\w-]+)\/message-selection$/);
+    if (selectionMatch && method === "GET") {
+      if (!visible.everything) return json(res, 403, { error: "Only the workspace owner can select messages for deletion" });
+      const threadId = selectionMatch[1];
+      if (!store.botByThread(threadId) && !store.groupByThread(threadId)) return json(res, 404, { error: "No such conversation" });
+      const allIds = store.messagesFor(threadId).map(message => message.id);
+      const ids = store.groupByThread(threadId) ? allIds : store.activePath(threadId).map(message => message.id);
+      return json(res, 200, { ids, allIds });
     }
 
     // scrollback: the page before a message the client already holds

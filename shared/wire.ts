@@ -534,6 +534,7 @@ export type ServerFrame =
   | { kind: "bot.queued"; queues: BotQueuedMessages }
   | { kind: "message"; threadId: string; message: WireMessage }
   | { kind: "message.patch"; threadId: string; message: WireMessage }
+  | { kind: "messages.deleted"; threadId: string; ids: string[]; activeLeafId: string | null }
   | { kind: "thread"; threadId: string; activeLeafId: string }
   | { kind: "bot"; bot: WireBot }
   | { kind: "group"; group: WireGroup }

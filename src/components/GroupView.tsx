@@ -1,4 +1,5 @@
 import { PromptInspectorButton } from "./PromptInspector";
+import { MessageDeletion } from "./MessageDeletion";
 // A room: several bots + you in one shared thread. The sidebar and call view
 // carry the personality; avatars inside the room stay still so a busy group
 // does not become a wall of competing motion. Plain messages go to the room's
@@ -1177,6 +1178,7 @@ export function GroupView({ group }: { group: Group }) {
             messages={group.messages}
             isGroup
           />
+          {!remoteClient && <MessageDeletion threadId={group.threadId} messages={group.messages} />}
           {!remoteClient && <PromptInspectorButton threadId={group.threadId} />}
           <GroupCallButton group={group} members={members} />
           {!remoteClient && !setupPending && !group.dm && <RoomWorkingFolderChip group={group} onToggle={() => setFolderOpen((open) => !open)} />}

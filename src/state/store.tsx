@@ -880,7 +880,7 @@ export interface AppState {
   consumedQueueIds: Record<string, true>;
   /** Frames arriving outside the visible thread, including the small gap
    * between a switch snapshot and its HTTP response. */
-  backgroundThreadEvents: Record<string, Array<Extract<Action, { type: "messageAdded" | "messagePatched" | "threadActive" | "optimisticMessageRemoved" }>>>;
+  backgroundThreadEvents: Record<string, Array<Extract<Action, { type: "messageAdded" | "messagePatched" | "threadActive" | "optimisticMessageRemoved" | "messagesDeleted" }>>>;
   /** Threads with a scrollback page in flight, so one click cannot ask the
    * server for the same page twice. */
   loadingOlder: Record<string, true>;
@@ -1088,6 +1088,7 @@ export type Action =
   | { type: "botPatched"; bot: BotAnnouncement }
   | { type: "messageAdded"; threadId: string; message: Message }
   | { type: "messagePatched"; threadId: string; message: Message }
+  | { type: "messagesDeleted"; threadId: string; ids: string[]; activeLeafId: string | null }
   | { type: "optimisticMessageRemoved"; threadId: string; sendId: string }
   | { type: "screenFrame"; botId: string; threadId?: string; png: string; mime: string }
   | { type: "provisioning"; botId: string; on: boolean }
@@ -1312,7 +1313,7 @@ function optimisticUserMessage(
 }
 
 export function reducer(state: AppState, action: Action): AppState {
-  if (action.type === "messageAdded" || action.type === "messagePatched" || action.type === "threadActive" || action.type === "optimisticMessageRemoved") {
+  if (action.type === "messageAdded" || action.type === "messagePatched" || action.type === "threadActive" || action.type === "optimisticMessageRemoved" || action.type === "messagesDeleted") {
     const owner = state.bots.find((bot) => (bot.threadId !== action.threadId || bot.awaitingThreadSnapshot) && bot.tasks?.some((task) => task.threadId === action.threadId));
     if (owner) {
       // ponytail: a bounded race buffer, not a second transcript store. The
@@ -1325,6 +1326,16 @@ export function reducer(state: AppState, action: Action): AppState {
     }
   }
   switch (action.type) {
+    case "messagesDeleted": {
+      const removed = new Set(action.ids);
+      const bots = state.bots.map((bot) => bot.threadId === action.threadId
+        ? { ...bot, messages: bot.messages.filter((message) => !removed.has(message.id)), activeLeafId: action.activeLeafId }
+        : bot);
+      const groups = state.groups.map((group) => group.threadId === action.threadId
+        ? { ...group, messages: group.messages.filter((message) => !removed.has(message.id)), activeLeafId: action.activeLeafId }
+        : group);
+      return { ...state, bots, groups };
+    }
     case "hydrate": {
       const known = (id: string) => action.bots.some((b) => b.id === id) || action.groups.some((g) => g.id === id);
       const selectedId =
@@ -3601,6 +3612,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         case "message.patch":
           rawDispatch({ type: "messagePatched", threadId: frame.threadId, message: frame.message as Message });
+          break;
+        case "messages.deleted":
+          rawDispatch({ type: "messagesDeleted", threadId: frame.threadId, ids: frame.ids as string[], activeLeafId: (frame.activeLeafId as string | null) ?? null });
           break;
         case "thread":
           rawDispatch({ type: "threadActive", threadId: frame.threadId, activeLeafId: frame.activeLeafId });
