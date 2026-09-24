@@ -1568,6 +1568,15 @@ class Session(
         }
     }
 
+    suspend fun messageDeletionSelection(threadId: String): MessageDeletionSelection =
+        (client ?: throw APIError.Transport("This computer is offline.")).messageDeletionSelection(threadId)
+
+    suspend fun deleteMessages(threadId: String, ids: List<String>): MessageDeletionResult {
+        val result = (client ?: throw APIError.Transport("This computer is offline.")).deleteMessages(threadId, ids)
+        _state.update { it.apply(Frame.MessagesDeleted(threadId, result.ids, result.activeLeafId)) }
+        return result
+    }
+
     suspend fun loadThreadIfNeeded(threadId: String) {
         if (!_state.value.hasLoadedPage(threadId)) loadThread(threadId)
     }

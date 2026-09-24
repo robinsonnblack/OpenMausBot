@@ -566,6 +566,12 @@ object FleetSerializer : KSerializer<Fleet> {
 data class ThreadPage(val messages: List<Message>, val hasMore: Boolean? = null, val activeLeafId: String? = null)
 
 @Serializable
+data class MessageDeletionSelection(val ids: List<String>, val allIds: List<String>)
+
+@Serializable
+data class MessageDeletionResult(val ids: List<String>, val activeLeafId: String? = null)
+
+@Serializable
 data class SearchHit(
     val threadId: String,
     val messageId: String,

@@ -3,6 +3,10 @@
 The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
+An admin-scoped pairing can select and permanently delete individual messages
+from a conversation, including older edited versions. The phone requires a
+second confirmation and applies the server's deletion event to open chats.
+
 - `applicationId` — `com.openmausbot.companion`
 - `minSdk` 26 (Android 8.0), `targetSdk` / `compileSdk` 37
 - Deep-link scheme — `openmausbot`
