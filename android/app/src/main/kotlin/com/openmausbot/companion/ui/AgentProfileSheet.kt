@@ -137,6 +137,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
     var choosingBotComputer by remember(opened.id) { mutableStateOf(false) }
     var confirmingLocalAuto by remember(opened.id) { mutableStateOf(false) }
+    var choosingSafeApproval by remember(opened.id) { mutableStateOf(false) }
+    var confirmingAutoOnComputer by remember(opened.id) { mutableStateOf(false) }
     var workingFolderDraft by rememberSaveable(opened.id) { mutableStateOf(opened.cwd.orEmpty()) }
     var workingFolderBaseline by rememberSaveable(opened.id) { mutableStateOf(opened.cwd.orEmpty()) }
     val workingFolderConflict = workingFolderDraft != workingFolderBaseline && current.cwd.orEmpty() != workingFolderBaseline
@@ -602,9 +604,17 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { choosingTaskSurface = true },
                     )
                     Text("Approvals for this chat: ${approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)}")
+                    Text("Bot approval default: ${approvalAccessLabel(current.approvalMode, current.autoApprove)}")
+                    if (connection?.serverScopes?.contains("admin") == true && current.approvalMode !in listOf("full", "custom")) {
+                        ActionRow(
+                            text = "Change Ask / Auto approval",
+                            enabled = current.busy != true && !busy,
+                            onClick = { choosingSafeApproval = true },
+                        )
+                    }
                     Text(if (connection?.serverScopes?.contains("admin") == true)
-                        "Elevated approval permissions can only be changed in the packaged desktop app."
-                    else "Changing the bot-wide default requires an admin pairing. Elevated approval permissions require the packaged desktop app.")
+                        "Full and Custom approval permissions can only be changed in the packaged desktop app."
+                    else "Changing bot-wide defaults requires an admin pairing. Full and Custom approval permissions require the packaged desktop app.")
                 }
 
                 FormSection(
@@ -856,6 +866,47 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }) { Text("Allow") }
             },
             dismissButton = { TextButton(onClick = { confirmingLocalAuto = false }) { Text("Cancel") } },
+        )
+    }
+    if (choosingSafeApproval) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) choosingSafeApproval = false },
+            title = { Text("Approval default for this bot") },
+            text = {
+                Column {
+                    listOf("ask" to "Ask before actions", "auto" to "Auto approval").forEach { (mode, label) ->
+                        TextButton(enabled = !busy, onClick = {
+                            if (mode == "auto" && liveBot().computer == "local") {
+                                choosingSafeApproval = false
+                                confirmingAutoOnComputer = true
+                            } else scope.launch {
+                                busy = true
+                                if (session.setBotApprovalMode(liveBot(), mode) != null) choosingSafeApproval = false
+                                busy = false
+                            }
+                        }) { Text(if (approvalAccessLabel(current.approvalMode, current.autoApprove).equals(mode, ignoreCase = true)) "✓ $label" else label) }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { choosingSafeApproval = false }) { Text("Cancel") } },
+        )
+    }
+    if (confirmingAutoOnComputer) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) confirmingAutoOnComputer = false },
+            title = { Text("Allow automatic use of this computer?") },
+            text = { Text("Auto approval on This computer lets this bot use the paired computer without asking for every action.") },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    scope.launch {
+                        busy = true
+                        if (session.setBotApprovalMode(liveBot(), "auto", acknowledgeLocalAuto = true) != null) confirmingAutoOnComputer = false
+                        busy = false
+                    }
+                }) { Text("Allow") }
+            },
+            dismissButton = { TextButton(onClick = { confirmingAutoOnComputer = false }) { Text("Cancel") } },
         )
     }
 }

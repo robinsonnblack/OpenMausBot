@@ -455,6 +455,18 @@ class CompanionClient(
         body = buildJsonObject { put("cwd", cwd?.let(::JsonPrimitive) ?: JsonNull) },
     )).bot
 
+    /** Safe admin changes only. Full and Custom require the desktop's private confirmation flow. */
+    suspend fun setBotApprovalMode(botId: String, mode: String, acknowledgeLocalAuto: Boolean = false): Bot {
+        require(mode == "ask" || mode == "auto")
+        return send<BotResponse>(makeRequest(
+            "PATCH", "/api/bots/${segment(botId)}",
+            body = buildJsonObject {
+                put("approvalMode", mode)
+                if (acknowledgeLocalAuto) put("acknowledgeLocalAuto", true)
+            },
+        )).bot
+    }
+
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.

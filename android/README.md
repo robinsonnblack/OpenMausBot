@@ -69,7 +69,9 @@ the server still validates the change. Elevated approval levels remain
 desktop-only. Admin-scoped phones can enter an absolute working-folder path
 on the paired computer or return to the private bot folder. The server checks
 that the path exists and is a directory; an existing task may retain its old
-folder until a new task starts.
+folder until a new task starts. The same admin pairing can switch a bot between
+Ask and Auto approval. Auto on This computer has its own confirmation. Full
+and Custom access still require the packaged desktop's private grant flow.
 
 ## Build and test
 

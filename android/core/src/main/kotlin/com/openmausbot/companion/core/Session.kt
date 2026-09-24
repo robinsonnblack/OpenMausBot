@@ -2022,6 +2022,24 @@ class Session(
         }
     }
 
+    suspend fun setBotApprovalMode(forBot: Bot, mode: String, acknowledgeLocalAuto: Boolean = false): Bot? {
+        val activeClient = client ?: return null
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            _actionError.value = "Changing a bot's approval mode requires an admin pairing."
+            return null
+        }
+        return try {
+            val updated = activeClient.setBotApprovalMode(forBot.id, mode, acknowledgeLocalAuto)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated.forTask(forBot.threadId)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun uploadAvatar(
         data: ByteArray,
         mime: String,
