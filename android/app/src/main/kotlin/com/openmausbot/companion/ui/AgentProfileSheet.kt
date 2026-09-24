@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -106,6 +107,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     val opened = remember { bot }
     val current = state.bot(opened.id) ?: opened
     val currentTask = current.forTask(opened.threadId)
+    val currentTaskRecord = current.tasks?.firstOrNull { it.threadId == opened.threadId }
 
     var form by rememberSaveable(stateSaver = ProfileFormSaver) {
         mutableStateOf(ProfileForm.of(opened))
@@ -131,6 +133,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingHistory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -572,9 +575,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(header = "Computer access") {
-                    Text("Computer: ${computerAccessLabel(current.computer)}")
+                    Text("Bot default: ${computerAccessLabel(current.computer)}")
+                    Text("This chat: ${taskSurfaceLabel(currentTaskRecord?.surface, current.computer)}")
+                    ActionRow(
+                        text = "Change this chat's computer",
+                        enabled = currentTaskRecord != null && currentTaskRecord.busy != true && !busy,
+                        onClick = { choosingTaskSurface = true },
+                    )
                     Text("Approvals for this chat: ${approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)}")
-                    Text("Change computer and approval permissions on the paired computer.")
+                    Text("Change the bot-wide default and elevated approval permissions on the paired computer.")
                 }
 
                 VoiceSection(
@@ -691,6 +700,45 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             }
         }
     }
+    if (choosingTaskSurface && currentTaskRecord != null) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) choosingTaskSurface = false },
+            title = { Text("Computer for this chat") },
+            text = {
+                Column {
+                    listOf(
+                        null to "Follow bot default",
+                        "browser" to "Browser",
+                        "local" to "This computer",
+                        "cloud" to "Cloud computer",
+                        "vm" to "Local VM",
+                    ).forEach { (surface, label) ->
+                        TextButton(
+                            enabled = !busy,
+                            onClick = {
+                                scope.launch {
+                                    busy = true
+                                    if (session.setTaskSurface(currentTaskRecord, liveBot(), surface)) choosingTaskSurface = false
+                                    busy = false
+                                }
+                            },
+                        ) { Text(if (currentTaskRecord.surface == surface) "✓ $label" else label) }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { choosingTaskSurface = false }) { Text("Cancel") } },
+        )
+    }
+}
+
+private fun taskSurfaceLabel(surface: String?, botDefault: String?): String = when (surface) {
+    null -> "Follow bot default (${computerAccessLabel(botDefault)})"
+    "browser" -> "Browser"
+    "local" -> "This computer"
+    "cloud" -> "Cloud computer"
+    "vm" -> "Local VM"
+    else -> surface
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

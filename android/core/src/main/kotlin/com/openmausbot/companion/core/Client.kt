@@ -737,6 +737,15 @@ class CompanionClient(
         ))
     }
 
+    suspend fun setTaskSurface(botId: String, threadId: String, surface: String?) {
+        require(surface == null || surface in setOf("cloud", "vm", "local", "browser"))
+        sendUnit(makeRequest(
+            "PATCH",
+            "/api/bots/${segment(botId)}/tasks/${segment(threadId)}",
+            body = buildJsonObject { put("surface", JsonPrimitive(surface)) },
+        ))
+    }
+
     /**
      * 0 sleeps until new activity, a timestamp until it passes, and null — a
      * real JSON null, not an omitted field — wakes the thread now. Long
