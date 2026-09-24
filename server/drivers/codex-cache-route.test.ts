@@ -1,5 +1,9 @@
 import { createServer } from "node:http";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { configurePromptInspector } from "../prompt-inspector.ts";
 import { codexCacheIdentity, openCodexCacheRoute, stableCodexInput } from "./codex-cache-route.ts";
 
 const skills = (label: string) => `<skills_instructions>\n## Skills\n### Available skills\n- ${label}\n</skills_instructions>`;
@@ -21,6 +25,8 @@ describe("Codex cache route", () => {
   });
 
   it("forwards repeated requests with identical cache identity and preserves auth", async () => {
+    const folder = mkdtempSync(join(tmpdir(), "openmaus-native-capture-"));
+    const inspector = configurePromptInspector(folder)!;
     const seen: Array<{ body: any; authorization: string | undefined; session: string | undefined }> = [];
     const upstream = createServer(async (req, res) => {
       let raw = "";
@@ -44,6 +50,9 @@ describe("Codex cache route", () => {
       expect(seen[0].body).toEqual(seen[1].body);
       expect(seen.map(row => row.body.prompt_cache_key)).toEqual([codexCacheIdentity("bot", "thread"), codexCacheIdentity("bot", "thread")]);
       expect(seen.every(row => row.authorization === "Bearer fixture" && row.session === codexCacheIdentity("bot", "thread"))).toBe(true);
-    } finally { first.close(); second.close(); upstream.close(); }
+      expect(inspector.read("thread")).toHaveLength(2);
+      expect(inspector.read("thread")[0]).toMatchObject({ kind: "api-request", status: "completed", body: { input: seen[1].body.input } });
+      expect(JSON.stringify(inspector.read("thread"))).not.toContain("Bearer fixture");
+    } finally { first.close(); second.close(); upstream.close(); await inspector.flush(); rmSync(folder, { recursive: true, force: true }); }
   });
 });

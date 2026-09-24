@@ -50,3 +50,7 @@ through the application's StrictMode mount/cleanup cycle.
 These checks prove local integration, not paid-provider availability, model
 quality or cache-hit guarantees. Unknown caching is displayed as unknown,
 not zero. Agent-turn totals and individual API-call usage must not be summed.
+
+The Codex relay test forwards two turns to an isolated upstream server. It
+checks stable cache identity and records the exact redacted outbound request
+in Prompt Inspector without saving the authorization header.
