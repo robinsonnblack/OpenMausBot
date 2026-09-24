@@ -933,6 +933,63 @@ data class BotProfilePatch(
     }
 }
 
+@Serializable
+data class MemoryDoc(val path: String, val text: String, val hash: String, val exists: Boolean)
+
+@Serializable
+data class MemoryFileInfo(val path: String, val name: String, val bytes: Long, val modifiedAt: Double)
+
+@Serializable
+data class MemoryCapacity(
+    val lines: Int,
+    val bytes: Long,
+    val maxLines: Int,
+    val maxBytes: Long,
+    val loadedLines: Int,
+    val loadedBytes: Long,
+    val truncated: Boolean,
+    val hash: String,
+)
+
+@Serializable
+data class MemoryOverview(
+    val botId: String,
+    val workspacePath: String,
+    val index: MemoryCapacity,
+    val topics: List<MemoryFileInfo>,
+    val logs: List<MemoryFileInfo>,
+)
+
+@Serializable
+data class MemoryWriteResult(
+    val path: String,
+    val text: String,
+    val hash: String,
+    val exists: Boolean,
+    val overview: MemoryOverview,
+) {
+    fun doc() = MemoryDoc(path, text, hash, exists)
+}
+
+@Serializable
+data class MemoryDeleteResult(val overview: MemoryOverview)
+
+@Serializable
+data class MemoryJournalRow(
+    val id: String,
+    val at: Double,
+    val path: String,
+    val actor: String,
+    val via: String,
+    val kind: String,
+    val diff: String,
+    val canRevert: Boolean,
+    val revertUnavailableReason: String? = null,
+)
+
+@Serializable
+data class MemoryJournal(val entries: List<MemoryJournalRow>)
+
 object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
     private val fieldNames = setOf(
         "name",
