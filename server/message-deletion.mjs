@@ -134,7 +134,7 @@ function scrubber(ids, deleted, threadTitles = []) {
 function tables(db) {
   return new Set(db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map((r) => r.name));
 }
-function purgeDatabase(db, threadId, ids, clean, { primary = false } = {}) {
+function purgeDatabase(db, threadId, ids, clean) {
   const names = tables(db);
   if (!names.has("messages")) return { changes: [] };
   db.exec("PRAGMA secure_delete=ON");
@@ -230,7 +230,8 @@ async function deleteNativeThreads(cli, ids) {
     const p = pending.get(m.id);
     if (p) {
       pending.delete(m.id);
-      m.error ? p.reject(new Error(m.error.message)) : p.resolve(m.result);
+      if (m.error) p.reject(new Error(m.error.message));
+      else p.resolve(m.result);
     }
   });
   proc.on("error", (e) => {
@@ -341,7 +342,7 @@ function createMessageDeletion({ store, getDb, dataDir, broadcast, quiesce, clea
         for (const [p] of fileIndexes) if (!exists(p)) invalidate(p);
       }
       mark("native_sessions");
-      const result = purgeDatabase(getDb(), threadId, ids, clean, { primary: true });
+      const result = purgeDatabase(getDb(), threadId, ids, clean);
       mark("primary_database");
       for (const root of settings.archiveRoots ?? []) {
         for (const p of walk(root)) {
