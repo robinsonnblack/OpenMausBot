@@ -570,7 +570,8 @@ it("runs a message sent while a teammate works, keeps the assignment, and names 
 // composer queue until the outstanding assignments settle — room-style
 // parking for direct chat — and only then runs as its own follow-up turn.
 it("parks a message behind outstanding teammate work when the bot opts in, then runs it after", () => fixture(async f => {
-  f.plan[f.lead.id] = { delayMs: 4000, reply: "CSV export implemented" };
+  const teammateGate = join(f.session.info.dataDir, "teammate-ready");
+  f.plan[f.lead.id] = { gateFile: teammateGate, reply: "CSV export implemented" };
   f.plan[f.chief.id] = { turns: [
     { steps: structuredClone(f.plan[f.chief.id].steps), reply: "Assigned to Engineering" },
     { reply: "The requested CSV export is implemented and verified" },
@@ -591,6 +592,7 @@ it("parks a message behind outstanding teammate work when the bot opts in, then 
 
   // The teammate finishes, the coordination resumes and settles, and only
   // then the parked words run as their own turn.
+  writeFileSync(teammateGate, "finish the fixture teammate");
   expect((await f.wait()).status).toBe("settled");
   await expect.poll(() => f.evidence().filter((turn: any) => turn.botId === f.chief.id).length, { timeout: 20_000 }).toBe(3);
   const parked = f.evidence().filter((turn: any) => turn.botId === f.chief.id)[2];
