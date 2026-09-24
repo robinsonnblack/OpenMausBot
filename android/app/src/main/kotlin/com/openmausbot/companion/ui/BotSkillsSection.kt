@@ -31,6 +31,7 @@ internal fun BotSkillsSection(botId: String) {
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var skills by remember(botId) { mutableStateOf<List<ManagedSkill>>(emptyList()) }
+    var stagedCount by remember(botId) { mutableStateOf(0) }
     var loading by remember(botId) { mutableStateOf(true) }
     var busy by remember(botId) { mutableStateOf(false) }
     var error by remember(botId) { mutableStateOf<String?>(null) }
@@ -39,7 +40,9 @@ internal fun BotSkillsSection(botId: String) {
     var removePending by remember(botId) { mutableStateOf<ManagedSkill?>(null) }
 
     suspend fun refresh() {
-        skills = session.managedSkills(botId)
+        val result = session.managedSkills(botId)
+        skills = result.skills
+        stagedCount = result.staged.size
         error = null
     }
 
@@ -91,6 +94,7 @@ internal fun BotSkillsSection(botId: String) {
             }
         }
         if (!loading && skills.isEmpty()) Text("No skills installed for this bot.")
+        if (stagedCount > 0) Text("$stagedCount skill proposal(s) await a decision in chat.")
         OutlinedTextField(
             value = source,
             onValueChange = { source = it },
