@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 /** Admin pairing only. Team membership lives on the paired computer. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TeamManagementSheet(onDismiss: () -> Unit) {
+internal fun TeamManagementSheet(onDismiss: () -> Unit, onCreateBot: (String) -> Unit) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -100,6 +100,9 @@ internal fun TeamManagementSheet(onDismiss: () -> Unit) {
                 ) { Text("Rename team") }
 
                 Text("Team members")
+                TextButton(enabled = !busy, onClick = { onCreateBot(team) }) {
+                    Text("Create bot in this team")
+                }
                 state.bots.filter { it.hidden != true }.forEach { bot ->
                     Row(
                         modifier = Modifier.fillMaxWidth().clickable(enabled = !busy) {

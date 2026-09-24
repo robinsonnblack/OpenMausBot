@@ -34,14 +34,18 @@ import kotlinx.coroutines.launch
 /** Create on the paired computer with a model chosen before the first turn. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun NewBotModelSheet(onCreated: (Bot) -> Unit, onDismiss: () -> Unit) {
+internal fun NewBotModelSheet(
+    onCreated: (Bot) -> Unit,
+    onDismiss: () -> Unit,
+    initialSection: String? = null,
+) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var section by remember { mutableStateOf("") }
+    var section by remember(initialSection) { mutableStateOf(initialSection.orEmpty()) }
     var selection by remember { mutableStateOf<ModelSelection?>(null) }
     var instances by remember { mutableStateOf<List<Instance>>(emptyList()) }
     var loaded by remember { mutableStateOf(false) }

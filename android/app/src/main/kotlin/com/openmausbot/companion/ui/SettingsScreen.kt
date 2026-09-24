@@ -51,19 +51,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * What little the phone gets to configure — the port of
- * `ios/App/SettingsView.swift`.
- *
- * Almost nothing, on purpose: Phone settings, API keys and pairing all live
- * on the computer, because losing the phone must not mean losing the ability to
- * lock it out (§13). This is a status page with an unpair button.
- *
- * It is also the screen the unpaired home reaches, which is why both actions are
- * optional. `SettingsView(onConnect:)` in `ios/App/SettingsView.swift` does the
- * same thing: someone who answered "Not now" can still get to notifications
- * without first entering the connection flow they just declined, and the parts
- * that need a pairing — routines, unpairing, the address — are simply not there
- * to be pressed.
+ * Phone settings and paired-computer administration. Remote mutations require
+ * an admin pairing; the unpaired screen remains usable for phone preferences.
  */
 @Composable
 fun SettingsScreen(
@@ -103,6 +92,7 @@ fun SettingsScreen(
     var aboutMeSaving by remember { mutableStateOf(false) }
     var aboutMeError by remember { mutableStateOf<String?>(null) }
     var managingTeams by remember { mutableStateOf(false) }
+    var creatingBotForTeam by remember { mutableStateOf<String?>(null) }
     var configuringMistral by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -524,7 +514,23 @@ fun SettingsScreen(
             dismissButton = { TextButton(onClick = { editingAboutMe = false }) { Text("Cancel") } },
         )
     }
-    if (managingTeams) TeamManagementSheet { managingTeams = false }
+    if (managingTeams) TeamManagementSheet(
+        onDismiss = { managingTeams = false },
+        onCreateBot = { team ->
+            managingTeams = false
+            creatingBotForTeam = team
+        },
+    )
+    creatingBotForTeam?.let { team ->
+        NewBotModelSheet(
+            initialSection = team,
+            onCreated = {
+                creatingBotForTeam = null
+                managingTeams = true
+            },
+            onDismiss = { creatingBotForTeam = null },
+        )
+    }
     if (configuringMistral) MistralSetupSheet { configuringMistral = false }
 }
 
