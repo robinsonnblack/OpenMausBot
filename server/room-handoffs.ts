@@ -65,6 +65,15 @@ export class RoomHandoffs {
   }
 
   private save() { writeFileAtomic(this.file, JSON.stringify([...this.nodes.values()]), { mode: 0o600 }); }
+  /** Remove deleted transcript references from durable handoff records. */
+  scrub(clean: (node: RoomHandoff) => RoomHandoff | null): void {
+    for (const [id, node] of this.nodes) {
+      const result = clean(node);
+      if (result) this.nodes.set(id, result);
+      else this.nodes.delete(id);
+    }
+    this.save();
+  }
   private publish(...nodes: RoomHandoff[]) {
     this.save();
     this.hooks.changed(new Set(nodes.flatMap(node => node.groupId ? [node.groupId] : [])),

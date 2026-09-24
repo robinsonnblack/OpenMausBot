@@ -1,4 +1,5 @@
 import { PromptInspectorButton } from "./PromptInspector";
+import { MessageDeletion } from "./MessageDeletion";
 import { Component, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   AlertTriangle,
@@ -1251,6 +1252,7 @@ export function ChatView({ bot: profile }: { bot: Bot }) {
             messages={messages}
             botName={bot.name}
           />
+          {!remoteClient && <MessageDeletion threadId={bot.threadId} messages={bot.messages} />}
           {(bot.busy || bot.waitingForTeammates) && (
             <button
               onClick={() => dispatch({ type: "interrupt", botId: bot.id, threadId: bot.threadId })}
