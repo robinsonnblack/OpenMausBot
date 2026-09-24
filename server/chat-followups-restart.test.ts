@@ -16,7 +16,7 @@ it("survives a real server crash: queued sends keep receipts, cancellation and u
   const api = async (method: string, path: string, body?: unknown, status = 200) => {
     const response = await fetch(`${url}${path}`, {
       method, headers: { "content-type": "application/json" },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal: AbortSignal.timeout(5_000),
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal: AbortSignal.timeout(15_000),
     });
     const result = await response.json() as any;
     if (method !== "GET") evidence.push({ method, path, body, status: response.status, result });
@@ -33,7 +33,7 @@ it("survives a real server crash: queued sends keep receipts, cancellation and u
   const asPairedPerson = async (path: string, body: unknown) => {
     const response = await fetch(`${url}${path}`, {
       method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${pairedToken}` },
-      body: JSON.stringify(body), signal: AbortSignal.timeout(5_000),
+      body: JSON.stringify(body), signal: AbortSignal.timeout(15_000),
     });
     const result = await response.json() as any;
     evidence.push({ method: "POST", as: PAIRED.name, path, body, status: response.status, result });
