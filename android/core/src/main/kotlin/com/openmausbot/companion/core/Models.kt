@@ -417,6 +417,9 @@ data class Bot(
     val activeLeafId: String? = null,
     val hasMore: Boolean? = null,
     val projects: List<BotProject>? = null,
+    /** Standing instructions saved on the paired computer (SOUL.md mirror). */
+    val soul: String? = null,
+    val soulDrift: Boolean? = null,
 )
 
 /** Project only task-local controls; the original fleet record stays profile-global. */
@@ -921,6 +924,7 @@ data class BotProfilePatch(
     val name: String? = null,
     val title: String? = null,
     val description: String? = null,
+    val soul: String? = null,
     val notifications: Boolean? = null,
     val avatarUrl: AvatarURL? = null,
     val avatarCrop: AvatarCrop? = null,
@@ -938,6 +942,7 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
         "name",
         "title",
         "description",
+        "soul",
         "notifications",
         "avatarUrl",
         "avatarCrop",
@@ -949,6 +954,7 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
         element<String>("name", isOptional = true)
         element<String>("title", isOptional = true)
         element<String>("description", isOptional = true)
+        element<String>("soul", isOptional = true)
         element<Boolean>("notifications", isOptional = true)
         element<JsonElement>("avatarUrl", isOptional = true)
         element<String>("avatarCrop", isOptional = true)
@@ -963,6 +969,7 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
             value.name?.let { put("name", it) }
             value.title?.let { put("title", it) }
             value.description?.let { put("description", it) }
+            value.soul?.let { put("soul", it) }
             value.notifications?.let { put("notifications", it) }
             when (val avatarUrl = value.avatarUrl) {
                 is BotProfilePatch.AvatarURL.Set -> put("avatarUrl", avatarUrl.path)
@@ -1014,6 +1021,7 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
             name = string("name"),
             title = string("title"),
             description = string("description"),
+            soul = string("soul"),
             notifications = boolean("notifications"),
             avatarUrl = avatarUrl,
             avatarCrop = crop,

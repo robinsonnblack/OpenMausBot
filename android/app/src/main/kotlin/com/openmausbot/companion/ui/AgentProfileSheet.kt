@@ -110,6 +110,17 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var form by rememberSaveable(stateSaver = ProfileFormSaver) {
         mutableStateOf(ProfileForm.of(opened))
     }
+    var soulDraft by rememberSaveable(opened.id) { mutableStateOf(opened.soul.orEmpty()) }
+    var soulBaseline by rememberSaveable(opened.id) { mutableStateOf(opened.soul.orEmpty()) }
+    var savingSoul by remember { mutableStateOf(false) }
+    val soulBytes = soulDraft.toByteArray(Charsets.UTF_8).size
+    val soulConflict = soulDraft != soulBaseline && current.soul.orEmpty() != soulBaseline
+    LaunchedEffect(current.soul) {
+        if (soulDraft == soulBaseline) {
+            soulDraft = current.soul.orEmpty()
+            soulBaseline = soulDraft
+        }
+    }
     var baseline by rememberSaveable(stateSaver = ProfileFormSaver) {
         mutableStateOf(ProfileForm.of(opened))
     }
@@ -474,6 +485,59 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         label = "Agent notifications",
                         checked = form.notifications,
                         onCheckedChange = { form = form.copy(notifications = it) },
+                    )
+                }
+
+                FormSection(
+                    header = "Standing instructions",
+                    footer = "Saved on the computer and included in this bot's context on every turn.",
+                ) {
+                    if (current.soulDrift == true) {
+                        IconNote(
+                            text = "SOUL.md was changed outside OpenMausBot. Resolve the file difference on the computer before editing here.",
+                            icon = Icons.Filled.Warning,
+                        )
+                    }
+                    if (soulConflict) {
+                        IconNote(
+                            text = "Standing instructions changed on the computer while you were editing. Close and reopen this sheet to review them before saving.",
+                            icon = Icons.Filled.Warning,
+                        )
+                    }
+                    OutlinedTextField(
+                        value = soulDraft,
+                        onValueChange = { soulDraft = it },
+                        label = { Text("Instructions (SOUL.md)") },
+                        minLines = 6,
+                        maxLines = 15,
+                        enabled = !savingSoul,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text("$soulBytes / 24,000 bytes")
+                    ActionRow(
+                        text = "Save standing instructions",
+                        icon = Icons.Filled.Check,
+                        enabled = !busy && !savingSoul && !soulConflict && current.soulDrift != true &&
+                            soulBytes <= 24_000 && soulDraft != soulBaseline,
+                        onClick = {
+                            scope.launch {
+                                savingSoul = true
+                                busy = true
+                                try {
+                                    val updated = session.updateProfile(
+                                        BotProfilePatch(soul = soulDraft),
+                                        liveBot(),
+                                    )
+                                    if (updated != null) {
+                                        soulDraft = updated.soul.orEmpty()
+                                        soulBaseline = soulDraft
+                                    }
+                                } finally {
+                                    savingSoul = false
+                                    busy = false
+                                }
+                            }
+                        },
                     )
                 }
 
