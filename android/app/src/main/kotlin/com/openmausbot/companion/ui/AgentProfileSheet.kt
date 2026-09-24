@@ -130,6 +130,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var busy by remember { mutableStateOf(false) }
     var showingHistory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -559,6 +560,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { showingMemory = !showingMemory },
                     )
                     if (showingMemory) BotMemorySection(opened.id)
+                }
+
+                FormSection(header = "Skills") {
+                    ActionRow(
+                        text = if (showingSkills) "Hide skills" else "Manage skills",
+                        icon = Icons.Filled.Info,
+                        onClick = { showingSkills = !showingSkills },
+                    )
+                    if (showingSkills) BotSkillsSection(opened.id)
                 }
 
                 VoiceSection(

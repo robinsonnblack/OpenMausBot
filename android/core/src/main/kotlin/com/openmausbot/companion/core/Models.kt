@@ -1026,6 +1026,20 @@ data class MemoryJournalRow(
 
 @Serializable
 data class MemoryJournal(val entries: List<MemoryJournalRow>)
+@Serializable
+data class ManagedSkill(
+    val name: String,
+    val description: String,
+    val enabled: Boolean,
+    val source: String,
+    val warnings: List<String> = emptyList(),
+)
+
+@Serializable
+data class ManagedSkillList(val skills: List<ManagedSkill>)
+
+@Serializable
+data class SkillText(val text: String)
 
 object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
     private val fieldNames = setOf(

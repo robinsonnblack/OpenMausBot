@@ -35,6 +35,9 @@ Bot settings can browse and edit the paired computer's MEMORY.md, topic files,
 and daily logs. Saves include the hash of the version opened on the phone so
 an intervening bot edit cannot be overwritten silently. Memory history can be
 read and eligible changes reverted after confirmation.
+Bot settings can list skills stored on the paired computer, read their full
+SKILL.md text, disable or remove them, and import from GitHub. Imports remain
+disabled until you read the skill and explicitly enable it on the phone.
 
 ## Build and test
 

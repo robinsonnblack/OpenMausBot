@@ -382,6 +382,28 @@ class CompanionClient(
 
     suspend fun revertMemoryChange(botId: String, entryId: String): MemoryWriteResult =
         send(makeRequest("POST", "/api/bots/${segment(botId)}/memory/journal/${segment(entryId)}/revert"))
+    suspend fun managedSkills(botId: String): List<ManagedSkill> =
+        send<ManagedSkillList>(makeRequest("GET", "/api/bots/${segment(botId)}/skills")).skills
+
+    suspend fun managedSkillText(botId: String, name: String): String =
+        send<SkillText>(makeRequest("GET", "/api/bots/${segment(botId)}/skills/${segment(name)}")).text
+
+    suspend fun setManagedSkillEnabled(botId: String, name: String, enabled: Boolean) {
+        send<kotlinx.serialization.json.JsonObject>(makeRequest(
+            "PATCH", "/api/bots/${segment(botId)}/skills/${segment(name)}",
+            body = buildJsonObject { put("enabled", enabled) },
+        ))
+    }
+
+    suspend fun removeManagedSkill(botId: String, name: String) {
+        send<kotlinx.serialization.json.JsonObject>(makeRequest("DELETE", "/api/bots/${segment(botId)}/skills/${segment(name)}"))
+    }
+
+    suspend fun importManagedSkills(botId: String, source: String) {
+        send<kotlinx.serialization.json.JsonObject>(makeRequest(
+            "POST", "/api/bots/${segment(botId)}/skills", body = jsonBody("source" to source),
+        ))
+    }
 
     /**
      * A captured task changes only that task's model. The optional legacy form
