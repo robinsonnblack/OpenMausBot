@@ -76,7 +76,9 @@ describe.skipIf(process.platform === "win32")("VPS SSH connection sharing on POS
     const userConfig = join(home, "my config");
     writeFileSync(userConfig, "Host fixture-vps\n  HostName 192.0.2.1\n");
     const config = vpsSshConfigText("/isolated/space path/100%", userConfig, join(home, "absent"));
-    const parsed = spawnSync("/usr/bin/ssh", ["-G", "-F", "/dev/stdin", "fixture-vps"], { input: config, encoding: "utf8" });
+    const configPath = join(home, "generated-config");
+    writeFileSync(configPath, config, { mode: 0o600 });
+    const parsed = spawnSync("/usr/bin/ssh", ["-G", "-F", configPath, "fixture-vps"], { encoding: "utf8" });
     expect(parsed.status, parsed.stderr).toBe(0);
     expect(parsed.stdout).toContain("hostname 192.0.2.1\n");
     expect(parsed.stdout).toContain("controlpath /isolated/space path/100%/cm-");
