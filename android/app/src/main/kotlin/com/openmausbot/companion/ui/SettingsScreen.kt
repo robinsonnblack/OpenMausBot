@@ -107,6 +107,7 @@ fun SettingsScreen(
     var configuringProvider by remember { mutableStateOf<ProviderConnection?>(null) }
     var managingEngines by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf(false) }
+    var editingRoomTurnTimeout by remember { mutableStateOf(false) }
     var viewingAdminActivity by remember { mutableStateOf(false) }
     var managingLocalVm by remember { mutableStateOf(false) }
     var exportingBackup by remember { mutableStateOf(false) }
@@ -322,6 +323,9 @@ fun SettingsScreen(
                 }
                 SettingsSection("Threads") {
                     SettingsButton("Concurrency and log retention") { managingThreads = true }
+                }
+                SettingsSection("Room turns") {
+                    SettingsButton("Turn timeout") { editingRoomTurnTimeout = true }
                 }
                 SettingsSection("Activity") {
                     SettingsButton("Changes and approvals") { viewingAdminActivity = true }
@@ -602,6 +606,7 @@ fun SettingsScreen(
     configuringProvider?.let { provider -> ProviderSetupSheet(provider) { configuringProvider = null } }
     if (managingEngines) EngineManagementSheet { managingEngines = false }
     if (managingThreads) ThreadSettingsSheet { managingThreads = false }
+    if (editingRoomTurnTimeout) RoomTurnTimeoutSheet { editingRoomTurnTimeout = false }
     if (viewingAdminActivity) AdminActivitySheet { viewingAdminActivity = false }
     if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }

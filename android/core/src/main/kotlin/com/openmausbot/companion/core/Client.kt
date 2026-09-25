@@ -455,6 +455,13 @@ class CompanionClient(
         }))
     }
 
+    suspend fun updateRoomTurnTimeout(minutes: Int): ConfigStatus {
+        require(minutes in 1..1440)
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("rooms", buildJsonObject { put("turnTimeoutMinutes", minutes) })
+        }))
+    }
+
     /** Compare-and-swap the host's named browser sessions without sending partition IDs. */
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus =
         send(makeRequest("PATCH", "/api/config", body = buildJsonObject {

@@ -2273,6 +2273,14 @@ class Session(
             .updateThreadSettings(settings)
     }
 
+    suspend fun updateRoomTurnTimeout(minutes: Int): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Room turn settings require an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .updateRoomTurnTimeout(minutes)
+    }
+
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Managing browser profiles requires an admin pairing.")
