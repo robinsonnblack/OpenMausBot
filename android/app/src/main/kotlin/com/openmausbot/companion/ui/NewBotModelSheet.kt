@@ -73,6 +73,7 @@ internal fun NewBotModelSheet(
     var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var savedTemplate by remember { mutableStateOf(JsonObject(emptyMap())) }
+    var profileText by remember { mutableStateOf("{}") }
     var memoryText by remember { mutableStateOf("{}") }
     var skillsText by remember { mutableStateOf("[]") }
     var routinesText by remember { mutableStateOf("[]") }
@@ -89,6 +90,7 @@ internal fun NewBotModelSheet(
             }
             val profile = result.first.defaults["profile"] as? JsonObject
             savedTemplate = result.first.defaults
+            profileText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["profile"] ?: JsonObject(emptyMap()))
             memoryText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["memory"] ?: JsonObject(emptyMap()))
             skillsText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["skills"] ?: JsonArray(emptyList()))
             routinesText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["routines"] ?: JsonArray(emptyList()))
@@ -136,12 +138,14 @@ internal fun NewBotModelSheet(
     fun submit(acknowledge: Boolean) {
         val model = selection ?: return
         val creationTemplate = if (isAdmin) try {
+            val profile = draftJson.parseToJsonElement(profileText).jsonObject
             val memory = draftJson.parseToJsonElement(memoryText).jsonObject
             val skills = draftJson.parseToJsonElement(skillsText).jsonArray
             val routines = draftJson.parseToJsonElement(routinesText).jsonArray
-            JsonObject(savedTemplate + mapOf("memory" to memory, "skills" to skills, "routines" to routines))
+            JsonObject(savedTemplate + mapOf("profile" to profile, "memory" to memory,
+                "skills" to skills, "routines" to routines))
         } catch (failure: Exception) {
-            error = "Check the Memory, Skills and Routines JSON: ${failure.message}"
+            error = "Check the Profile, Memory, Skills and Routines JSON: ${failure.message}"
             return
         } else null
         saving = true
@@ -404,7 +408,9 @@ internal fun NewBotModelSheet(
                         Text(if (showingRawContent) "Hide full template editor" else "Edit full template")
                     }
                     if (showingRawContent) {
-                        Text("Advanced editor: all memory paths, skill metadata and schedule types are available here. Invalid values are rejected before creating the bot.", style = MaterialTheme.typography.bodySmall)
+                        Text("Advanced editor: profile fields, all memory paths, skill metadata and schedule types are available here. Bot settings above override the same profile fields. Invalid values are rejected before creating the bot.", style = MaterialTheme.typography.bodySmall)
+                        OutlinedTextField(value = profileText, onValueChange = { profileText = it },
+                            label = { Text("Profile (JSON object)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = memoryText, onValueChange = { memoryText = it },
                             label = { Text("Memory files (JSON object)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = skillsText, onValueChange = { skillsText = it },

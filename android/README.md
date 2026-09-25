@@ -26,8 +26,8 @@ Android requires separate confirmation before
 combining This computer with Auto approval. Full and Custom desktop grants
 still require the computer's permission flow. Memory files, SKILL.md text,
 and routine names and instructions can be edited in the creation draft.
-The full-template editor also supports additional skill metadata and all
-schedule types. These edits apply only to the new bot, not to the saved
+The full-template editor also supports additional profile fields, skill
+metadata and all schedule types. These edits apply only to the new bot, not to the saved
 defaults. The server validates the complete template before creating it;
 client-scoped pairings cannot submit template content.
 
