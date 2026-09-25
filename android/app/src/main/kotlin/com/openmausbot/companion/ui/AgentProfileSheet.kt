@@ -70,6 +70,7 @@ import com.openmausbot.companion.avatar.PreparedAvatar
 import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotWebhook
+import com.openmausbot.companion.core.summarizeBotUsage
 import com.openmausbot.companion.core.forTask
 import com.openmausbot.companion.core.BotProfilePatch
 import com.openmausbot.companion.core.ConfigStatus
@@ -136,6 +137,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingAccessDetails by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var showingBotUsage by rememberSaveable(opened.id) { mutableStateOf(false) }
     var accessWebhooks by remember(opened.id) { mutableStateOf<List<BotWebhook>?>(null) }
     var loadingAccessWebhooks by remember(opened.id) { mutableStateOf(false) }
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
@@ -573,6 +575,26 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { showingHistory = !showingHistory },
                     )
                     if (showingHistory) ProfileHistorySection(opened.id)
+                }
+
+                FormSection(header = "Usage") {
+                    val summary = summarizeBotUsage(current.tasks)
+                    val usage = summary.usage
+                    if (usage.turns == 0 && usage.input == 0L && usage.output == 0L) {
+                        Text("No usage recorded yet for this bot.")
+                    } else {
+                        ActionRow(
+                            text = if (showingBotUsage) "Hide bot usage" else "Show bot usage",
+                            onClick = { showingBotUsage = !showingBotUsage },
+                        )
+                        if (showingBotUsage) {
+                            Text("${usage.turns} turns across this bot's threads")
+                            taskUsageLines(usage).forEach { line -> Text(line) }
+                            if (summary.hasUnpricedTurns) {
+                                Text("Some turns have no reported price; the cost shown covers priced turns only.")
+                            }
+                        }
+                    }
                 }
 
                 FormSection(header = "Memory") {
