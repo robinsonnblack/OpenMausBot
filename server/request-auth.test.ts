@@ -113,6 +113,7 @@ describe("scopes", () => {
       ["POST", "/api/webhooks"], ["POST", "/api/webhooks/w/rotate"], ["POST", "/api/bots/x/skills"], ["PATCH", "/api/bots/x/skills/s"],
       ["PATCH", "/api/bots/x/model"], ["PATCH", "/api/groups/g/setup"], ["POST", "/api/teams/import"], ["GET", "/api/teams/scout"],
       ["GET", "/api/bots/x/memory"], ["PUT", "/api/bots/x/memory"], ["PUT", "/api/section-context"], ["GET", "/api/threads/t/events"],
+      ["DELETE", "/api/bots/x/tasks/t"], ["DELETE", "/api/groups/g/tasks/t"],
       ["POST", "/api/bots/x/checkpoints/restore"], ["GET", "/api/mcp/servers"], ["POST", "/api/mcp/servers"], ["POST", "/api/connectors/slack/authorize"],
       ["POST", "/api/bots/x/slack-management"], ["GET", "/api/bots/x/slack-management/extra"],
       ["PUT", "/api/config"], ["POST", "/api/auth/pairing"], ["GET", "/api/auth/sessions"], ["DELETE", "/api/auth/sessions/abc"],
@@ -362,6 +363,8 @@ describe("resolveRequestAuth", () => {
     ["DELETE", "/api/fleet/workspaces/acme"],
     ["POST", "/api/fleet/upgrade"],
     ["POST", "/api/instances/antigravity/auth/complete"],
+    ["DELETE", "/api/bots/b/tasks/t"],
+    ["DELETE", "/api/groups/g/tasks/t"],
   ])("requires admin for server Settings: %s %s", (method, path) => {
     expect(requiredScope(method, path.split("?")[0]!)).toBe("admin");
     const client = pairedToken(["client"]);

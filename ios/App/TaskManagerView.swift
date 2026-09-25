@@ -102,7 +102,7 @@ struct TaskManagerView: View {
                         }
                         .disabled(isMutating)
                         .accessibilityIdentifier("cancel-thread-selection")
-                    } else {
+                    } else if session.canAdminister {
                         Button("Select") {
                             taskToRename = nil
                             renameFocused = false
@@ -123,7 +123,7 @@ struct TaskManagerView: View {
                 }
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if isSelecting { bulkDeleteBar }
+                if isSelecting && session.canAdminister { bulkDeleteBar }
             }
             .overlay(alignment: .bottom) {
                 if isMutating {
@@ -136,6 +136,14 @@ struct TaskManagerView: View {
         }
         .onChange(of: tasks.map(\.threadId)) { _, liveIDs in
             selectedThreadIDs.formIntersection(liveIDs)
+        }
+        .onChange(of: session.canAdminister) { _, canAdminister in
+            if !canAdminister {
+                isSelecting = false
+                selectedThreadIDs.removeAll()
+                taskToDelete = nil
+                confirmingBulkDelete = false
+            }
         }
         .interactiveDismissDisabled(isMutating)
         .confirmationDialog(
@@ -349,14 +357,18 @@ struct TaskManagerView: View {
                     }
                     .disabled(isMutating || task.isWorking)
                 }
-                Button("Delete", systemImage: "trash", role: .destructive) { taskToDelete = task }
-                    .disabled(!canDelete(task))
+                if session.canAdminister {
+                    Button("Delete", systemImage: "trash", role: .destructive) { taskToDelete = task }
+                        .disabled(!canDelete(task))
+                }
             }
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button(role: .destructive) { taskToDelete = task } label: {
-                    Label("Delete", systemImage: "trash")
+                if session.canAdminister {
+                    Button(role: .destructive) { taskToDelete = task } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(!canDelete(task))
                 }
-                .disabled(!canDelete(task))
                 Button {
                     togglePin(task)
                 } label: {
@@ -385,12 +397,12 @@ struct TaskManagerView: View {
         }
     }
     private func canSelectForBulkDelete(_ task: BotTask) -> Bool {
-        tasks.count > 1 && task.threadId != current.threadId && !task.isWorking
+        session.canAdminister && tasks.count > 1 && task.threadId != current.threadId && !task.isWorking
             && (current.isBot || !current.busy)
     }
 
     private func canDelete(_ task: BotTask) -> Bool {
-        !isMutating && tasks.count > 1 && (current.isBot ? !task.isWorking : !current.busy)
+        session.canAdminister && !isMutating && tasks.count > 1 && (current.isBot ? !task.isWorking : !current.busy)
     }
 
     /// The desktop disables thread actions while a reply is in flight; the
@@ -520,7 +532,7 @@ struct TaskManagerView: View {
 
     private func delete(_ task: BotTask) async {
         // Recheck after the confirmation; an SSE update may have made it busy.
-        guard tasks.count > 1,
+        guard session.canAdminister, tasks.count > 1,
               let liveTask = tasks.first(where: { $0.threadId == task.threadId }),
               current.isBot ? !liveTask.isWorking : !current.busy else {
             showError("This thread can't be deleted while it's working or if it's the last thread.")
@@ -550,7 +562,7 @@ struct TaskManagerView: View {
         // first write, then each thread again after the preceding response.
         // Keep the current thread so the open chat never loses its target.
         let pending = tasks.filter { selectedThreadIDs.contains($0.threadId) }
-        guard !pending.isEmpty,
+        guard session.canAdminister, !pending.isEmpty,
               pending.count == selectedThreadIDs.count,
               pending.allSatisfy(canSelectForBulkDelete) else {
             showError("The selection changed. Deselect unavailable threads and try again.")

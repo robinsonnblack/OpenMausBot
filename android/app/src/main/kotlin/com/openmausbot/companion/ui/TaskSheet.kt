@@ -72,6 +72,8 @@ fun TaskSheet(
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     val state by session.state.collectAsState()
+    val connection by session.connection.collectAsState()
+    val canDeleteThreads = connection?.let { !it.pairedWithServer || it.serverScopes?.contains("admin") == true } == true
 
     // The live record, so busy and the task list stay current as frames land.
     val current = remember(state, chat) {
@@ -265,7 +267,7 @@ fun TaskSheet(
                                 } else {
                                     null
                                 },
-                                onDelete = { error = null; pendingDelete = task },
+                                onDelete = if (canDeleteThreads) ({ error = null; pendingDelete = task }) else null,
                                 onArchive = (current as? Chat.BotChat)?.let { archiveHandler },
                                 onPin = pinHandler,
                             )
@@ -306,7 +308,7 @@ fun TaskSheet(
                                     renaming = task
                                 },
                                 onSnooze = null,
-                                onDelete = { error = null; pendingDelete = task },
+                                onDelete = if (canDeleteThreads) ({ error = null; pendingDelete = task }) else null,
                                 onArchive = (current as? Chat.BotChat)?.let { archiveHandler },
                                 onPin = pinHandler,
                             )
@@ -350,14 +352,14 @@ fun TaskSheet(
             onCancel = { if (!saving) { renaming = null; error = null } },
         )
     }
-    pendingDelete?.let { task ->
+    pendingDelete?.takeIf { canDeleteThreads }?.let { task ->
         AlertDialog(
             onDismissRequest = { if (!saving) pendingDelete = null },
             title = { Text("Delete ${TaskRules.title(task)}?") },
             text = { Text(error ?: "This conversation will be deleted. Generated files are kept.") },
             confirmButton = {
-                TextButton(enabled = !saving && TaskRules.canDelete(task, current), onClick = {
-                    if (!TaskRules.canDelete(task, current)) return@TextButton
+                TextButton(enabled = !saving && canDeleteThreads && TaskRules.canDelete(task, current), onClick = {
+                    if (!canDeleteThreads || !TaskRules.canDelete(task, current)) return@TextButton
                     saving = true
                     error = null
                     scope.launch {
@@ -465,13 +467,13 @@ private fun TaskRow(
     onSwitch: () -> Unit,
     onRename: () -> Unit,
     onSnooze: (() -> Unit)?,
-    onDelete: () -> Unit,
+    onDelete: (() -> Unit)?,
     onArchive: ((BotTask) -> Unit)? = null,
     onPin: (BotTask) -> Unit,
 ) {
     val current = TaskRules.isCurrent(task, chat)
     val canSwitch = enabled && TaskRules.canSwitch(task, chat)
-    val canDelete = enabled && TaskRules.canDelete(task, chat)
+    val canDelete = enabled && onDelete != null && TaskRules.canDelete(task, chat)
     val canArchive = enabled && TaskRules.canArchive(task, chat)
 
     Row(
@@ -533,7 +535,7 @@ private fun TaskRow(
             )
         }
 
-        Icon(
+        if (onDelete != null) Icon(
             imageVector = Icons.Filled.Delete,
             contentDescription = "Delete ${TaskRules.title(task)}",
             tint = if (canDelete) MaterialTheme.colorScheme.error else secondaryTint.copy(alpha = 0.4f),
