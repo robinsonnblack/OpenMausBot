@@ -22,12 +22,14 @@ translations remain allowed because the runtime has an English fallback.
 ## Optional model-assisted draft
 
 The repository includes a maintainer tool that sends missing or stale English
-strings to an installed, authenticated Claude CLI. The CLI usually sends the
-strings to its configured cloud model and may consume subscription or API
-quota; “local” describes the CLI, not where inference runs.
+strings to GPT-6 Luna through an installed, authenticated Codex CLI. This uses
+the maintainer's Codex allowance. It does not run in CI. Strings are grouped by
+UI section and supplied with related English copy, established translations,
+and code usage, so ambiguous labels are translated in their screen context.
+The CLI runs in ephemeral, read-only mode in a temporary directory.
 
 ```sh
-# Safe, no-tools Claude mode
+# Contextual Luna draft
 node scripts/generate-locale.mjs it "Italian"
 ```
 

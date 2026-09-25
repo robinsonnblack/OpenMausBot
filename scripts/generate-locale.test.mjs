@@ -8,6 +8,7 @@ import {
   checkCatalogs,
   main,
   modelInvocation,
+  contextForKeys,
   normalizeLocaleCode,
   parseModelCatalog,
   placeholders,
@@ -106,20 +107,28 @@ describe("locale draft validation", () => {
     ]);
   });
 
-  it("builds an explicit no-tools restricted Claude invocation", () => {
-    const claude = modelInvocation("darwin");
-    expect(claude.command).toBe("claude");
-    expect(claude.args).toContain("--safe-mode");
-    expect(claude.args).toContain("--restricted");
-    expect(claude.args).toContain("--tools");
-    expect(claude.args.at(claude.args.indexOf("--tools") + 1)).toBe("");
-    expect(claude.args).toContain("--no-session-persistence");
+  it("uses authenticated Luna in ephemeral read-only mode", () => {
+    const unix = modelInvocation("darwin");
+    expect(unix.command).toBe("codex");
+    expect(unix.args).toContain("gpt-6-luna");
+    expect(unix.args).toContain("read-only");
+    expect(unix.args).toContain("--ephemeral");
+    expect(unix.args).toContain("--ignore-user-config");
 
-    const windows = modelInvocation("win32", "C:\\Windows\\System32\\cmd.exe");
-    expect(windows.command).toBe("C:\\Windows\\System32\\cmd.exe");
-    expect(windows.args.slice(0, 3)).toEqual(["/d", "/s", "/c"]);
-    expect(windows.args[3]).toContain('--tools ""');
-    expect(windows.args[3]).not.toContain("One");
+    const windows = modelInvocation("win32");
+    expect(windows.command).toBe("codex.exe");
+    expect(windows.args).toEqual(unix.args);
+  });
+
+  it("supplies related copy, established terminology and code usage", () => {
+    const source = { "remote.pair.title": "Pair device", "remote.pair.hint": "On your computer", "remote.other": "Other" };
+    const context = contextForKeys(source, ["remote.pair.title"], { "remote.pair.hint": "Auf deinem Computer" }, [
+      { path: "components/Remote.tsx", text: 'label={t("remote.pair.title")}\nbutton={t("remote.pair.hint")}' },
+    ]);
+    expect(context.section).toBe("remote.pair");
+    expect(context.siblings).toEqual({ "remote.pair.hint": "On your computer", "remote.other": "Other" });
+    expect(context.terminology).toEqual({ "remote.pair.hint": "Auf deinem Computer" });
+    expect(context.usage["remote.pair.title"][0]).toContain("components/Remote.tsx:1");
   });
 
   it("lets structural validation report null catalogs without a hash crash", () => {
