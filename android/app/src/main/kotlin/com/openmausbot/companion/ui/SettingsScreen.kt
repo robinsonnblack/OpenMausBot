@@ -116,6 +116,7 @@ fun SettingsScreen(
     var editingNewBotEffort by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
     var editingHostBrowser by remember { mutableStateOf(false) }
+    var editingSkillAuthoring by remember { mutableStateOf(false) }
 
     LaunchedEffect(connection) {
         budgetEntitled = false
@@ -343,6 +344,9 @@ fun SettingsScreen(
                 SettingsSection("Browser") {
                     SettingsButton("Built-in browser on this computer") { editingHostBrowser = true }
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
+                }
+                SettingsSection("Experimental") {
+                    SettingsButton("Bot skill authoring") { editingSkillAuthoring = true }
                 }
             }
 
@@ -621,6 +625,7 @@ fun SettingsScreen(
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
     if (editingHostBrowser) HostBrowserFeatureSheet { editingHostBrowser = false }
+    if (editingSkillAuthoring) SkillAuthoringSheet { editingSkillAuthoring = false }
 }
 
 @Composable

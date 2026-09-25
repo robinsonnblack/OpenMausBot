@@ -1010,7 +1010,7 @@ data class BrowserEngineStatus(
 )
 
 @Serializable
-data class FeatureFlags(val browser: Boolean? = null)
+data class FeatureFlags(val browser: Boolean? = null, val skillAuthoring: Boolean? = null)
 
 @Serializable
 data class ConfigStatus(

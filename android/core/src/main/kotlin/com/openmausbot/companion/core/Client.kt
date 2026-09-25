@@ -474,6 +474,11 @@ class CompanionClient(
             put("features", buildJsonObject { put("browser", enabled) })
         }))
 
+    suspend fun updateSkillAuthoringEnabled(enabled: Boolean): ConfigStatus =
+        send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("features", buildJsonObject { put("skillAuthoring", enabled) })
+        }))
+
     /** Compare-and-swap the host's named browser sessions without sending partition IDs. */
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus =
         send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
