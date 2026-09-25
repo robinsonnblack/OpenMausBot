@@ -425,6 +425,8 @@ data class Bot(
     val computer: String? = null,
     /** Whether this bot may use host-connected apps; absent means allowed. */
     val composio: Boolean? = null,
+    /** Whether the bot may use its built-in browser; absent means allowed. */
+    val browser: Boolean? = null,
     val cloudBackend: String? = null,
     /** Named browser session, guest session, or null for the bot's own browser. */
     val browserProfile: String? = null,
@@ -791,6 +793,7 @@ data class InstanceCapabilities(
     val images: Boolean? = null,
     val effortLevels: List<String>? = null,
     val composioMcp: Boolean? = null,
+    val browserMcp: Boolean? = null,
     /** A Chief needs this engine's ability to contact and coordinate other bots. */
     val agentsMcp: Boolean? = null,
     /**
@@ -992,6 +995,12 @@ data class RoomTurnSettings(val turnTimeoutMinutes: Int = 5)
 data class NewBotSettings(val effort: String? = null)
 
 @Serializable
+data class BrowserEngineStatus(val kind: String = "unavailable", val reason: String? = null)
+
+@Serializable
+data class FeatureFlags(val browser: Boolean? = null)
+
+@Serializable
 data class ConfigStatus(
     val edition: EditionStatus? = null,
     val budgets: WorkspaceBudgetConfig? = null,
@@ -1009,6 +1018,8 @@ data class ConfigStatus(
     val threads: ThreadSettings? = null,
     val rooms: RoomTurnSettings? = null,
     val newBots: NewBotSettings? = null,
+    val browserEngine: BrowserEngineStatus? = null,
+    val features: FeatureFlags? = null,
     val localVm: LocalVmConfig? = null,
 ) {
     /**

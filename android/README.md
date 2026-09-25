@@ -173,6 +173,11 @@ With an admin pairing, the bot profile can also allow or deny that bot access
 to the computer's connected apps. Enabling requires an already configured
 connection and an engine that supports connected-app tools; the phone does not
 configure the external accounts or show their credentials.
+The same profile can allow or deny the bot's built-in browser. Enabling needs
+the computer's browser engine, its Experimental feature switch and an engine
+with browser-tool support. The control is unavailable when the bot's computer
+destination is Off. These are bot-wide settings; ordinary phone pairings may
+view them but cannot change them.
 
 Bot settings also show the browser session selected on the paired computer.
 An admin-paired phone can choose the bot's own browser, a temporary browser,

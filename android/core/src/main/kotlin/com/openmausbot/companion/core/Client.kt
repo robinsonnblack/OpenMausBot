@@ -820,6 +820,11 @@ class CompanionClient(
         body = buildJsonObject { put("composio", allowed) },
     )).bot
 
+    suspend fun setBotBrowserAccess(botId: String, allowed: Boolean): Bot = send<BotResponse>(makeRequest(
+        "PATCH", "/api/bots/${segment(botId)}",
+        body = buildJsonObject { put("browser", allowed) },
+    )).bot
+
     /** Safe admin changes only. Full and Custom require the desktop's private confirmation flow. */
     suspend fun setBotApprovalMode(botId: String, mode: String, acknowledgeLocalAuto: Boolean = false): Bot {
         require(mode == "ask" || mode == "auto")
