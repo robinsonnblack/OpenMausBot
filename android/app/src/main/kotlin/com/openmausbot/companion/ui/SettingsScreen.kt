@@ -105,6 +105,7 @@ fun SettingsScreen(
     var viewingAdminActivity by remember { mutableStateOf(false) }
     var managingLocalVm by remember { mutableStateOf(false) }
     var exportingBackup by remember { mutableStateOf(false) }
+    var restoringBackup by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
 
@@ -313,6 +314,7 @@ fun SettingsScreen(
                 }
                 SettingsSection("Backups") {
                     SettingsButton("Export encrypted workspace backup") { exportingBackup = true }
+                    SettingsButton("Import and restore a workspace backup") { restoringBackup = true }
                 }
                 SettingsSection("Browser") {
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
@@ -586,6 +588,7 @@ fun SettingsScreen(
     if (viewingAdminActivity) AdminActivitySheet { viewingAdminActivity = false }
     if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }
+    if (restoringBackup) WorkspaceBackupRestoreSheet { restoringBackup = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }

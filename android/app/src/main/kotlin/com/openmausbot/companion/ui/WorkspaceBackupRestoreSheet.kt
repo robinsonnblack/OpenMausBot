@@ -1,0 +1,181 @@
+package com.openmausbot.companion.ui
+
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.unit.dp
+import com.openmausbot.companion.core.WorkspaceBackupPreview
+import com.openmausbot.companion.core.WorkspaceBackupStatus
+import kotlinx.coroutines.launch
+
+/** The phone stages an archive on the paired computer; only REPLACE commits a restore. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
+    val session = LocalCompanion.current.session
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var status by remember { mutableStateOf<WorkspaceBackupStatus?>(null) }
+    var selected by remember { mutableStateOf<Uri?>(null) }
+    var filename by remember { mutableStateOf("") }
+    var fileBytes by remember { mutableStateOf<Long?>(null) }
+    var uploadedId by remember { mutableStateOf<String?>(null) }
+    var password by remember { mutableStateOf("") }
+    var preview by remember { mutableStateOf<WorkspaceBackupPreview?>(null) }
+    var confirmation by remember { mutableStateOf("") }
+    var confirmingRestore by remember { mutableStateOf(false) }
+    var pendingRestart by remember { mutableStateOf(false) }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try { status = session.workspaceBackupStatus() }
+        catch (failure: Exception) { error = failure.message ?: "Could not load backup status." }
+    }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        selected = uri
+        preview = null
+        uploadedId = null
+        confirmation = ""
+        password = ""
+        error = null
+        filename = ""
+        fileBytes = null
+        try {
+            context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                    filename = if (nameIndex >= 0) cursor.getString(nameIndex).orEmpty() else ""
+                    fileBytes = if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) cursor.getLong(sizeIndex) else null
+                }
+            }
+        } catch (failure: Exception) { error = failure.message ?: "Could not inspect selected file." }
+        if (!filename.endsWith(".ombbackup", ignoreCase = true)) error = "Choose an .ombbackup file."
+        if (fileBytes == null || fileBytes!! <= 0L) error = "The selected document did not report a usable file size."
+    }
+
+    fun startPreview() {
+        val uri = selected ?: return
+        val bytes = fileBytes ?: return
+        busy = true
+        error = null
+        scope.launch {
+            try {
+                val current = session.workspaceBackupStatus()
+                if (current.busy || current.pendingRestore) throw IllegalStateException("The computer is busy with a backup or restore.")
+                val id = uploadedId ?: session.uploadWorkspaceBackup(bytes) {
+                    context.contentResolver.openInputStream(uri)
+                        ?: throw IllegalStateException("Could not open the selected backup file.")
+                }.id.also { uploadedId = it }
+                preview = session.previewWorkspaceBackup(id, password)
+                uploadedId = null
+                password = ""
+            } catch (failure: Exception) {
+                error = failure.message ?: "Could not validate the backup. Select it again if the upload expired."
+            } finally { busy = false }
+        }
+    }
+
+    fun restore() {
+        val stage = preview ?: return
+        confirmingRestore = false
+        busy = true
+        error = null
+        scope.launch {
+            try {
+                val result = session.restoreWorkspaceBackup(stage.id)
+                if (!result.restartRequired || result.id != stage.id) throw IllegalStateException("The computer did not confirm the restore.")
+                preview = null
+                confirmation = ""
+                pendingRestart = true
+            } catch (failure: Exception) {
+                error = failure.message ?: "Could not restore the backup."
+            } finally { busy = false }
+        }
+    }
+
+    ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
+        Column(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 720.dp)
+                .verticalScroll(rememberScrollState()).padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text("Import workspace backup", style = MaterialTheme.typography.titleLarge)
+            Text("This can replace all workspace data on the paired computer. First upload and inspect the encrypted backup; nothing is replaced until you confirm REPLACE.",
+                style = MaterialTheme.typography.bodySmall)
+            Text("Use HTTPS or Tailscale. Keep this screen open while the archive is uploading.",
+                style = MaterialTheme.typography.bodySmall)
+            if (status?.pendingRestore == true || pendingRestart) {
+                Text("Restore committed. Restart OpenMausBot on the computer to complete it.")
+            } else {
+                TextButton(enabled = !busy && status?.busy == false, onClick = {
+                    picker.launch(arrayOf("application/octet-stream", "*/*"))
+                }) { Text("Choose .ombbackup file") }
+                if (selected != null) Text("Selected: $filename${fileBytes?.let { " · $it bytes" }.orEmpty()}")
+                if (preview == null) {
+                    OutlinedTextField(password, onValueChange = { password = it.take(1024); error = null },
+                        label = { Text("Backup password") }, visualTransformation = PasswordVisualTransformation(),
+                        enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    TextButton(enabled = !busy && selected != null && fileBytes != null &&
+                        filename.endsWith(".ombbackup", ignoreCase = true) && password.length in 12..1024,
+                        onClick = ::startPreview) { Text("Upload and validate") }
+                }
+                preview?.let { staged ->
+                    val summary = staged.summary
+                    Text("Backup from ${summary.createdAt} · OpenMausBot ${summary.appVersion}", style = MaterialTheme.typography.titleMedium)
+                    Text("${summary.bots} bots · ${summary.groups} groups · ${summary.threads} threads · ${summary.messages} messages")
+                    Text("${summary.files} files · ${summary.bytes} bytes")
+                    summary.exclusions.forEach { Text("Excluded: $it", style = MaterialTheme.typography.bodySmall) }
+                    summary.warnings.forEach { Text("Warning: $it", color = MaterialTheme.colorScheme.error) }
+                    Text("Restoring replaces the computer's workspace. Review the backup and make a separate safety copy first.",
+                        color = MaterialTheme.colorScheme.error)
+                    OutlinedTextField(confirmation, onValueChange = { confirmation = it.take(7) },
+                        label = { Text("Type REPLACE to confirm") }, enabled = !busy,
+                        modifier = Modifier.fillMaxWidth())
+                    TextButton(enabled = !busy && confirmation == "REPLACE", onClick = { confirmingRestore = true }) {
+                        Text("Replace computer workspace", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+            if (busy) { CircularProgressIndicator(); Text("Working on the paired computer…") }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+        }
+    }
+
+    if (confirmingRestore) AlertDialog(
+        onDismissRequest = { confirmingRestore = false },
+        title = { Text("Replace this computer's workspace?") },
+        text = { Text("The staged backup will replace existing workspace data on the paired computer. This cannot be undone from the phone. Continue only if you have checked the preview and made a safety copy.") },
+        confirmButton = { TextButton(onClick = ::restore) { Text("Restore now", color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton(onClick = { confirmingRestore = false }) { Text("Cancel") } },
+    )
+}

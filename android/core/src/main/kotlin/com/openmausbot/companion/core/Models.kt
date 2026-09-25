@@ -891,6 +891,30 @@ data class WorkspaceBackupStatus(val busy: Boolean, val pendingRestore: Boolean)
 data class WorkspaceBackupExport(val id: String, val filename: String, val bytes: Long)
 
 @Serializable
+data class WorkspaceBackupSummary(
+    val createdAt: String = "",
+    val appVersion: String = "",
+    val files: Int = 0,
+    val directories: Int = 0,
+    val bytes: Long = 0,
+    val bots: Int = 0,
+    val groups: Int = 0,
+    val threads: Int = 0,
+    val messages: Int = 0,
+    val exclusions: List<String> = emptyList(),
+    val warnings: List<String> = emptyList(),
+)
+
+@Serializable
+data class WorkspaceBackupUpload(val id: String)
+
+@Serializable
+data class WorkspaceBackupPreview(val id: String, val summary: WorkspaceBackupSummary)
+
+@Serializable
+data class WorkspaceBackupRestoreResult(val id: String, val restartRequired: Boolean, val restoreId: String? = null)
+
+@Serializable
 data class AdminActivityTarget(val kind: String, val id: String? = null, val name: String? = null)
 
 @Serializable

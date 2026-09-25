@@ -2216,6 +2216,12 @@ class Session(
         requireWorkspaceBackupAdmin().createWorkspaceBackup(password)
     suspend fun downloadWorkspaceBackup(id: String, output: OutputStream): Long =
         requireWorkspaceBackupAdmin().downloadWorkspaceBackup(id, output)
+    suspend fun uploadWorkspaceBackup(bytes: Long, openInput: () -> java.io.InputStream): WorkspaceBackupUpload =
+        requireWorkspaceBackupAdmin().uploadWorkspaceBackup(bytes, openInput)
+    suspend fun previewWorkspaceBackup(id: String, password: String): WorkspaceBackupPreview =
+        requireWorkspaceBackupAdmin().previewWorkspaceBackup(id, password)
+    suspend fun restoreWorkspaceBackup(id: String): WorkspaceBackupRestoreResult =
+        requireWorkspaceBackupAdmin().restoreWorkspaceBackup(id)
 
     private fun requireLocalVmAdmin(): CompanionClient {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
