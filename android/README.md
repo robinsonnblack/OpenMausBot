@@ -111,7 +111,13 @@ on the paired computer or return to the private bot folder. The server checks
 that the path exists and is a directory; an existing task may retain its old
 folder until a new task starts. The same admin pairing can switch a bot between
 Ask and Auto approval. Auto on This computer has its own confirmation. Full
-and Custom access still require the packaged desktop's private grant flow.
+and Custom approval changes require the desktop app.
+
+Bot settings also show the browser session selected on the paired computer.
+An admin-paired phone can choose the bot's own browser, a temporary browser,
+or an existing named profile. The server rejects a switch during a busy turn
+or while browser control is held. Creating and deleting named profiles remain
+host settings.
 
 ## Build and test
 

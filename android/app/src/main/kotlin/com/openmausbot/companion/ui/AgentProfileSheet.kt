@@ -136,6 +136,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
     var choosingBotComputer by remember(opened.id) { mutableStateOf(false) }
+    var choosingBrowserProfile by remember(opened.id) { mutableStateOf(false) }
     var confirmingLocalAuto by remember(opened.id) { mutableStateOf(false) }
     var choosingSafeApproval by remember(opened.id) { mutableStateOf(false) }
     var confirmingAutoOnComputer by remember(opened.id) { mutableStateOf(false) }
@@ -618,6 +619,25 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(
+                    header = "Browser profile",
+                    footer = "Browser sessions live on the paired computer. A bot's own browser is private to that bot; a named profile can be shared with other bots.",
+                ) {
+                    Text(when (current.browserProfile) {
+                        null -> "This bot's own browser"
+                        "guest" -> "Temporary browser"
+                        else -> config?.browserProfiles?.firstOrNull { it.id == current.browserProfile }?.name
+                            ?: "Profile unavailable (${current.browserProfile})"
+                    })
+                    if (connection?.serverScopes?.contains("admin") == true) {
+                        ActionRow(
+                            text = "Choose browser profile",
+                            enabled = current.busy != true && !busy && config != null,
+                            onClick = { choosingBrowserProfile = true },
+                        )
+                    } else Text("Changing the browser profile requires an admin pairing.")
+                }
+
+                FormSection(
                     header = "Working folder",
                     footer = "This path is on the paired computer, not on your phone. New tasks use the new folder; existing tasks may remain pinned to their earlier folder.",
                 ) {
@@ -849,6 +869,28 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             },
             confirmButton = {},
             dismissButton = { TextButton(onClick = { choosingBotComputer = false }) { Text("Cancel") } },
+        )
+    }
+    if (choosingBrowserProfile) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) choosingBrowserProfile = false },
+            title = { Text("Browser profile for this bot") },
+            text = {
+                Column {
+                    (listOf(null to "This bot's own browser", "guest" to "Temporary browser") +
+                        (config?.browserProfiles.orEmpty().map { it.id to it.name })).forEach { (profileId, label) ->
+                        TextButton(enabled = !busy, onClick = {
+                            scope.launch {
+                                busy = true
+                                if (session.setBotBrowserProfile(liveBot(), profileId) != null) choosingBrowserProfile = false
+                                busy = false
+                            }
+                        }) { Text(if (current.browserProfile == profileId) "✓ $label" else label) }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { choosingBrowserProfile = false }) { Text("Cancel") } },
         )
     }
     if (confirmingLocalAuto) {

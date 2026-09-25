@@ -564,6 +564,12 @@ class CompanionClient(
         body = buildJsonObject { put("cwd", cwd?.let(::JsonPrimitive) ?: JsonNull) },
     )).bot
 
+    /** Selects a browser session already configured on the paired computer. */
+    suspend fun setBotBrowserProfile(botId: String, profileId: String?): Bot = send<BotResponse>(makeRequest(
+        "PATCH", "/api/bots/${segment(botId)}",
+        body = buildJsonObject { put("browserProfile", profileId?.let(::JsonPrimitive) ?: JsonNull) },
+    )).bot
+
     /** Safe admin changes only. Full and Custom require the desktop's private confirmation flow. */
     suspend fun setBotApprovalMode(botId: String, mode: String, acknowledgeLocalAuto: Boolean = false): Bot {
         require(mode == "ask" || mode == "auto")

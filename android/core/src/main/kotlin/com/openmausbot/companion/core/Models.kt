@@ -424,6 +424,8 @@ data class Bot(
     val alwaysAllow: List<String>? = null,
     val computer: String? = null,
     val cloudBackend: String? = null,
+    /** Named browser session, guest session, or null for the bot's own browser. */
+    val browserProfile: String? = null,
     /** Server-side working folder; null uses the bot's private folder. */
     val cwd: String? = null,
     val speakReplies: Boolean? = null,
@@ -836,6 +838,9 @@ data class ConfigFlag(
 data class Profile(val name: String, val email: String, val aboutMe: String? = null)
 
 @Serializable
+data class BrowserProfile(val id: String, val name: String)
+
+@Serializable
 data class ConfigStatus(
     val composio: ConfigFlag? = null,
     val box: ConfigFlag? = null,
@@ -843,6 +848,7 @@ data class ConfigStatus(
     val imageGen: ConfigFlag? = null,
     val mistral: ConfigFlag? = null,
     val profile: Profile? = null,
+    val browserProfiles: List<BrowserProfile> = emptyList(),
 ) {
     /**
      * "This engine can speak", not "a key is on file" — under the built-in
