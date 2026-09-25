@@ -40,6 +40,16 @@ class SettingsPolicyTest {
         assertEquals("—", SettingsPolicy.addressText(null))
     }
 
+    @Test
+    fun `pairing access distinguishes administrator client and older credentials`() {
+        val server = Connection(name = "PC", host = "192.168.1.42", port = 8810, serverEnvironmentId = "server")
+        assertEquals("Full access", SettingsPolicy.pairingAccessText(server.copy(serverScopes = listOf("client", "admin"))))
+        assertEquals("Chat and approvals", SettingsPolicy.pairingAccessText(server.copy(serverScopes = listOf("client"))))
+        assertEquals("Limited access", SettingsPolicy.pairingAccessText(server.copy(serverScopes = emptyList())))
+        assertEquals("Unknown (older pairing)", SettingsPolicy.pairingAccessText(server))
+        assertEquals("Unknown (older pairing)", SettingsPolicy.pairingAccessText(server.copy(serverEnvironmentId = null)))
+    }
+
     /**
      * Both of these send the person to a named area of the desktop app, and that
      * area is called Phone (`ios/App/SettingsView.swift:289,302`). Pinned whole

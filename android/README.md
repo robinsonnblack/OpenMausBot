@@ -3,6 +3,11 @@
 The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
+Settings → Computer shows the selected computer's saved pairing permission:
+Full access, Chat and approvals, or an unknown/limited status for older or
+unrecognized pairings. This permission controls what the phone can administer;
+it does not bypass a bot's separate approval prompts for computer actions.
+
 With an admin-scoped pairing, Settings → Shared profile lets the phone edit
 the paired computer's name, email and "About me" text, which are shared with
 all bots. The editor checks for a change made elsewhere before saving. A client-scoped

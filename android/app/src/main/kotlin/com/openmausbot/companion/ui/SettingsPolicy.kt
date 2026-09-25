@@ -47,6 +47,17 @@ object SettingsPolicy {
 
     fun addressText(connection: Connection?): String =
         connection?.displayAddress ?: "—"
+
+    /** The grant saved for this computer, not a bot's tool-approval mode. */
+    fun pairingAccessText(connection: Connection): String {
+        val scopes = connection.serverScopes
+        return when {
+            !connection.pairedWithServer || scopes == null -> "Unknown (older pairing)"
+            "admin" in scopes -> "Full access"
+            "client" in scopes -> "Chat and approvals"
+            else -> "Limited access"
+        }
+    }
 }
 
 /**
