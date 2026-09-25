@@ -2211,6 +2211,13 @@ class Session(
         return (client ?: throw APIError.Transport("This computer is offline.")).updateWorkspaceBudget(budget)
     }
 
+    suspend fun updateWorkspaceBilling(billing: WorkspaceBillingConfig): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Changing model prices requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline.")).updateWorkspaceBilling(billing)
+    }
+
     private fun requireWorkspaceBackupAdmin(): CompanionClient {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Workspace backups require an admin pairing.")

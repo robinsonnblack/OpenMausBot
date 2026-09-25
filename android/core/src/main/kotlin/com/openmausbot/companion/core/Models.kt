@@ -888,6 +888,19 @@ data class LocalVmInventory(
 data class WorkspaceBudgetConfig(val monthlyUsd: Double = 0.0, val warnAtPercent: Int = 80)
 
 @Serializable
+data class ModelBillingPrice(
+    val inputPerMillion: Double,
+    val outputPerMillion: Double,
+    val cachedInputPerMillion: Double? = null,
+)
+
+@Serializable
+data class WorkspaceBillingConfig(
+    val currency: String = "USD",
+    val prices: Map<String, ModelBillingPrice> = emptyMap(),
+)
+
+@Serializable
 data class EditionStatus(val features: List<String> = emptyList())
 
 @Serializable
@@ -973,6 +986,7 @@ enum class ProviderConnection(val wire: String, val label: String) {
 data class ConfigStatus(
     val edition: EditionStatus? = null,
     val budgets: WorkspaceBudgetConfig? = null,
+    val billing: WorkspaceBillingConfig? = null,
     val composio: ConfigFlag? = null,
     val box: ConfigFlag? = null,
     val tts: ConfigFlag? = null,

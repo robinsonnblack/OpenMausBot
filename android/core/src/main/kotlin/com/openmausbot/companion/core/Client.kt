@@ -397,6 +397,17 @@ class CompanionClient(
         }))
     }
 
+    suspend fun updateWorkspaceBilling(billing: WorkspaceBillingConfig): ConfigStatus {
+        require(billing.currency.matches(Regex("[A-Z]{3}")))
+        require(billing.prices.keys.all { it.isNotBlank() && it.length <= 160 && it == it.trim() })
+        require(billing.prices.values.all { price ->
+            listOfNotNull(price.inputPerMillion, price.outputPerMillion, price.cachedInputPerMillion)
+                .all { it.isFinite() && it in 0.0..1_000_000.0 }
+        })
+        val payload = CompanionJson.encodeToJsonElement(WorkspaceBillingConfig.serializer(), billing)
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject { put("billing", payload) }))
+    }
+
     suspend fun localVmInventory(): LocalVmInventory = send(makeRequest("GET", "/api/local-computer/instances"))
 
     suspend fun updateLocalVmConfig(config: LocalVmConfig): ConfigStatus {
