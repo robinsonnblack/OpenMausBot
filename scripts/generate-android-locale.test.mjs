@@ -1,4 +1,4 @@
-import test from "node:test";
+import { test } from "vitest";
 import assert from "node:assert/strict";
 import { parseStrings, placeholders, usageIndex, validateLocaleCoverage } from "./generate-android-locale.mjs";
 
