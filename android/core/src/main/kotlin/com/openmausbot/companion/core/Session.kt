@@ -2141,6 +2141,24 @@ class Session(
         }
     }
 
+    suspend fun setBotPeerContactApproval(forBot: Bot, askFirst: Boolean): Bot? {
+        val activeClient = client ?: return null
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            _actionError.value = "Changing peer contact approval requires an admin pairing."
+            return null
+        }
+        return try {
+            val updated = activeClient.setBotPeerContactApproval(forBot.id, askFirst)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated.forTask(forBot.threadId)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun setBotApprovalMode(forBot: Bot, mode: String, acknowledgeLocalAuto: Boolean = false): Bot? {
         val activeClient = client ?: return null
         if (_connection.value?.serverScopes?.contains("admin") != true) {

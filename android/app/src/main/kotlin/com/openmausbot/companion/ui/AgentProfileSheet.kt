@@ -687,6 +687,34 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }
                 }
 
+                FormSection(header = "Bot coordination") {
+                    val canCoordinate = instances.firstOrNull {
+                        it.instanceId == current.modelSelection.instanceId
+                    }?.capabilities?.agentsMcp == true
+                    val askFirst = current.approvePeerComms == true
+                    Text(when {
+                        !canCoordinate -> "This bot's current engine cannot contact other bots."
+                        askFirst -> "This bot asks you before contacting another bot."
+                        else -> "This bot may contact teammates without asking first."
+                    })
+                    SwitchRow(
+                        label = "Ask before contacting other bots",
+                        checked = askFirst,
+                        enabled = connection?.serverScopes?.contains("admin") == true &&
+                            !busy && current.busy != true && (askFirst || canCoordinate),
+                        onCheckedChange = { next ->
+                            scope.launch {
+                                busy = true
+                                try { session.setBotPeerContactApproval(liveBot(), next) }
+                                finally { busy = false }
+                            }
+                        },
+                    )
+                    if (connection?.serverScopes?.contains("admin") != true) {
+                        Text("Changing this setting requires an admin pairing.")
+                    }
+                }
+
                 FormSection(header = "Computer access") {
                     Text("Bot default: ${computerAccessLabel(current.computer)}")
                     if (connection?.serverScopes?.contains("admin") == true) {

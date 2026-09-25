@@ -178,6 +178,10 @@ the computer's browser engine, its Experimental feature switch and an engine
 with browser-tool support. The control is unavailable when the bot's computer
 destination is Off. These are bot-wide settings; ordinary phone pairings may
 view them but cannot change them.
+The bot profile also mirrors the desktop's "Ask before contacting other bots"
+setting. An admin-paired phone can change it when the bot is idle; enabling it
+requires an engine that supports bot coordination. A client-only pairing can
+view the current policy but cannot change it.
 
 Bot settings also show the browser session selected on the paired computer.
 An admin-paired phone can choose the bot's own browser, a temporary browser,

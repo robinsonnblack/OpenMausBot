@@ -825,6 +825,11 @@ class CompanionClient(
         body = buildJsonObject { put("browser", allowed) },
     )).bot
 
+    suspend fun setBotPeerContactApproval(botId: String, askFirst: Boolean): Bot = send<BotResponse>(makeRequest(
+        "PATCH", "/api/bots/${segment(botId)}",
+        body = buildJsonObject { put("approvePeerComms", askFirst) },
+    )).bot
+
     /** Safe admin changes only. Full and Custom require the desktop's private confirmation flow. */
     suspend fun setBotApprovalMode(botId: String, mode: String, acknowledgeLocalAuto: Boolean = false): Bot {
         require(mode == "ask" || mode == "auto")
