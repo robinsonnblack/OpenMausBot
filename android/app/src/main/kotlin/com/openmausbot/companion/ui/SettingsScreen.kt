@@ -113,6 +113,7 @@ fun SettingsScreen(
     var exportingBackup by remember { mutableStateOf(false) }
     var restoringBackup by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
+    var editingNewBotEffort by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
 
     LaunchedEffect(connection) {
@@ -309,6 +310,7 @@ fun SettingsScreen(
             if (connection?.serverScopes?.contains("admin") == true) {
                 SettingsSection("Bot defaults") {
                     SettingsButton("Default model for new bots") { editingDefaultBotModel = true }
+                    SettingsButton("Default reasoning for new bots") { editingNewBotEffort = true }
                 }
                 SettingsSection("Teams") {
                     SettingsButton("Manage teams") { managingTeams = true }
@@ -607,6 +609,7 @@ fun SettingsScreen(
     if (managingEngines) EngineManagementSheet { managingEngines = false }
     if (managingThreads) ThreadSettingsSheet { managingThreads = false }
     if (editingRoomTurnTimeout) RoomTurnTimeoutSheet { editingRoomTurnTimeout = false }
+    if (editingNewBotEffort) NewBotEffortSheet { editingNewBotEffort = false }
     if (viewingAdminActivity) AdminActivitySheet { viewingAdminActivity = false }
     if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }

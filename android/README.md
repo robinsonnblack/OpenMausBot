@@ -178,6 +178,11 @@ phone create, rename and delete named profiles on the host. Whole-list saves
 compare the previous list so another device's edits cannot be erased silently;
 deleting a profile in use by a running bot is disabled.
 
+An admin-paired phone can edit the computer's default reasoning effort for
+future bots under Settings → Bot defaults. The bot's own choice takes priority;
+the computer skips a level a provider does not offer. This setting is separate
+from the default model picker.
+
 An admin-paired phone can edit the computer's room-turn timeout under Settings
 → Room turns. The editor accepts the same 1–1,440 minute range as desktop
 General settings and refuses to overwrite a value changed on another device

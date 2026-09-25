@@ -462,6 +462,13 @@ class CompanionClient(
         }))
     }
 
+    suspend fun updateNewBotEffort(effort: String?): ConfigStatus {
+        require(effort == null || effort in setOf("none", "low", "medium", "high", "xhigh", "max"))
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("newBots", buildJsonObject { put("effort", effort?.let(::JsonPrimitive) ?: JsonNull) })
+        }))
+    }
+
     /** Compare-and-swap the host's named browser sessions without sending partition IDs. */
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus =
         send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
