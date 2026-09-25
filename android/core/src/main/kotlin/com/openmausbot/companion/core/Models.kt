@@ -850,6 +850,48 @@ data class ThreadSettings(
     val eventLogRetentionDays: Int? = null,
 )
 
+@Serializable
+data class AdminActivityTarget(val kind: String, val id: String? = null, val name: String? = null)
+
+@Serializable
+data class AdminActivityEntry(
+    val type: String,
+    val at: String,
+    val who: String,
+    val what: String,
+    val source: String? = null,
+    val action: String? = null,
+    val target: AdminActivityTarget? = null,
+    val changed: List<String> = emptyList(),
+    val before: JsonObject? = null,
+    val after: JsonObject? = null,
+    val bot: String? = null,
+    val tool: String? = null,
+    val summary: String? = null,
+)
+
+@Serializable
+data class AdminActivityPage(
+    val entries: List<AdminActivityEntry>,
+    val total: Int,
+    val retentionDays: Int,
+    val recording: Boolean = false,
+)
+
+data class AdminActivityFilter(
+    val who: String = "",
+    val what: String = "all",
+    val from: String = "",
+    val to: String = "",
+) {
+    fun query(): List<Pair<String, String>> = buildList {
+        if (who.isNotBlank()) add("who" to who.trim().take(200))
+        if (what != "all") add("what" to what)
+        if (from.isNotBlank()) add("from" to from)
+        if (to.isNotBlank()) add("to" to to)
+    }
+}
+
 enum class ProviderConnection(val wire: String, val label: String) {
     ANTHROPIC("anthropic", "Anthropic"),
     OPENAI_COMPAT("openaiCompat", "OpenAI-compatible / OpenRouter"),

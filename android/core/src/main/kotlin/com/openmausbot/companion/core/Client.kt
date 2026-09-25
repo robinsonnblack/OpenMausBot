@@ -273,6 +273,16 @@ class CompanionClient(
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
+    suspend fun adminActivity(filter: AdminActivityFilter): AdminActivityPage =
+        send(makeRequest("GET", "/api/admin-activity", filter.query()))
+
+    suspend fun adminActivityCsv(filter: AdminActivityFilter): ByteArray {
+        val raw = perform(makeRequest("GET", "/api/admin-activity.csv", filter.query()))
+        check(raw)
+        if (raw.data.size > 25 * 1024 * 1024) throw APIError.Transport("Activity export is larger than 25 MB.")
+        return raw.data
+    }
+
     suspend fun updateThreadSettings(settings: ThreadSettings): ConfigStatus {
         require(settings.maxConcurrentPerBot in 1..10)
         require(settings.eventLogMaxBytes == null || settings.eventLogMaxBytes in 262_144L..4_294_967_296L)

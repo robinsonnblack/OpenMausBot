@@ -102,6 +102,7 @@ fun SettingsScreen(
     var configuringProvider by remember { mutableStateOf<ProviderConnection?>(null) }
     var managingEngines by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf(false) }
+    var viewingAdminActivity by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
 
@@ -301,6 +302,9 @@ fun SettingsScreen(
                 }
                 SettingsSection("Threads") {
                     SettingsButton("Concurrency and log retention") { managingThreads = true }
+                }
+                SettingsSection("Activity") {
+                    SettingsButton("Changes and approvals") { viewingAdminActivity = true }
                 }
                 SettingsSection("Browser") {
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
@@ -571,6 +575,7 @@ fun SettingsScreen(
     configuringProvider?.let { provider -> ProviderSetupSheet(provider) { configuringProvider = null } }
     if (managingEngines) EngineManagementSheet { managingEngines = false }
     if (managingThreads) ThreadSettingsSheet { managingThreads = false }
+    if (viewingAdminActivity) AdminActivitySheet { viewingAdminActivity = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }
