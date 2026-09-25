@@ -165,6 +165,11 @@ folder until a new task starts. The same admin pairing can switch a bot between
 Ask and Auto approval. Auto on This computer has its own confirmation. Full
 and Custom approval changes require the desktop app.
 
+The bot's Access details can show its existing standing tool approvals and
+inbound webhook names, active/paused status, and delivery counts. This view
+does not expose webhook credentials or grant new tool permissions; webhook
+management and permission changes remain on the paired computer.
+
 Bot settings also show the browser session selected on the paired computer.
 An admin-paired phone can choose the bot's own browser, a temporary browser,
 or an existing named profile. The server rejects a switch during a busy turn

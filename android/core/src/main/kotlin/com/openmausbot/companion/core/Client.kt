@@ -702,6 +702,10 @@ class CompanionClient(
             body = buildJsonObject { put("chiefOfStaff", enabled) },
         )).bot
 
+    suspend fun botWebhooks(botId: String): List<BotWebhook> =
+        send<WebhookListResponse>(makeRequest("GET", "/api/webhooks"))
+            .webhooks.filter { it.botId == botId }
+
     suspend fun updateProfile(botId: String, patch: BotProfilePatch): Bot {
         val body = CompanionJson.encodeToJsonElement(BotProfilePatch.serializer(), patch).jsonObject
         return send<BotResponse>(

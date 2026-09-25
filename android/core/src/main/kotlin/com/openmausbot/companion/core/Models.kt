@@ -1555,6 +1555,19 @@ internal data class ActiveBranchResponse(val activeLeafId: String)
 @Serializable
 internal data class BotResponse(val bot: Bot)
 
+/** Non-secret status of inbound triggers shown in the desktop bot Access section. */
+@Serializable
+data class BotWebhook(
+    val id: String,
+    val botId: String,
+    val name: String,
+    val enabled: Boolean,
+    val deliveryCount: Int = 0,
+)
+
+@Serializable
+internal data class WebhookListResponse(val webhooks: List<BotWebhook>)
+
 @Serializable
 internal data class RoomResponse(val group: Room)
 
