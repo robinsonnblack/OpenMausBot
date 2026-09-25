@@ -3,7 +3,10 @@
 OpenMausBot ships its translations inside the app. It does not contact a
 translation service at runtime, and contributors do not need an API key.
 English in `src/locales/en.json` is the source catalog; the other JSON files
-are partial overlays that fall back to English for missing keys.
+are overlays that fall back to English for older missing keys. New UI strings
+must be translated in every shipped language. Android strings use
+`android/app/src/main/res/values/strings.xml` and matching `values-*/strings.xml`
+resources; new Android strings also need every shipped language.
 
 ## Add or update a language
 
@@ -16,8 +19,23 @@ are partial overlays that fall back to English for missing keys.
 `pnpm i18n:check` is deterministic. It validates JSON structure, unknown or
 empty entries, locale filename casing, placeholder parity, and the English
 source hash attached to every translated value. If English copy changes, the
-old translation fails the check instead of silently looking current. Missing
-translations remain allowed because the runtime has an English fallback.
+old translation fails the check instead of silently looking current. The
+coverage ratchet rejects new missing translations in any language, including
+Android. `scripts/translation-debt.json` records only the pre-existing
+gaps and their English source hashes. Updating English for an untranslated
+key therefore also requires a translation. When fixing an old gap, remove
+its exception with `node scripts/check-translation-coverage.mjs --update-baseline`.
+Review that baseline diff: it should shrink, never acquire new exceptions.
+The initial debt is substantial and must be translated before full coverage
+can be claimed; this gate prevents it from growing in the meantime.
+
+Keep visible text in catalog or Android string resources. Code literals can
+escape a catalog check, so `pnpm i18n:check` also rejects new direct JSX and
+Compose text literals against `scripts/ui-literal-debt.json`. This scanner
+covers common static text but cannot prove that all dynamic text is localized;
+reviewers must look for it in new UI. A present
+translation is also not proof of correct wording: review each language's copy
+and test the interface before release.
 
 ## Optional model-assisted draft
 
