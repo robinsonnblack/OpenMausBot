@@ -419,6 +419,9 @@ class CompanionClient(
             put("description", description)
             put("modelSelection", CompanionJson.encodeToJsonElement(ModelSelection.serializer(), selection))
             put("requireAvailableModel", true)
+            // A client pairing may create a basic bot, but must not replay an
+            // admin's saved template containing access grants or host assets.
+            if (preferences == null) put("useDefaults", false)
             section?.let { put("section", it) }
             preferences?.let { prefs ->
                 put("settings", buildJsonObject {

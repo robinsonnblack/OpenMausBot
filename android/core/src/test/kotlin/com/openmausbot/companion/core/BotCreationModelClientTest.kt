@@ -63,6 +63,7 @@ class BotCreationModelClientTest {
                 assertEquals("Researcher", body.getValue("name").jsonPrimitive.content)
                 assertEquals("Lab", body.getValue("section").jsonPrimitive.content)
                 assertEquals("true", body.getValue("requireAvailableModel").jsonPrimitive.content)
+                assertEquals("false", body.getValue("useDefaults").jsonPrimitive.content)
                 assertEquals("sol", body.getValue("modelSelection").jsonObject.getValue("model").jsonPrimitive.content)
             }
         } finally { server.shutdown() }
