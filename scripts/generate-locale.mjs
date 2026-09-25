@@ -453,7 +453,7 @@ export function main(argv = process.argv.slice(2)) {
     return;
   }
   console.error(`asking Luna to draft ${keys.length} missing or stale strings in ${batches.length} contextual batches for ${label}…`);
-  for (const [index, batch] of batches.entries()) {
+  for (const [batchNumber, batch] of batches.entries()) {
     const requested = Object.fromEntries(batch.keys.map((key) => [key, source[key]]));
     const context = contextForKeys(source, batch.keys, existing, files, index);
     const result = parseModelCatalog(runModel(translationPrompt(requested, label, code, context), batch.keys));
@@ -467,7 +467,7 @@ export function main(argv = process.argv.slice(2)) {
     // Each validated batch is saved so a long run can resume after failure.
     writeJsonAtomically(outFile, merged);
     writeJsonAtomically(join(LOCALES_DIR, SOURCE_HASH_FILE), state);
-    console.error(`${index + 1}/${batches.length} ${batch.section}`);
+    console.error(`${batchNumber + 1}/${batches.length} ${batch.section}`);
   }
   console.error(`wrote ${outFile}; review every changed string and register new locale "${code}" in src/locales/index.ts`);
 }
