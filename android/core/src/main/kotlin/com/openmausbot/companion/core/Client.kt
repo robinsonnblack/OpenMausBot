@@ -329,6 +329,11 @@ class CompanionClient(
 
     suspend fun createBot(): Bot = send<CreatedBot>(makeRequest("POST", "/api/bots")).bot
 
+    /** Deleting a bot requires the server's admin scope. */
+    suspend fun deleteBot(botId: String) {
+        send<kotlinx.serialization.json.JsonObject>(makeRequest("DELETE", "/api/bots/${segment(botId)}"))
+    }
+
     /**
      * Atomically file visible bots under one shared sidebar heading. This is
      * narrower than the desktop's general bot patch: pairing a phone grants

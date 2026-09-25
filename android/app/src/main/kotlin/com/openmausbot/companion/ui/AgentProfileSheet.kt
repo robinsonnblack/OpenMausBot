@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -96,6 +97,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     val environment = LocalCompanion.current
     val session = environment.session
     val state by session.state.collectAsState()
+    val connection by session.connection.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -117,6 +119,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
+    var deleteError by remember { mutableStateOf<String?>(null) }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -579,6 +583,19 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                 }
+
+                if (connection?.serverScopes?.contains("admin") == true) {
+                    FormSection(header = null) {
+                        ActionRow(
+                            text = "Delete bot",
+                            icon = Icons.Filled.Delete,
+                            enabled = !busy && state.bot(opened.id) != null,
+                            destructive = true,
+                            onClick = { confirmDelete = true },
+                        )
+                        deleteError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                    }
+                }
             }
 
             if (busy) {
@@ -591,6 +608,29 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             }
         }
     }
+    if (confirmDelete) AlertDialog(
+        onDismissRequest = { if (!busy) confirmDelete = false },
+        title = { Text("Delete ${current.name}?") },
+        text = { Text("This permanently deletes the bot and its conversations. This cannot be undone.") },
+        confirmButton = {
+            TextButton(enabled = !busy, onClick = {
+                scope.launch {
+                    busy = true
+                    deleteError = null
+                    try {
+                        session.deleteBot(opened.id)
+                        confirmDelete = false
+                        onDismiss()
+                    } catch (error: Exception) {
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        deleteError = error.message ?: "Could not delete the bot."
+                        confirmDelete = false
+                    } finally { busy = false }
+                }
+            }) { Text("Delete bot") }
+        },
+        dismissButton = { TextButton(enabled = !busy, onClick = { confirmDelete = false }) { Text("Cancel") } },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

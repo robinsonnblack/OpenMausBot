@@ -37,6 +37,20 @@ import okhttp3.mockwebserver.MockWebServer
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionTest {
     @Test
+    fun deleteBotRequiresAdminScopeBeforeAnyRequest() = runTest {
+        val connection = Connection(id = "c1", name = "Mac", host = "192.168.1.2", port = 8810)
+            .copy(serverEnvironmentId = "env-fixture", serverScopes = listOf("client"))
+        val session = session(
+            connectionStore = FakeConnectionStore(connection),
+            tokenStore = FakeTokenStore().apply { saved["c1"] = "device-token" },
+            events = { _, _ -> emptyFlow() },
+        )
+        session.awaitRestored()
+        val error = assertFailsWith<APIError.Transport> { session.deleteBot("b1") }
+        assertTrue(error.message.orEmpty().contains("admin pairing"))
+    }
+
+    @Test
     fun restoreWithMissingConnectionStaysUnpaired() = runTest {
         val session = session()
         session.awaitRestored()
