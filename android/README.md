@@ -104,6 +104,11 @@ history with who, category and date filters. An admin pairing can inspect
 changed values and export the same filtered range as CSV through Android's
 document picker. Activity remains on the host; a client-only pairing cannot
 read it.
+Where the paired computer reports the `budgets` feature, Settings → Usage
+offers a monthly workspace spending limit and warning threshold. An admin
+pairing can edit them after the phone rechecks that the host's values did not
+change in another window. A blank amount disables the cap; unpriced work may
+not count toward it. Without that host entitlement the control is hidden.
 Settings → Computer → Local VM shows the paired computer's container runtime,
 shared desktop and per-bot inventory. An admin pairing can change shared vs.
 per-bot isolation and the 1–4 instance limit. The shared VM's image download,

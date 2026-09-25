@@ -24,6 +24,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +87,8 @@ fun SettingsScreen(
     var editingQuickReplies by remember { mutableStateOf(false) }
     var editingTheme by remember { mutableStateOf(false) }
     var showingUsage by remember { mutableStateOf(false) }
+    var budgetEntitled by remember { mutableStateOf(false) }
+    var editingBudget by remember { mutableStateOf(false) }
     var editingAboutMe by remember { mutableStateOf(false) }
     var aboutMeText by remember { mutableStateOf("") }
     var aboutMeOriginal by remember { mutableStateOf("") }
@@ -108,6 +111,13 @@ fun SettingsScreen(
     var restoringBackup by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
+
+    LaunchedEffect(connection) {
+        budgetEntitled = false
+        if (connection?.serverScopes?.contains("admin") == true) {
+            budgetEntitled = session.configStatus()?.edition?.features?.contains("budgets") == true
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -286,6 +296,7 @@ fun SettingsScreen(
                     showingUsage = !showingUsage
                 }
                 if (showingUsage) WorkspaceUsageSection()
+                if (budgetEntitled) SettingsButton("Monthly spending limit") { editingBudget = true }
             }
 
             if (connection?.serverScopes?.contains("admin") == true) {
@@ -589,6 +600,7 @@ fun SettingsScreen(
     if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }
     if (restoringBackup) WorkspaceBackupRestoreSheet { restoringBackup = false }
+    if (editingBudget) WorkspaceBudgetSheet { editingBudget = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }

@@ -885,6 +885,12 @@ data class LocalVmInventory(
 )
 
 @Serializable
+data class WorkspaceBudgetConfig(val monthlyUsd: Double = 0.0, val warnAtPercent: Int = 80)
+
+@Serializable
+data class EditionStatus(val features: List<String> = emptyList())
+
+@Serializable
 data class WorkspaceBackupStatus(val busy: Boolean, val pendingRestore: Boolean)
 
 @Serializable
@@ -965,6 +971,8 @@ enum class ProviderConnection(val wire: String, val label: String) {
 
 @Serializable
 data class ConfigStatus(
+    val edition: EditionStatus? = null,
+    val budgets: WorkspaceBudgetConfig? = null,
     val composio: ConfigFlag? = null,
     val box: ConfigFlag? = null,
     val tts: ConfigFlag? = null,
