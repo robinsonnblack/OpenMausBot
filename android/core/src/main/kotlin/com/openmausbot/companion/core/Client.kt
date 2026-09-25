@@ -273,6 +273,19 @@ class CompanionClient(
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
+    suspend fun updateThreadSettings(settings: ThreadSettings): ConfigStatus {
+        require(settings.maxConcurrentPerBot in 1..10)
+        require(settings.eventLogMaxBytes == null || settings.eventLogMaxBytes in 262_144L..4_294_967_296L)
+        require(settings.eventLogRetentionDays == null || settings.eventLogRetentionDays in 1..3650)
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("threads", buildJsonObject {
+                put("maxConcurrentPerBot", settings.maxConcurrentPerBot)
+                put("eventLogMaxBytes", settings.eventLogMaxBytes?.let(::JsonPrimitive) ?: JsonNull)
+                put("eventLogRetentionDays", settings.eventLogRetentionDays?.let(::JsonPrimitive) ?: JsonNull)
+            })
+        }))
+    }
+
     /** Compare-and-swap the host's named browser sessions without sending partition IDs. */
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus =
         send(makeRequest("PATCH", "/api/config", body = buildJsonObject {

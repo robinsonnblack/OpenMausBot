@@ -843,6 +843,13 @@ data class BrowserProfile(val id: String, val name: String)
 @Serializable
 data class OpenAICompatibleStatus(val configured: Boolean, val url: String = "")
 
+@Serializable
+data class ThreadSettings(
+    val maxConcurrentPerBot: Int = 3,
+    val eventLogMaxBytes: Long? = null,
+    val eventLogRetentionDays: Int? = null,
+)
+
 enum class ProviderConnection(val wire: String, val label: String) {
     ANTHROPIC("anthropic", "Anthropic"),
     OPENAI_COMPAT("openaiCompat", "OpenAI-compatible / OpenRouter"),
@@ -862,6 +869,7 @@ data class ConfigStatus(
     val openaiCompat: OpenAICompatibleStatus? = null,
     val profile: Profile? = null,
     val browserProfiles: List<BrowserProfile> = emptyList(),
+    val threads: ThreadSettings? = null,
 ) {
     /**
      * "This engine can speak", not "a key is on file" — under the built-in

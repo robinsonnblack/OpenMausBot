@@ -94,6 +94,11 @@ Settings → Engines lists the paired computer's engine status and model count.
 With an admin pairing, Android can ask the computer to refresh an engine's
 models or install an unavailable engine when that host supports installation.
 An installation requires confirmation and never installs software on the phone.
+Settings → Threads lets an admin-paired phone set the maximum simultaneous
+tasks per bot and the optional size and age limits for thread event logs on the
+paired computer. Empty optional limits keep the host's unbounded defaults.
+The editor rechecks the current host values before saving so an intervening
+desktop edit is not silently overwritten.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
