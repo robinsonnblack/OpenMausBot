@@ -2433,6 +2433,14 @@ class Session(
             .updateHostBrowserEnabled(enabled)
     }
 
+    suspend fun updateSkillAuthoringEnabled(enabled: Boolean): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Changing skill authoring requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .updateSkillAuthoringEnabled(enabled)
+    }
+
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Managing browser profiles requires an admin pairing.")
