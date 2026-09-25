@@ -1432,6 +1432,7 @@ data class BotCreationPreferences(
     val cwd: String? = null,
     val voice: String = "",
     val color: String = "green",
+    val browserProfile: String? = null,
 )
 
 @Serializable

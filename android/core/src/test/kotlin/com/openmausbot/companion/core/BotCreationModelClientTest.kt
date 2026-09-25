@@ -23,6 +23,7 @@ class BotCreationModelClientTest {
                 BotCreationPreferences(
                     soul = "Keep records.", notifications = false, speakReplies = true,
                     computer = "local", approvalMode = "auto", cwd = "C:/work", voice = "voice-1", color = "teal",
+                    browserProfile = "work",
                 ), acknowledgeLocalAuto = true)
             val body = CompanionJson.parseToJsonElement(server.takeRequest().body.readUtf8()).jsonObject
             val settings = body.getValue("settings").jsonObject
@@ -34,6 +35,7 @@ class BotCreationModelClientTest {
             assertEquals("C:/work", settings.getValue("cwd").jsonPrimitive.content)
             assertEquals("voice-1", settings.getValue("voice").jsonPrimitive.content)
             assertEquals("teal", settings.getValue("color").jsonPrimitive.content)
+            assertEquals("work", settings.getValue("browserProfile").jsonPrimitive.content)
             assertEquals("true", body.getValue("acknowledgeLocalAuto").jsonPrimitive.content)
         } finally { server.shutdown() }
     }
