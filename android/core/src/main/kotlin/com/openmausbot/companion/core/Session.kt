@@ -1591,6 +1591,12 @@ class Session(
         _state.update { it.hydrate(activeClient.fleet()) }
     }
 
+    suspend fun setChiefManagedTeams(botId: String, names: List<String>, confirmed: Boolean) {
+        val activeClient = requireTeamAdmin()
+        activeClient.setChiefManagedTeams(botId, names, confirmed)
+        _state.update { it.hydrate(activeClient.fleet()) }
+    }
+
     suspend fun interrupt(bot: Bot) {
         perform { it.interrupt(bot.id, bot.threadId) }
     }

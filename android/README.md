@@ -142,6 +142,9 @@ From the same team screen, an admin can appoint or remove its Chief of Staff.
 Handing the role to another bot is confirmed before the server makes the
 change. The appointment option requires a model engine that supports bot
 coordination; the computer enforces the final role change.
+An appointed Chief can also be granted access to additional existing teams
+from this screen. The Chief's own team remains included. Adding a team asks
+for a separate confirmation; removing one does not widen access.
 
 Settings → Bot defaults lets an admin choose the provider, model and reasoning
 effort inherited by future bots. Saving rereads the computer's effective
