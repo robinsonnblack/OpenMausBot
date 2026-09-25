@@ -654,6 +654,39 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }
                 }
 
+                FormSection(header = "Built-in browser") {
+                    val engineReady = config?.browserEngine?.kind == "engine"
+                    val featureEnabled = config?.features?.browser == true
+                    val supported = instances.firstOrNull {
+                        it.instanceId == current.modelSelection.instanceId
+                    }?.capabilities?.browserMcp == true
+                    val allowed = current.browser != false
+                    Text(when {
+                        current.computer == "off" -> "This bot's computer destination is Off."
+                        !engineReady -> config?.browserEngine?.reason ?: "The browser engine is unavailable on the computer."
+                        !featureEnabled -> "Enable the built-in browser in the computer's Experimental settings first."
+                        !supported -> "This bot's current engine cannot use the built-in browser."
+                        allowed -> "This bot may use its own built-in browser."
+                        else -> "The built-in browser is unavailable to this bot."
+                    })
+                    SwitchRow(
+                        label = "Give this bot a built-in browser",
+                        checked = allowed && current.computer != "off",
+                        enabled = connection?.serverScopes?.contains("admin") == true && !busy &&
+                            current.computer != "off" && (allowed || engineReady && featureEnabled && supported),
+                        onCheckedChange = { next ->
+                            scope.launch {
+                                busy = true
+                                try { session.setBotBrowserAccess(liveBot(), next) }
+                                finally { busy = false }
+                            }
+                        },
+                    )
+                    if (connection?.serverScopes?.contains("admin") != true) {
+                        Text("Changing this access requires an admin pairing.")
+                    }
+                }
+
                 FormSection(header = "Computer access") {
                     Text("Bot default: ${computerAccessLabel(current.computer)}")
                     if (connection?.serverScopes?.contains("admin") == true) {
