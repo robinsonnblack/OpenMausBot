@@ -103,6 +103,7 @@ fun SettingsScreen(
     var managingEngines by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf(false) }
     var viewingAdminActivity by remember { mutableStateOf(false) }
+    var managingLocalVm by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
 
@@ -305,6 +306,9 @@ fun SettingsScreen(
                 }
                 SettingsSection("Activity") {
                     SettingsButton("Changes and approvals") { viewingAdminActivity = true }
+                }
+                SettingsSection("Computer") {
+                    SettingsButton("Manage Local VM on this computer") { managingLocalVm = true }
                 }
                 SettingsSection("Browser") {
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
@@ -576,6 +580,7 @@ fun SettingsScreen(
     if (managingEngines) EngineManagementSheet { managingEngines = false }
     if (managingThreads) ThreadSettingsSheet { managingThreads = false }
     if (viewingAdminActivity) AdminActivitySheet { viewingAdminActivity = false }
+    if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }

@@ -851,6 +851,40 @@ data class ThreadSettings(
 )
 
 @Serializable
+data class LocalVmConfig(val mode: String = "shared", val maxInstances: Int = 2)
+
+@Serializable
+data class LocalVmStatus(
+    val platform: String = "",
+    val runtime: String? = null,
+    val daemonUp: Boolean = false,
+    val image: Boolean = false,
+    val container: String = "missing",
+    val ready: Boolean = false,
+    val problem: String? = null,
+    val mode: String = "shared",
+    @SerialName("max_instances") val maxInstances: Int = 2,
+)
+
+@Serializable
+data class LocalVmInstance(
+    val botId: String,
+    val name: String,
+    val container: String,
+    val ready: Boolean,
+    val managed: Boolean,
+    val inUse: Boolean,
+    val problem: String? = null,
+)
+
+@Serializable
+data class LocalVmInventory(
+    val instances: List<LocalVmInstance> = emptyList(),
+    val available: Boolean = false,
+    val problem: String? = null,
+)
+
+@Serializable
 data class AdminActivityTarget(val kind: String, val id: String? = null, val name: String? = null)
 
 @Serializable
@@ -912,6 +946,7 @@ data class ConfigStatus(
     val profile: Profile? = null,
     val browserProfiles: List<BrowserProfile> = emptyList(),
     val threads: ThreadSettings? = null,
+    val localVm: LocalVmConfig? = null,
 ) {
     /**
      * "This engine can speak", not "a key is on file" — under the built-in

@@ -2203,6 +2203,19 @@ class Session(
         null
     }
 
+    private fun requireLocalVmAdmin(): CompanionClient {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Managing the computer's Local VM requires an admin pairing.")
+        }
+        return client ?: throw APIError.Transport("This computer is offline.")
+    }
+
+    suspend fun localVmStatus(): LocalVmStatus = requireLocalVmAdmin().localVmStatus()
+    suspend fun localVmInventory(): LocalVmInventory = requireLocalVmAdmin().localVmInventory()
+    suspend fun localVmAction(action: String): LocalVmStatus = requireLocalVmAdmin().localVmAction(action)
+    suspend fun updateLocalVmConfig(config: LocalVmConfig): ConfigStatus =
+        requireLocalVmAdmin().updateLocalVmConfig(config)
+
     private fun requireAdminActivityClient(): CompanionClient {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Activity history requires an admin pairing.")
