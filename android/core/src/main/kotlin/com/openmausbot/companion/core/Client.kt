@@ -399,6 +399,8 @@ class CompanionClient(
         description: String,
         selection: ModelSelection,
         section: String? = null,
+        preferences: BotCreationPreferences? = null,
+        acknowledgeLocalAuto: Boolean = false,
     ): Bot = send<CreatedBot>(makeRequest(
         "POST", "/api/bots",
         body = buildJsonObject {
@@ -408,6 +410,19 @@ class CompanionClient(
             put("modelSelection", CompanionJson.encodeToJsonElement(ModelSelection.serializer(), selection))
             put("requireAvailableModel", true)
             section?.let { put("section", it) }
+            preferences?.let { prefs ->
+                put("settings", buildJsonObject {
+                    put("soul", prefs.soul)
+                    put("notifications", prefs.notifications)
+                    put("speakReplies", prefs.speakReplies)
+                    put("computer", prefs.computer?.let(::JsonPrimitive) ?: JsonNull)
+                    put("approvalMode", prefs.approvalMode)
+                    put("cwd", prefs.cwd?.let(::JsonPrimitive) ?: JsonNull)
+                    put("voice", prefs.voice)
+                    put("color", prefs.color)
+                })
+            }
+            if (acknowledgeLocalAuto) put("acknowledgeLocalAuto", true)
         },
     )).bot
 
