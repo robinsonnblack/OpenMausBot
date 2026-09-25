@@ -1,5 +1,6 @@
 package com.openmausbot.companion.core
 
+import java.io.OutputStream
 import java.net.URI
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
@@ -2202,6 +2203,19 @@ class Session(
         if (error is kotlinx.coroutines.CancellationException) throw error
         null
     }
+
+    private fun requireWorkspaceBackupAdmin(): CompanionClient {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Workspace backups require an admin pairing.")
+        }
+        return client ?: throw APIError.Transport("This computer is offline.")
+    }
+
+    suspend fun workspaceBackupStatus(): WorkspaceBackupStatus = requireWorkspaceBackupAdmin().workspaceBackupStatus()
+    suspend fun createWorkspaceBackup(password: String): WorkspaceBackupExport =
+        requireWorkspaceBackupAdmin().createWorkspaceBackup(password)
+    suspend fun downloadWorkspaceBackup(id: String, output: OutputStream): Long =
+        requireWorkspaceBackupAdmin().downloadWorkspaceBackup(id, output)
 
     private fun requireLocalVmAdmin(): CompanionClient {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
