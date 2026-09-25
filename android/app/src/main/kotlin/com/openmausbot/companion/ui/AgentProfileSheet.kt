@@ -134,6 +134,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
+    var deleteError by remember { mutableStateOf<String?>(null) }
     var showingHistory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
@@ -1024,6 +1026,19 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                 }
+
+                if (connection?.serverScopes?.contains("admin") == true) {
+                    FormSection(header = null) {
+                        ActionRow(
+                            text = "Delete bot",
+                            icon = Icons.Filled.Delete,
+                            enabled = !busy && state.bot(opened.id) != null,
+                            destructive = true,
+                            onClick = { confirmDelete = true },
+                        )
+                        deleteError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                    }
+                }
             }
 
             if (busy) {
@@ -1180,6 +1195,29 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             dismissButton = { TextButton(onClick = { confirmingAutoOnComputer = false }) { Text("Cancel") } },
         )
     }
+    if (confirmDelete) AlertDialog(
+        onDismissRequest = { if (!busy) confirmDelete = false },
+        title = { Text("Delete ${current.name}?") },
+        text = { Text("This permanently deletes the bot and its conversations. This cannot be undone.") },
+        confirmButton = {
+            TextButton(enabled = !busy, onClick = {
+                scope.launch {
+                    busy = true
+                    deleteError = null
+                    try {
+                        session.deleteBot(opened.id)
+                        confirmDelete = false
+                        onDismiss()
+                    } catch (error: Exception) {
+                        if (error is kotlinx.coroutines.CancellationException) throw error
+                        deleteError = error.message ?: "Could not delete the bot."
+                        confirmDelete = false
+                    } finally { busy = false }
+                }
+            }) { Text("Delete bot") }
+        },
+        dismissButton = { TextButton(enabled = !busy, onClick = { confirmDelete = false }) { Text("Cancel") } },
+    )
 }
 
 private fun taskSurfaceLabel(surface: String?, botDefault: String?): String = when (surface) {

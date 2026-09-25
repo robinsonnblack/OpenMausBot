@@ -1540,6 +1540,15 @@ class Session(
         }
     }
 
+    suspend fun deleteBot(botId: String) {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Deleting bots requires an admin pairing.")
+        }
+        val activeClient = client ?: throw APIError.Transport("This computer is offline.")
+        activeClient.deleteBot(botId)
+        _state.update { it.apply(Frame.BotDeleted(botId)) }
+    }
+
     suspend fun createRoom(name: String?, memberIds: List<String>): Room? {
         val activeClient = client ?: return null
         return try {

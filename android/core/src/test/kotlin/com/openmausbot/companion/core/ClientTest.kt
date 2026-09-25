@@ -22,6 +22,24 @@ class ClientTest {
     private lateinit var connection: Connection
     private lateinit var client: CompanionClient
 
+    @Test
+    fun deleteBotUsesTheAdminOnlyEndpoint() = runBlocking {
+        server.enqueue(json("""{"ok":true}"""))
+        client.deleteBot("b1")
+        val request = server.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/bots/b1", request.path)
+        assertEquals("Bearer device-token", request.getHeader("Authorization"))
+    }
+
+    @Test
+    fun refusedBotDeletionSurfacesTheServerReason() = runBlocking {
+        server.enqueue(json("""{"error":"stop the active routine first"}""", code = 409))
+        val error = assertFailsWith<APIError.Status> { client.deleteBot("b1") }
+        assertEquals(409, error.code)
+        assertEquals("stop the active routine first", error.message)
+    }
+
     @BeforeTest
     fun setUp() {
         server = MockWebServer()
