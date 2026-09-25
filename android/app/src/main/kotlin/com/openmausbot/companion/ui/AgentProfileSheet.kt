@@ -139,6 +139,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingAccessDetails by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingBotUsage by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var showingCommandRules by rememberSaveable(opened.id) { mutableStateOf(false) }
     var accessWebhooks by remember(opened.id) { mutableStateOf<List<BotWebhook>?>(null) }
     var loadingAccessWebhooks by remember(opened.id) { mutableStateOf(false) }
     var mcpServers by remember(opened.id) { mutableStateOf<List<McpServerSummary>?>(null) }
@@ -837,6 +838,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     Text(if (connection?.serverScopes?.contains("admin") == true)
                         "Full and Custom approval permissions can only be changed in the packaged desktop app."
                     else "Changing bot-wide defaults requires an admin pairing. Full and Custom approval permissions require the packaged desktop app.")
+                    if (connection?.serverScopes?.contains("admin") == true) {
+                        ActionRow(
+                            text = if (showingCommandRules) "Hide exact command permissions" else "Manage exact command permissions",
+                            onClick = { showingCommandRules = !showingCommandRules },
+                        )
+                        if (showingCommandRules) BotCommandAllowlistSection(opened.id, connection?.id)
+                    }
                 }
 
                 FormSection(

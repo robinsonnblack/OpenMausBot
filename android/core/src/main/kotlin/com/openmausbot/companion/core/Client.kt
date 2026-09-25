@@ -848,10 +848,14 @@ class CompanionClient(
     }
 
     private fun requireProtectedMcpInventoryRoute() {
+        requireProtectedAdminRoute("MCP server details")
+    }
+
+    private fun requireProtectedAdminRoute(feature: String) {
         if (connection.activeEndpoint?.protectsCredentials == true) return
         val host = connection.baseUrl?.host?.lowercase()
         if (host == "localhost" || host == "127.0.0.1" || host == "::1") return
-        throw APIError.Transport("MCP server details require HTTPS or a Tailscale connection.")
+        throw APIError.Transport("$feature require HTTPS or a Tailscale connection.")
     }
 
     suspend fun setBotMcpServers(botId: String, names: List<String>?): Bot = send<BotResponse>(makeRequest(
@@ -860,6 +864,28 @@ class CompanionClient(
             put("mcpServers", names?.let { JsonArray(it.map(::JsonPrimitive)) } ?: JsonNull)
         },
     )).bot
+
+    /** Exact commands and working folders may be sensitive; never send them over plain LAN. */
+    suspend fun botCommandAllowlist(botId: String): CommandAllowlistStatus {
+        requireProtectedAdminRoute("Command permissions")
+        return send(makeRequest("GET", "/api/bots/${segment(botId)}/command-allowlist"))
+    }
+
+    suspend fun addBotCommandRule(
+        botId: String, command: String, cwd: String, providerInstanceId: String,
+    ): CommandAllowlistStatus {
+        requireProtectedAdminRoute("Command permissions")
+        return send(makeRequest("POST", "/api/bots/${segment(botId)}/command-allowlist", body = buildJsonObject {
+            put("command", command)
+            put("cwd", cwd)
+            put("providerInstanceId", providerInstanceId)
+        }))
+    }
+
+    suspend fun removeBotCommandRule(botId: String, ruleId: String): CommandAllowlistStatus {
+        requireProtectedAdminRoute("Command permissions")
+        return send(makeRequest("DELETE", "/api/bots/${segment(botId)}/command-allowlist/${segment(ruleId)}"))
+    }
 
     suspend fun setBotPeerContactApproval(botId: String, askFirst: Boolean): Bot = send<BotResponse>(makeRequest(
         "PATCH", "/api/bots/${segment(botId)}",
