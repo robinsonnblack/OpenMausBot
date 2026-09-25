@@ -19,7 +19,10 @@ that the selected model is available.
 The optional Bot settings section inherits the computer's saved creation
 defaults and lets an admin set standing instructions, notifications, spoken
 replies, color, computer destination, Ask/Auto approval, working folder and
-voice before creating the bot. Android requires separate confirmation before
+voice before creating the bot. A named or temporary browser profile can also
+be selected before creation. Advanced choices are shown only for an admin
+pairing; a client pairing can still create with basic identity and model fields.
+Android requires separate confirmation before
 combining This computer with Auto approval. Full and Custom desktop grants
 still require the computer's permission flow. Saved skills, memories and
 routines remain inherited from the computer's default template.

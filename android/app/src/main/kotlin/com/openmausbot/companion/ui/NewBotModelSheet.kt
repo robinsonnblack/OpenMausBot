@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotCreationPreferences
+import com.openmausbot.companion.core.BrowserProfile
 import com.openmausbot.companion.core.Instance
 import com.openmausbot.companion.core.ModelSelection
 import kotlinx.coroutines.async
@@ -50,6 +51,7 @@ internal fun NewBotModelSheet(
 ) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
+    val connection by session.connection.collectAsState()
     val scope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -60,6 +62,7 @@ internal fun NewBotModelSheet(
     var confirmingLocalAuto by remember { mutableStateOf(false) }
     var selection by remember { mutableStateOf<ModelSelection?>(null) }
     var instances by remember { mutableStateOf<List<Instance>>(emptyList()) }
+    var browserProfiles by remember { mutableStateOf<List<BrowserProfile>>(emptyList()) }
     var loaded by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -87,9 +90,12 @@ internal fun NewBotModelSheet(
                 cwd = string("cwd"),
                 voice = string("voice").orEmpty(),
                 color = string("color") ?: "green",
+                browserProfile = string("browserProfile"),
             )
             selection = result.first.modelSelection
             instances = result.second
+            try { browserProfiles = session.configStatus()?.browserProfiles.orEmpty() }
+            catch (_: Exception) { /* Model-first creation still works without profile discovery. */ }
         } catch (failure: Exception) {
             error = failure.message ?: "Could not load bot creation settings."
         } finally { loaded = true }
@@ -103,6 +109,7 @@ internal fun NewBotModelSheet(
         selected.model == instance?.models?.defaultModel ||
             instance?.models?.options?.any { it.id == selected.model } == true
     )
+    val isAdmin = connection?.serverScopes?.contains("admin") == true
     fun submit(acknowledge: Boolean) {
         val model = selection ?: return
         saving = true
@@ -111,7 +118,9 @@ internal fun NewBotModelSheet(
             try {
                 val bot = session.createBot(
                     name.trim(), title.trim(), description.trim(), model,
-                    section.ifEmpty { null }, preferences, acknowledge,
+                    section.ifEmpty { null },
+                    if (isAdmin) preferences else null,
+                    acknowledge,
                 )
                 if (bot != null) onCreated(bot)
                 else error = session.actionError ?: "Could not create the bot."
@@ -184,10 +193,10 @@ internal fun NewBotModelSheet(
                     selected = selected?.effort.orEmpty(),
                     onSelect = { effort -> selected?.let { selection = it.copy(effort = effort.ifEmpty { null }) } },
                 )
-                TextButton(onClick = { showingAdvanced = !showingAdvanced }) {
+                if (isAdmin) TextButton(onClick = { showingAdvanced = !showingAdvanced }) {
                     Text(if (showingAdvanced) "Hide bot settings" else "Bot settings")
                 }
-                if (showingAdvanced) {
+                if (showingAdvanced && isAdmin) {
                     OutlinedTextField(
                         value = preferences.soul,
                         onValueChange = { preferences = preferences.copy(soul = it) },
@@ -226,6 +235,15 @@ internal fun NewBotModelSheet(
                         onSelect = { preferences = preferences.copy(computer = it.ifEmpty { null }) },
                     )
                     ChoicePicker(
+                        label = "Browser profile",
+                        choices = listOf(
+                            VoiceChoice("", "This bot's own browser", null, true),
+                            VoiceChoice("guest", "Temporary browser", null, true),
+                        ) + browserProfiles.map { VoiceChoice(it.id, it.name, null, true) },
+                        selected = preferences.browserProfile.orEmpty(),
+                        onSelect = { preferences = preferences.copy(browserProfile = it.ifEmpty { null }) },
+                    )
+                    ChoicePicker(
                         label = "Action approval",
                         choices = listOf(
                             VoiceChoice("ask", "Ask before actions", null, true),
@@ -254,9 +272,9 @@ internal fun NewBotModelSheet(
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 TextButton(
                     enabled = !saving && name.trim().isNotEmpty() && available && modelOffered &&
-                        preferences.soul.toByteArray(Charsets.UTF_8).size <= 24_000,
+                        (!isAdmin || preferences.soul.toByteArray(Charsets.UTF_8).size <= 24_000),
                     onClick = {
-                        if (preferences.computer == "local" && preferences.approvalMode == "auto")
+                        if (isAdmin && preferences.computer == "local" && preferences.approvalMode == "auto")
                             confirmingLocalAuto = true
                         else submit(false)
                     },

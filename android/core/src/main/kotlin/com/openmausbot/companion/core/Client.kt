@@ -430,6 +430,7 @@ class CompanionClient(
                     put("cwd", prefs.cwd?.let(::JsonPrimitive) ?: JsonNull)
                     put("voice", prefs.voice)
                     put("color", prefs.color)
+                    put("browserProfile", prefs.browserProfile?.let(::JsonPrimitive) ?: JsonNull)
                 })
             }
             if (acknowledgeLocalAuto) put("acknowledgeLocalAuto", true)
