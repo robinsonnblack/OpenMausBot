@@ -1507,6 +1507,15 @@ class Session(
         }
     }
 
+    suspend fun deleteRoom(groupId: String) {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Deleting rooms requires an admin pairing.")
+        }
+        val activeClient = client ?: throw APIError.Transport("This computer is offline.")
+        activeClient.deleteRoom(groupId)
+        _state.update { it.apply(Frame.RoomDeleted(groupId)) }
+    }
+
     /**
      * Create or extend a derived sidebar section in one server transaction.
      * The desktop has no standalone section resource yet, so we merge the

@@ -505,6 +505,11 @@ class CompanionClient(
         return send<RoomResponse>(makeRequest("PATCH", "/api/groups/${segment(groupId)}", body = body)).group
     }
 
+    /** The server requires admin scope and refuses deletion while the room is working. */
+    suspend fun deleteRoom(groupId: String) {
+        send<kotlinx.serialization.json.JsonObject>(makeRequest("DELETE", "/api/groups/${segment(groupId)}"))
+    }
+
     suspend fun sendToBot(botId: String, text: String, threadId: String? = null): SendReceipt =
         sendForReceipt(
             makeRequest("POST", "/api/bots/${segment(botId)}/messages", body = jsonBody("text" to text, "threadId" to threadId)),
