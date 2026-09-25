@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -269,7 +271,7 @@ fun PairingScreen(onCancel: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Pair with a computer",
+                text = stringResource(R.string.ui_pair_with_a_computer_51716e0),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
@@ -278,7 +280,7 @@ fun PairingScreen(onCancel: () -> Unit) {
             // the same place. Refused while a redemption is in flight, because a
             // credential that may already have reached the computer must not be
             // abandoned halfway (§6) — the port of `.disabled(!allowsNavigation)`.
-            TextButton(onClick = onCancel, enabled = !pairing) { Text("Not now") }
+            TextButton(onClick = onCancel, enabled = !pairing) { Text(stringResource(R.string.ui_not_now_e457149)) }
         }
 
         val selected = pending
@@ -337,9 +339,10 @@ fun PairingScreen(onCancel: () -> Unit) {
                 // describes is the thing on screen.
                 if (permissionSnapshot.discoveryNeedsRequest) {
                     Text(
-                        text = "Searching this network needs " +
-                            "${permissionSnapshot.missingDiscovery.joinToString()}, which is " +
-                            "still off. The QR code and the address below work without it.",
+                        text = stringResource(
+                            R.string.ui_pairing_network_permission,
+                            permissionSnapshot.missingDiscovery.joinToString(),
+                        ),
                         fontSize = 13.sp,
                         color = secondaryTint,
                     )
@@ -386,7 +389,7 @@ private fun OtherWaysSection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Other ways to connect",
+                    text = stringResource(R.string.ui_other_ways_to_connect_d9e8585),
                     modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.SemiBold,
@@ -425,15 +428,14 @@ internal fun pairingFailureDisposition(
 
 @Composable
 private fun SetupSection(onScan: () -> Unit) {
-    SectionCard(title = "On your computer") {
-        Text("1.  Open OpenMausBot → Settings → Phone", fontSize = 15.sp)
-        Text("2.  Choose Set up a phone", fontSize = 15.sp)
+    SectionCard(title = stringResource(R.string.ui_on_your_computer_9a62153)) {
+        Text(stringResource(R.string.ui_1_open_openmausbot_settings_phone_38cfc5b), fontSize = 15.sp)
+        Text(stringResource(R.string.ui_2_choose_set_up_a_phone_8fd474a), fontSize = 15.sp)
         Button(onClick = onScan, modifier = Modifier.fillMaxWidth()) {
-            Text("Scan QR Code")
+            Text(stringResource(R.string.ui_scan_qr_code_04e3f10))
         }
         Text(
-            text = "Scan the QR code, check the computer name, and confirm. The address and " +
-                "one-time credential are filled securely for you.",
+            text = stringResource(R.string.ui_pairing_scan_explanation),
             fontSize = 13.sp,
             color = secondaryTint,
         )
@@ -447,7 +449,7 @@ private fun DiscoverySection(
     onChoose: (DiscoveredService) -> Unit,
 ) {
     val active = discovery as? DiscoveryState.Active
-    SectionCard(title = "On this network") {
+    SectionCard(title = stringResource(R.string.ui_on_this_network_4c9f524)) {
         val problem = active?.failure
         when {
             problem != null -> Text(problem, fontSize = 13.sp, color = secondaryTint)
@@ -458,7 +460,7 @@ private fun DiscoverySection(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    Text("Looking…", color = secondaryTint, fontSize = 15.sp)
+                    Text(stringResource(R.string.ui_looking_5e65f10), color = secondaryTint, fontSize = 15.sp)
                 }
                 if (searchedLongEnough) {
                     // NSD is multicast: it does not cross subnets, and guest
@@ -466,17 +468,13 @@ private fun DiscoverySection(
                     // Different Wi-Fi on the two devices is by far the most
                     // common reason this list stays empty.
                     Text(
-                        text = "Nothing found yet. Check that this phone and your computer are on " +
-                            "the same Wi-Fi network — a guest network often blocks them from seeing " +
-                            "each other. You can always enter the address below instead.",
+                        text = stringResource(R.string.ui_pairing_nothing_found),
                         fontSize = 13.sp,
                         color = secondaryTint,
                     )
                     // The honest answer when a network refuses to cooperate.
                     Text(
-                        text = "If it never appears, install Tailscale on both and sign in to the " +
-                            "same account — Phone settings will then show a name ending in " +
-                            ".ts.net to enter below.",
+                        text = stringResource(R.string.ui_pairing_tailscale_hint),
                         fontSize = 13.sp,
                         color = secondaryTint,
                     )
@@ -503,11 +501,11 @@ private fun ManualSection(
     onAddressChange: (String) -> Unit,
     onContinue: () -> Unit,
 ) {
-    SectionCard(title = "Or enter the address") {
+    SectionCard(title = stringResource(R.string.ui_or_enter_the_address_f74dcf1)) {
         OutlinedTextField(
             value = address,
             onValueChange = onAddressChange,
-            placeholder = { Text("https://mac.example or 192.168.1.42:8810") },
+            placeholder = { Text(stringResource(R.string.ui_https_mac_example_or_192_168_1_42_8810_e277eb2)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             modifier = Modifier.fillMaxWidth(),
@@ -517,12 +515,10 @@ private fun ManualSection(
             enabled = address.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Continue")
+            Text(stringResource(R.string.ui_continue_2e02623))
         }
         Text(
-            text = "Whatever Phone settings on your computer shows — a secure https:// " +
-                "address, an address on this network, or a Tailscale name like " +
-                "macbook.tail1234.ts.net:8810.",
+            text = stringResource(R.string.ui_pairing_address_hint),
             fontSize = 13.sp,
             color = secondaryTint,
         )
@@ -538,14 +534,14 @@ private fun CodeSection(
     onSubmit: (String) -> Unit,
     onCancel: () -> Unit,
 ) {
-    SectionCard(title = "Confirm computer") {
+    SectionCard(title = stringResource(R.string.ui_confirm_computer_d778cfb)) {
         // Name and address sit above the branch, as they do in `PairingView.swift`:
         // the user is confirming which computer at which address, and that is the
         // same question whether the credential came from a QR code or the six
         // digits are about to be typed.
         Text(confirmation.name, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
         Row(modifier = Modifier.fillMaxWidth()) {
-            Text("Address", color = secondaryTint, fontSize = 15.sp)
+            Text(stringResource(R.string.ui_address_d70f93d), color = secondaryTint, fontSize = 15.sp)
             Spacer(Modifier.weight(1f))
             Text(confirmation.address, fontSize = 15.sp, fontFamily = FontFamily.Monospace)
         }
@@ -560,7 +556,7 @@ private fun CodeSection(
                 if (pairing) {
                     CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                 } else {
-                    Text("Pair with this computer")
+                    Text(stringResource(R.string.ui_pair_with_this_computer_8420e8b))
                 }
             }
 
@@ -568,7 +564,7 @@ private fun CodeSection(
                 OutlinedTextField(
                     value = code,
                     onValueChange = onCodeChange,
-                    placeholder = { Text("6-digit or ABCD-EFGH-JKLM code") },
+                    placeholder = { Text(stringResource(R.string.ui_6_digit_or_abcd_efgh_jklm_code_e1da990)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
@@ -588,7 +584,7 @@ private fun CodeSection(
                             strokeWidth = 2.dp,
                         )
                     } else {
-                        Text("Connect")
+                        Text(stringResource(R.string.ui_connect_b65463c))
                     }
                 }
             }
@@ -601,7 +597,7 @@ private fun CodeSection(
         }
 
         OutlinedButton(onClick = onCancel, enabled = !pairing, modifier = Modifier.fillMaxWidth()) {
-            Text("Choose a different computer")
+            Text(stringResource(R.string.ui_choose_a_different_computer_9e2a62e))
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,22 +71,22 @@ internal fun RoomSettingsSheet(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Group settings", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_group_settings_121d556), style = MaterialTheme.typography.titleLarge)
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.ui_name_709a232)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = bulletin,
                 onValueChange = { bulletin = it },
-                label = { Text("Group instructions") },
+                label = { Text(stringResource(R.string.ui_group_instructions_36a914e)) },
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Text("Members", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.ui_members_1cb449c), style = MaterialTheme.typography.titleMedium)
             available.forEach { bot ->
                 Row(
                     modifier = Modifier.fillMaxWidth().toggleable(
@@ -101,8 +103,8 @@ internal fun RoomSettingsSheet(
                     Text(bot.name, modifier = Modifier.padding(start = 8.dp))
                 }
             }
-            Text("Who responds by default", style = MaterialTheme.typography.titleMedium)
-            Text("Dynamic lets the bots decide who should reply and when to stop.")
+            Text(stringResource(R.string.ui_who_responds_by_default_56b3401), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.ui_dynamic_lets_the_bots_decide_who_should_re_e189313))
             listOf(
                 "everyone" to "Everyone",
                 "mentions" to "Only @mentions",
@@ -119,12 +121,12 @@ internal fun RoomSettingsSheet(
                 FilterChip(
                     selected = responder.kind == "member" && responder.botId == id,
                     onClick = { responder = GroupResponder("member", id) },
-                    label = { Text("Only ${bot.name}") },
+                    label = { Text(stringResource(R.string.ui_dynamic_only_1_s_d47f0d2, bot.name)) },
                 )
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+                TextButton(enabled = !saving, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
                 TextButton(
                     enabled = !saving && changed && name.trim().isNotEmpty() &&
                         name.trim().length <= 100 && bulletin.length <= 12_000 &&
@@ -150,20 +152,20 @@ internal fun RoomSettingsSheet(
                         }
                     },
                 ) {
-                    if (saving) CircularProgressIndicator() else Text("Save")
+                    if (saving) CircularProgressIndicator() else Text(stringResource(R.string.ui_save_efc007a))
                 }
             }
             if (connection?.serverScopes?.contains("admin") == true) {
                 TextButton(enabled = !saving, onClick = { confirmDelete = true }) {
-                    Text("Delete group", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.ui_delete_group_b6f15b2), color = MaterialTheme.colorScheme.error)
                 }
             }
         }
     }
     if (confirmDelete) AlertDialog(
         onDismissRequest = { if (!saving) confirmDelete = false },
-        title = { Text("Delete ${room.name}?") },
-        text = { Text("This permanently deletes the group conversation and its threads. The bots remain. This cannot be undone.") },
+        title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, room.name)) },
+        text = { Text(stringResource(R.string.ui_this_permanently_deletes_the_group_convers_1d90d54)) },
         confirmButton = {
             TextButton(enabled = !saving, onClick = {
                 saving = true
@@ -179,8 +181,8 @@ internal fun RoomSettingsSheet(
                         confirmDelete = false
                     } finally { saving = false }
                 }
-            }) { Text("Delete group", color = MaterialTheme.colorScheme.error) }
+            }) { Text(stringResource(R.string.ui_delete_group_b6f15b2), color = MaterialTheme.colorScheme.error) }
         },
-        dismissButton = { TextButton(enabled = !saving, onClick = { confirmDelete = false }) { Text("Cancel") } },
+        dismissButton = { TextButton(enabled = !saving, onClick = { confirmDelete = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }

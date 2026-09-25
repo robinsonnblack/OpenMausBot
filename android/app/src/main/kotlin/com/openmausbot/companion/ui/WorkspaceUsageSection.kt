@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,7 +50,7 @@ internal fun WorkspaceUsageSection() {
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Usage recorded by the paired computer. Costs may be reported or estimated; unpriced turns have no cost estimate.")
+        Text(stringResource(R.string.ui_usage_recorded_by_the_paired_computer_cost_c072280))
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
             listOf("This month", "Last month", "Last 30 days").forEach { choice ->
                 TextButton(onClick = { period = choice }) {
@@ -66,17 +68,19 @@ internal fun WorkspaceUsageSection() {
         if (loading) CircularProgressIndicator()
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (!loading) report?.let { usage ->
-            Text("Total: ${usage.total.turns} turns · ${usage.total.input} input (${usage.total.cachedInput} cached) · ${usage.total.output} output", style = MaterialTheme.typography.titleSmall)
-            Text("Cost: ${usage.total.costUsd.money()}${if ((usage.total.estimatedUsd ?: 0.0) > 0) " (includes estimates)" else ""}")
-            if (usage.total.unpriced > 0) Text("${usage.total.unpriced} unpriced turn(s) are excluded from cost.")
+            Text(stringResource(R.string.ui_dynamic_total_1_s_turns_2_s_input_3_s_cached_4_71addfc, usage.total.turns, usage.total.input, usage.total.cachedInput, usage.total.output), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.ui_usage_cost, usage.total.costUsd.money()) +
+                if ((usage.total.estimatedUsd ?: 0.0) > 0) stringResource(R.string.ui_usage_includes_estimates) else "")
+            if (usage.total.unpriced > 0) Text(stringResource(R.string.ui_dynamic_1_s_unpriced_turn_s_are_excluded_from_187562f, usage.total.unpriced))
             usage.budget?.takeIf { it.monthlyUsd > 0 }?.let { budget ->
-                Text("Monthly limit: ${budget.spentUsd.money()} of ${budget.monthlyUsd.money()}")
+                Text(stringResource(R.string.ui_dynamic_monthly_limit_1_s_of_2_s_afbe88f, budget.spentUsd.money(), budget.monthlyUsd.money()))
             }
             usage.groups.forEach { group ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(group.label, style = MaterialTheme.typography.titleSmall)
-                    Text("${group.turns} turns · ${group.input} input (${group.cachedInput} cached) · ${group.output} output")
-                    Text("Cost: ${group.costUsd.money()}${if (group.unpriced > 0) " · ${group.unpriced} unpriced" else ""}")
+                    Text(stringResource(R.string.ui_dynamic_1_s_turns_2_s_input_3_s_cached_4_s_out_8e3f5b3, group.turns, group.input, group.cachedInput, group.output))
+                    Text(stringResource(R.string.ui_usage_cost, group.costUsd.money()) +
+                        if (group.unpriced > 0) stringResource(R.string.ui_usage_unpriced_count, group.unpriced) else "")
                 }
             }
         }

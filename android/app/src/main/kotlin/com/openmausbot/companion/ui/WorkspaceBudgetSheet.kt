@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -81,23 +83,23 @@ internal fun WorkspaceBudgetSheet(onDismiss: () -> Unit) {
 
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Monthly spending limit", style = MaterialTheme.typography.titleLarge)
-            Text("This limit applies to the paired computer's entire workspace. It uses costs recorded by the host; turns without a price may not count toward it.",
+            Text(stringResource(R.string.ui_monthly_spending_limit_4a8a9e1), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_this_limit_applies_to_the_paired_computer_e7793e7),
                 style = MaterialTheme.typography.bodySmall)
             if (loading || busy) CircularProgressIndicator()
             if (!loading && baseline != null) {
                 OutlinedTextField(monthly, onValueChange = { monthly = it.take(20); error = null },
-                    label = { Text("Monthly limit in USD (blank = no limit)") },
+                    label = { Text(stringResource(R.string.ui_monthly_limit_in_usd_blank_no_limit_699cd41)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     enabled = !busy, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(warnAt, onValueChange = { warnAt = it.take(3); error = null },
-                    label = { Text("Warn at percent") },
+                    label = { Text(stringResource(R.string.ui_warn_at_percent_2a5d6d1)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     enabled = !busy, modifier = Modifier.fillMaxWidth())
-                TextButton(enabled = !busy, onClick = ::save) { Text("Save workspace limit") }
+                TextButton(enabled = !busy, onClick = ::save) { Text(stringResource(R.string.ui_save_workspace_limit_e0b28af)) }
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 }

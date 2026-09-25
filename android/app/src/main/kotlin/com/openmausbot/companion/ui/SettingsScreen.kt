@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -138,7 +139,7 @@ fun SettingsScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             HeaderBackButton(onBack)
-            Text("Settings", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.ui_settings_c7f73bb), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
         }
         HorizontalDivider()
 
@@ -210,7 +211,7 @@ fun SettingsScreen(
                 SettingsSection("Troubleshooting") {
                     Footnote(troubleshootingText(status))
                     SettingsButton(
-                        text = "Try reconnecting",
+                        text = stringResource(R.string.ui_try_reconnecting_8310b02),
                         enabled = !reconnecting,
                         trailing = {
                             if (reconnecting) {
@@ -281,7 +282,7 @@ fun SettingsScreen(
                 val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
                 SettingsRow("Status", if (alwaysOnEnabled) "Always on" else "Only while open")
                 SettingsButton(
-                    text = if (alwaysOnEnabled) "Turn off" else "Turn on",
+                    text = stringResource(if (alwaysOnEnabled) R.string.ui_turn_off else R.string.ui_turn_on),
                     onClick = environment.onToggleAlwaysOn,
                 )
                 Footnote(
@@ -365,14 +366,14 @@ fun SettingsScreen(
                 SettingsSection("Workspace") {
                     onOpenRoutines?.let { openRoutines ->
                         SettingsButton(
-                            text = "Threads & Routines",
+                            text = stringResource(R.string.ui_threads_routines_65d7efc),
                             icon = R.drawable.ic_schedule,
                             onClick = openRoutines,
                         )
                     }
                     onOpenConnectedApps?.let { openConnectedApps ->
                         SettingsButton(
-                            text = "Connected Apps",
+                            text = stringResource(R.string.ui_connected_apps_8ab72a8),
                             onClick = openConnectedApps,
                         )
                     }
@@ -383,7 +384,8 @@ fun SettingsScreen(
             if (connection != null) {
                 SettingsSection(null) {
                     SettingsButton(
-                        text = if (connections.size > 1) "Remove this computer" else "Unpair this phone",
+                        text = stringResource(if (connections.size > 1) R.string.ui_remove_this_computer
+                            else R.string.ui_unpair_this_phone),
                         destructive = true,
                     ) { confirmingUnpair = true }
                     Footnote(SettingsPolicy.UNPAIR_FOOTER)
@@ -399,7 +401,7 @@ fun SettingsScreen(
     if (editingAddress) {
         AlertDialog(
             onDismissRequest = { editingAddress = false },
-            title = { Text("Edit address") },
+            title = { Text(stringResource(R.string.ui_edit_address_31fe67f)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(SettingsPolicy.EDIT_ADDRESS_MESSAGE, fontSize = 14.sp)
@@ -409,7 +411,7 @@ fun SettingsScreen(
                             addressText = it
                             addressError = null
                         },
-                        placeholder = { Text("https://mac.example or 192.168.1.42:8810") },
+                        placeholder = { Text(stringResource(R.string.ui_https_mac_example_or_192_168_1_42_8810_e277eb2)) },
                         singleLine = true,
                         isError = addressError != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -432,10 +434,10 @@ fun SettingsScreen(
                             addressError = AddressEdit.INVALID
                         }
                     },
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.ui_save_efc007a)) }
             },
             dismissButton = {
-                TextButton(onClick = { editingAddress = false }) { Text("Cancel") }
+                TextButton(onClick = { editingAddress = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         )
     }
@@ -443,13 +445,14 @@ fun SettingsScreen(
     if (confirmingUnpair) {
         AlertDialog(
             onDismissRequest = { confirmingUnpair = false },
-            title = { Text(if (connections.size > 1) "Remove ${connection?.name}?" else SettingsPolicy.UNPAIR_CONFIRM_TITLE) },
+            title = { Text(if (connections.size > 1) stringResource(R.string.ui_remove_computer_confirm, connection?.name)
+                else stringResource(R.string.ui_unpair_phone_confirm)) },
             text = {
                 Text(
                     if (connections.size > 1) {
-                        "This removes the saved connection from this phone only. Another saved computer will stay available."
+                        stringResource(R.string.ui_remove_saved_connection_explanation)
                     } else {
-                        SettingsPolicy.UNPAIR_CONFIRM_MESSAGE
+                        stringResource(R.string.ui_unpair_phone_explanation)
                     },
                 )
             },
@@ -465,13 +468,13 @@ fun SettingsScreen(
                     // With another computer saved this removes one of them; the
                     // phone stays paired, so "Unpair" would be the wrong promise.
                     Text(
-                        text = if (connections.size > 1) "Remove" else "Unpair",
+                        text = stringResource(if (connections.size > 1) R.string.ui_remove_action else R.string.ui_unpair_action),
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { confirmingUnpair = false }) { Text("Cancel") }
+                TextButton(onClick = { confirmingUnpair = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         )
     }
@@ -479,18 +482,18 @@ fun SettingsScreen(
     pendingComputerRemoval?.let { computer ->
         AlertDialog(
             onDismissRequest = { pendingComputerRemoval = null },
-            title = { Text("Remove ${computer.name}?") },
-            text = { Text("This removes the saved connection from this phone only.") },
+            title = { Text(stringResource(R.string.ui_dynamic_remove_1_s_c8e14e6, computer.name)) },
+            text = { Text(stringResource(R.string.ui_this_removes_the_saved_connection_from_thi_54db681)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         pendingComputerRemoval = null
                         session.forgetConnection(computer.id)
                     },
-                ) { Text("Remove", color = MaterialTheme.colorScheme.error) }
+                ) { Text(stringResource(R.string.ui_remove_e963907), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { pendingComputerRemoval = null }) { Text("Cancel") }
+                TextButton(onClick = { pendingComputerRemoval = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         )
     }
@@ -498,7 +501,7 @@ fun SettingsScreen(
     if (choosingActivity) {
         AlertDialog(
             onDismissRequest = { choosingActivity = false },
-            title = { Text("Activity detail") },
+            title = { Text(stringResource(R.string.ui_activity_detail_049f3bd)) },
             text = {
                 // iOS draws a Picker (SettingsView.swift:67-78), which marks the
                 // choice already in force; three plain buttons do not.
@@ -530,7 +533,7 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { choosingActivity = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { choosingActivity = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 
@@ -544,23 +547,23 @@ fun SettingsScreen(
     if (editingAboutMe) {
         AlertDialog(
             onDismissRequest = { if (!aboutMeSaving) editingAboutMe = false },
-            title = { Text("Shared profile") },
+            title = { Text(stringResource(R.string.ui_shared_profile_ff09ab4)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("This profile is shared with every bot on the paired computer.")
+                    Text(stringResource(R.string.ui_this_profile_is_shared_with_every_bot_on_t_1199512))
                     if (aboutMeLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     else if (aboutMeError == null || aboutMeText.isNotEmpty() || aboutMeOriginal.isNotEmpty()) {
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(200); aboutMeError = null },
-                            label = { Text("Your name") }, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_your_name_ab42293)) }, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = profileEmail, onValueChange = { profileEmail = it.take(320); aboutMeError = null },
-                            label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_email_84add5b)) }, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(
                             value = aboutMeText,
                             onValueChange = {
                                 if (it.length <= 24_000) aboutMeText = it
                                 aboutMeError = null
                             },
-                            label = { Text("What should bots know about you?") },
+                            label = { Text(stringResource(R.string.ui_what_should_bots_know_about_you_d3abb57)) },
                             minLines = 5,
                             maxLines = 12,
                             modifier = Modifier.fillMaxWidth(),
@@ -595,9 +598,9 @@ fun SettingsScreen(
                             }
                         }
                     },
-                ) { Text(if (aboutMeSaving) "Saving…" else "Save") }
+                ) { Text(stringResource(if (aboutMeSaving) R.string.ui_saving else R.string.ui_save_action)) }
             },
-            dismissButton = { TextButton(onClick = { editingAboutMe = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { editingAboutMe = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (managingTeams) TeamManagementSheet(
@@ -680,7 +683,7 @@ private fun AddressRow(
     onCopy: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Address", fontSize = 15.sp, color = secondaryTint)
+        Text(stringResource(R.string.ui_address_d70f93d), fontSize = 15.sp, color = secondaryTint)
         if (expanded) {
             // Selectable, because the reason to show it in full is to take it away.
             SelectionContainer {
@@ -703,10 +706,10 @@ private fun AddressRow(
         }
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             TextButton(onClick = onToggle) {
-                Text(if (expanded) "Hide full address" else "Show full address")
+                Text(stringResource(if (expanded) R.string.ui_hide_full_address else R.string.ui_show_full_address))
             }
             TextButton(onClick = onCopy) {
-                Text(if (copied) "Copied" else "Copy")
+                Text(stringResource(if (copied) R.string.ui_copied else R.string.ui_copy_action))
             }
         }
     }

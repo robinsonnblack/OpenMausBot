@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -65,13 +67,17 @@ internal fun BotSkillsSection(botId: String) {
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Skills are stored on the paired computer and can change this bot's behavior.")
+        Text(stringResource(R.string.ui_skills_are_stored_on_the_paired_computer_a_39a0950))
         if (loading) CircularProgressIndicator()
         skills.forEach { skill ->
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(skill.name, style = MaterialTheme.typography.titleSmall)
                 Text(skill.description)
-                Text("${if (skill.enabled) "Enabled" else "Disabled"} · ${skill.source}")
+                Text(stringResource(
+                    R.string.ui_skill_status_and_source,
+                    stringResource(if (skill.enabled) R.string.ui_status_enabled else R.string.ui_status_disabled),
+                    skill.source,
+                ))
                 skill.warnings.forEach { warning ->
                     Text(warning, color = MaterialTheme.colorScheme.error)
                 }
@@ -88,7 +94,7 @@ internal fun BotSkillsSection(botId: String) {
                                 error = failure.message ?: "Could not read skill."
                             } finally { busy = false }
                         }
-                    }) { Text(if (skill.enabled) "Read" else "Review and enable") }
+                    }) { Text(stringResource(if (skill.enabled) R.string.ui_read_skill else R.string.ui_review_enable_skill)) }
                     if (skill.enabled) TextButton(enabled = !busy, onClick = {
                         busy = true
                         scope.launch {
@@ -99,21 +105,21 @@ internal fun BotSkillsSection(botId: String) {
                                 error = failure.message ?: "Could not disable skill."
                             } finally { busy = false }
                         }
-                    }) { Text("Disable") }
-                    TextButton(enabled = !busy, onClick = { removePending = skill }) { Text("Remove") }
+                    }) { Text(stringResource(R.string.ui_disable_9a7d4e0)) }
+                    TextButton(enabled = !busy, onClick = { removePending = skill }) { Text(stringResource(R.string.ui_remove_e963907)) }
                 }
             }
         }
-        if (!loading && skills.isEmpty()) Text("No skills installed for this bot.")
-        if (stagedCount > 0) Text("$stagedCount skill proposal(s) await a decision in chat.")
+        if (!loading && skills.isEmpty()) Text(stringResource(R.string.ui_no_skills_installed_for_this_bot_0133dd1))
+        if (stagedCount > 0) Text(stringResource(R.string.ui_dynamic_1_s_skill_proposal_s_await_a_decision_299180c, stagedCount))
         OutlinedTextField(
             value = source,
             onValueChange = { source = it },
-            label = { Text("Import from GitHub (URL or owner/repo)") },
+            label = { Text(stringResource(R.string.ui_import_from_github_url_or_owner_repo_95f0cfc)) },
             modifier = Modifier.fillMaxWidth(),
             enabled = !busy,
         )
-        Text("Imports start disabled. Review the full SKILL.md before enabling.")
+        Text(stringResource(R.string.ui_imports_start_disabled_review_the_full_ski_3d578a1))
         TextButton(enabled = !busy && source.isNotBlank(), onClick = {
             busy = true
             scope.launch {
@@ -125,18 +131,18 @@ internal fun BotSkillsSection(botId: String) {
                     error = failure.message ?: "Could not import skills."
                 } finally { busy = false }
             }
-        }) { Text("Import") }
+        }) { Text(stringResource(R.string.ui_import_d6fbc9d)) }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (organization != null && offered.isNotEmpty()) {
-            Text("From $organization", style = MaterialTheme.typography.titleSmall)
-            Text("These skills were published by your organization's admin. Adding one enables it for this bot.")
+            Text(stringResource(R.string.ui_dynamic_from_1_s_1616793, organization), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.ui_these_skills_were_published_by_your_organi_0205790))
             offered.forEach { skill ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(skill.name, style = MaterialTheme.typography.titleSmall)
                     Text(skill.description)
                     Text("${skill.packageName} · ${skill.release} · ${skill.publisher}")
-                    if (skill.added) Text("Added")
-                    else TextButton(enabled = !busy, onClick = { addPending = skill }) { Text("Add to bot") }
+                    if (skill.added) Text(stringResource(R.string.ui_added_b68734c))
+                    else TextButton(enabled = !busy, onClick = { addPending = skill }) { Text(stringResource(R.string.ui_add_to_bot_ab80336)) }
                 }
             }
         }
@@ -148,7 +154,7 @@ internal fun BotSkillsSection(botId: String) {
             title = { Text(skill.name) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Read the complete skill before enabling it. It may instruct the bot to use tools.")
+                    Text(stringResource(R.string.ui_read_the_complete_skill_before_enabling_it_5c43aed))
                     Text(text, modifier = Modifier.heightIn(max = 400.dp).verticalScroll(rememberScrollState()))
                 }
             },
@@ -164,16 +170,16 @@ internal fun BotSkillsSection(botId: String) {
                             error = failure.message ?: "Could not enable skill."
                         } finally { busy = false }
                     }
-                }) { Text("Enable this skill") }
+                }) { Text(stringResource(R.string.ui_enable_this_skill_399b34a)) }
             },
-            dismissButton = { TextButton(onClick = { preview = null }, enabled = !busy) { Text("Close") } },
+            dismissButton = { TextButton(onClick = { preview = null }, enabled = !busy) { Text(stringResource(R.string.ui_close_bbfa773)) } },
         )
     }
     removePending?.let { skill ->
         AlertDialog(
             onDismissRequest = { removePending = null },
-            title = { Text("Remove ${skill.name}?") },
-            text = { Text("This removes the skill from the paired computer.") },
+            title = { Text(stringResource(R.string.ui_dynamic_remove_1_s_c8e14e6, skill.name)) },
+            text = { Text(stringResource(R.string.ui_this_removes_the_skill_from_the_paired_com_a6b822f)) },
             confirmButton = { TextButton(enabled = !busy, onClick = {
                 removePending = null
                 busy = true
@@ -185,15 +191,15 @@ internal fun BotSkillsSection(botId: String) {
                         error = failure.message ?: "Could not remove skill."
                     } finally { busy = false }
                 }
-            }) { Text("Remove") } },
-            dismissButton = { TextButton(onClick = { removePending = null }) { Text("Cancel") } },
+            }) { Text(stringResource(R.string.ui_remove_e963907)) } },
+            dismissButton = { TextButton(onClick = { removePending = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     addPending?.let { skill ->
         AlertDialog(
             onDismissRequest = { addPending = null },
-            title = { Text("Add ${skill.name}?") },
-            text = { Text("This organization skill will be enabled for the bot immediately. Source: ${skill.packageName} by ${skill.publisher}.") },
+            title = { Text(stringResource(R.string.ui_dynamic_add_1_s_0b8ac0a, skill.name)) },
+            text = { Text(stringResource(R.string.ui_dynamic_this_organization_skill_will_be_enable_c4f96de, skill.packageName, skill.publisher)) },
             confirmButton = { TextButton(enabled = !busy, onClick = {
                 addPending = null
                 busy = true
@@ -206,8 +212,8 @@ internal fun BotSkillsSection(botId: String) {
                         error = failure.message ?: "Could not add organization skill."
                     } finally { busy = false }
                 }
-            }) { Text("Add and enable") } },
-            dismissButton = { TextButton(onClick = { addPending = null }) { Text("Cancel") } },
+            }) { Text(stringResource(R.string.ui_add_and_enable_cd1bbf5)) } },
+            dismissButton = { TextButton(onClick = { addPending = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 }

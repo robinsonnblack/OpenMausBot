@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -206,10 +207,11 @@ internal fun RoutineEditorSheet(
         ) {
             Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
                 TextButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterStart)) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
                 }
                 Text(
-                    text = if (opened.routineId == null) "New routine" else "Edit routine",
+                    text = stringResource(if (opened.routineId == null) R.string.ui_new_routine_title
+                        else R.string.ui_edit_routine_title),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center),
@@ -257,15 +259,15 @@ internal fun RoutineEditorSheet(
                     enabled = canSave,
                     modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.ui_save_efc007a))
                 }
             }
 
-            FormSection(header = "Work") {
+            FormSection(header = stringResource(R.string.ui_work_00040ba)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Routine name") },
+                    label = { Text(stringResource(R.string.ui_routine_name_9a8a0dd)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -279,7 +281,7 @@ internal fun RoutineEditorSheet(
                 OutlinedTextField(
                     value = prompt,
                     onValueChange = { prompt = it },
-                    label = { Text("What should the agent do?") },
+                    label = { Text(stringResource(R.string.ui_what_should_the_agent_do_b952606)) },
                     minLines = 4,
                     maxLines = 10,
                     modifier = Modifier.fillMaxWidth(),
@@ -288,7 +290,7 @@ internal fun RoutineEditorSheet(
             }
 
             FormSection(
-                header = "Where does it run?",
+                header = stringResource(R.string.ui_where_does_it_run_6e4a529),
                 footer = RoutineRules.locationFooter(runOn, availability),
             ) {
                 RadioRow(
@@ -325,7 +327,7 @@ internal fun RoutineEditorSheet(
             }
 
             FormSection(
-                header = "Schedule",
+                header = stringResource(R.string.ui_schedule_0a8adac),
                 footer = if (kind == RoutineSchedule.Kind.INTERVAL) {
                     RoutineRules.INTERVAL_SCHEDULE_FOOTER
                 } else {
@@ -334,24 +336,24 @@ internal fun RoutineEditorSheet(
             ) {
                 if (kind == RoutineSchedule.Kind.UNKNOWN) {
                     RadioRow(
-                        label = "Newer schedule",
+                        label = stringResource(R.string.ui_newer_schedule_c56a41a),
                         selected = true,
                         enabled = false,
                         onSelect = {},
                     )
                 }
                 RadioRow(
-                    label = "One time",
+                    label = stringResource(R.string.ui_one_time_6fea9e4),
                     selected = kind == RoutineSchedule.Kind.ONCE,
                     onSelect = { kind = RoutineSchedule.Kind.ONCE },
                 )
                 RadioRow(
-                    label = "Selected days",
+                    label = stringResource(R.string.ui_selected_days_7890ff6),
                     selected = kind == RoutineSchedule.Kind.DAILY,
                     onSelect = { kind = RoutineSchedule.Kind.DAILY },
                 )
                 RadioRow(
-                    label = "Every X minutes",
+                    label = stringResource(R.string.ui_every_x_minutes_000b5c3),
                     selected = kind == RoutineSchedule.Kind.INTERVAL,
                     onSelect = {
                         kind = RoutineSchedule.Kind.INTERVAL
@@ -366,14 +368,14 @@ internal fun RoutineEditorSheet(
                 when (kind) {
                     RoutineSchedule.Kind.ONCE -> {
                         ValueRow(
-                            label = "Run",
+                            label = stringResource(R.string.ui_run_b1b3926),
                             value = RelativeStamp.dateAndTime(once.millis.toDouble(), zone),
                             onClick = { pickingDate = true },
                         )
                     }
                     RoutineSchedule.Kind.DAILY -> {
                         ValueRow(
-                            label = "Time",
+                            label = stringResource(R.string.ui_time_6c82e6d),
                             value = RoutineRules.timeText(
                                 dailyMinuteOfDay / 60,
                                 dailyMinuteOfDay % 60,
@@ -442,7 +444,7 @@ internal fun RoutineEditorSheet(
                                         )
                                     }
                                     DropdownMenuItem(
-                                        text = { Text("Custom") },
+                                        text = { Text(stringResource(R.string.ui_custom_081ae3f)) },
                                         onClick = {
                                             intervalMenuExpanded = false
                                             if (!intervalUsesCustom) intervalMinutesText = ""
@@ -459,7 +461,7 @@ internal fun RoutineEditorSheet(
                             TextButton(
                                 onClick = { pickingDate = true },
                                 modifier = Modifier.semantics {
-                                    contentDescription = "Change when the interval starts"
+                                    contentDescription = stringResource(R.string.ui_change_when_the_interval_starts_0a68203)
                                 },
                             ) {
                                 Text(
@@ -484,9 +486,9 @@ internal fun RoutineEditorSheet(
                                         intervalMinutesText = value
                                     }
                                 },
-                                label = { Text("Custom interval") },
-                                suffix = { Text("minutes") },
-                                supportingText = { Text("From 5 minutes to 24 hours") },
+                                label = { Text(stringResource(R.string.ui_custom_interval_1eea767)) },
+                                suffix = { Text(stringResource(R.string.ui_minutes_be2e2bb)) },
+                                supportingText = { Text(stringResource(R.string.ui_from_5_minutes_to_24_hours_a6bafa4)) },
                                 isError = intervalMinutes == null,
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -510,7 +512,7 @@ internal fun RoutineEditorSheet(
                 },
             ) {
                 ValueRow(
-                    label = "Advanced",
+                    label = stringResource(R.string.ui_advanced_4d06472),
                     value = if (advancedExpanded) {
                         "Hide"
                     } else {
@@ -580,7 +582,7 @@ internal fun RoutineEditorSheet(
                         // two dialogs, so the time follows the day.
                         pickingTime = true
                     },
-                ) { Text("Next") }
+                ) { Text(stringResource(R.string.ui_next_bc98198)) }
             },
             dismissButton = {
                 TextButton(
@@ -592,7 +594,7 @@ internal fun RoutineEditorSheet(
                             once = once.discard()
                         }
                     },
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         ) {
             DatePicker(state = datePickerState)
@@ -668,10 +670,10 @@ internal fun RoutineEditorSheet(
                             dailyMinuteOfDay = timeState.hour * 60 + timeState.minute
                         }
                     },
-                ) { Text("OK") }
+                ) { Text(stringResource(R.string.ui_ok_9ce3bd4)) }
             },
             dismissButton = {
-                TextButton(onClick = cancel) { Text("Cancel") }
+                TextButton(onClick = cancel) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
             title = {
                 Text(
@@ -701,7 +703,7 @@ private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
             value = value?.let { "$it minutes" } ?: "No limit",
             onValueChange = {},
             readOnly = true,
-            label = { Text("Stop if still running after") },
+            label = { Text(stringResource(R.string.ui_stop_if_still_running_after_45efb17)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -710,7 +712,7 @@ private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
-                text = { Text("No limit") },
+                text = { Text(stringResource(R.string.ui_no_limit_10850b9)) },
                 onClick = {
                     expanded = false
                     onSelect(null)
@@ -718,7 +720,7 @@ private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
             )
             RoutineRules.TIMEOUT_OPTIONS.forEach { minutes ->
                 DropdownMenuItem(
-                    text = { Text("$minutes minutes") },
+                    text = { Text(stringResource(R.string.ui_dynamic_1_s_minutes_29dd88a, minutes)) },
                     onClick = {
                         expanded = false
                         onSelect(minutes)
@@ -747,7 +749,7 @@ private fun AgentPicker(
             value = label,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Agent") },
+            label = { Text(stringResource(R.string.ui_agent_5ce2e6f)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -755,7 +757,7 @@ private fun AgentPicker(
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
-                text = { Text("Choose an agent") },
+                text = { Text(stringResource(R.string.ui_choose_an_agent_faaaf2b)) },
                 onClick = {
                     expanded = false
                     onSelect("")

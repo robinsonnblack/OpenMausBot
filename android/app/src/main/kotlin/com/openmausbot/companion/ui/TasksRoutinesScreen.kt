@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -111,14 +112,14 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
         ) {
             HeaderBackButton(onBack)
             Text(
-                text = "Threads & Routines",
+                text = stringResource(R.string.ui_threads_routines_65d7efc),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
             )
             ChromeButton(
                 icon = Icons.Filled.Add,
-                contentDescription = "New routine",
+                contentDescription = stringResource(R.string.ui_new_routine_32809dc),
                 onClick = { editor = RoutineEditorTarget.new() },
                 size = 36.dp,
                 glyph = 18.dp,
@@ -223,7 +224,7 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                 }
 
                 item(key = "webhooks") {
-                    FormSection(header = "Webhooks", footer = RoutineRules.WEBHOOKS_FOOTER) {
+                    FormSection(header = stringResource(R.string.ui_webhooks_fdfe2da), footer = RoutineRules.WEBHOOKS_FOOTER) {
                         IconNote(text = RoutineRules.WEBHOOKS_LABEL, icon = Icons.Filled.Lock)
                     }
                 }
@@ -247,7 +248,7 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
     deleting?.let { routine ->
         AlertDialog(
             onDismissRequest = { deleting = null },
-            title = { Text("Delete ${routine.name}?") },
+            title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, routine.name)) },
             text = { Text(RoutineRules.DELETE_MESSAGE) },
             confirmButton = {
                 TextButton(
@@ -258,11 +259,11 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                         }
                     },
                 ) {
-                    Text("Delete routine", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.ui_delete_routine_0cb076a), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { deleting = null }) { Text("Cancel") }
+                TextButton(onClick = { deleting = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         )
     }
@@ -402,14 +403,14 @@ private fun RoutineRow(
         Box {
             ChromeButton(
                 icon = Icons.Filled.MoreVert,
-                contentDescription = "Actions for ${routine.name}",
+                contentDescription = stringResource(R.string.ui_dynamic_actions_for_1_s_767f154, routine.name),
                 onClick = { menuOpen = true },
                 size = 36.dp,
                 glyph = 18.dp,
             )
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                 DropdownMenuItem(
-                    text = { Text("Run now") },
+                    text = { Text(stringResource(R.string.ui_run_now_2af00e2)) },
                     onClick = {
                         menuOpen = false
                         onRunNow()
@@ -417,7 +418,7 @@ private fun RoutineRow(
                 )
                 if (canToggle) {
                     DropdownMenuItem(
-                        text = { Text(if (routine.enabled) "Pause" else "Resume") },
+                        text = { Text(stringResource(if (routine.enabled) R.string.ui_pause_action else R.string.ui_resume_action)) },
                         onClick = {
                             menuOpen = false
                             onToggle()
@@ -425,14 +426,14 @@ private fun RoutineRow(
                     )
                 }
                 DropdownMenuItem(
-                    text = { Text("Edit") },
+                    text = { Text(stringResource(R.string.ui_edit_5301648)) },
                     onClick = {
                         menuOpen = false
                         onEdit()
                     },
                 )
                 DropdownMenuItem(
-                    text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                    text = { Text(stringResource(R.string.ui_delete_f6fdbe4), color = MaterialTheme.colorScheme.error) },
                     onClick = {
                         menuOpen = false
                         onDelete()
@@ -520,7 +521,7 @@ private fun RoutineRunRow(
                 }
                 NotificationTarget.from(run.botId, run.threadId)?.let { target ->
                     ActionRow(
-                        text = "Open thread",
+                        text = stringResource(R.string.ui_open_thread_9309e68),
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         onClick = { onOpenTask(target) },
                     )

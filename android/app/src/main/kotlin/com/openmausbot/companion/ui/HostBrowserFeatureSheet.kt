@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,7 +66,7 @@ internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
 
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
         Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("Built-in browser on this computer", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_built_in_browser_on_this_computer_fca83a8), style = MaterialTheme.typography.titleLarge)
             if (loading) CircularProgressIndicator()
             else config?.let { status ->
                 val active = status.features?.browser == true
@@ -78,7 +80,7 @@ internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
                     else -> engine?.reason ?: "The browser engine is not ready on the computer."
                 })
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Enable built-in browser", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.ui_enable_built_in_browser_c489a56), modifier = Modifier.weight(1f))
                     Switch(
                         checked = active,
                         enabled = !busy && (active || available || engine?.installable == true),
@@ -88,22 +90,22 @@ internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
                     )
                 }
                 if (!available && engine?.installable == true) {
-                    Text("Install the browser engine from Settings → Engines before bots can use it.")
+                    Text(stringResource(R.string.ui_install_the_browser_engine_from_settings_e_c8f25a9))
                 }
-                Text("Each bot also needs its own Built-in browser permission. Disabling this host switch closes live browser sessions on the computer.")
+                Text(stringResource(R.string.ui_each_bot_also_needs_its_own_built_in_brows_407fbcf))
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 
     if (confirmDisable) AlertDialog(
         onDismissRequest = { confirmDisable = false },
-        title = { Text("Turn off the built-in browser?") },
-        text = { Text("This closes live built-in browser sessions on the paired computer. Bots will lose browser access until you turn it on again.") },
+        title = { Text(stringResource(R.string.ui_turn_off_the_built_in_browser_024ac88)) },
+        text = { Text(stringResource(R.string.ui_this_closes_live_built_in_browser_sessions_f4e7975)) },
         confirmButton = {
-            TextButton(onClick = { confirmDisable = false; change(false) }) { Text("Turn off") }
+            TextButton(onClick = { confirmDisable = false; change(false) }) { Text(stringResource(R.string.ui_turn_off_8807c2b)) }
         },
-        dismissButton = { TextButton(onClick = { confirmDisable = false }) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = { confirmDisable = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }

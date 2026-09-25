@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -76,13 +78,13 @@ fun CommandSkillHud(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "SLASH COMMANDS",
+                text = stringResource(R.string.ui_slash_commands_e7bb82f),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = secondaryTint,
                 modifier = Modifier.weight(1f),
             )
-            TouchTarget(onClick = onClose, contentDescription = "Close slash commands") {
+            TouchTarget(onClick = onClose, contentDescription = stringResource(R.string.ui_close_slash_commands_5ff49ab)) {
                 Icon(
                     imageVector = Icons.Filled.Close,
                     contentDescription = null,

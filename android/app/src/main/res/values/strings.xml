@@ -11,4 +11,741 @@
     <string name="notification_channel_always_on_desc">Shown while OpenMausBot stays connected in the background</string>
     <string name="always_on_notification_title">MausBot is staying connected</string>
     <string name="always_on_notification_text">Notifications will reach you even with the app closed</string>
+    <string name="ui_activity_81c0d91" translatable="true" formatted="false">Activity</string>
+    <string name="ui_changes_and_approvals_on_the_paired_comput_fe3af60" translatable="true" formatted="false">Changes and approvals on the paired computer. Admin pairing required.</string>
+    <string name="ui_who_7d53161" translatable="true" formatted="false">Who</string>
+    <string name="ui_from_yyyy_mm_dd_1a79f79" translatable="true" formatted="false">From YYYY-MM-DD</string>
+    <string name="ui_to_yyyy_mm_dd_9be123a" translatable="true" formatted="false">To YYYY-MM-DD</string>
+    <string name="ui_apply_filters_926161d" translatable="true" formatted="false">Apply filters</string>
+    <string name="ui_admin_changes_are_not_being_recorded_for_t_9cce5ee" translatable="true" formatted="false">Admin changes are not being recorded for this one-person workspace. Approval history may still appear.</string>
+    <string name="ui_no_activity_in_this_range_f47c0f9" translatable="true" formatted="false">No activity in this range.</string>
+    <string name="ui_done_e9b450d" translatable="true" formatted="false">Done</string>
+    <string name="ui_art_direction_52d878a" translatable="true" formatted="false">Art direction</string>
+    <string name="ui_name_709a232" translatable="true" formatted="false">Name</string>
+    <string name="ui_title_768e0c1" translatable="true" formatted="false">Title</string>
+    <string name="ui_what_this_agent_does_82aa1b5" translatable="true" formatted="false">What this agent does</string>
+    <string name="ui_instructions_soul_md_6a3c4fb" translatable="true" formatted="false">Instructions (SOUL.md)</string>
+    <string name="ui_no_usage_recorded_yet_for_this_bot_8c6a388" translatable="true" formatted="false">No usage recorded yet for this bot.</string>
+    <string name="ui_some_turns_have_no_reported_price_the_cost_1852ebc" translatable="true" formatted="false">Some turns have no reported price; the cost shown covers priced turns only.</string>
+    <string name="ui_always_allowed_tools_a0e4e36" translatable="true" formatted="false">Always allowed tools</string>
+    <string name="ui_no_standing_tool_approvals_e3c188a" translatable="true" formatted="false">No standing tool approvals.</string>
+    <string name="ui_inbound_webhooks_7184d03" translatable="true" formatted="false">Inbound webhooks</string>
+    <string name="ui_webhook_status_unavailable_try_reopening_t_8830733" translatable="true" formatted="false">Webhook status unavailable. Try reopening this section.</string>
+    <string name="ui_no_webhooks_for_this_bot_53e4266" translatable="true" formatted="false">No webhooks for this bot.</string>
+    <string name="ui_changing_this_access_requires_an_admin_pai_8c816c6" translatable="true" formatted="false">Changing this access requires an admin pairing.</string>
+    <string name="ui_choose_which_enabled_servers_on_the_paired_a2312a2" translatable="true" formatted="false">Choose which enabled servers on the paired computer this bot can use.</string>
+    <string name="ui_managing_mcp_servers_requires_an_admin_pai_107eb99" translatable="true" formatted="false">Managing MCP servers requires an admin pairing.</string>
+    <string name="ui_no_mcp_servers_are_configured_on_this_comp_353e4b4" translatable="true" formatted="false">No MCP servers are configured on this computer.</string>
+    <string name="ui_changing_this_setting_requires_an_admin_pa_47a795c" translatable="true" formatted="false">Changing this setting requires an admin pairing.</string>
+    <string name="ui_changing_the_browser_profile_requires_an_a_5d29d91" translatable="true" formatted="false">Changing the browser profile requires an admin pairing.</string>
+    <string name="ui_absolute_path_on_the_computer_53474d4" translatable="true" formatted="false">Absolute path on the computer</string>
+    <string name="ui_changing_this_folder_requires_an_admin_pai_9e46413" translatable="true" formatted="false">Changing this folder requires an admin pairing.</string>
+    <string name="ui_computer_for_this_chat_cda3c01" translatable="true" formatted="false">Computer for this chat</string>
+    <string name="ui_cancel_77dfd21" translatable="true" formatted="false">Cancel</string>
+    <string name="ui_default_computer_for_this_bot_4e6e9ae" translatable="true" formatted="false">Default computer for this bot</string>
+    <string name="ui_browser_profile_for_this_bot_d11b9e8" translatable="true" formatted="false">Browser profile for this bot</string>
+    <string name="ui_allow_automatic_use_of_this_computer_f2feeaf" translatable="true" formatted="false">Allow automatic use of this computer?</string>
+    <string name="ui_this_bot_is_set_to_auto_approval_choosing_9e8896d" translatable="true" formatted="false">This bot is set to Auto approval. Choosing This computer lets it use the paired computer without asking for every action.</string>
+    <string name="ui_allow_3ad0e36" translatable="true" formatted="false">Allow</string>
+    <string name="ui_approval_default_for_this_bot_69550b5" translatable="true" formatted="false">Approval default for this bot</string>
+    <string name="ui_auto_approval_on_this_computer_lets_this_b_0d85a61" translatable="true" formatted="false">Auto approval on This computer lets this bot use the paired computer without asking for every action.</string>
+    <string name="ui_this_permanently_deletes_the_bot_and_its_c_0c94492" translatable="true" formatted="false">This permanently deletes the bot and its conversations. This cannot be undone.</string>
+    <string name="ui_delete_bot_f633250" translatable="true" formatted="false">Delete bot</string>
+    <string name="ui_remove_command_permission_90940a7" translatable="true" formatted="false">Remove command permission?</string>
+    <string name="ui_remove_e963907" translatable="true" formatted="false">Remove</string>
+    <string name="ui_an_exact_command_is_allowed_only_for_this_18c839e" translatable="true" formatted="false">An exact command is allowed only for this bot, provider and working folder. Never enter secrets in a command.</string>
+    <string name="ui_try_loading_again_b5375fa" translatable="true" formatted="false">Try loading again</string>
+    <string name="ui_no_commands_are_always_allowed_for_this_bo_95cac14" translatable="true" formatted="false">No commands are always allowed for this bot.</string>
+    <string name="ui_remove_permission_2114922" translatable="true" formatted="false">Remove permission</string>
+    <string name="ui_exact_command_a93a31d" translatable="true" formatted="false">Exact command</string>
+    <string name="ui_absolute_working_folder_4c69ed7" translatable="true" formatted="false">Absolute working folder</string>
+    <string name="ui_this_bot_s_current_provider_does_not_suppo_9fa61ff" translatable="true" formatted="false">This bot\'s current provider does not support structured command approvals.</string>
+    <string name="ui_memory_lives_on_the_paired_computer_edits_44cf2d0" translatable="true" formatted="false">Memory lives on the paired computer. Edits here are saved to its Markdown files.</string>
+    <string name="ui_files_6ce6c51" translatable="true" formatted="false">Files</string>
+    <string name="ui_new_topic_name_md_91647f0" translatable="true" formatted="false">New topic (name.md)</string>
+    <string name="ui_open_cf9b770" translatable="true" formatted="false">Open</string>
+    <string name="ui_save_efc007a" translatable="true" formatted="false">Save</string>
+    <string name="ui_delete_file_b9ea4b3" translatable="true" formatted="false">Delete file</string>
+    <string name="ui_current_computer_version_546fd4b" translatable="true" formatted="false">Current computer version:</string>
+    <string name="ui_use_computer_version_a350e20" translatable="true" formatted="false">Use computer version</string>
+    <string name="ui_keep_my_draft_review_and_save_again_41cff23" translatable="true" formatted="false">Keep my draft; review and save again</string>
+    <string name="ui_revert_272607a" translatable="true" formatted="false">Revert</string>
+    <string name="ui_delete_memory_file_cf52d4c" translatable="true" formatted="false">Delete memory file?</string>
+    <string name="ui_the_change_is_recorded_in_memory_history_10d1ea6" translatable="true" formatted="false">The change is recorded in memory history.</string>
+    <string name="ui_delete_f6fdbe4" translatable="true" formatted="false">Delete</string>
+    <string name="ui_revert_memory_change_8d64326" translatable="true" formatted="false">Revert memory change?</string>
+    <string name="ui_the_paired_computer_checks_whether_this_ch_773ecfc" translatable="true" formatted="false">The paired computer checks whether this change can still be safely reverted.</string>
+    <string name="ui_skills_are_stored_on_the_paired_computer_a_39a0950" translatable="true" formatted="false">Skills are stored on the paired computer and can change this bot\'s behavior.</string>
+    <string name="ui_disable_9a7d4e0" translatable="true" formatted="false">Disable</string>
+    <string name="ui_no_skills_installed_for_this_bot_0133dd1" translatable="true" formatted="false">No skills installed for this bot.</string>
+    <string name="ui_import_from_github_url_or_owner_repo_95f0cfc" translatable="true" formatted="false">Import from GitHub (URL or owner/repo)</string>
+    <string name="ui_imports_start_disabled_review_the_full_ski_3d578a1" translatable="true" formatted="false">Imports start disabled. Review the full SKILL.md before enabling.</string>
+    <string name="ui_import_d6fbc9d" translatable="true" formatted="false">Import</string>
+    <string name="ui_these_skills_were_published_by_your_organi_0205790" translatable="true" formatted="false">These skills were published by your organization\'s admin. Adding one enables it for this bot.</string>
+    <string name="ui_added_b68734c" translatable="true" formatted="false">Added</string>
+    <string name="ui_add_to_bot_ab80336" translatable="true" formatted="false">Add to bot</string>
+    <string name="ui_read_the_complete_skill_before_enabling_it_5c43aed" translatable="true" formatted="false">Read the complete skill before enabling it. It may instruct the bot to use tools.</string>
+    <string name="ui_enable_this_skill_399b34a" translatable="true" formatted="false">Enable this skill</string>
+    <string name="ui_close_bbfa773" translatable="true" formatted="false">Close</string>
+    <string name="ui_this_removes_the_skill_from_the_paired_com_a6b822f" translatable="true" formatted="false">This removes the skill from the paired computer.</string>
+    <string name="ui_add_and_enable_cd1bbf5" translatable="true" formatted="false">Add and enable</string>
+    <string name="ui_threads_bb12e8a" translatable="true" formatted="false">Threads</string>
+    <string name="ui_browser_profiles_f7370dc" translatable="true" formatted="false">Browser profiles</string>
+    <string name="ui_named_browser_sessions_live_on_the_paired_863fb0f" translatable="true" formatted="false">Named browser sessions live on the paired computer and can be shared by bots.</string>
+    <string name="ui_no_named_browser_profiles_yet_3363a04" translatable="true" formatted="false">No named browser profiles yet.</string>
+    <string name="ui_rename_d3f4cb8" translatable="true" formatted="false">Rename</string>
+    <string name="ui_save_name_8ce6864" translatable="true" formatted="false">Save name</string>
+    <string name="ui_new_profile_name_393313b" translatable="true" formatted="false">New profile name</string>
+    <string name="ui_create_profile_96b8eeb" translatable="true" formatted="false">Create profile</string>
+    <string name="ui_the_computer_allows_at_most_20_profiles_e631e10" translatable="true" formatted="false">The computer allows at most 20 profiles.</string>
+    <string name="ui_load_earlier_messages_4ac08d1" translatable="true" formatted="false">Load earlier messages</string>
+    <string name="ui_unpin_2eba6a0" translatable="true" formatted="false">Unpin</string>
+    <string name="ui_open_desktop_cd6f821" translatable="true" formatted="false">Open desktop</string>
+    <string name="ui_connected_apps_8ab72a8" translatable="true" formatted="false">Connected Apps</string>
+    <string name="ui_search_apps_ca3ce8f" translatable="true" formatted="false">Search apps</string>
+    <string name="ui_connected_apps_need_setup_2cdb536" translatable="true" formatted="false">Connected apps need setup</string>
+    <string name="ui_no_connected_apps_are_available_from_this_0529e71" translatable="true" formatted="false">No connected apps are available from this computer.</string>
+    <string name="ui_account_alias_8cf27ca" translatable="true" formatted="false">Account alias</string>
+    <string name="ui_work_personal_client_7d6a18a" translatable="true" formatted="false">Work, Personal, Client…</string>
+    <string name="ui_continue_2e02623" translatable="true" formatted="false">Continue</string>
+    <string name="ui_accounts_could_not_be_re_checked_6727be8" translatable="true" formatted="false">Accounts could not be re-checked</string>
+    <string name="ui_connecting_fd3e796" translatable="true" formatted="false">Connecting…</string>
+    <string name="ui_connection_unknown_973b048" translatable="true" formatted="false">Connection unknown</string>
+    <string name="ui_add_another_account_5dcc791" translatable="true" formatted="false">Add another account</string>
+    <string name="ui_default_model_for_new_bots_e479071" translatable="true" formatted="false">Default model for new bots</string>
+    <string name="ui_future_bots_on_this_computer_inherit_this_cbf2108" translatable="true" formatted="false">Future bots on this computer inherit this model unless you choose another during creation.</string>
+    <string name="ui_choose_an_available_provider_66910a4" translatable="true" formatted="false">Choose an available provider.</string>
+    <string name="ui_engines_7f5d63a" translatable="true" formatted="false">Engines</string>
+    <string name="ui_these_engines_run_on_the_paired_computer_i_5761473" translatable="true" formatted="false">These engines run on the paired computer. Installation is offered only when that computer supports it.</string>
+    <string name="ui_refresh_models_ba6da3f" translatable="true" formatted="false">Refresh models</string>
+    <string name="ui_install_on_computer_7ec9984" translatable="true" formatted="false">Install on computer</string>
+    <string name="ui_the_paired_computer_may_download_and_insta_0bfa662" translatable="true" formatted="false">The paired computer may download and install this engine. This can take a while.</string>
+    <string name="ui_install_fd6c3eb" translatable="true" formatted="false">Install</string>
+    <string name="ui_share_09ca55c" translatable="true" formatted="false">Share</string>
+    <string name="ui_this_image_couldn_t_be_displayed_34d0827" translatable="true" formatted="false">This image couldn\'t be displayed.</string>
+    <string name="ui_reset_44c57ab" translatable="true" formatted="false">Reset</string>
+    <string name="ui_built_in_browser_on_this_computer_fca83a8" translatable="true" formatted="false">Built-in browser on this computer</string>
+    <string name="ui_enable_built_in_browser_c489a56" translatable="true" formatted="false">Enable built-in browser</string>
+    <string name="ui_install_the_browser_engine_from_settings_e_c8f25a9" translatable="true" formatted="false">Install the browser engine from Settings → Engines before bots can use it.</string>
+    <string name="ui_each_bot_also_needs_its_own_built_in_brows_407fbcf" translatable="true" formatted="false">Each bot also needs its own Built-in browser permission. Disabling this host switch closes live browser sessions on the computer.</string>
+    <string name="ui_turn_off_the_built_in_browser_024ac88" translatable="true" formatted="false">Turn off the built-in browser?</string>
+    <string name="ui_this_closes_live_built_in_browser_sessions_f4e7975" translatable="true" formatted="false">This closes live built-in browser sessions on the paired computer. Bots will lose browser access until you turn it on again.</string>
+    <string name="ui_turn_off_8807c2b" translatable="true" formatted="false">Turn off</string>
+    <string name="ui_local_vm_7f61d89" translatable="true" formatted="false">Local VM</string>
+    <string name="ui_this_isolated_desktop_runs_on_the_paired_c_ad72a1c" translatable="true" formatted="false">This isolated desktop runs on the paired computer. Actions may download images or change its containers.</string>
+    <string name="ui_isolation_mode_4166201" translatable="true" formatted="false">Isolation mode</string>
+    <string name="ui_maximum_isolated_desktops_5fe6c2f" translatable="true" formatted="false">Maximum isolated desktops</string>
+    <string name="ui_save_vm_policy_a09a1e6" translatable="true" formatted="false">Save VM policy</string>
+    <string name="ui_shared_vm_85baef0" translatable="true" formatted="false">Shared VM</string>
+    <string name="ui_download_image_d6f34a9" translatable="true" formatted="false">Download image</string>
+    <string name="ui_create_desktop_6f5358e" translatable="true" formatted="false">Create desktop</string>
+    <string name="ui_start_desktop_2c8d254" translatable="true" formatted="false">Start desktop</string>
+    <string name="ui_stop_desktop_1f13f5b" translatable="true" formatted="false">Stop desktop</string>
+    <string name="ui_remove_desktop_5ed19d5" translatable="true" formatted="false">Remove desktop</string>
+    <string name="ui_per_bot_desktops_56e561d" translatable="true" formatted="false">Per-bot desktops</string>
+    <string name="ui_no_per_bot_desktop_is_currently_installed_6521cb4" translatable="true" formatted="false">No per-bot desktop is currently installed.</string>
+    <string name="ui_stop_9e25347" translatable="true" formatted="false">Stop</string>
+    <string name="ui_refresh_56e3bad" translatable="true" formatted="false">Refresh</string>
+    <string name="ui_delete_messages_93f3675" translatable="true" formatted="false">Delete messages</string>
+    <string name="ui_select_messages_to_permanently_remove_olde_000f52e" translatable="true" formatted="false">Select messages to permanently remove. Older edited and retried versions are included.</string>
+    <string name="ui_select_all_913afff" translatable="true" formatted="false">Select all</string>
+    <string name="ui_clear_719ea39" translatable="true" formatted="false">Clear</string>
+    <string name="ui_no_messages_in_this_conversation_089151e" translatable="true" formatted="false">No messages in this conversation.</string>
+    <string name="ui_this_permanently_deletes_the_selected_mess_0d8a658" translatable="true" formatted="false">This permanently deletes the selected messages and cannot be undone.</string>
+    <string name="ui_copy_af74f7c" translatable="true" formatted="false">Copy</string>
+    <string name="ui_select_text_9d49219" translatable="true" formatted="false">Select text</string>
+    <string name="ui_edit_and_retry_f683a3c" translatable="true" formatted="false">Edit and retry</string>
+    <string name="ui_this_creates_a_new_version_and_continues_f_9a5d779" translatable="true" formatted="false">This creates a new version and continues from there.</string>
+    <string name="ui_message_68f4145" translatable="true" formatted="false">Message</string>
+    <string name="ui_send_9bc2575" translatable="true" formatted="false">Send</string>
+    <string name="ui_file_b4915d3" translatable="true" formatted="false">FILE</string>
+    <string name="ui_tap_to_preview_fa5ce0e" translatable="true" formatted="false">Tap to preview</string>
+    <string name="ui_retry_9f5cd8a" translatable="true" formatted="false">Retry</string>
+    <string name="ui_always_allow_this_tool_2ce82a7" translatable="true" formatted="false">Always allow this tool</string>
+    <string name="ui_screenshot_unavailable_cfe6fcb" translatable="true" formatted="false">Screenshot unavailable</string>
+    <string name="ui_the_key_is_saved_on_the_paired_computer_no_4b5a828" translatable="true" formatted="false">The key is saved on the paired computer, not on this phone.</string>
+    <string name="ui_custom_api_url_optional_35fec44" translatable="true" formatted="false">Custom API URL (optional)</string>
+    <string name="ui_save_key_f5216b3" translatable="true" formatted="false">Save key</string>
+    <string name="ui_test_and_discover_models_726e489" translatable="true" formatted="false">Test and discover models</string>
+    <string name="ui_remove_key_582d9a7" translatable="true" formatted="false">Remove key</string>
+    <string name="ui_default_reasoning_for_new_bots_a4425be" translatable="true" formatted="false">Default reasoning for new bots</string>
+    <string name="ui_this_is_a_fallback_for_future_bots_their_o_ad2831e" translatable="true" formatted="false">This is a fallback for future bots. Their own model and effort choices take priority, and unsupported levels are skipped.</string>
+    <string name="ui_allow_automatic_pc_actions_3f3cbfd" translatable="true" formatted="false">Allow automatic PC actions?</string>
+    <string name="ui_this_bot_can_act_on_this_computer_without_51d302f" translatable="true" formatted="false">This bot can act on this computer without asking for each action. Only enable this for a bot you trust.</string>
+    <string name="ui_create_with_auto_approval_4786fc0" translatable="true" formatted="false">Create with auto approval</string>
+    <string name="ui_new_bot_66d3c05" translatable="true" formatted="false">New bot</string>
+    <string name="ui_role_or_title_53f2cc0" translatable="true" formatted="false">Role or title</string>
+    <string name="ui_description_55f8ebc" translatable="true" formatted="false">Description</string>
+    <string name="ui_bot_instructions_67fe721" translatable="true" formatted="false">Bot instructions</string>
+    <string name="ui_bot_instructions_must_be_at_most_24_kb_a655cb6" translatable="true" formatted="false">Bot instructions must be at most 24 KB.</string>
+    <string name="ui_notifications_753a22b" translatable="true" formatted="false">Notifications</string>
+    <string name="ui_speak_replies_90b05ae" translatable="true" formatted="false">Speak replies</string>
+    <string name="ui_full_and_custom_desktop_grants_must_be_con_9e2da95" translatable="true" formatted="false">Full and custom desktop grants must be configured on the computer.</string>
+    <string name="ui_working_folder_on_computer_optional_702ecf4" translatable="true" formatted="false">Working folder on computer (optional)</string>
+    <string name="ui_voice_id_optional_b8dd8bb" translatable="true" formatted="false">Voice ID (optional)</string>
+    <string name="ui_these_are_part_of_this_bot_s_draft_they_ar_ff27d04" translatable="true" formatted="false">These are part of this bot\'s draft. They are installed when the bot is created; editing them here does not change the saved defaults.</string>
+    <string name="ui_memory_index_1254180" translatable="true" formatted="false">Memory index</string>
+    <string name="ui_add_memory_topic_3bf3be5" translatable="true" formatted="false">Add memory topic</string>
+    <string name="ui_skill_md_55b8417" translatable="true" formatted="false">SKILL.md</string>
+    <string name="ui_enable_after_creation_63ce6fd" translatable="true" formatted="false">Enable after creation</string>
+    <string name="ui_add_skill_d61f09b" translatable="true" formatted="false">Add skill</string>
+    <string name="ui_routine_name_9a8a0dd" translatable="true" formatted="false">Routine name</string>
+    <string name="ui_routine_instructions_d1546d5" translatable="true" formatted="false">Routine instructions</string>
+    <string name="ui_add_daily_routine_3e412e7" translatable="true" formatted="false">Add daily routine</string>
+    <string name="ui_advanced_editor_profile_fields_all_memory_8d81fcd" translatable="true" formatted="false">Advanced editor: profile fields, all memory paths, skill metadata and schedule types are available here. Bot settings above override the same profile fields. Invalid values are rejected before creating the bot.</string>
+    <string name="ui_profile_json_object_66c6703" translatable="true" formatted="false">Profile (JSON object)</string>
+    <string name="ui_memory_files_json_object_121129d" translatable="true" formatted="false">Memory files (JSON object)</string>
+    <string name="ui_skills_json_array_41eb708" translatable="true" formatted="false">Skills (JSON array)</string>
+    <string name="ui_routines_json_array_a50d811" translatable="true" formatted="false">Routines (JSON array)</string>
+    <string name="ui_create_6e157c5" translatable="true" formatted="false">Create</string>
+    <string name="ui_group_name_optional_0fd3a15" translatable="true" formatted="false">Group name (optional)</string>
+    <string name="ui_section_name_75e2b3c" translatable="true" formatted="false">Section name</string>
+    <string name="ui_not_now_e457149" translatable="true" formatted="false">Not now</string>
+    <string name="ui_1_open_openmausbot_settings_phone_38cfc5b" translatable="true" formatted="false">1.  Open OpenMausBot → Settings → Phone</string>
+    <string name="ui_2_choose_set_up_a_phone_8fd474a" translatable="true" formatted="false">2.  Choose Set up a phone</string>
+    <string name="ui_scan_qr_code_04e3f10" translatable="true" formatted="false">Scan QR Code</string>
+    <string name="ui_looking_5e65f10" translatable="true" formatted="false">Looking…</string>
+    <string name="ui_https_mac_example_or_192_168_1_42_8810_e277eb2" translatable="true" formatted="false">https://mac.example or 192.168.1.42:8810</string>
+    <string name="ui_address_d70f93d" translatable="true" formatted="false">Address</string>
+    <string name="ui_pair_with_this_computer_8420e8b" translatable="true" formatted="false">Pair with this computer</string>
+    <string name="ui_6_digit_or_abcd_efgh_jklm_code_e1da990" translatable="true" formatted="false">6-digit or ABCD-EFGH-JKLM code</string>
+    <string name="ui_connect_b65463c" translatable="true" formatted="false">Connect</string>
+    <string name="ui_choose_a_different_computer_9e2a62e" translatable="true" formatted="false">Choose a different computer</string>
+    <string name="ui_no_changes_recorded_yet_2eab95e" translatable="true" formatted="false">No changes recorded yet.</string>
+    <string name="ui_undo_this_instruction_change_373a0dc" translatable="true" formatted="false">Undo this instruction change</string>
+    <string name="ui_undo_instruction_change_0b5e098" translatable="true" formatted="false">Undo instruction change?</string>
+    <string name="ui_this_restores_the_previous_standing_instru_61fc443" translatable="true" formatted="false">This restores the previous standing instructions. The current text will be kept in history.</string>
+    <string name="ui_undo_39fc721" translatable="true" formatted="false">Undo</string>
+    <string name="ui_prompt_inspector_0885254" translatable="true" formatted="false">Prompt inspector</string>
+    <string name="ui_captured_requests_may_contain_full_private_08a9427" translatable="true" formatted="false">Captured requests may contain full private conversations. Keep exported files private.</string>
+    <string name="ui_find_in_preview_82cf60d" translatable="true" formatted="false">Find in preview</string>
+    <string name="ui_preview_limited_to_80_000_characters_copy_2214d4b" translatable="true" formatted="false">Preview limited to 80,000 characters; copy the view or export the JSON for the full content.</string>
+    <string name="ui_copy_view_eb8c972" translatable="true" formatted="false">Copy view</string>
+    <string name="ui_export_json_bc39905" translatable="true" formatted="false">Export JSON</string>
+    <string name="ui_open_settings_134635e" translatable="true" formatted="false">Open Settings</string>
+    <string name="ui_agent_composed_question_a49293c" translatable="true" formatted="false">Agent-composed question</string>
+    <string name="ui_choose_all_that_apply_5a20d23" translatable="true" formatted="false">Choose all that apply</string>
+    <string name="ui_type_your_own_answer_84cf994" translatable="true" formatted="false">Type your own answer</string>
+    <string name="ui_quick_replies_c14223c" translatable="true" formatted="false">Quick replies</string>
+    <string name="ui_edit_5301648" translatable="true" formatted="false">Edit</string>
+    <string name="ui_move_up_b4f57cd" translatable="true" formatted="false">Move up</string>
+    <string name="ui_move_down_260ff8a" translatable="true" formatted="false">Move down</string>
+    <string name="ui_add_61cc55a" translatable="true" formatted="false">Add</string>
+    <string name="ui_reset_quick_replies_4d3d125" translatable="true" formatted="false">Reset quick replies?</string>
+    <string name="ui_this_removes_all_quick_replies_you_can_add_ff3ea3d" translatable="true" formatted="false">This removes all quick replies. You can add your own later.</string>
+    <string name="ui_label_74341e3" translatable="true" formatted="false">Label</string>
+    <string name="ui_prompt_a817d7e" translatable="true" formatted="false">Prompt</string>
+    <string name="ui_icon_716f63b" translatable="true" formatted="false">Icon</string>
+    <string name="ui_group_settings_121d556" translatable="true" formatted="false">Group settings</string>
+    <string name="ui_group_instructions_36a914e" translatable="true" formatted="false">Group instructions</string>
+    <string name="ui_members_1cb449c" translatable="true" formatted="false">Members</string>
+    <string name="ui_who_responds_by_default_56b3401" translatable="true" formatted="false">Who responds by default</string>
+    <string name="ui_dynamic_lets_the_bots_decide_who_should_re_e189313" translatable="true" formatted="false">Dynamic lets the bots decide who should reply and when to stop.</string>
+    <string name="ui_delete_group_b6f15b2" translatable="true" formatted="false">Delete group</string>
+    <string name="ui_this_permanently_deletes_the_group_convers_1d90d54" translatable="true" formatted="false">This permanently deletes the group conversation and its threads. The bots remain. This cannot be undone.</string>
+    <string name="ui_room_turn_timeout_0bf9d2d" translatable="true" formatted="false">Room turn timeout</string>
+    <string name="ui_how_long_one_bot_may_take_to_finish_a_room_21a83ff" translatable="true" formatted="false">How long one bot may take to finish a room turn before the computer stops it.</string>
+    <string name="ui_minutes_1_1_440_856bca8" translatable="true" formatted="false">Minutes (1–1,440)</string>
+    <string name="ui_enter_a_whole_number_from_1_to_1_440_5fcb58c" translatable="true" formatted="false">Enter a whole number from 1 to 1,440.</string>
+    <string name="ui_something_went_wrong_8d886c0" translatable="true" formatted="false">Something went wrong</string>
+    <string name="ui_ok_9ce3bd4" translatable="true" formatted="false">OK</string>
+    <string name="ui_pair_again_379e2bf" translatable="true" formatted="false">Pair again</string>
+    <string name="ui_use_another_computer_ff6a1b8" translatable="true" formatted="false">Use another computer</string>
+    <string name="ui_search_threads_006299d" translatable="true" formatted="false">Search threads</string>
+    <string name="ui_what_should_the_agent_do_b952606" translatable="true" formatted="false">What should the agent do?</string>
+    <string name="ui_custom_081ae3f" translatable="true" formatted="false">Custom</string>
+    <string name="ui_custom_interval_1eea767" translatable="true" formatted="false">Custom interval</string>
+    <string name="ui_minutes_be2e2bb" translatable="true" formatted="false">minutes</string>
+    <string name="ui_from_5_minutes_to_24_hours_a6bafa4" translatable="true" formatted="false">From 5 minutes to 24 hours</string>
+    <string name="ui_next_bc98198" translatable="true" formatted="false">Next</string>
+    <string name="ui_stop_if_still_running_after_45efb17" translatable="true" formatted="false">Stop if still running after</string>
+    <string name="ui_no_limit_10850b9" translatable="true" formatted="false">No limit</string>
+    <string name="ui_agent_5ce2e6f" translatable="true" formatted="false">Agent</string>
+    <string name="ui_choose_an_agent_faaaf2b" translatable="true" formatted="false">Choose an agent</string>
+    <string name="ui_settings_c7f73bb" translatable="true" formatted="false">Settings</string>
+    <string name="ui_edit_address_31fe67f" translatable="true" formatted="false">Edit address</string>
+    <string name="ui_this_removes_the_saved_connection_from_thi_54db681" translatable="true" formatted="false">This removes the saved connection from this phone only.</string>
+    <string name="ui_activity_detail_049f3bd" translatable="true" formatted="false">Activity detail</string>
+    <string name="ui_shared_profile_ff09ab4" translatable="true" formatted="false">Shared profile</string>
+    <string name="ui_this_profile_is_shared_with_every_bot_on_t_1199512" translatable="true" formatted="false">This profile is shared with every bot on the paired computer.</string>
+    <string name="ui_your_name_ab42293" translatable="true" formatted="false">Your name</string>
+    <string name="ui_email_84add5b" translatable="true" formatted="false">Email</string>
+    <string name="ui_what_should_bots_know_about_you_d3abb57" translatable="true" formatted="false">What should bots know about you?</string>
+    <string name="ui_send_to_openmausbot_4dffcb7" translatable="true" formatted="false">Send to OpenMausBot</string>
+    <string name="ui_sharing_f789760" translatable="true" formatted="false">SHARING</string>
+    <string name="ui_computer_9e47da1" translatable="true" formatted="false">COMPUTER</string>
+    <string name="ui_send_to_bd1c2c3" translatable="true" formatted="false">SEND TO</string>
+    <string name="ui_last_used_ac90977" translatable="true" formatted="false">LAST USED</string>
+    <string name="ui_instruction_optional_3c5a084" translatable="true" formatted="false">Instruction (optional)</string>
+    <string name="ui_for_example_summarize_this_and_list_the_ne_12b3d09" translatable="true" formatted="false">For example: summarize this and list the next steps</string>
+    <string name="ui_reading_shared_content_61a0de2" translatable="true" formatted="false">Reading shared content</string>
+    <string name="ui_computer_924645b" translatable="true" formatted="false">Computer</string>
+    <string name="ui_send_to_b98cc23" translatable="true" formatted="false">Send to</string>
+    <string name="ui_skill_authoring_on_this_computer_c606f2d" translatable="true" formatted="false">Skill authoring on this computer</string>
+    <string name="ui_when_enabled_bots_may_draft_new_skills_for_1370cc7" translatable="true" formatted="false">When enabled, bots may draft new skills for your review. A draft never becomes active without approval.</string>
+    <string name="ui_allow_bots_to_draft_skills_40a0794" translatable="true" formatted="false">Allow bots to draft skills</string>
+    <string name="ui_stop_this_thread_before_snoozing_it_d76b3d2" translatable="true" formatted="false">Stop this thread before snoozing it.</string>
+    <string name="ui_delete_routine_0cb076a" translatable="true" formatted="false">Delete routine</string>
+    <string name="ui_run_now_2af00e2" translatable="true" formatted="false">Run now</string>
+    <string name="ui_this_thread_s_usage_9245e98" translatable="true" formatted="false">This thread\'s usage</string>
+    <string name="ui_manage_teams_c99bf82" translatable="true" formatted="false">Manage teams</string>
+    <string name="ui_changes_on_this_phone_also_change_the_pair_9f8fbb1" translatable="true" formatted="false">Changes on this phone also change the paired computer.</string>
+    <string name="ui_no_teams_yet_9210826" translatable="true" formatted="false">No teams yet.</string>
+    <string name="ui_all_teams_e75f540" translatable="true" formatted="false">All teams</string>
+    <string name="ui_team_name_9b11ed1" translatable="true" formatted="false">Team name</string>
+    <string name="ui_rename_team_bbd28e3" translatable="true" formatted="false">Rename team</string>
+    <string name="ui_team_members_8bd76ae" translatable="true" formatted="false">Team members</string>
+    <string name="ui_create_bot_in_this_team_f2e808c" translatable="true" formatted="false">Create bot in this team</string>
+    <string name="ui_save_members_b5c33de" translatable="true" formatted="false">Save members</string>
+    <string name="ui_chief_of_staff_ab970be" translatable="true" formatted="false">Chief of Staff</string>
+    <string name="ui_the_chief_can_coordinate_bots_and_propose_e6d0193" translatable="true" formatted="false">The Chief can coordinate bots and propose setup changes in selected teams. Its own team is always included; unrelated chats stay private.</string>
+    <string name="ui_create_another_team_to_extend_the_chief_s_36ad2a6" translatable="true" formatted="false">Create another team to extend the Chief\'s access.</string>
+    <string name="ui_save_chief_team_access_9807639" translatable="true" formatted="false">Save Chief team access</string>
+    <string name="ui_delete_team_a9661e7" translatable="true" formatted="false">Delete team</string>
+    <string name="ui_the_team_heading_and_membership_are_remove_ef3cdbe" translatable="true" formatted="false">The team heading and membership are removed. Bots and conversations are kept.</string>
+    <string name="ui_grant_team_access_03bbb07" translatable="true" formatted="false">Grant team access</string>
+    <string name="ui_choose_a_look_for_this_phone_your_computer_43e0f76" translatable="true" formatted="false">Choose a look for this phone. Your computer has its own theme setting.</string>
+    <string name="ui_edit_custom_colors_c23f59a" translatable="true" formatted="false">Edit custom colors</string>
+    <string name="ui_start_from_a_preset_then_change_any_color_b788e2a" translatable="true" formatted="false">Start from a preset, then change any color. Hex values support #RRGGBB and #RRGGBBAA; transparent is also allowed.</string>
+    <string name="ui_correct_invalid_colors_before_saving_a1c9f07" translatable="true" formatted="false">Correct invalid colors before saving.</string>
+    <string name="ui_save_and_use_dd8b341" translatable="true" formatted="false">Save and use</string>
+    <string name="ui_back_b52b36b" translatable="true" formatted="false">Back</string>
+    <string name="ui_thread_settings_9ab5123" translatable="true" formatted="false">Thread settings</string>
+    <string name="ui_these_settings_apply_to_the_paired_compute_ab7235e" translatable="true" formatted="false">These settings apply to the paired computer, not just this phone.</string>
+    <string name="ui_parallel_tasks_per_bot_1_10_7a16634" translatable="true" formatted="false">Parallel tasks per bot (1–10)</string>
+    <string name="ui_event_log_cap_in_kib_optional_8815723" translatable="true" formatted="false">Event-log cap in KiB (optional)</string>
+    <string name="ui_leave_empty_to_keep_logs_without_a_size_ca_401ba8f" translatable="true" formatted="false">Leave empty to keep logs without a size cap. Minimum 256 KiB.</string>
+    <string name="ui_closed_thread_log_retention_in_days_option_c38fb4b" translatable="true" formatted="false">Closed-thread log retention in days (optional)</string>
+    <string name="ui_leave_empty_to_retain_logs_indefinitely_c82c98d" translatable="true" formatted="false">Leave empty to retain logs indefinitely.</string>
+    <string name="ui_enter_1_10_tasks_a_cap_of_256_4_194_304_ki_c966fd5" translatable="true" formatted="false">Enter 1–10 tasks, a cap of 256–4,194,304 KiB, and 1–3650 days or leave optional fields empty.</string>
+    <string name="ui_copy_diff_18f2296" translatable="true" formatted="false">Copy Diff</string>
+    <string name="ui_copy_csv_b810b7c" translatable="true" formatted="false">Copy CSV</string>
+    <string name="ui_webhook_task_c9c1e5f" translatable="true" formatted="false">Webhook task</string>
+    <string name="ui_event_payload_8b441f9" translatable="true" formatted="false">Event payload</string>
+    <string name="ui_updates_c76d180" translatable="true" formatted="false">Updates</string>
+    <string name="ui_export_workspace_backup_7f9b140" translatable="true" formatted="false">Export workspace backup</string>
+    <string name="ui_creates_an_encrypted_copy_of_the_paired_co_3b6819c" translatable="true" formatted="false">Creates an encrypted copy of the paired computer\'s workspace. Save the password separately; without it the backup cannot be restored.</string>
+    <string name="ui_use_a_secure_https_or_tailscale_connection_0418ff3" translatable="true" formatted="false">Use a secure HTTPS or Tailscale connection. The encrypted file is written directly to the location you choose, without loading it into phone memory.</string>
+    <string name="ui_a_restore_is_pending_restart_the_computer_f6b7f8f" translatable="true" formatted="false">A restore is pending. Restart the computer\'s app before making another backup.</string>
+    <string name="ui_another_backup_operation_is_in_progress_on_de27387" translatable="true" formatted="false">Another backup operation is in progress on the computer.</string>
+    <string name="ui_new_backup_password_at_least_12_characters_6be1ab3" translatable="true" formatted="false">New backup password (at least 12 characters)</string>
+    <string name="ui_confirm_password_4a7c565" translatable="true" formatted="false">Confirm password</string>
+    <string name="ui_creating_or_downloading_the_backup_keep_th_6e4ab95" translatable="true" formatted="false">Creating or downloading the backup… Keep this screen open.</string>
+    <string name="ui_choose_file_and_export_fed6a25" translatable="true" formatted="false">Choose file and export</string>
+    <string name="ui_import_workspace_backup_7a4b7cc" translatable="true" formatted="false">Import workspace backup</string>
+    <string name="ui_this_can_replace_all_workspace_data_on_the_d5973d7" translatable="true" formatted="false">This can replace all workspace data on the paired computer. First upload and inspect the encrypted backup; nothing is replaced until you confirm REPLACE.</string>
+    <string name="ui_use_https_or_tailscale_keep_this_screen_op_08e5ec2" translatable="true" formatted="false">Use HTTPS or Tailscale. Keep this screen open while the archive is uploading.</string>
+    <string name="ui_restore_committed_restart_openmausbot_on_t_2cf7bbd" translatable="true" formatted="false">Restore committed. Restart OpenMausBot on the computer to complete it.</string>
+    <string name="ui_choose_ombbackup_file_ea3cf5a" translatable="true" formatted="false">Choose .ombbackup file</string>
+    <string name="ui_backup_password_d96a607" translatable="true" formatted="false">Backup password</string>
+    <string name="ui_upload_and_validate_cb162f1" translatable="true" formatted="false">Upload and validate</string>
+    <string name="ui_restoring_replaces_the_computer_s_workspac_218a6c6" translatable="true" formatted="false">Restoring replaces the computer\'s workspace. Review the backup and make a separate safety copy first.</string>
+    <string name="ui_type_replace_to_confirm_0eae810" translatable="true" formatted="false">Type REPLACE to confirm</string>
+    <string name="ui_replace_computer_workspace_8bf7494" translatable="true" formatted="false">Replace computer workspace</string>
+    <string name="ui_working_on_the_paired_computer_635f578" translatable="true" formatted="false">Working on the paired computer…</string>
+    <string name="ui_replace_this_computer_s_workspace_7be159d" translatable="true" formatted="false">Replace this computer\'s workspace?</string>
+    <string name="ui_the_staged_backup_will_replace_existing_wo_eadcd90" translatable="true" formatted="false">The staged backup will replace existing workspace data on the paired computer. This cannot be undone from the phone. Continue only if you have checked the preview and made a safety copy.</string>
+    <string name="ui_restore_now_1e4932d" translatable="true" formatted="false">Restore now</string>
+    <string name="ui_model_prices_5f9f78a" translatable="true" formatted="false">Model prices</string>
+    <string name="ui_prices_per_million_tokens_used_by_the_pair_7286bc9" translatable="true" formatted="false">Prices per million tokens used by the paired computer. A \'default\' row covers other models. Blank cached input uses the input rate. These prices can affect cost estimates and the spending limit.</string>
+    <string name="ui_currency_e070de2" translatable="true" formatted="false">Currency</string>
+    <string name="ui_model_id_or_default_d70af9a" translatable="true" formatted="false">Model ID or default</string>
+    <string name="ui_input_b568d47" translatable="true" formatted="false">Input</string>
+    <string name="ui_output_4bed336" translatable="true" formatted="false">Output</string>
+    <string name="ui_cached_input_optional_c4f63ef" translatable="true" formatted="false">Cached input (optional)</string>
+    <string name="ui_remove_row_bd7f4b4" translatable="true" formatted="false">Remove row</string>
+    <string name="ui_add_model_b6a86ca" translatable="true" formatted="false">Add model</string>
+    <string name="ui_save_prices_e452a2f" translatable="true" formatted="false">Save prices</string>
+    <string name="ui_monthly_spending_limit_4a8a9e1" translatable="true" formatted="false">Monthly spending limit</string>
+    <string name="ui_this_limit_applies_to_the_paired_computer_e7793e7" translatable="true" formatted="false">This limit applies to the paired computer\'s entire workspace. It uses costs recorded by the host; turns without a price may not count toward it.</string>
+    <string name="ui_monthly_limit_in_usd_blank_no_limit_699cd41" translatable="true" formatted="false">Monthly limit in USD (blank = no limit)</string>
+    <string name="ui_warn_at_percent_2a5d6d1" translatable="true" formatted="false">Warn at percent</string>
+    <string name="ui_save_workspace_limit_e0b28af" translatable="true" formatted="false">Save workspace limit</string>
+    <string name="ui_usage_recorded_by_the_paired_computer_cost_c072280" translatable="true" formatted="false">Usage recorded by the paired computer. Costs may be reported or estimated; unpriced turns have no cost estimate.</string>
+    <string name="ui_bot_settings_7092a29" translatable="true" formatted="false">Bot settings</string>
+    <string name="ui_what_this_bot_does_7a664f4" translatable="true" formatted="false">What this bot does</string>
+    <string name="ui_provider_7ceee3f" translatable="true" formatted="false">Provider</string>
+    <string name="ui_model_68c2cc7" translatable="true" formatted="false">Model</string>
+    <string name="ui_reasoning_effort_cd32c0f" translatable="true" formatted="false">Reasoning effort</string>
+    <string name="ui_apply_model_474897c" translatable="true" formatted="false">Apply model</string>
+    <string name="ui_upload_image_f35dec5" translatable="true" formatted="false">Upload image</string>
+    <string name="ui_use_mascot_0de90a1" translatable="true" formatted="false">Use mascot</string>
+    <string name="ui_generate_on_computer_ff5b744" translatable="true" formatted="false">Generate on computer</string>
+    <string name="ui_agent_notifications_a3bd8bd" translatable="true" formatted="false">Agent notifications</string>
+    <string name="ui_soul_md_was_changed_outside_openmausbot_res_eec376d" translatable="true" formatted="false">SOUL.md was changed outside OpenMausBot. Resolve the file difference on the computer before editing here.</string>
+    <string name="ui_standing_instructions_changed_on_the_comput_13fc657" translatable="true" formatted="false">Standing instructions changed on the computer while you were editing. Close and reopen this sheet to review them before saving.</string>
+    <string name="ui_save_standing_instructions_58af9a1" translatable="true" formatted="false">Save standing instructions</string>
+    <string name="ui_allow_this_bot_to_use_connected_apps_17416a3" translatable="true" formatted="false">Allow this bot to use connected apps</string>
+    <string name="ui_use_all_enabled_servers_c421ad8" translatable="true" formatted="false">Use all enabled servers</string>
+    <string name="ui_give_this_bot_a_built_in_browser_3c98718" translatable="true" formatted="false">Give this bot a built-in browser</string>
+    <string name="ui_ask_before_contacting_other_bots_fb8e56d" translatable="true" formatted="false">Ask before contacting other bots</string>
+    <string name="ui_change_bot_default_computer_533fe72" translatable="true" formatted="false">Change bot default computer</string>
+    <string name="ui_change_this_chat_s_computer_576f1d9" translatable="true" formatted="false">Change this chat\'s computer</string>
+    <string name="ui_change_ask_auto_approval_fc82281" translatable="true" formatted="false">Change Ask / Auto approval</string>
+    <string name="ui_choose_browser_profile_2cdb00e" translatable="true" formatted="false">Choose browser profile</string>
+    <string name="ui_the_working_folder_changed_on_the_computer_9271460" translatable="true" formatted="false">The working folder changed on the computer while you were editing. Close and reopen this sheet before saving.</string>
+    <string name="ui_save_working_folder_62fa68c" translatable="true" formatted="false">Save working folder</string>
+    <string name="ui_use_private_bot_folder_c5897aa" translatable="true" formatted="false">Use private bot folder</string>
+    <string name="ui_voice_3091c84" translatable="true" formatted="false">Voice</string>
+    <string name="ui_preview_voice_560a6fe" translatable="true" formatted="false">Preview voice</string>
+    <string name="ui_save_profile_changes_49c8333" translatable="true" formatted="false">Save profile changes</string>
+    <string name="ui_voice_engine_3b4d8de" translatable="true" formatted="false">Voice engine</string>
+    <string name="ui_plus_6a8437d" translatable="true" formatted="false">plus</string>
+    <string name="ui_dismiss_70afe9e" translatable="true" formatted="false">Dismiss</string>
+    <string name="ui_slash_commands_e7bb82f" translatable="true" formatted="false">SLASH COMMANDS</string>
+    <string name="ui_use_open_to_view_this_file_in_a_compatible_9a04647" translatable="true" formatted="false">Use Open to view this file in a compatible app.</string>
+    <string name="ui_image_unavailable_f2cca83" translatable="true" formatted="false">Image unavailable</string>
+    <string name="ui_voice_note_unavailable_426ad5f" translatable="true" formatted="false">Voice note unavailable</string>
+    <string name="ui_team_2188872" translatable="true" formatted="false">Team</string>
+    <string name="ui_color_1d0c830" translatable="true" formatted="false">Color</string>
+    <string name="ui_computer_access_b090ead" translatable="true" formatted="false">Computer access</string>
+    <string name="ui_browser_profile_d7d5c8f" translatable="true" formatted="false">Browser profile</string>
+    <string name="ui_action_approval_d6cf31e" translatable="true" formatted="false">Action approval</string>
+    <string name="ui_new_group_f9850c0" translatable="true" formatted="false">New group</string>
+    <string name="ui_bots_4ca88ea" translatable="true" formatted="false">Bots</string>
+    <string name="ui_organize_bots_08f4197" translatable="true" formatted="false">Organize bots</string>
+    <string name="ui_pair_with_a_computer_51716e0" translatable="true" formatted="false">Pair with a computer</string>
+    <string name="ui_other_ways_to_connect_d9e8585" translatable="true" formatted="false">Other ways to connect</string>
+    <string name="ui_other_6e6a6f2" translatable="true" formatted="false">Other</string>
+    <string name="ui_waiting_on_you_edab5b7" translatable="true" formatted="false">Waiting on you</string>
+    <string name="ui_newer_schedule_c56a41a" translatable="true" formatted="false">Newer schedule</string>
+    <string name="ui_one_time_6fea9e4" translatable="true" formatted="false">One time</string>
+    <string name="ui_selected_days_7890ff6" translatable="true" formatted="false">Selected days</string>
+    <string name="ui_every_x_minutes_000b5c3" translatable="true" formatted="false">Every X minutes</string>
+    <string name="ui_run_b1b3926" translatable="true" formatted="false">Run</string>
+    <string name="ui_time_6c82e6d" translatable="true" formatted="false">Time</string>
+    <string name="ui_advanced_4d06472" translatable="true" formatted="false">Advanced</string>
+    <string name="ui_try_reconnecting_8310b02" translatable="true" formatted="false">Try reconnecting</string>
+    <string name="ui_threads_routines_65d7efc" translatable="true" formatted="false">Threads &amp; Routines</string>
+    <string name="ui_open_thread_9309e68" translatable="true" formatted="false">Open thread</string>
+    <string name="ui_data_table_54baf78" translatable="true" formatted="false">DATA TABLE</string>
+    <string name="ui_activity_entries_retained" translatable="true" formatted="false">%1$s entries · retained %2$s days</string>
+    <string name="ui_activity_first_entries" translatable="true" formatted="false">Showing the first %1$s entries. Export CSV for the full range.</string>
+    <string name="ui_activity_before_value" translatable="true" formatted="false">Before: %1$s</string>
+    <string name="ui_activity_after_value" translatable="true" formatted="false">After: %1$s</string>
+    <string name="ui_dynamic_1_s_24_000_bytes_5437d3f" translatable="true" formatted="false">%1$s / 24,000 bytes</string>
+    <string name="ui_dynamic_1_s_turns_across_this_bot_s_threads_66053f6" translatable="true" formatted="false">%1$s turns across this bot\'s threads</string>
+    <string name="ui_dynamic_bot_default_1_s_775155b" translatable="true" formatted="false">Bot default: %1$s</string>
+    <string name="ui_dynamic_this_chat_1_s_3fdd6fa" translatable="true" formatted="false">This chat: %1$s</string>
+    <string name="ui_dynamic_approvals_for_this_chat_1_s_3fceff5" translatable="true" formatted="false">Approvals for this chat: %1$s</string>
+    <string name="ui_dynamic_bot_approval_default_1_s_825c310" translatable="true" formatted="false">Bot approval default: %1$s</string>
+    <string name="ui_dynamic_this_chat_is_still_pinned_to_1_s_b8c7601" translatable="true" formatted="false">This chat is still pinned to %1$s.</string>
+    <string name="ui_dynamic_delete_1_s_cd24016" translatable="true" formatted="false">Delete %1$s?</string>
+    <string name="ui_dynamic_this_bot_will_ask_again_before_running_897f150" translatable="true" formatted="false">This bot will ask again before running this exact command in %1$s:\n%2$s</string>
+    <string name="ui_dynamic_current_provider_1_s_386803f" translatable="true" formatted="false">Current provider: %1$s</string>
+    <string name="ui_dynamic_memory_md_1_s_2_s_bytes_loaded_into_co_6640726" translatable="true" formatted="false">MEMORY.md: %1$s / %2$s bytes loaded into context</string>
+    <string name="ui_dynamic_1_s_bytes_fb518b0" translatable="true" formatted="false">%1$s bytes</string>
+    <string name="ui_dynamic_1_s_skill_proposal_s_await_a_decision_299180c" translatable="true" formatted="false">%1$s skill proposal(s) await a decision in chat.</string>
+    <string name="ui_dynamic_from_1_s_1616793" translatable="true" formatted="false">From %1$s</string>
+    <string name="ui_dynamic_remove_1_s_c8e14e6" translatable="true" formatted="false">Remove %1$s?</string>
+    <string name="ui_dynamic_add_1_s_0b8ac0a" translatable="true" formatted="false">Add %1$s?</string>
+    <string name="ui_dynamic_this_organization_skill_will_be_enable_c4f96de" translatable="true" formatted="false">This organization skill will be enabled for the bot immediately. Source: %1$s by %2$s.</string>
+    <string name="ui_dynamic_rename_1_s_f90cb3c" translatable="true" formatted="false">Rename %1$s</string>
+    <string name="ui_dynamic_pinned_1_s_aad27eb" translatable="true" formatted="false">Pinned · %1$s</string>
+    <string name="ui_dynamic_an_alias_makes_the_account_explicit_wh_725873b" translatable="true" formatted="false">An alias makes the account explicit when an agent uses more than one %1$s account.</string>
+    <string name="ui_dynamic_connect_1_s_c9e612b" translatable="true" formatted="false">Connect %1$s</string>
+    <string name="ui_dynamic_install_1_s_on_this_computer_48d0e36" translatable="true" formatted="false">Install %1$s on this computer?</string>
+    <string name="ui_dynamic_1_s_selected_51753f0" translatable="true" formatted="false">%1$s selected</string>
+    <string name="ui_dynamic_delete_1_s_messages_3a611c8" translatable="true" formatted="false">Delete %1$s messages?</string>
+    <string name="ui_dynamic_sha256_1_s_d401381" translatable="true" formatted="false">sha256 %1$s</string>
+    <string name="ui_dynamic_messaged_1_s_bd9371e" translatable="true" formatted="false">Messaged %1$s</string>
+    <string name="ui_dynamic_1_s_of_2_s_91d50e4" translatable="true" formatted="false">%1$s of %2$s</string>
+    <string name="ui_dynamic_1_s_connection_8b94a5f" translatable="true" formatted="false">%1$s connection</string>
+    <string name="ui_dynamic_remove_1_s_key_128fb5a" translatable="true" formatted="false">Remove %1$s key?</string>
+    <string name="ui_dynamic_bots_using_1_s_may_become_unavailable_5983068" translatable="true" formatted="false">Bots using %1$s may become unavailable until a new key is saved.</string>
+    <string name="ui_dynamic_routine_1_s_dbdf8d6" translatable="true" formatted="false">Routine %1$s</string>
+    <string name="ui_dynamic_1_s_is_ready_7dd2ea0" translatable="true" formatted="false">%1$s is ready</string>
+    <string name="ui_dynamic_1_s_has_a_question_13ca9f2" translatable="true" formatted="false">%1$s has a question</string>
+    <string name="ui_dynamic_only_1_s_d47f0d2" translatable="true" formatted="false">Only %1$s</string>
+    <string name="ui_dynamic_1_s_minutes_29dd88a" translatable="true" formatted="false">%1$s minutes</string>
+    <string name="ui_dynamic_snooze_1_s_50ec2df" translatable="true" formatted="false">Snooze %1$s</string>
+    <string name="ui_dynamic_1_s_s_threads_d34c7ce" translatable="true" formatted="false">%1$s\'s threads</string>
+    <string name="ui_dynamic_1_s_s_provider_cannot_coordinate_bots_630b82d" translatable="true" formatted="false">%1$s\'s provider cannot coordinate bots.</string>
+    <string name="ui_dynamic_additional_teams_for_1_s_78587fb" translatable="true" formatted="false">Additional teams for %1$s</string>
+    <string name="ui_dynamic_give_1_s_access_to_more_teams_745ba86" translatable="true" formatted="false">Give %1$s access to more teams?</string>
+    <string name="ui_dynamic_copy_1_s_colors_825c9ef" translatable="true" formatted="false">Copy %1$s colors</string>
+    <string name="ui_dynamic_backup_saved_1_s_bytes_b0e8870" translatable="true" formatted="false">Backup saved: %1$s bytes.</string>
+    <string name="ui_dynamic_backup_from_1_s_openmausbot_2_s_2e6a715" translatable="true" formatted="false">Backup from %1$s · OpenMausBot %2$s</string>
+    <string name="ui_dynamic_1_s_bots_2_s_groups_3_s_threads_4_s_me_8a1f5f2" translatable="true" formatted="false">%1$s bots · %2$s groups · %3$s threads · %4$s messages</string>
+    <string name="ui_dynamic_1_s_files_2_s_bytes_3ebbf28" translatable="true" formatted="false">%1$s files · %2$s bytes</string>
+    <string name="ui_dynamic_excluded_1_s_0335dd8" translatable="true" formatted="false">Excluded: %1$s</string>
+    <string name="ui_dynamic_warning_1_s_c0ecd56" translatable="true" formatted="false">Warning: %1$s</string>
+    <string name="ui_dynamic_total_1_s_turns_2_s_input_3_s_cached_4_71addfc" translatable="true" formatted="false">Total: %1$s turns · %2$s input (%3$s cached) · %4$s output</string>
+    <string name="ui_dynamic_1_s_unpriced_turn_s_are_excluded_from_187562f" translatable="true" formatted="false">%1$s unpriced turn(s) are excluded from cost.</string>
+    <string name="ui_dynamic_monthly_limit_1_s_of_2_s_afbe88f" translatable="true" formatted="false">Monthly limit: %1$s of %2$s</string>
+    <string name="ui_dynamic_1_s_turns_2_s_input_3_s_cached_4_s_out_8e3f5b3" translatable="true" formatted="false">%1$s turns · %2$s input (%3$s cached) · %4$s output</string>
+    <string name="ui_profile_avatar_footer" translatable="true" formatted="false">PNG, JPEG, GIF, or WebP, up to 10 MB. Images are stored on your paired computer and loaded with this phone\'s pairing token.</string>
+    <string name="ui_profile_generate_ready_footer" translatable="true" formatted="false">Generation uses the shared image provider configured on your computer. No provider key is sent to or stored on this phone.</string>
+    <string name="ui_profile_generate_blocked_footer" translatable="true" formatted="false">To generate images, configure the shared image provider in OpenMausBot on your computer. Provider keys cannot be added from a phone.</string>
+    <string name="ui_profile_tts_unconfigured" translatable="true" formatted="false">ElevenLabs is not configured</string>
+    <string name="ui_profile_system_tts_unconfigured" translatable="true" formatted="false">Your computer\'s built-in voices are unavailable</string>
+    <string name="ui_profile_voice_unconfigured_footer" translatable="true" formatted="false">Add the shared ElevenLabs key in this agent\'s profile on the computer. The key is never returned to this phone.</string>
+    <string name="ui_profile_system_voice_unconfigured_footer" translatable="true" formatted="false">Your computer\'s built-in voices need no key, and it reports none it can use. Switch the voice engine in OpenMausBot on the computer to turn speech back on.</string>
+    <string name="ui_profile_voice_no_default_footer" translatable="true" formatted="false">No workspace default voice is selected. Choose an agent-specific voice above; synthesis still uses the shared ElevenLabs key on your computer.</string>
+    <string name="ui_profile_fish_tts_unconfigured" translatable="true" formatted="false">Fish Audio is not configured</string>
+    <string name="ui_profile_fish_voice_unconfigured_footer" translatable="true" formatted="false">Add the shared Fish Audio API key in OpenMausBot on the computer. The key is never returned to this phone.</string>
+    <string name="ui_profile_fish_voice_no_default_footer" translatable="true" formatted="false">No workspace default voice is selected. Choose an agent-specific voice above; synthesis still uses Fish Audio on your computer.</string>
+    <string name="ui_profile_system_voice_no_default_footer" translatable="true" formatted="false">No workspace default voice is selected. Choose an agent-specific voice above; synthesis still uses your computer\'s built-in voices.</string>
+    <string name="ui_profile_chatterbox_tts_unconfigured" translatable="true" formatted="false">The Chatterbox server is not connected</string>
+    <string name="ui_profile_chatterbox_voice_unconfigured_footer" translatable="true" formatted="false">Add the address of your Chatterbox server in OpenMausBot on the computer to turn speech back on.</string>
+    <string name="ui_profile_chatterbox_voice_no_default_footer" translatable="true" formatted="false">No workspace default voice is selected. Choose an agent-specific voice above; synthesis still uses your Chatterbox server.</string>
+    <string name="ui_profile_voice_ready_footer" translatable="true" formatted="false">The voice choice belongs to this agent. Workspace default uses the shared voice selected on your computer.</string>
+    <string name="ui_profile_pick_a_voice" translatable="true" formatted="false">Pick a voice for this agent before enabling speech.</string>
+    <string name="ui_profile_preview_refused" translatable="true" formatted="false">Pick an agent voice or configure a workspace default on your computer first.</string>
+    <string name="ui_profile_workspace_default" translatable="true" formatted="false">Workspace default</string>
+    <string name="ui_profile_choose_agent_voice" translatable="true" formatted="false">Choose an agent voice</string>
+    <string name="ui_profile_current_agent_voice" translatable="true" formatted="false">Current agent voice</string>
+    <string name="ui_profile_builtin_mac_voices" translatable="true" formatted="false">Built-in Mac voices</string>
+    <string name="ui_profile_chatterbox_local" translatable="true" formatted="false">Chatterbox (local)</string>
+    <string name="ui_profile_mascot" translatable="true" formatted="false">Mascot</string>
+    <string name="ui_profile_circle" translatable="true" formatted="false">Circle</string>
+    <string name="ui_profile_rounded" translatable="true" formatted="false">Rounded</string>
+    <string name="ui_profile_square" translatable="true" formatted="false">Square</string>
+    <string name="ui_avatar_7631b26" translatable="true" formatted="false">Avatar</string>
+    <string name="ui_generate_an_avatar_01e5cee" translatable="true" formatted="false">Generate an avatar</string>
+    <string name="ui_identity_7e5a975" translatable="true" formatted="false">Identity</string>
+    <string name="ui_standing_instructions_4706e23" translatable="true" formatted="false">Standing instructions</string>
+    <string name="ui_change_history_81cca21" translatable="true" formatted="false">Change history</string>
+    <string name="ui_usage_0bb1864" translatable="true" formatted="false">Usage</string>
+    <string name="ui_memory_89c8a28" translatable="true" formatted="false">Memory</string>
+    <string name="ui_skills_e09212c" translatable="true" formatted="false">Skills</string>
+    <string name="ui_access_details_1277ed4" translatable="true" formatted="false">Access details</string>
+    <string name="ui_connected_apps_8f5e8ef" translatable="true" formatted="false">Connected apps</string>
+    <string name="ui_mcp_servers_8d9a304" translatable="true" formatted="false">MCP servers</string>
+    <string name="ui_built_in_browser_ce1c92b" translatable="true" formatted="false">Built-in browser</string>
+    <string name="ui_bot_coordination_a0133a3" translatable="true" formatted="false">Bot coordination</string>
+    <string name="ui_working_folder_00e69ec" translatable="true" formatted="false">Working folder</string>
+    <string name="ui_slash_commands_efce77d" translatable="true" formatted="false">Slash commands</string>
+    <string name="ui_close_slash_commands_5ff49ab" translatable="true" formatted="false">Close slash commands</string>
+    <string name="ui_previous_version_989537a" translatable="true" formatted="false">Previous version</string>
+    <string name="ui_next_version_514439d" translatable="true" formatted="false">Next version</string>
+    <string name="ui_a_frame_of_this_bot_s_computer_39b6a5b" translatable="true" formatted="false">A frame of this bot\'s computer</string>
+    <string name="ui_your_chats_in_your_pocket_91291d7" translatable="true" formatted="false">Your chats, in your pocket</string>
+    <string name="ui_respond_when_a_bot_needs_you_9697332" translatable="true" formatted="false">Respond when a bot needs you</string>
+    <string name="ui_private_by_design_3aaa9fd" translatable="true" formatted="false">Private by design</string>
+    <string name="ui_on_your_computer_9a62153" translatable="true" formatted="false">On your computer</string>
+    <string name="ui_on_this_network_4c9f524" translatable="true" formatted="false">On this network</string>
+    <string name="ui_or_enter_the_address_f74dcf1" translatable="true" formatted="false">Or enter the address</string>
+    <string name="ui_confirm_computer_d778cfb" translatable="true" formatted="false">Confirm computer</string>
+    <string name="ui_scanner_unavailable_cc42e33" translatable="true" formatted="false">Scanner unavailable</string>
+    <string name="ui_requesting_camera_access_30e104c" translatable="true" formatted="false">Requesting camera access…</string>
+    <string name="ui_camera_access_needed_28a22fc" translatable="true" formatted="false">Camera access needed</string>
+    <string name="ui_delete_this_queued_message_4390e04" translatable="true" formatted="false">Delete this queued message</string>
+    <string name="ui_this_phone_was_unpaired_0927360" translatable="true" formatted="false">This phone was unpaired</string>
+    <string name="ui_groups_ae9629f" translatable="true" formatted="false">Groups</string>
+    <string name="ui_bot_threads_ec81acf" translatable="true" formatted="false">Bot threads</string>
+    <string name="ui_clear_search_67300d0" translatable="true" formatted="false">Clear search</string>
+    <string name="ui_search_bce0641" translatable="true" formatted="false">Search</string>
+    <string name="ui_organize_bots_into_a_section_9293c5a" translatable="true" formatted="false">Organize bots into a section</string>
+    <string name="ui_work_00040ba" translatable="true" formatted="false">Work</string>
+    <string name="ui_where_does_it_run_6e4a529" translatable="true" formatted="false">Where does it run?</string>
+    <string name="ui_schedule_0a8adac" translatable="true" formatted="false">Schedule</string>
+    <string name="ui_change_when_the_interval_starts_0a68203" translatable="true" formatted="false">Change when the interval starts</string>
+    <string name="ui_new_thread_02057e2" translatable="true" formatted="false">New thread</string>
+    <string name="ui_new_routine_32809dc" translatable="true" formatted="false">New routine</string>
+    <string name="ui_webhooks_fdfe2da" translatable="true" formatted="false">Webhooks</string>
+    <string name="ui_dynamic_1_s_avatar_de63895" translatable="true" formatted="false">%1$s avatar</string>
+    <string name="ui_dynamic_new_thread_with_1_s_80fb451" translatable="true" formatted="false">New thread with %1$s</string>
+    <string name="ui_dynamic_manage_1_s_s_threads_f3530e9" translatable="true" formatted="false">Manage %1$s\'s threads</string>
+    <string name="ui_dynamic_watch_1_s_s_computer_92efc11" translatable="true" formatted="false">Watch %1$s\'s computer</string>
+    <string name="ui_dynamic_remove_1_s_ecd908a" translatable="true" formatted="false">Remove %1$s</string>
+    <string name="ui_dynamic_1_s_s_computer_7637def" translatable="true" formatted="false">%1$s\'s computer</string>
+    <string name="ui_dynamic_delete_1_s_961ae88" translatable="true" formatted="false">Delete %1$s</string>
+    <string name="ui_dynamic_actions_for_1_s_767f154" translatable="true" formatted="false">Actions for %1$s</string>
+    <string name="ui_model_footer" translatable="true" formatted="false">Provider accounts and API keys stay on your computer. Default sends no reasoning level and lets the provider decide.</string>
+    <string name="ui_model_loading" translatable="true" formatted="false">Loading models</string>
+    <string name="ui_model_none_available" translatable="true" formatted="false">No model providers are available</string>
+    <string name="ui_model_current_provider_unavailable" translatable="true" formatted="false">Current provider (unavailable)</string>
+    <string name="ui_model_default_effort" translatable="true" formatted="false">Default</string>
+    <string name="ui_model_busy_note" translatable="true" formatted="false">Stop this bot before changing its model.</string>
+    <string name="ui_model_unavailable_note" translatable="true" formatted="false">Choose an available provider to change this bot\'s model.</string>
+    <string name="ui_pairing_network_permission" translatable="true" formatted="true">Searching this network needs %1$s, which is still off. The QR code and the address below work without it.</string>
+    <string name="ui_pairing_scan_explanation" translatable="true" formatted="false">Scan the QR code, check the computer name, and confirm. The address and one-time credential are filled securely for you.</string>
+    <string name="ui_pairing_nothing_found" translatable="true" formatted="false">Nothing found yet. Check that this phone and your computer are on the same Wi-Fi network — a guest network often blocks them from seeing each other. You can always enter the address below instead.</string>
+    <string name="ui_pairing_tailscale_hint" translatable="true" formatted="false">If it never appears, install Tailscale on both and sign in to the same account — Phone settings will then show a name ending in .ts.net to enter below.</string>
+    <string name="ui_pairing_address_hint" translatable="true" formatted="false">Whatever Phone settings on your computer shows — a secure https:// address, an address on this network, or a Tailscale name like macbook.tail1234.ts.net:8810.</string>
+    <string name="ui_inspector_token_counts" translatable="true" formatted="true">Uncached: %1$s    Cached: %2$s    Output: %3$s</string>
+    <string name="ui_inspector_model_input" translatable="true" formatted="false">Model input</string>
+    <string name="ui_inspector_full_request" translatable="true" formatted="false">Full request</string>
+    <string name="ui_inspector_changes" translatable="true" formatted="false">Changes</string>
+    <string name="ui_inspector_diagnostics" translatable="true" formatted="false">Diagnostics</string>
+    <string name="ui_profile_webhook_status" translatable="true" formatted="true">%1$s · %2$s · %3$s deliveries</string>
+    <string name="ui_status_active" translatable="true" formatted="false">Active</string>
+    <string name="ui_status_paused" translatable="true" formatted="false">Paused</string>
+    <string name="ui_skill_status_and_source" translatable="true" formatted="true">%1$s · %2$s</string>
+    <string name="ui_status_enabled" translatable="true" formatted="false">Enabled</string>
+    <string name="ui_status_disabled" translatable="true" formatted="false">Disabled</string>
+    <string name="ui_engine_status_models" translatable="true" formatted="true">%1$s · %2$s · %3$s models</string>
+    <string name="ui_engine_status_models_without_version" translatable="true" formatted="true">%1$s · %2$s models</string>
+    <string name="ui_chief_extra_teams_explanation" translatable="true" formatted="true">This Chief may coordinate bots and propose setup changes in %1$s. Other bots keep their permissions, and unrelated chat history stays private.</string>
+    <string name="ui_general_team_name" translatable="true" formatted="false">General</string>
+    <string name="ui_theme_chat_layout" translatable="true" formatted="true">Chat layout: %1$s</string>
+    <string name="ui_theme_standard" translatable="true" formatted="false">Standard</string>
+    <string name="ui_backup_selected_file" translatable="true" formatted="true">Selected: %1$s</string>
+    <string name="ui_backup_selected_file_bytes" translatable="true" formatted="true">Selected: %1$s · %2$s bytes</string>
+    <string name="ui_usage_cost" translatable="true" formatted="true">Cost: %1$s</string>
+    <string name="ui_usage_includes_estimates" translatable="true" formatted="false"> (includes estimates)</string>
+    <string name="ui_usage_unpriced_count" translatable="true" formatted="true"> · %1$s unpriced</string>
+    <string name="ui_new_bot_skill_name" translatable="true" formatted="true">Skill: %1$s</string>
+    <string name="ui_new_bot_schedule_type" translatable="true" formatted="true">Schedule: %1$s</string>
+    <string name="ui_vm_runtime_status" translatable="true" formatted="true">Runtime: %1$s · %2$s</string>
+    <string name="ui_vm_not_installed" translatable="true" formatted="false">not installed</string>
+    <string name="ui_vm_running" translatable="true" formatted="false">running</string>
+    <string name="ui_vm_not_running" translatable="true" formatted="false">not running</string>
+    <string name="ui_vm_image_container_status" translatable="true" formatted="true">Image: %1$s · Container: %2$s</string>
+    <string name="ui_vm_available" translatable="true" formatted="false">available</string>
+    <string name="ui_vm_missing" translatable="true" formatted="false">missing</string>
+    <string name="ui_vm_desktop_ready" translatable="true" formatted="false">Desktop ready</string>
+    <string name="ui_vm_desktop_not_ready" translatable="true" formatted="false">Desktop not ready</string>
+    <string name="ui_vm_shared" translatable="true" formatted="false">Shared</string>
+    <string name="ui_vm_per_bot" translatable="true" formatted="false">Per bot</string>
+    <string name="ui_vm_runtime_unavailable" translatable="true" formatted="false">Runtime unavailable</string>
+    <string name="ui_vm_instance_status" translatable="true" formatted="true">%1$s: %2$s · %3$s</string>
+    <string name="ui_vm_ready" translatable="true" formatted="false">ready</string>
+    <string name="ui_vm_not_ready" translatable="true" formatted="false">not ready</string>
+    <string name="ui_vm_in_use_suffix" translatable="true" formatted="false"> · in use</string>
+    <string name="ui_unpin_message" translatable="true" formatted="false">Unpin message</string>
+    <string name="ui_pin_message" translatable="true" formatted="false">Pin message</string>
+    <string name="ui_copied" translatable="true" formatted="false">Copied</string>
+    <string name="ui_copy_all" translatable="true" formatted="false">Copy all</string>
+    <string name="ui_hide" translatable="true" formatted="false">Hide</string>
+    <string name="ui_show" translatable="true" formatted="false">Show</string>
+    <string name="ui_new_quick_reply" translatable="true" formatted="false">New quick reply</string>
+    <string name="ui_edit_quick_reply" translatable="true" formatted="false">Edit quick reply</string>
+    <string name="ui_custom_theme_title" translatable="true" formatted="false">Custom theme</string>
+    <string name="ui_appearance_title" translatable="true" formatted="false">Appearance</string>
+    <string name="ui_submit_answers" translatable="true" formatted="false">Submit answers</string>
+    <string name="ui_submit_answer" translatable="true" formatted="false">Submit answer</string>
+    <string name="ui_cancel_action" translatable="true" formatted="false">Cancel</string>
+    <string name="ui_done_action" translatable="true" formatted="false">Done</string>
+    <string name="ui_exporting" translatable="true" formatted="false">Exporting…</string>
+    <string name="ui_export_csv" translatable="true" formatted="false">Export CSV</string>
+    <string name="ui_hide_changes" translatable="true" formatted="false">Hide changes</string>
+    <string name="ui_show_changes" translatable="true" formatted="false">Show changes</string>
+    <string name="ui_saving" translatable="true" formatted="false">Saving…</string>
+    <string name="ui_always_allow_exact_command" translatable="true" formatted="false">Always allow exact command</string>
+    <string name="ui_read_skill" translatable="true" formatted="false">Read</string>
+    <string name="ui_review_enable_skill" translatable="true" formatted="false">Review and enable</string>
+    <string name="ui_refreshing" translatable="true" formatted="false">Refreshing…</string>
+    <string name="ui_refresh_action" translatable="true" formatted="false">Refresh</string>
+    <string name="ui_connecting" translatable="true" formatted="false">Connecting…</string>
+    <string name="ui_connected" translatable="true" formatted="false">Connected</string>
+    <string name="ui_status_pending" translatable="true" formatted="false">Pending</string>
+    <string name="ui_save_default" translatable="true" formatted="false">Save default</string>
+    <string name="ui_save_action" translatable="true" formatted="false">Save</string>
+    <string name="ui_hide_full_address" translatable="true" formatted="false">Hide full address</string>
+    <string name="ui_show_full_address" translatable="true" formatted="false">Show full address</string>
+    <string name="ui_copy_action" translatable="true" formatted="false">Copy</string>
+    <string name="ui_retry_send" translatable="true" formatted="false">Retry send</string>
+    <string name="ui_try_again" translatable="true" formatted="false">Try again</string>
+    <string name="ui_pause_action" translatable="true" formatted="false">Pause</string>
+    <string name="ui_resume_action" translatable="true" formatted="false">Resume</string>
+    <string name="ui_mistral_key_configured" translatable="true" formatted="false">A key is configured on this computer.</string>
+    <string name="ui_mistral_no_key" translatable="true" formatted="false">No key is configured.</string>
+    <string name="ui_mistral_replace_key" translatable="true" formatted="false">Replace API key</string>
+    <string name="ui_mistral_api_key" translatable="true" formatted="false">API key</string>
+    <string name="ui_deleting" translatable="true" formatted="false">Deleting…</string>
+    <string name="ui_delete_count" translatable="true" formatted="true">Delete %1$s</string>
+    <string name="ui_delete_conversation_keep_files" translatable="true" formatted="false">This conversation will be deleted. Generated files are kept.</string>
+    <string name="ui_hide_bot_settings" translatable="true" formatted="false">Hide bot settings</string>
+    <string name="ui_bot_settings" translatable="true" formatted="false">Bot settings</string>
+    <string name="ui_hide_bot_content" translatable="true" formatted="false">Hide Memory, Skills and Routines</string>
+    <string name="ui_bot_content" translatable="true" formatted="false">Memory, Skills and Routines</string>
+    <string name="ui_hide_template_editor" translatable="true" formatted="false">Hide full template editor</string>
+    <string name="ui_edit_full_template" translatable="true" formatted="false">Edit full template</string>
+    <string name="ui_creating_bot" translatable="true" formatted="false">Creating…</string>
+    <string name="ui_create_bot" translatable="true" formatted="false">Create bot</string>
+    <string name="ui_browser_session_erased" translatable="true" formatted="false">This browser session will be erased on the computer.</string>
+    <string name="ui_browser_session_erased_users" translatable="true" formatted="true">This browser session will be erased. %1$s will return to their own browser.</string>
+    <string name="ui_bot_apps_connect_first" translatable="true" formatted="false">Connect apps on the paired computer before enabling access.</string>
+    <string name="ui_bot_apps_engine_unsupported" translatable="true" formatted="false">This bot\'s current engine cannot use connected apps.</string>
+    <string name="ui_bot_apps_allowed" translatable="true" formatted="false">This bot may use apps connected on the paired computer.</string>
+    <string name="ui_bot_apps_unavailable" translatable="true" formatted="false">Connected apps are unavailable to this bot.</string>
+    <string name="ui_bot_mcp_all_enabled" translatable="true" formatted="false">Uses all enabled servers, including ones added later.</string>
+    <string name="ui_bot_mcp_selected_only" translatable="true" formatted="false">Uses only the selected servers. An empty selection gives this bot none.</string>
+    <string name="ui_bot_browser_computer_off" translatable="true" formatted="false">This bot\'s computer destination is Off.</string>
+    <string name="ui_bot_browser_engine_unavailable" translatable="true" formatted="false">The browser engine is unavailable on the computer.</string>
+    <string name="ui_bot_browser_enable_first" translatable="true" formatted="false">Enable the built-in browser in the computer\'s Experimental settings first.</string>
+    <string name="ui_bot_browser_engine_unsupported" translatable="true" formatted="false">This bot\'s current engine cannot use the built-in browser.</string>
+    <string name="ui_bot_browser_allowed" translatable="true" formatted="false">This bot may use its own built-in browser.</string>
+    <string name="ui_bot_browser_unavailable" translatable="true" formatted="false">The built-in browser is unavailable to this bot.</string>
+    <string name="ui_bot_coordination_unsupported" translatable="true" formatted="false">This bot\'s current engine cannot contact other bots.</string>
+    <string name="ui_bot_coordination_asks" translatable="true" formatted="false">This bot asks you before contacting another bot.</string>
+    <string name="ui_bot_coordination_allowed" translatable="true" formatted="false">This bot may contact teammates without asking first.</string>
+    <string name="ui_bot_approval_desktop_only" translatable="true" formatted="false">Full and Custom approval permissions can only be changed in the packaged desktop app.</string>
+    <string name="ui_bot_approval_admin_desktop" translatable="true" formatted="false">Changing bot-wide defaults requires an admin pairing. Full and Custom approval permissions require the packaged desktop app.</string>
+    <string name="ui_hide_exact_command_permissions" translatable="true" formatted="false">Hide exact command permissions</string>
+    <string name="ui_manage_exact_command_permissions" translatable="true" formatted="false">Manage exact command permissions</string>
+    <string name="ui_bot_browser_profile_footer" translatable="true" formatted="false">Browser sessions live on the paired computer. A bot\'s own browser is private to that bot; a named profile can be shared with other bots.</string>
+    <string name="ui_bot_own_browser" translatable="true" formatted="false">This bot\'s own browser</string>
+    <string name="ui_bot_temporary_browser" translatable="true" formatted="false">Temporary browser</string>
+    <string name="ui_bot_profile_unavailable" translatable="true" formatted="true">Profile unavailable (%1$s)</string>
+    <string name="ui_bot_memory_footer" translatable="true" formatted="false">Saved on the computer and included in this bot\'s context on every turn.</string>
+    <string name="ui_hide_history" translatable="true" formatted="false">Hide history</string>
+    <string name="ui_show_history" translatable="true" formatted="false">Show history</string>
+    <string name="ui_hide_bot_usage" translatable="true" formatted="false">Hide bot usage</string>
+    <string name="ui_show_bot_usage" translatable="true" formatted="false">Show bot usage</string>
+    <string name="ui_hide_memory" translatable="true" formatted="false">Hide memory</string>
+    <string name="ui_open_memory" translatable="true" formatted="false">Open memory</string>
+    <string name="ui_hide_skills" translatable="true" formatted="false">Hide skills</string>
+    <string name="ui_manage_skills" translatable="true" formatted="false">Manage skills</string>
+    <string name="ui_hide_access_details" translatable="true" formatted="false">Hide access details</string>
+    <string name="ui_show_access_details" translatable="true" formatted="false">Show access details</string>
+    <string name="ui_server_managed_by" translatable="true" formatted="true"> (managed by %1$s)</string>
+    <string name="ui_server_disabled_on_computer" translatable="true" formatted="false"> (disabled on computer)</string>
+    <string name="ui_bot_working_folder_footer" translatable="true" formatted="false">This path is on the paired computer, not on your phone. New tasks use the new folder; existing tasks may remain pinned to their earlier folder.</string>
+    <string name="ui_adds_to_existing_section" translatable="true" formatted="false">Adds to existing section</string>
+    <string name="ui_creates_new_section" translatable="true" formatted="false">Creates a new section</string>
+    <string name="ui_steering" translatable="true" formatted="false">Steering…</string>
+    <string name="ui_steer" translatable="true" formatted="false">Steer</string>
+    <string name="ui_new_routine_title" translatable="true" formatted="false">New routine</string>
+    <string name="ui_edit_routine_title" translatable="true" formatted="false">Edit routine</string>
+    <string name="ui_turn_off" translatable="true" formatted="false">Turn off</string>
+    <string name="ui_turn_on" translatable="true" formatted="false">Turn on</string>
+    <string name="ui_remove_this_computer" translatable="true" formatted="false">Remove this computer</string>
+    <string name="ui_unpair_this_phone" translatable="true" formatted="false">Unpair this phone</string>
+    <string name="ui_remove_action" translatable="true" formatted="false">Remove</string>
+    <string name="ui_unpair_action" translatable="true" formatted="false">Unpair</string>
+    <string name="ui_thinking" translatable="true" formatted="false">Thinking…</string>
+    <string name="ui_thought_process" translatable="true" formatted="false">Thought Process</string>
+    <string name="ui_section_chief_conflict" translatable="true" formatted="false">A section can have one Chief. Go back and choose one Chief, or use a section without one.</string>
+    <string name="ui_section_pinned_stay" translatable="true" formatted="false">Pinned bots stay in Pinned until you unpin them.</string>
+    <string name="ui_section_at_limit" translatable="true" formatted="false">100 selected — that’s the section limit.</string>
+    <string name="ui_section_under_limit" translatable="true" formatted="false">Choose up to 100 bots for one section.</string>
+    <string name="ui_remove_computer_confirm" translatable="true" formatted="true">Remove %1$s?</string>
+    <string name="ui_unpair_phone_confirm" translatable="true" formatted="false">Unpair this phone?</string>
+    <string name="ui_remove_saved_connection_explanation" translatable="true" formatted="false">This removes the saved connection from this phone only. Another saved computer will stay available.</string>
+    <string name="ui_unpair_phone_explanation" translatable="true" formatted="false">You\'ll need a new pairing code to connect again.</string>
+    <string name="ui_remove_named_chief" translatable="true" formatted="true">Remove %1$s as Chief</string>
+    <string name="ui_make_named_chief" translatable="true" formatted="true">Make %1$s Chief</string>
+    <string name="ui_appoint_named_chief_confirm" translatable="true" formatted="true">Appoint %1$s as Chief?</string>
+    <string name="ui_remove_named_chief_confirm" translatable="true" formatted="true">Remove %1$s as Chief?</string>
+    <string name="ui_chief_role_handover" translatable="true" formatted="true">This hands the team role over from %1$s to %2$s.</string>
+    <string name="ui_chief_can_coordinate" translatable="true" formatted="true">%1$s can create and coordinate specialists in this team.</string>
+    <string name="ui_team_no_chief" translatable="true" formatted="false">This team will have no Chief until you appoint another bot.</string>
+    <string name="ui_appoint_action" translatable="true" formatted="false">Appoint</string>
+    <string name="ui_vm_download_action" translatable="true" formatted="false">Download</string>
+    <string name="ui_vm_start_action" translatable="true" formatted="false">Start</string>
+    <string name="ui_vm_stop_action" translatable="true" formatted="false">Stop</string>
+    <string name="ui_vm_change_action" translatable="true" formatted="false">Change</string>
+    <string name="ui_vm_bot_action_confirm" translatable="true" formatted="true">%1$s %2$s\'s Local VM?</string>
+    <string name="ui_vm_shared_action_confirm" translatable="true" formatted="true">%1$s the Local VM on this computer?</string>
+    <string name="ui_vm_remove_bot_explanation" translatable="true" formatted="true">This deletes %1$s\'s VM container from the paired computer. Files inside it may be lost. The bot and its conversations stay.</string>
+    <string name="ui_vm_stop_bot_explanation" translatable="true" formatted="true">This stops %1$s\'s VM on the paired computer. The bot and its conversations stay.</string>
+    <string name="ui_vm_download_explanation" translatable="true" formatted="false">This downloads the VM image to the paired computer.</string>
+    <string name="ui_vm_remove_shared_explanation" translatable="true" formatted="false">This deletes the shared VM container on the paired computer. Files stored inside it may be lost.</string>
+    <string name="ui_vm_change_shared_explanation" translatable="true" formatted="false">This changes the shared VM on the paired computer.</string>
+    <string name="ui_memory_load_failed" translatable="true" formatted="false">Could not load memory.</string>
+    <string name="ui_memory_file_load_failed" translatable="true" formatted="false">Could not load memory file.</string>
+    <string name="ui_memory_history_load_failed" translatable="true" formatted="false">Could not load memory history.</string>
+    <string name="ui_memory_file_changed_before_save" translatable="true" formatted="false">This file changed on the computer. Review both versions before saving.</string>
+    <string name="ui_memory_save_failed" translatable="true" formatted="false">Could not save memory.</string>
+    <string name="ui_hide_memory_history" translatable="true" formatted="false">Hide memory history</string>
+    <string name="ui_show_memory_history" translatable="true" formatted="false">Show memory history</string>
+    <string name="ui_memory_file_changed_before_delete" translatable="true" formatted="false">This file changed on the computer. Review both versions before deleting it.</string>
+    <string name="ui_memory_delete_failed" translatable="true" formatted="false">Could not delete memory file.</string>
+    <string name="ui_activity_export_file_open_failed" translatable="true" formatted="false">Could not open the selected file.</string>
+    <string name="ui_activity_export_save_failed" translatable="true" formatted="false">Could not save activity export.</string>
+    <string name="ui_activity_date_range_invalid" translatable="true" formatted="false">Use YYYY-MM-DD dates in order, no more than one year apart.</string>
+    <string name="ui_activity_load_failed" translatable="true" formatted="false">Could not load activity.</string>
 </resources>

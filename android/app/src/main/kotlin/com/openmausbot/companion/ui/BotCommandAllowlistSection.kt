@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,8 +57,8 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
     removing?.let { rule ->
         AlertDialog(
             onDismissRequest = { if (!busy) removing = null },
-            title = { Text("Remove command permission?") },
-            text = { Text("This bot will ask again before running this exact command in ${rule.cwd}:\n${rule.command}") },
+            title = { Text(stringResource(R.string.ui_remove_command_permission_90940a7)) },
+            text = { Text(stringResource(R.string.ui_dynamic_this_bot_will_ask_again_before_running_897f150, rule.cwd, rule.command)) },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = {
                     scope.launch {
@@ -69,38 +71,38 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
                             error = failure.message ?: "Could not remove this permission."
                         } finally { busy = false }
                     }
-                }) { Text("Remove") }
+                }) { Text(stringResource(R.string.ui_remove_e963907)) }
             },
-            dismissButton = { TextButton(enabled = !busy, onClick = { removing = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(enabled = !busy, onClick = { removing = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("An exact command is allowed only for this bot, provider and working folder. Never enter secrets in a command.")
+        Text(stringResource(R.string.ui_an_exact_command_is_allowed_only_for_this_18c839e))
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (loading) CircularProgressIndicator()
         if (status == null && !loading) {
-            TextButton(onClick = { scope.launch { reload() } }) { Text("Try loading again") }
+            TextButton(onClick = { scope.launch { reload() } }) { Text(stringResource(R.string.ui_try_loading_again_b5375fa)) }
         }
         status?.let { current ->
-            if (current.rules.isEmpty()) Text("No commands are always allowed for this bot.")
+            if (current.rules.isEmpty()) Text(stringResource(R.string.ui_no_commands_are_always_allowed_for_this_bo_95cac14))
             current.rules.forEach { rule ->
                 Column {
                     Text(rule.command, style = MaterialTheme.typography.bodyMedium)
                     Text("${rule.providerInstanceId} · ${rule.cwd}", style = MaterialTheme.typography.bodySmall)
-                    TextButton(enabled = !busy, onClick = { removing = rule }) { Text("Remove permission") }
+                    TextButton(enabled = !busy, onClick = { removing = rule }) { Text(stringResource(R.string.ui_remove_permission_2114922)) }
                 }
             }
             if (current.supported) {
-                Text("Current provider: ${current.context.providerInstanceId}")
+                Text(stringResource(R.string.ui_dynamic_current_provider_1_s_386803f, current.context.providerInstanceId))
                 OutlinedTextField(
                     value = command, onValueChange = { command = it },
-                    label = { Text("Exact command") }, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.ui_exact_command_a93a31d)) }, modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                 )
                 OutlinedTextField(
                     value = cwd, onValueChange = { cwd = it },
-                    label = { Text("Absolute working folder") }, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.ui_absolute_working_folder_4c69ed7)) }, modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
                 Row {
@@ -124,9 +126,9 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
                                 error = failure.message ?: "Could not add this permission."
                             } finally { busy = false }
                         }
-                    }) { Text(if (busy) "Saving…" else "Always allow exact command") }
+                    }) { Text(stringResource(if (busy) R.string.ui_saving else R.string.ui_always_allow_exact_command)) }
                 }
-            } else Text("This bot's current provider does not support structured command approvals.")
+            } else Text(stringResource(R.string.ui_this_bot_s_current_provider_does_not_suppo_9fa61ff))
         }
     }
 }

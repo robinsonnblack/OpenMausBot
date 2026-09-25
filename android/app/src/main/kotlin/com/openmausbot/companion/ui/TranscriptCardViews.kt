@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -206,7 +207,7 @@ fun DiffCard(card: TranscriptCard.Diff, modifier: Modifier = Modifier) {
         HorizontalDivider(color = secondaryTint.copy(alpha = 0.2f))
 
         TextButton(onClick = { copy(card.text) }) {
-            Text("Copy Diff", fontSize = 13.sp)
+            Text(stringResource(R.string.ui_copy_diff_18f2296), fontSize = 13.sp)
         }
     }
 }
@@ -290,7 +291,7 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "DATA TABLE",
+                text = stringResource(R.string.ui_data_table_54baf78),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -320,7 +321,7 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier) {
         HorizontalDivider(color = secondaryTint.copy(alpha = 0.2f))
 
         TextButton(onClick = { copy(card.csv()) }) {
-            Text("Copy CSV", fontSize = 13.sp)
+            Text(stringResource(R.string.ui_copy_csv_b810b7c), fontSize = 13.sp)
         }
     }
 }
@@ -511,7 +512,7 @@ fun ThoughtChamber(
                 modifier = Modifier.size(16.dp),
             )
             Text(
-                text = if (streaming) "Thinking…" else "Thought Process",
+                text = stringResource(if (streaming) R.string.ui_thinking else R.string.ui_thought_process),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),

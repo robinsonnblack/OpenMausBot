@@ -2,6 +2,7 @@ package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.core.Instance
 import com.openmausbot.companion.core.ModelSelection
+import com.openmausbot.companion.R
 
 /** One row of the model picker. */
 data class ModelChoice(val id: String, val label: String)
@@ -29,6 +30,18 @@ object ModelRules {
     // state-dependent choice, reached only through [note].
     private const val BUSY_NOTE: String = "Stop this bot before changing its model."
     private const val UNAVAILABLE_NOTE: String = "Choose an available provider to change this bot's model."
+
+    /** Keep decisions independent of locale; resolve their copy at the UI boundary. */
+    fun copyResourceId(text: String): Int? = when (text) {
+        FOOTER -> R.string.ui_model_footer
+        LOADING -> R.string.ui_model_loading
+        NONE_AVAILABLE -> R.string.ui_model_none_available
+        CURRENT_PROVIDER_UNAVAILABLE -> R.string.ui_model_current_provider_unavailable
+        DEFAULT_EFFORT_LABEL -> R.string.ui_model_default_effort
+        BUSY_NOTE -> R.string.ui_model_busy_note
+        UNAVAILABLE_NOTE -> R.string.ui_model_unavailable_note
+        else -> null
+    }
 
     /**
      * The providers the picker offers: the available ones, with the bot's

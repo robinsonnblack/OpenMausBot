@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -69,12 +71,12 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Default model for new bots")
-            Text("Future bots on this computer inherit this model unless you choose another during creation.")
+            Text(stringResource(R.string.ui_default_model_for_new_bots_e479071))
+            Text(stringResource(R.string.ui_future_bots_on_this_computer_inherit_this_cbf2108))
             if (loading) CircularProgressIndicator()
             else {
                 ChoicePicker(
-                    label = "Provider",
+                    label = stringResource(R.string.ui_provider_7ceee3f),
                     choices = instances.filter { it.snapshot.isAvailable }.map {
                         VoiceChoice(it.instanceId, ModelRules.instanceLabel(it), null, true)
                     },
@@ -86,7 +88,7 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
                     },
                 )
                 ChoicePicker(
-                    label = "Model",
+                    label = stringResource(R.string.ui_model_68c2cc7),
                     choices = models.map { VoiceChoice(it.id, it.label, null, true) },
                     selected = current?.model.orEmpty(),
                     enabled = available,
@@ -94,13 +96,13 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
                 )
                 val efforts = ModelRules.effortLevels(instance)
                 if (efforts.isNotEmpty()) ChoicePicker(
-                    label = "Reasoning effort",
+                    label = stringResource(R.string.ui_reasoning_effort_cd32c0f),
                     choices = listOf(VoiceChoice("", "Default", null, true)) +
                         efforts.map { VoiceChoice(it, ModelRules.effortLabel(it), null, true) },
                     selected = current?.effort.orEmpty(),
                     onSelect = { effort -> current?.let { selected = it.copy(effort = effort.ifEmpty { null }) } },
                 )
-                if (!available) Text("Choose an available provider.", color = MaterialTheme.colorScheme.error)
+                if (!available) Text(stringResource(R.string.ui_choose_an_available_provider_66910a4), color = MaterialTheme.colorScheme.error)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 TextButton(
                     enabled = !saving && current != null && current != original && available && offered,
@@ -117,9 +119,9 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
                             } finally { saving = false }
                         }
                     },
-                ) { Text(if (saving) "Saving…" else "Save default") }
+                ) { Text(stringResource(if (saving) R.string.ui_saving else R.string.ui_save_default)) }
             }
-            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+            TextButton(enabled = !saving, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
         }
     }
 }

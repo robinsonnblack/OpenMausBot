@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -98,7 +100,7 @@ fun QueuedSendRow(
                     )
                 }
                 Text(
-                    text = if (steering) "Steering…" else "Steer",
+                    text = stringResource(if (steering) R.string.ui_steering else R.string.ui_steer),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                 )
@@ -106,7 +108,7 @@ fun QueuedSendRow(
         }
         Icon(
             imageVector = Icons.Filled.Delete,
-            contentDescription = "Delete this queued message",
+            contentDescription = stringResource(R.string.ui_delete_this_queued_message_4390e04),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier
                 .clip(RoundedCornerShape(50))

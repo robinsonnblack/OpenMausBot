@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,7 +81,7 @@ fun AssistantTurnChip(
             ) {
                 Icon(Icons.Filled.Check, contentDescription = null, tint = secondaryTint, modifier = Modifier.size(14.dp))
                 Text(turn.label, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Text(if (expanded) "Hide" else "Show", fontSize = 12.sp, color = secondaryTint)
+                Text(stringResource(if (expanded) R.string.ui_hide else R.string.ui_show), fontSize = 12.sp, color = secondaryTint)
             }
         }
         if (expanded) turn.items.forEach { message ->
@@ -105,7 +107,7 @@ fun AssistantTurnChip(
 fun WebhookMessageBody(content: WebhookMessageContent) {
     var expanded by remember(content) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Webhook task", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = BubbleColor.mineText)
+        Text(stringResource(R.string.ui_webhook_task_c9c1e5f), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = BubbleColor.mineText)
         SelectionContainer {
             Text(content.task, fontSize = 17.sp, color = BubbleColor.mineText)
         }
@@ -116,7 +118,7 @@ fun WebhookMessageBody(content: WebhookMessageContent) {
                     .semantics { stateDescription = if (expanded) "Expanded" else "Collapsed" },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Event payload", fontSize = 13.sp, color = BubbleColor.mineText, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.ui_event_payload_8b441f9), fontSize = 13.sp, color = BubbleColor.mineText, modifier = Modifier.weight(1f))
                 Icon(
                     if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
                     contentDescription = null, tint = BubbleColor.mineText,

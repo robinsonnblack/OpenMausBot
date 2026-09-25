@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel_blocking">承認と質問</string>
+    <string name="notification_channel_blocking_desc">回答が必要な時間制限のある通知</string>
+    <string name="notification_channel_done">ボットのメッセージ</string>
+    <string name="notification_channel_done_desc">ボットが返信したとき、または応答を終えたときに、通常のメッセージと同様に音を鳴らして表示します</string>
+    <string name="notification_channel_routine">定期処理の失敗</string>
+    <string name="notification_channel_routine_desc">スケジュールされた定期処理が失敗したとき</string>
+    <string name="notification_channel_always_on">バックグラウンド接続</string>
+    <string name="notification_channel_always_on_desc">OpenMausBotがバックグラウンドで接続中に表示されます</string>
+    <string name="always_on_notification_title">MausBotは接続を維持しています</string>
+    <string name="always_on_notification_text">アプリを閉じていても通知を受け取れます</string>
+    <string name="ui_activity_81c0d91" translatable="true" formatted="false">アクティビティ</string>
+    <string name="ui_changes_and_approvals_on_the_paired_comput_fe3af60" translatable="true" formatted="false">ペアリング済みコンピューター上の変更と承認を表示します。管理者とのペアリングが必要です。</string>
+    <string name="ui_who_7d53161" translatable="true" formatted="false">実行者</string>
+    <string name="ui_from_yyyy_mm_dd_1a79f79" translatable="true" formatted="false">開始日（YYYY-MM-DD）</string>
+    <string name="ui_to_yyyy_mm_dd_9be123a" translatable="true" formatted="false">終了日（YYYY-MM-DD）</string>
+    <string name="ui_apply_filters_926161d" translatable="true" formatted="false">フィルターを適用</string>
+    <string name="ui_admin_changes_are_not_being_recorded_for_t_9cce5ee" translatable="true" formatted="false">この1人用ワークスペースでは管理者による変更は記録されません。承認履歴は表示される場合があります。</string>
+    <string name="ui_no_activity_in_this_range_f47c0f9" translatable="true" formatted="false">この期間にアクティビティはありません。</string>
+    <string name="ui_done_e9b450d" translatable="true" formatted="false">完了</string>
+    <string name="ui_art_direction_52d878a" translatable="true" formatted="false">アートディレクション</string>
+    <string name="ui_name_709a232" translatable="true" formatted="false">名前</string>
+    <string name="ui_title_768e0c1" translatable="true" formatted="false">タイトル</string>
+    <string name="ui_what_this_agent_does_82aa1b5" translatable="true" formatted="false">このエージェントの役割</string>
+    <string name="ui_instructions_soul_md_6a3c4fb" translatable="true" formatted="false">指示（SOUL.md）</string>
+    <string name="ui_no_usage_recorded_yet_for_this_bot_8c6a388" translatable="true" formatted="false">このボットの使用記録はまだありません。</string>
+    <string name="ui_some_turns_have_no_reported_price_the_cost_1852ebc" translatable="true" formatted="false">料金が報告されていないターンがあります。表示されている費用は、料金が設定されたターン分のみです。</string>
+    <string name="ui_always_allowed_tools_a0e4e36" translatable="true" formatted="false">常に許可されているツール</string>
+    <string name="ui_no_standing_tool_approvals_e3c188a" translatable="true" formatted="false">常時許可されているツールはありません。</string>
+    <string name="ui_inbound_webhooks_7184d03" translatable="true" formatted="false">受信 Webhook</string>
+    <string name="ui_webhook_status_unavailable_try_reopening_t_8830733" translatable="true" formatted="false">Webhook の状態を取得できません。セクションを開き直してください。</string>
+    <string name="ui_no_webhooks_for_this_bot_53e4266" translatable="true" formatted="false">このボットに Webhook はありません。</string>
+    <string name="ui_changing_this_access_requires_an_admin_pai_8c816c6" translatable="true" formatted="false">このアクセス設定の変更には、管理者としてのペアリングが必要です。</string>
+    <string name="ui_choose_which_enabled_servers_on_the_paired_a2312a2" translatable="true" formatted="false">ペアリング済みのコンピューターで有効なサーバーから、このボットが使用できるものを選択します。</string>
+    <string name="ui_managing_mcp_servers_requires_an_admin_pai_107eb99" translatable="true" formatted="false">MCP サーバーの管理には、管理者としてのペアリングが必要です。</string>
+    <string name="ui_no_mcp_servers_are_configured_on_this_comp_353e4b4" translatable="true" formatted="false">このコンピューターには MCP サーバーが設定されていません。</string>
+    <string name="ui_changing_this_setting_requires_an_admin_pa_47a795c" translatable="true" formatted="false">この設定の変更には、管理者としてのペアリングが必要です。</string>
+    <string name="ui_changing_the_browser_profile_requires_an_a_5d29d91" translatable="true" formatted="false">ブラウザープロファイルの変更には、管理者としてのペアリングが必要です。</string>
+    <string name="ui_absolute_path_on_the_computer_53474d4" translatable="true" formatted="false">コンピューター上の絶対パス</string>
+    <string name="ui_changing_this_folder_requires_an_admin_pai_9e46413" translatable="true" formatted="false">このフォルダーの変更には、管理者としてのペアリングが必要です。</string>
+    <string name="ui_computer_for_this_chat_cda3c01" translatable="true" formatted="false">このチャットで使用するコンピューター</string>
+    <string name="ui_cancel_77dfd21" translatable="true" formatted="false">キャンセル</string>
+    <string name="ui_default_computer_for_this_bot_4e6e9ae" translatable="true" formatted="false">このボットのデフォルトのコンピューター</string>
+    <string name="ui_browser_profile_for_this_bot_d11b9e8" translatable="true" formatted="false">このボットのブラウザープロファイル</string>
+    <string name="ui_allow_automatic_use_of_this_computer_f2feeaf" translatable="true" formatted="false">このコンピューターの自動使用を許可しますか？</string>
+    <string name="ui_this_bot_is_set_to_auto_approval_choosing_9e8896d" translatable="true" formatted="false">このボットは自動承認に設定されています。「このコンピューター」を選ぶと、操作ごとに確認を求めずにペアリング済みのコンピューターを使用できます。</string>
+    <string name="ui_allow_3ad0e36" translatable="true" formatted="false">許可</string>
+    <string name="ui_approval_default_for_this_bot_69550b5" translatable="true" formatted="false">このボットのデフォルトの承認設定</string>
+    <string name="ui_auto_approval_on_this_computer_lets_this_b_0d85a61" translatable="true" formatted="false">「このコンピューター」で自動承認を有効にすると、このボットは操作ごとに確認を求めずにペアリング済みのコンピューターを使用できます。</string>
+    <string name="ui_this_permanently_deletes_the_bot_and_its_c_0c94492" translatable="true" formatted="false">このボットとその会話を完全に削除します。この操作は取り消せません。</string>
+    <string name="ui_delete_bot_f633250" translatable="true" formatted="false">ボットを削除</string>
+    <string name="ui_remove_command_permission_90940a7" translatable="true" formatted="false">コマンドの許可を削除しますか？</string>
+    <string name="ui_remove_e963907" translatable="true" formatted="false">削除</string>
+    <string name="ui_an_exact_command_is_allowed_only_for_this_18c839e" translatable="true" formatted="false">完全一致するコマンドのみが、このボット、プロバイダー、作業フォルダーで許可されます。コマンドに秘密情報を入力しないでください。</string>
+    <string name="ui_try_loading_again_b5375fa" translatable="true" formatted="false">再読み込み</string>
+    <string name="ui_no_commands_are_always_allowed_for_this_bo_95cac14" translatable="true" formatted="false">このボットで常に許可されているコマンドはありません。</string>
+    <string name="ui_remove_permission_2114922" translatable="true" formatted="false">許可を削除</string>
+    <string name="ui_exact_command_a93a31d" translatable="true" formatted="false">完全一致するコマンド</string>
+    <string name="ui_absolute_working_folder_4c69ed7" translatable="true" formatted="false">作業フォルダーの絶対パス</string>
+    <string name="ui_this_bot_s_current_provider_does_not_suppo_9fa61ff" translatable="true" formatted="false">このボットの現在のプロバイダーは、構造化されたコマンド承認に対応していません。</string>
+    <string name="ui_memory_lives_on_the_paired_computer_edits_44cf2d0" translatable="true" formatted="false">メモリはペアリングされたコンピューターに保存されます。ここでの編集内容は、そのMarkdownファイルに保存されます。</string>
+    <string name="ui_files_6ce6c51" translatable="true" formatted="false">ファイル</string>
+    <string name="ui_new_topic_name_md_91647f0" translatable="true" formatted="false">新しいトピック（name.md）</string>
+    <string name="ui_open_cf9b770" translatable="true" formatted="false">開く</string>
+    <string name="ui_save_efc007a" translatable="true" formatted="false">保存</string>
+    <string name="ui_delete_file_b9ea4b3" translatable="true" formatted="false">ファイルを削除</string>
+    <string name="ui_current_computer_version_546fd4b" translatable="true" formatted="false">コンピューター上の現在のバージョン：</string>
+    <string name="ui_use_computer_version_a350e20" translatable="true" formatted="false">コンピューター上のバージョンを使用</string>
+    <string name="ui_keep_my_draft_review_and_save_again_41cff23" translatable="true" formatted="false">下書きを保持して、確認後にもう一度保存</string>
+    <string name="ui_revert_272607a" translatable="true" formatted="false">元に戻す</string>
+    <string name="ui_delete_memory_file_cf52d4c" translatable="true" formatted="false">メモリファイルを削除しますか？</string>
+    <string name="ui_the_change_is_recorded_in_memory_history_10d1ea6" translatable="true" formatted="false">この変更はメモリ履歴に記録されます。</string>
+    <string name="ui_delete_f6fdbe4" translatable="true" formatted="false">削除</string>
+    <string name="ui_revert_memory_change_8d64326" translatable="true" formatted="false">メモリの変更を元に戻しますか？</string>
+    <string name="ui_the_paired_computer_checks_whether_this_ch_773ecfc" translatable="true" formatted="false">ペアリングされたコンピューターが、この変更を安全に元に戻せる状態かどうか確認します。</string>
+    <string name="ui_skills_are_stored_on_the_paired_computer_a_39a0950" translatable="true" formatted="false">スキルはペアリング済みのコンピューターに保存され、このボットの動作を変えることがあります。</string>
+    <string name="ui_disable_9a7d4e0" translatable="true" formatted="false">無効にする</string>
+    <string name="ui_no_skills_installed_for_this_bot_0133dd1" translatable="true" formatted="false">このボットにはスキルがインストールされていません。</string>
+    <string name="ui_import_from_github_url_or_owner_repo_95f0cfc" translatable="true" formatted="false">GitHubからインポート（URLまたはowner/repo）</string>
+    <string name="ui_imports_start_disabled_review_the_full_ski_3d578a1" translatable="true" formatted="false">インポートしたスキルは無効の状態で追加されます。有効にする前にSKILL.md全体を確認してください。</string>
+    <string name="ui_import_d6fbc9d" translatable="true" formatted="false">インポート</string>
+    <string name="ui_these_skills_were_published_by_your_organi_0205790" translatable="true" formatted="false">これらのスキルは組織の管理者によって公開されています。追加すると、このボットで有効になります。</string>
+    <string name="ui_added_b68734c" translatable="true" formatted="false">追加済み</string>
+    <string name="ui_add_to_bot_ab80336" translatable="true" formatted="false">ボットに追加</string>
+    <string name="ui_read_the_complete_skill_before_enabling_it_5c43aed" translatable="true" formatted="false">有効にする前にスキル全体を読んでください。ボットにツールの使用を指示する内容が含まれている場合があります。</string>
+    <string name="ui_enable_this_skill_399b34a" translatable="true" formatted="false">このスキルを有効にする</string>
+    <string name="ui_close_bbfa773" translatable="true" formatted="false">閉じる</string>
+    <string name="ui_this_removes_the_skill_from_the_paired_com_a6b822f" translatable="true" formatted="false">このスキルをペアリング済みのコンピューターから削除します。</string>
+    <string name="ui_add_and_enable_cd1bbf5" translatable="true" formatted="false">追加して有効にする</string>
+    <string name="ui_threads_bb12e8a" translatable="true" formatted="false">スレッド</string>
+    <string name="ui_browser_profiles_f7370dc" translatable="true" formatted="false">ブラウザプロファイル</string>
+    <string name="ui_named_browser_sessions_live_on_the_paired_863fb0f" translatable="true" formatted="false">名前付きブラウザセッションはペアリング済みのコンピューターに保存され、ボット間で共有できます。</string>
+    <string name="ui_no_named_browser_profiles_yet_3363a04" translatable="true" formatted="false">名前付きブラウザプロファイルはまだありません。</string>
+    <string name="ui_rename_d3f4cb8" translatable="true" formatted="false">名前を変更</string>
+    <string name="ui_save_name_8ce6864" translatable="true" formatted="false">名前を保存</string>
+    <string name="ui_new_profile_name_393313b" translatable="true" formatted="false">新しいプロファイル名</string>
+    <string name="ui_create_profile_96b8eeb" translatable="true" formatted="false">プロファイルを作成</string>
+    <string name="ui_the_computer_allows_at_most_20_profiles_e631e10" translatable="true" formatted="false">このコンピューターで作成できるプロファイルは最大20個です。</string>
+    <string name="ui_load_earlier_messages_4ac08d1" translatable="true" formatted="false">以前のメッセージを読み込む</string>
+    <string name="ui_unpin_2eba6a0" translatable="true" formatted="false">ピン留めを解除</string>
+    <string name="ui_open_desktop_cd6f821" translatable="true" formatted="false">デスクトップを開く</string>
+    <string name="ui_connected_apps_8ab72a8" translatable="true" formatted="false">接続済みアプリ</string>
+    <string name="ui_search_apps_ca3ce8f" translatable="true" formatted="false">アプリを検索</string>
+    <string name="ui_connected_apps_need_setup_2cdb536" translatable="true" formatted="false">接続済みアプリの設定が必要です</string>
+    <string name="ui_no_connected_apps_are_available_from_this_0529e71" translatable="true" formatted="false">このコンピューターで利用できる接続済みアプリはありません。</string>
+    <string name="ui_account_alias_8cf27ca" translatable="true" formatted="false">アカウントの別名</string>
+    <string name="ui_work_personal_client_7d6a18a" translatable="true" formatted="false">仕事用、個人用、クライアント用…</string>
+    <string name="ui_continue_2e02623" translatable="true" formatted="false">続行</string>
+    <string name="ui_accounts_could_not_be_re_checked_6727be8" translatable="true" formatted="false">アカウントを再確認できませんでした</string>
+    <string name="ui_connecting_fd3e796" translatable="true" formatted="false">接続中…</string>
+    <string name="ui_connection_unknown_973b048" translatable="true" formatted="false">接続状況を確認できません</string>
+    <string name="ui_add_another_account_5dcc791" translatable="true" formatted="false">別のアカウントを追加</string>
+    <string name="ui_default_model_for_new_bots_e479071" translatable="true" formatted="false">新しいBotのデフォルトモデル</string>
+    <string name="ui_future_bots_on_this_computer_inherit_this_cbf2108" translatable="true" formatted="false">このコンピューターで今後作成するBotは、作成時に別のモデルを選ばない限り、このモデルを引き継ぎます。</string>
+    <string name="ui_choose_an_available_provider_66910a4" translatable="true" formatted="false">利用可能なプロバイダーを選択してください。</string>
+    <string name="ui_engines_7f5d63a" translatable="true" formatted="false">エンジン</string>
+    <string name="ui_these_engines_run_on_the_paired_computer_i_5761473" translatable="true" formatted="false">これらのエンジンはペアリング済みのコンピューターで動作します。インストールは、そのコンピューターが対応している場合にのみ利用できます。</string>
+    <string name="ui_refresh_models_ba6da3f" translatable="true" formatted="false">モデルを更新</string>
+    <string name="ui_install_on_computer_7ec9984" translatable="true" formatted="false">コンピューターにインストール</string>
+    <string name="ui_the_paired_computer_may_download_and_insta_0bfa662" translatable="true" formatted="false">ペアリング済みのコンピューターにこのエンジンをダウンロードしてインストールします。時間がかかる場合があります。</string>
+    <string name="ui_install_fd6c3eb" translatable="true" formatted="false">インストール</string>
+    <string name="ui_share_09ca55c" translatable="true" formatted="false">共有</string>
+    <string name="ui_this_image_couldn_t_be_displayed_34d0827" translatable="true" formatted="false">この画像を表示できませんでした。</string>
+    <string name="ui_reset_44c57ab" translatable="true" formatted="false">リセット</string>
+    <string name="ui_built_in_browser_on_this_computer_fca83a8" translatable="true" formatted="false">このコンピューターの内蔵ブラウザー</string>
+    <string name="ui_enable_built_in_browser_c489a56" translatable="true" formatted="false">内蔵ブラウザーを有効にする</string>
+    <string name="ui_install_the_browser_engine_from_settings_e_c8f25a9" translatable="true" formatted="false">ボットが使用するには、設定 → エンジンからブラウザーエンジンをインストールしてください。</string>
+    <string name="ui_each_bot_also_needs_its_own_built_in_brows_407fbcf" translatable="true" formatted="false">各ボットには、それぞれ内蔵ブラウザーの権限も必要です。このホスト側のスイッチをオフにすると、コンピューター上で実行中のブラウザーセッションが終了します。</string>
+    <string name="ui_turn_off_the_built_in_browser_024ac88" translatable="true" formatted="false">内蔵ブラウザーをオフにしますか？</string>
+    <string name="ui_this_closes_live_built_in_browser_sessions_f4e7975" translatable="true" formatted="false">ペアリング済みのコンピューターで実行中の内蔵ブラウザーセッションが終了します。再度オンにするまで、ボットはブラウザーを利用できなくなります。</string>
+    <string name="ui_turn_off_8807c2b" translatable="true" formatted="false">オフにする</string>
+    <string name="ui_local_vm_7f61d89" translatable="true" formatted="false">ローカルVM</string>
+    <string name="ui_this_isolated_desktop_runs_on_the_paired_c_ad72a1c" translatable="true" formatted="false">この隔離デスクトップはペアリングされたコンピューター上で動作します。操作によってイメージがダウンロードされたり、コンテナが変更されたりすることがあります。</string>
+    <string name="ui_isolation_mode_4166201" translatable="true" formatted="false">隔離モード</string>
+    <string name="ui_maximum_isolated_desktops_5fe6c2f" translatable="true" formatted="false">隔離デスクトップの最大数</string>
+    <string name="ui_save_vm_policy_a09a1e6" translatable="true" formatted="false">VMポリシーを保存</string>
+    <string name="ui_shared_vm_85baef0" translatable="true" formatted="false">共有VM</string>
+    <string name="ui_download_image_d6f34a9" translatable="true" formatted="false">イメージをダウンロード</string>
+    <string name="ui_create_desktop_6f5358e" translatable="true" formatted="false">デスクトップを作成</string>
+    <string name="ui_start_desktop_2c8d254" translatable="true" formatted="false">デスクトップを起動</string>
+    <string name="ui_stop_desktop_1f13f5b" translatable="true" formatted="false">デスクトップを停止</string>
+    <string name="ui_remove_desktop_5ed19d5" translatable="true" formatted="false">デスクトップを削除</string>
+    <string name="ui_per_bot_desktops_56e561d" translatable="true" formatted="false">ボットごとのデスクトップ</string>
+    <string name="ui_no_per_bot_desktop_is_currently_installed_6521cb4" translatable="true" formatted="false">ボットごとのデスクトップはまだインストールされていません。</string>
+    <string name="ui_stop_9e25347" translatable="true" formatted="false">停止</string>
+    <string name="ui_refresh_56e3bad" translatable="true" formatted="false">更新</string>
+    <string name="ui_delete_messages_93f3675" translatable="true" formatted="false">メッセージを削除</string>
+    <string name="ui_select_messages_to_permanently_remove_olde_000f52e" translatable="true" formatted="false">完全に削除するメッセージを選択してください。編集前や再送前の古いバージョンも含まれます。</string>
+    <string name="ui_select_all_913afff" translatable="true" formatted="false">すべて選択</string>
+    <string name="ui_clear_719ea39" translatable="true" formatted="false">選択を解除</string>
+    <string name="ui_no_messages_in_this_conversation_089151e" translatable="true" formatted="false">この会話にはメッセージがありません。</string>
+    <string name="ui_this_permanently_deletes_the_selected_mess_0d8a658" translatable="true" formatted="false">選択したメッセージを完全に削除します。この操作は取り消せません。</string>
+    <string name="ui_copy_af74f7c" translatable="true" formatted="false">コピー</string>
+    <string name="ui_select_text_9d49219" translatable="true" formatted="false">テキストを選択</string>
+    <string name="ui_edit_and_retry_f683a3c" translatable="true" formatted="false">編集して再試行</string>
+    <string name="ui_this_creates_a_new_version_and_continues_f_9a5d779" translatable="true" formatted="false">新しいバージョンを作成し、そこから続行します。</string>
+    <string name="ui_message_68f4145" translatable="true" formatted="false">メッセージ</string>
+    <string name="ui_send_9bc2575" translatable="true" formatted="false">送信</string>
+    <string name="ui_file_b4915d3" translatable="true" formatted="false">ファイル</string>
+    <string name="ui_tap_to_preview_fa5ce0e" translatable="true" formatted="false">タップしてプレビュー</string>
+    <string name="ui_retry_9f5cd8a" translatable="true" formatted="false">再試行</string>
+    <string name="ui_always_allow_this_tool_2ce82a7" translatable="true" formatted="false">このツールを常に許可</string>
+    <string name="ui_screenshot_unavailable_cfe6fcb" translatable="true" formatted="false">スクリーンショットを利用できません</string>
+    <string name="ui_the_key_is_saved_on_the_paired_computer_no_4b5a828" translatable="true" formatted="false">キーはこのスマートフォンではなく、ペアリング済みのパソコンに保存されます。</string>
+    <string name="ui_custom_api_url_optional_35fec44" translatable="true" formatted="false">カスタム API URL（任意）</string>
+    <string name="ui_save_key_f5216b3" translatable="true" formatted="false">キーを保存</string>
+    <string name="ui_test_and_discover_models_726e489" translatable="true" formatted="false">テストしてモデルを検索</string>
+    <string name="ui_remove_key_582d9a7" translatable="true" formatted="false">キーを削除</string>
+    <string name="ui_default_reasoning_for_new_bots_a4425be" translatable="true" formatted="false">新しいボットのデフォルトの推論の強さ</string>
+    <string name="ui_this_is_a_fallback_for_future_bots_their_o_ad2831e" translatable="true" formatted="false">これは今後作成するボット用の代替設定です。各ボット独自のモデルと推論の強さの設定が優先され、対応していないレベルはスキップされます。</string>
+    <string name="ui_allow_automatic_pc_actions_3f3cbfd" translatable="true" formatted="false">PCの操作を自動で許可しますか？</string>
+    <string name="ui_this_bot_can_act_on_this_computer_without_51d302f" translatable="true" formatted="false">このボットは、操作ごとの確認なしでこのコンピューターを操作できます。信頼できるボットにのみ有効にしてください。</string>
+    <string name="ui_create_with_auto_approval_4786fc0" translatable="true" formatted="false">自動承認で作成</string>
+    <string name="ui_new_bot_66d3c05" translatable="true" formatted="false">新しいボット</string>
+    <string name="ui_role_or_title_53f2cc0" translatable="true" formatted="false">役割または肩書き</string>
+    <string name="ui_description_55f8ebc" translatable="true" formatted="false">説明</string>
+    <string name="ui_bot_instructions_67fe721" translatable="true" formatted="false">ボットへの指示</string>
+    <string name="ui_bot_instructions_must_be_at_most_24_kb_a655cb6" translatable="true" formatted="false">ボットへの指示は24 KB以内にしてください。</string>
+    <string name="ui_notifications_753a22b" translatable="true" formatted="false">通知</string>
+    <string name="ui_speak_replies_90b05ae" translatable="true" formatted="false">返信を音声で読み上げる</string>
+    <string name="ui_full_and_custom_desktop_grants_must_be_con_9e2da95" translatable="true" formatted="false">デスクトップへのフルアクセス権とカスタムアクセス権は、コンピューター上で設定する必要があります。</string>
+    <string name="ui_working_folder_on_computer_optional_702ecf4" translatable="true" formatted="false">コンピューター上の作業フォルダー（任意）</string>
+    <string name="ui_voice_id_optional_b8dd8bb" translatable="true" formatted="false">音声ID（任意）</string>
+    <string name="ui_these_are_part_of_this_bot_s_draft_they_ar_ff27d04" translatable="true" formatted="false">これらはこのボットの下書きに含まれます。ボットの作成時にインストールされます。ここで編集しても、保存済みの既定値は変更されません。</string>
+    <string name="ui_memory_index_1254180" translatable="true" formatted="false">メモリーインデックス</string>
+    <string name="ui_add_memory_topic_3bf3be5" translatable="true" formatted="false">メモリートピックを追加</string>
+    <string name="ui_skill_md_55b8417" translatable="true" formatted="false">SKILL.md</string>
+    <string name="ui_enable_after_creation_63ce6fd" translatable="true" formatted="false">作成後に有効化</string>
+    <string name="ui_add_skill_d61f09b" translatable="true" formatted="false">スキルを追加</string>
+    <string name="ui_routine_name_9a8a0dd" translatable="true" formatted="false">ルーティン名</string>
+    <string name="ui_routine_instructions_d1546d5" translatable="true" formatted="false">ルーティンへの指示</string>
+    <string name="ui_add_daily_routine_3e412e7" translatable="true" formatted="false">毎日のルーティンを追加</string>
+    <string name="ui_advanced_editor_profile_fields_all_memory_8d81fcd" translatable="true" formatted="false">詳細エディターでは、プロフィール項目、すべてのメモリーパス、スキルのメタデータ、スケジュールの種類を編集できます。上のボット設定は、同じプロフィール項目に対して優先されます。値が無効な場合は、ボットの作成前にエラーになります。</string>
+    <string name="ui_profile_json_object_66c6703" translatable="true" formatted="false">プロフィール（JSONオブジェクト）</string>
+    <string name="ui_memory_files_json_object_121129d" translatable="true" formatted="false">メモリーファイル（JSONオブジェクト）</string>
+    <string name="ui_skills_json_array_41eb708" translatable="true" formatted="false">スキル（JSON配列）</string>
+    <string name="ui_routines_json_array_a50d811" translatable="true" formatted="false">ルーティン（JSON配列）</string>
+    <string name="ui_create_6e157c5" translatable="true" formatted="false">作成</string>
+    <string name="ui_group_name_optional_0fd3a15" translatable="true" formatted="false">グループ名（任意）</string>
+    <string name="ui_section_name_75e2b3c" translatable="true" formatted="false">セクション名</string>
+    <string name="ui_not_now_e457149" translatable="true" formatted="false">後で</string>
+    <string name="ui_1_open_openmausbot_settings_phone_38cfc5b" translatable="true" formatted="false">1. Open OpenMausBot → 設定 → Phone</string>
+    <string name="ui_2_choose_set_up_a_phone_8fd474a" translatable="true" formatted="false">2. 「電話をセットアップ」を選択</string>
+    <string name="ui_scan_qr_code_04e3f10" translatable="true" formatted="false">QRコードをスキャン</string>
+    <string name="ui_looking_5e65f10" translatable="true" formatted="false">検索中…</string>
+    <string name="ui_https_mac_example_or_192_168_1_42_8810_e277eb2" translatable="true" formatted="false">https://mac.example または 192.168.1.42:8810</string>
+    <string name="ui_address_d70f93d" translatable="true" formatted="false">アドレス</string>
+    <string name="ui_pair_with_this_computer_8420e8b" translatable="true" formatted="false">このコンピューターとペアリング</string>
+    <string name="ui_6_digit_or_abcd_efgh_jklm_code_e1da990" translatable="true" formatted="false">6桁または ABCD-EFGH-JKLM のコード</string>
+    <string name="ui_connect_b65463c" translatable="true" formatted="false">接続</string>
+    <string name="ui_choose_a_different_computer_9e2a62e" translatable="true" formatted="false">別のコンピューターを選択</string>
+    <string name="ui_no_changes_recorded_yet_2eab95e" translatable="true" formatted="false">変更履歴はまだありません。</string>
+    <string name="ui_undo_this_instruction_change_373a0dc" translatable="true" formatted="false">この指示の変更を元に戻す</string>
+    <string name="ui_undo_instruction_change_0b5e098" translatable="true" formatted="false">指示の変更を元に戻しますか？</string>
+    <string name="ui_this_restores_the_previous_standing_instru_61fc443" translatable="true" formatted="false">以前の継続的な指示を復元します。現在のテキストは履歴に保存されます。</string>
+    <string name="ui_undo_39fc721" translatable="true" formatted="false">元に戻す</string>
+    <string name="ui_prompt_inspector_0885254" translatable="true" formatted="false">プロンプトインスペクター</string>
+    <string name="ui_captured_requests_may_contain_full_private_08a9427" translatable="true" formatted="false">記録されたリクエストには、会話の全内容が含まれている場合があります。エクスポートしたファイルは非公開にしてください。</string>
+    <string name="ui_find_in_preview_82cf60d" translatable="true" formatted="false">プレビュー内を検索</string>
+    <string name="ui_preview_limited_to_80_000_characters_copy_2214d4b" translatable="true" formatted="false">プレビューは80,000文字までです。全内容を確認するには、表示内容をコピーするかJSONをエクスポートしてください。</string>
+    <string name="ui_copy_view_eb8c972" translatable="true" formatted="false">表示内容をコピー</string>
+    <string name="ui_export_json_bc39905" translatable="true" formatted="false">JSONをエクスポート</string>
+    <string name="ui_open_settings_134635e" translatable="true" formatted="false">設定を開く</string>
+    <string name="ui_agent_composed_question_a49293c" translatable="true" formatted="false">エージェントが作成した質問</string>
+    <string name="ui_choose_all_that_apply_5a20d23" translatable="true" formatted="false">該当するものをすべて選択してください</string>
+    <string name="ui_type_your_own_answer_84cf994" translatable="true" formatted="false">回答を入力</string>
+    <string name="ui_quick_replies_c14223c" translatable="true" formatted="false">クイック返信</string>
+    <string name="ui_edit_5301648" translatable="true" formatted="false">編集</string>
+    <string name="ui_move_up_b4f57cd" translatable="true" formatted="false">上へ移動</string>
+    <string name="ui_move_down_260ff8a" translatable="true" formatted="false">下へ移動</string>
+    <string name="ui_add_61cc55a" translatable="true" formatted="false">追加</string>
+    <string name="ui_reset_quick_replies_4d3d125" translatable="true" formatted="false">クイック返信をリセットしますか？</string>
+    <string name="ui_this_removes_all_quick_replies_you_can_add_ff3ea3d" translatable="true" formatted="false">すべてのクイック返信が削除されます。後から追加できます。</string>
+    <string name="ui_label_74341e3" translatable="true" formatted="false">ラベル</string>
+    <string name="ui_prompt_a817d7e" translatable="true" formatted="false">プロンプト</string>
+    <string name="ui_icon_716f63b" translatable="true" formatted="false">アイコン</string>
+    <string name="ui_group_settings_121d556" translatable="true" formatted="false">グループ設定</string>
+    <string name="ui_group_instructions_36a914e" translatable="true" formatted="false">グループへの指示</string>
+    <string name="ui_members_1cb449c" translatable="true" formatted="false">メンバー</string>
+    <string name="ui_who_responds_by_default_56b3401" translatable="true" formatted="false">デフォルトで応答するメンバー</string>
+    <string name="ui_dynamic_lets_the_bots_decide_who_should_re_e189313" translatable="true" formatted="false">ダイナミックでは、返信するボットと返信を終了するタイミングをボットが決めます。</string>
+    <string name="ui_delete_group_b6f15b2" translatable="true" formatted="false">グループを削除</string>
+    <string name="ui_this_permanently_deletes_the_group_convers_1d90d54" translatable="true" formatted="false">グループの会話とスレッドが完全に削除されます。ボットは残ります。この操作は取り消せません。</string>
+    <string name="ui_room_turn_timeout_0bf9d2d" translatable="true" formatted="false">ルームのターン制限時間</string>
+    <string name="ui_how_long_one_bot_may_take_to_finish_a_room_21a83ff" translatable="true" formatted="false">ボットがルームのターンを完了するまでに許可される時間です。時間を過ぎるとコンピューターが停止します。</string>
+    <string name="ui_minutes_1_1_440_856bca8" translatable="true" formatted="false">分（1～1,440）</string>
+    <string name="ui_enter_a_whole_number_from_1_to_1_440_5fcb58c" translatable="true" formatted="false">1～1,440の整数を入力してください。</string>
+    <string name="ui_something_went_wrong_8d886c0" translatable="true" formatted="false">問題が発生しました</string>
+    <string name="ui_ok_9ce3bd4" translatable="true" formatted="false">OK</string>
+    <string name="ui_pair_again_379e2bf" translatable="true" formatted="false">再度ペアリング</string>
+    <string name="ui_use_another_computer_ff6a1b8" translatable="true" formatted="false">別のコンピューターを使う</string>
+    <string name="ui_search_threads_006299d" translatable="true" formatted="false">スレッドを検索</string>
+    <string name="ui_what_should_the_agent_do_b952606" translatable="true" formatted="false">エージェントに何をさせますか？</string>
+    <string name="ui_custom_081ae3f" translatable="true" formatted="false">カスタム</string>
+    <string name="ui_custom_interval_1eea767" translatable="true" formatted="false">カスタム間隔</string>
+    <string name="ui_minutes_be2e2bb" translatable="true" formatted="false">分</string>
+    <string name="ui_from_5_minutes_to_24_hours_a6bafa4" translatable="true" formatted="false">5分から24時間まで</string>
+    <string name="ui_next_bc98198" translatable="true" formatted="false">次へ</string>
+    <string name="ui_stop_if_still_running_after_45efb17" translatable="true" formatted="false">実行が続いている場合、次の時間が経過したら停止</string>
+    <string name="ui_no_limit_10850b9" translatable="true" formatted="false">制限なし</string>
+    <string name="ui_agent_5ce2e6f" translatable="true" formatted="false">エージェント</string>
+    <string name="ui_choose_an_agent_faaaf2b" translatable="true" formatted="false">エージェントを選択</string>
+    <string name="ui_settings_c7f73bb" translatable="true" formatted="false">設定</string>
+    <string name="ui_edit_address_31fe67f" translatable="true" formatted="false">アドレスを編集</string>
+    <string name="ui_this_removes_the_saved_connection_from_thi_54db681" translatable="true" formatted="false">この操作で、このスマートフォンに保存された接続情報のみが削除されます。</string>
+    <string name="ui_activity_detail_049f3bd" translatable="true" formatted="false">アクティビティの詳細</string>
+    <string name="ui_shared_profile_ff09ab4" translatable="true" formatted="false">共有プロフィール</string>
+    <string name="ui_this_profile_is_shared_with_every_bot_on_t_1199512" translatable="true" formatted="false">このプロフィールは、ペアリング済みのコンピューター上のすべてのボットと共有されます。</string>
+    <string name="ui_your_name_ab42293" translatable="true" formatted="false">名前</string>
+    <string name="ui_email_84add5b" translatable="true" formatted="false">メールアドレス</string>
+    <string name="ui_what_should_bots_know_about_you_d3abb57" translatable="true" formatted="false">ボットに伝えておきたいこと</string>
+    <string name="ui_send_to_openmausbot_4dffcb7" translatable="true" formatted="false">OpenMausBotに送信</string>
+    <string name="ui_sharing_f789760" translatable="true" formatted="false">共有中</string>
+    <string name="ui_computer_9e47da1" translatable="true" formatted="false">コンピューター</string>
+    <string name="ui_send_to_bd1c2c3" translatable="true" formatted="false">送信先</string>
+    <string name="ui_last_used_ac90977" translatable="true" formatted="false">前回使用</string>
+    <string name="ui_instruction_optional_3c5a084" translatable="true" formatted="false">指示（任意）</string>
+    <string name="ui_for_example_summarize_this_and_list_the_ne_12b3d09" translatable="true" formatted="false">例：要約して、次のステップをリストアップ</string>
+    <string name="ui_reading_shared_content_61a0de2" translatable="true" formatted="false">共有コンテンツを読み込み中</string>
+    <string name="ui_computer_924645b" translatable="true" formatted="false">コンピューター</string>
+    <string name="ui_send_to_b98cc23" translatable="true" formatted="false">送信先</string>
+    <string name="ui_skill_authoring_on_this_computer_c606f2d" translatable="true" formatted="false">このデバイスでのスキル作成</string>
+    <string name="ui_when_enabled_bots_may_draft_new_skills_for_1370cc7" translatable="true" formatted="false">有効にすると、ボットがレビュー用の新しいスキル案を作成できるようになります。承認されるまで、案が有効になることはありません。</string>
+    <string name="ui_allow_bots_to_draft_skills_40a0794" translatable="true" formatted="false">ボットによるスキル案の作成を許可する</string>
+    <string name="ui_stop_this_thread_before_snoozing_it_d76b3d2" translatable="true" formatted="false">スヌーズする前に、このスレッドを停止してください。</string>
+    <string name="ui_delete_routine_0cb076a" translatable="true" formatted="false">ルーティンを削除</string>
+    <string name="ui_run_now_2af00e2" translatable="true" formatted="false">今すぐ実行</string>
+    <string name="ui_this_thread_s_usage_9245e98" translatable="true" formatted="false">このスレッドの使用量</string>
+    <string name="ui_manage_teams_c99bf82" translatable="true" formatted="false">チームを管理</string>
+    <string name="ui_changes_on_this_phone_also_change_the_pair_9f8fbb1" translatable="true" formatted="false">このスマートフォンでの変更は、ペアリング済みのパソコンにも反映されます。</string>
+    <string name="ui_no_teams_yet_9210826" translatable="true" formatted="false">チームはまだありません。</string>
+    <string name="ui_all_teams_e75f540" translatable="true" formatted="false">すべてのチーム</string>
+    <string name="ui_team_name_9b11ed1" translatable="true" formatted="false">チーム名</string>
+    <string name="ui_rename_team_bbd28e3" translatable="true" formatted="false">チーム名を変更</string>
+    <string name="ui_team_members_8bd76ae" translatable="true" formatted="false">チームメンバー</string>
+    <string name="ui_create_bot_in_this_team_f2e808c" translatable="true" formatted="false">このチームにボットを作成</string>
+    <string name="ui_save_members_b5c33de" translatable="true" formatted="false">メンバーを保存</string>
+    <string name="ui_chief_of_staff_ab970be" translatable="true" formatted="false">チーフ・オブ・スタッフ</string>
+    <string name="ui_the_chief_can_coordinate_bots_and_propose_e6d0193" translatable="true" formatted="false">チーフは、選択したチームのボットを調整し、セットアップの変更を提案できます。チーフ自身のチームは常に含まれます。関係のないチャットは非公開のままです。</string>
+    <string name="ui_create_another_team_to_extend_the_chief_s_36ad2a6" translatable="true" formatted="false">チーフのアクセス範囲を広げるには、別のチームを作成してください。</string>
+    <string name="ui_save_chief_team_access_9807639" translatable="true" formatted="false">チーフのチームアクセスを保存</string>
+    <string name="ui_delete_team_a9661e7" translatable="true" formatted="false">チームを削除</string>
+    <string name="ui_the_team_heading_and_membership_are_remove_ef3cdbe" translatable="true" formatted="false">チーム名とメンバー設定が削除されます。ボットと会話は保持されます。</string>
+    <string name="ui_grant_team_access_03bbb07" translatable="true" formatted="false">チームへのアクセスを許可</string>
+    <string name="ui_choose_a_look_for_this_phone_your_computer_43e0f76" translatable="true" formatted="false">このスマートフォンのテーマを選択してください。パソコンでは別のテーマ設定が使われます。</string>
+    <string name="ui_edit_custom_colors_c23f59a" translatable="true" formatted="false">カスタムカラーを編集</string>
+    <string name="ui_start_from_a_preset_then_change_any_color_b788e2a" translatable="true" formatted="false">プリセットを選んでから、色を自由に変更できます。16進数値は #RRGGBB と #RRGGBBAA に対応しています。透明色も指定できます。</string>
+    <string name="ui_correct_invalid_colors_before_saving_a1c9f07" translatable="true" formatted="false">保存する前に無効な色を修正してください。</string>
+    <string name="ui_save_and_use_dd8b341" translatable="true" formatted="false">保存して適用</string>
+    <string name="ui_back_b52b36b" translatable="true" formatted="false">戻る</string>
+    <string name="ui_thread_settings_9ab5123" translatable="true" formatted="false">スレッド設定</string>
+    <string name="ui_these_settings_apply_to_the_paired_compute_ab7235e" translatable="true" formatted="false">これらの設定は、このスマートフォンだけでなく、ペアリングされたコンピューターに適用されます。</string>
+    <string name="ui_parallel_tasks_per_bot_1_10_7a16634" translatable="true" formatted="false">ボットごとの並列タスク数（1～10）</string>
+    <string name="ui_event_log_cap_in_kib_optional_8815723" translatable="true" formatted="false">イベントログの上限（KiB、任意）</string>
+    <string name="ui_leave_empty_to_keep_logs_without_a_size_ca_401ba8f" translatable="true" formatted="false">空欄の場合、サイズ上限を設定せずにログを保持します。最小値は256 KiBです。</string>
+    <string name="ui_closed_thread_log_retention_in_days_option_c38fb4b" translatable="true" formatted="false">クローズしたスレッドのログ保存期間（日、任意）</string>
+    <string name="ui_leave_empty_to_retain_logs_indefinitely_c82c98d" translatable="true" formatted="false">空欄の場合、ログを無期限に保持します。</string>
+    <string name="ui_enter_1_10_tasks_a_cap_of_256_4_194_304_ki_c966fd5" translatable="true" formatted="false">タスク数は1～10、上限は256～4,194,304 KiB、日数は1～3650で入力してください。任意の項目は空欄にできます。</string>
+    <string name="ui_copy_diff_18f2296" translatable="true" formatted="false">差分をコピー</string>
+    <string name="ui_copy_csv_b810b7c" translatable="true" formatted="false">CSVをコピー</string>
+    <string name="ui_webhook_task_c9c1e5f" translatable="true" formatted="false">Webhook タスク</string>
+    <string name="ui_event_payload_8b441f9" translatable="true" formatted="false">イベントペイロード</string>
+    <string name="ui_updates_c76d180" translatable="true" formatted="false">アップデート</string>
+    <string name="ui_export_workspace_backup_7f9b140" translatable="true" formatted="false">ワークスペースのバックアップをエクスポート</string>
+    <string name="ui_creates_an_encrypted_copy_of_the_paired_co_3b6819c" translatable="true" formatted="false">ペアリング済みのコンピューターのワークスペースを暗号化してコピーします。パスワードは別途保存してください。パスワードがないとバックアップを復元できません。</string>
+    <string name="ui_use_a_secure_https_or_tailscale_connection_0418ff3" translatable="true" formatted="false">安全なHTTPSまたはTailscale接続を使用してください。暗号化されたファイルは、スマートフォンのメモリに読み込まず、選択した場所に直接書き込まれます。</string>
+    <string name="ui_a_restore_is_pending_restart_the_computer_f6b7f8f" translatable="true" formatted="false">復元が保留中です。次のバックアップを作成する前に、コンピューターのアプリを再起動してください。</string>
+    <string name="ui_another_backup_operation_is_in_progress_on_de27387" translatable="true" formatted="false">コンピューターで別のバックアップ処理が進行中です。</string>
+    <string name="ui_new_backup_password_at_least_12_characters_6be1ab3" translatable="true" formatted="false">新しいバックアップ用パスワード（12文字以上）</string>
+    <string name="ui_confirm_password_4a7c565" translatable="true" formatted="false">パスワードを確認</string>
+    <string name="ui_creating_or_downloading_the_backup_keep_th_6e4ab95" translatable="true" formatted="false">バックアップを作成またはダウンロードしています…この画面を開いたままにしてください。</string>
+    <string name="ui_choose_file_and_export_fed6a25" translatable="true" formatted="false">ファイルを選択してエクスポート</string>
+    <string name="ui_import_workspace_backup_7a4b7cc" translatable="true" formatted="false">ワークスペースのバックアップをインポート</string>
+    <string name="ui_this_can_replace_all_workspace_data_on_the_d5973d7" translatable="true" formatted="false">ペアリング済みのコンピューター上のワークスペースデータがすべて置き換わる可能性があります。まず暗号化されたバックアップをアップロードして内容を確認してください。「REPLACE」と入力して確定するまでは置き換わりません。</string>
+    <string name="ui_use_https_or_tailscale_keep_this_screen_op_08e5ec2" translatable="true" formatted="false">HTTPS または Tailscale を使用してください。アーカイブのアップロード中はこの画面を開いたままにしてください。</string>
+    <string name="ui_restore_committed_restart_openmausbot_on_t_2cf7bbd" translatable="true" formatted="false">復元が確定しました。完了するには、コンピューターで OpenMausBot を再起動してください。</string>
+    <string name="ui_choose_ombbackup_file_ea3cf5a" translatable="true" formatted="false">.ombbackup ファイルを選択</string>
+    <string name="ui_backup_password_d96a607" translatable="true" formatted="false">バックアップのパスワード</string>
+    <string name="ui_upload_and_validate_cb162f1" translatable="true" formatted="false">アップロードして検証</string>
+    <string name="ui_restoring_replaces_the_computer_s_workspac_218a6c6" translatable="true" formatted="false">復元すると、コンピューター上のワークスペースが置き換わります。バックアップを確認し、先に別の安全用コピーを作成してください。</string>
+    <string name="ui_type_replace_to_confirm_0eae810" translatable="true" formatted="false">確認のため REPLACE と入力</string>
+    <string name="ui_replace_computer_workspace_8bf7494" translatable="true" formatted="false">コンピューターのワークスペースを置き換える</string>
+    <string name="ui_working_on_the_paired_computer_635f578" translatable="true" formatted="false">ペアリング済みのコンピューターで処理中…</string>
+    <string name="ui_replace_this_computer_s_workspace_7be159d" translatable="true" formatted="false">このコンピューターのワークスペースを置き換えますか？</string>
+    <string name="ui_the_staged_backup_will_replace_existing_wo_eadcd90" translatable="true" formatted="false">準備済みのバックアップによって、ペアリング済みのコンピューター上の既存のワークスペースデータが置き換わります。スマートフォンから元に戻すことはできません。プレビューを確認し、安全用コピーを作成した場合にのみ続行してください。</string>
+    <string name="ui_restore_now_1e4932d" translatable="true" formatted="false">今すぐ復元</string>
+    <string name="ui_model_prices_5f9f78a" translatable="true" formatted="false">モデル料金</string>
+    <string name="ui_prices_per_million_tokens_used_by_the_pair_7286bc9" translatable="true" formatted="false">ペアリング済みコンピューターで使用する、100万トークンあたりの料金です。「default」の行は、それ以外のモデルに適用されます。キャッシュ入力欄が空の場合は、入力料金が適用されます。この料金は、コストの見積もりや支出上限に影響することがあります。</string>
+    <string name="ui_currency_e070de2" translatable="true" formatted="false">通貨</string>
+    <string name="ui_model_id_or_default_d70af9a" translatable="true" formatted="false">モデルIDまたはdefault</string>
+    <string name="ui_input_b568d47" translatable="true" formatted="false">入力</string>
+    <string name="ui_output_4bed336" translatable="true" formatted="false">出力</string>
+    <string name="ui_cached_input_optional_c4f63ef" translatable="true" formatted="false">キャッシュ入力（任意）</string>
+    <string name="ui_remove_row_bd7f4b4" translatable="true" formatted="false">行を削除</string>
+    <string name="ui_add_model_b6a86ca" translatable="true" formatted="false">モデルを追加</string>
+    <string name="ui_save_prices_e452a2f" translatable="true" formatted="false">料金を保存</string>
+    <string name="ui_monthly_spending_limit_4a8a9e1" translatable="true" formatted="false">月間支出上限</string>
+    <string name="ui_this_limit_applies_to_the_paired_computer_e7793e7" translatable="true" formatted="false">この上限は、ペアリングされたコンピューターのワークスペース全体に適用されます。ホストに記録された費用を使用するため、料金が設定されていないターンは上限に含まれない場合があります。</string>
+    <string name="ui_monthly_limit_in_usd_blank_no_limit_699cd41" translatable="true" formatted="false">月間上限（USD、空欄の場合は上限なし）</string>
+    <string name="ui_warn_at_percent_2a5d6d1" translatable="true" formatted="false">警告する割合（%）</string>
+    <string name="ui_save_workspace_limit_e0b28af" translatable="true" formatted="false">ワークスペースの上限を保存</string>
+    <string name="ui_usage_recorded_by_the_paired_computer_cost_c072280" translatable="true" formatted="false">使用量はペアリング済みのコンピューターで記録されます。費用は報告値または推定値で、価格未設定のターンには費用の推定値がありません。</string>
+    <string name="ui_bot_settings_7092a29" translatable="true" formatted="false">ボットの設定</string>
+    <string name="ui_what_this_bot_does_7a664f4" translatable="true" formatted="false">このボットの役割</string>
+    <string name="ui_provider_7ceee3f" translatable="true" formatted="false">プロバイダー</string>
+    <string name="ui_model_68c2cc7" translatable="true" formatted="false">モデル</string>
+    <string name="ui_reasoning_effort_cd32c0f" translatable="true" formatted="false">推論の強さ</string>
+    <string name="ui_apply_model_474897c" translatable="true" formatted="false">モデルを適用</string>
+    <string name="ui_upload_image_f35dec5" translatable="true" formatted="false">画像をアップロード</string>
+    <string name="ui_use_mascot_0de90a1" translatable="true" formatted="false">マスコットを使用</string>
+    <string name="ui_generate_on_computer_ff5b744" translatable="true" formatted="false">コンピューターで生成</string>
+    <string name="ui_agent_notifications_a3bd8bd" translatable="true" formatted="false">エージェントの通知</string>
+    <string name="ui_soul_md_was_changed_outside_openmausbot_res_eec376d" translatable="true" formatted="false">SOUL.md が OpenMausBot の外部で変更されました。ここで編集する前に、コンピューター上でファイルの差分を解決してください。</string>
+    <string name="ui_standing_instructions_changed_on_the_comput_13fc657" translatable="true" formatted="false">編集中にコンピューター上で常時指示が変更されました。保存する前に、このシートを閉じて開き直し、内容を確認してください。</string>
+    <string name="ui_save_standing_instructions_58af9a1" translatable="true" formatted="false">常時指示を保存</string>
+    <string name="ui_allow_this_bot_to_use_connected_apps_17416a3" translatable="true" formatted="false">このボットによる接続済みアプリの使用を許可</string>
+    <string name="ui_use_all_enabled_servers_c421ad8" translatable="true" formatted="false">有効なサーバーをすべて使用</string>
+    <string name="ui_give_this_bot_a_built_in_browser_3c98718" translatable="true" formatted="false">このボットに内蔵ブラウザーを提供</string>
+    <string name="ui_ask_before_contacting_other_bots_fb8e56d" translatable="true" formatted="false">他のボットへの連絡前に確認</string>
+    <string name="ui_change_bot_default_computer_533fe72" translatable="true" formatted="false">ボットのデフォルトのコンピューターを変更</string>
+    <string name="ui_change_this_chat_s_computer_576f1d9" translatable="true" formatted="false">このチャットで使用するコンピューターを変更</string>
+    <string name="ui_change_ask_auto_approval_fc82281" translatable="true" formatted="false">確認／自動承認を変更</string>
+    <string name="ui_choose_browser_profile_2cdb00e" translatable="true" formatted="false">ブラウザープロファイルを選択</string>
+    <string name="ui_the_working_folder_changed_on_the_computer_9271460" translatable="true" formatted="false">編集中にコンピューター上の作業フォルダーが変更されました。保存する前に、このシートを閉じて開き直してください。</string>
+    <string name="ui_save_working_folder_62fa68c" translatable="true" formatted="false">作業フォルダーを保存</string>
+    <string name="ui_use_private_bot_folder_c5897aa" translatable="true" formatted="false">ボット専用フォルダーを使用</string>
+    <string name="ui_voice_3091c84" translatable="true" formatted="false">音声</string>
+    <string name="ui_preview_voice_560a6fe" translatable="true" formatted="false">音声をプレビュー</string>
+    <string name="ui_save_profile_changes_49c8333" translatable="true" formatted="false">プロフィールの変更を保存</string>
+    <string name="ui_voice_engine_3b4d8de" translatable="true" formatted="false">音声エンジン</string>
+    <string name="ui_plus_6a8437d" translatable="true" formatted="false">プラス</string>
+    <string name="ui_dismiss_70afe9e" translatable="true" formatted="false">閉じる</string>
+    <string name="ui_slash_commands_e7bb82f" translatable="true" formatted="false">スラッシュコマンド</string>
+    <string name="ui_use_open_to_view_this_file_in_a_compatible_9a04647" translatable="true" formatted="false">このファイルを対応アプリで表示するには、「開く」をタップしてください。</string>
+    <string name="ui_image_unavailable_f2cca83" translatable="true" formatted="false">画像を利用できません</string>
+    <string name="ui_voice_note_unavailable_426ad5f" translatable="true" formatted="false">ボイスメモを利用できません</string>
+    <string name="ui_team_2188872" translatable="true" formatted="false">チーム</string>
+    <string name="ui_color_1d0c830" translatable="true" formatted="false">色</string>
+    <string name="ui_computer_access_b090ead" translatable="true" formatted="false">コンピューターへのアクセス</string>
+    <string name="ui_browser_profile_d7d5c8f" translatable="true" formatted="false">ブラウザープロファイル</string>
+    <string name="ui_action_approval_d6cf31e" translatable="true" formatted="false">操作の承認</string>
+    <string name="ui_new_group_f9850c0" translatable="true" formatted="false">新しいグループ</string>
+    <string name="ui_bots_4ca88ea" translatable="true" formatted="false">ボット</string>
+    <string name="ui_organize_bots_08f4197" translatable="true" formatted="false">ボットを整理</string>
+    <string name="ui_pair_with_a_computer_51716e0" translatable="true" formatted="false">コンピューターとペアリング</string>
+    <string name="ui_other_ways_to_connect_d9e8585" translatable="true" formatted="false">その他の接続方法</string>
+    <string name="ui_other_6e6a6f2" translatable="true" formatted="false">その他</string>
+    <string name="ui_waiting_on_you_edab5b7" translatable="true" formatted="false">あなたの対応待ち</string>
+    <string name="ui_newer_schedule_c56a41a" translatable="true" formatted="false">新しいスケジュール</string>
+    <string name="ui_one_time_6fea9e4" translatable="true" formatted="false">1回のみ</string>
+    <string name="ui_selected_days_7890ff6" translatable="true" formatted="false">曜日を選択</string>
+    <string name="ui_every_x_minutes_000b5c3" translatable="true" formatted="false">X分ごと</string>
+    <string name="ui_run_b1b3926" translatable="true" formatted="false">実行日時</string>
+    <string name="ui_time_6c82e6d" translatable="true" formatted="false">時刻</string>
+    <string name="ui_advanced_4d06472" translatable="true" formatted="false">詳細設定</string>
+    <string name="ui_try_reconnecting_8310b02" translatable="true" formatted="false">再接続を試す</string>
+    <string name="ui_threads_routines_65d7efc" translatable="true" formatted="false">スレッドとルーティン</string>
+    <string name="ui_open_thread_9309e68" translatable="true" formatted="false">スレッドを開く</string>
+    <string name="ui_data_table_54baf78" translatable="true" formatted="false">データテーブル</string>
+    <string name="ui_activity_entries_retained" translatable="true" formatted="false">%1$s件のエントリー・保持期間は%2$s日</string>
+    <string name="ui_activity_first_entries" translatable="true" formatted="false">最初の%1$s件を表示しています。全期間分はCSVをエクスポートしてください。</string>
+    <string name="ui_activity_before_value" translatable="true" formatted="false">変更前：%1$s</string>
+    <string name="ui_activity_after_value" translatable="true" formatted="false">変更後：%1$s</string>
+    <string name="ui_dynamic_1_s_24_000_bytes_5437d3f" translatable="true" formatted="false">%1$s / 24,000 バイト</string>
+    <string name="ui_dynamic_1_s_turns_across_this_bot_s_threads_66053f6" translatable="true" formatted="false">このボットのスレッド全体で %1$s ターン</string>
+    <string name="ui_dynamic_bot_default_1_s_775155b" translatable="true" formatted="false">ボットのデフォルト：%1$s</string>
+    <string name="ui_dynamic_this_chat_1_s_3fdd6fa" translatable="true" formatted="false">このチャット：%1$s</string>
+    <string name="ui_dynamic_approvals_for_this_chat_1_s_3fceff5" translatable="true" formatted="false">このチャットの承認設定：%1$s</string>
+    <string name="ui_dynamic_bot_approval_default_1_s_825c310" translatable="true" formatted="false">ボットのデフォルトの承認設定：%1$s</string>
+    <string name="ui_dynamic_this_chat_is_still_pinned_to_1_s_b8c7601" translatable="true" formatted="false">このチャットは引き続き %1$s に固定されています。</string>
+    <string name="ui_dynamic_delete_1_s_cd24016" translatable="true" formatted="false">%1$s を削除しますか？</string>
+    <string name="ui_dynamic_this_bot_will_ask_again_before_running_897f150" translatable="true" formatted="false">このボットは、%1$s で次のコマンドを実行する前に、再度確認します。\n%2$s</string>
+    <string name="ui_dynamic_current_provider_1_s_386803f" translatable="true" formatted="false">現在のプロバイダー：%1$s</string>
+    <string name="ui_dynamic_memory_md_1_s_2_s_bytes_loaded_into_co_6640726" translatable="true" formatted="false">MEMORY.md：コンテキストに読み込まれたバイト数 %1$s / %2$s</string>
+    <string name="ui_dynamic_1_s_bytes_fb518b0" translatable="true" formatted="false">%1$s バイト</string>
+    <string name="ui_dynamic_1_s_skill_proposal_s_await_a_decision_299180c" translatable="true" formatted="false">チャットで%1$s件のスキル提案が確認待ちです。</string>
+    <string name="ui_dynamic_from_1_s_1616793" translatable="true" formatted="false">%1$sから</string>
+    <string name="ui_dynamic_remove_1_s_c8e14e6" translatable="true" formatted="false">%1$sを削除しますか？</string>
+    <string name="ui_dynamic_add_1_s_0b8ac0a" translatable="true" formatted="false">%1$sを追加しますか？</string>
+    <string name="ui_dynamic_this_organization_skill_will_be_enable_c4f96de" translatable="true" formatted="false">この組織のスキルは、ボットで直ちに有効になります。提供元：%2$s（%1$s）</string>
+    <string name="ui_dynamic_rename_1_s_f90cb3c" translatable="true" formatted="false">%1$s の名前を変更</string>
+    <string name="ui_dynamic_pinned_1_s_aad27eb" translatable="true" formatted="false">ピン留め中 · %1$s</string>
+    <string name="ui_dynamic_an_alias_makes_the_account_explicit_wh_725873b" translatable="true" formatted="false">別名を付けると、エージェントが複数の%1$sアカウントを使う場合に、どのアカウントか明確になります。</string>
+    <string name="ui_dynamic_connect_1_s_c9e612b" translatable="true" formatted="false">%1$sに接続</string>
+    <string name="ui_dynamic_install_1_s_on_this_computer_48d0e36" translatable="true" formatted="false">このコンピューターに %1$s をインストールしますか？</string>
+    <string name="ui_dynamic_1_s_selected_51753f0" translatable="true" formatted="false">%1$s件を選択中</string>
+    <string name="ui_dynamic_delete_1_s_messages_3a611c8" translatable="true" formatted="false">%1$s件のメッセージを削除しますか？</string>
+    <string name="ui_dynamic_sha256_1_s_d401381" translatable="true" formatted="false">sha256 %1$s</string>
+    <string name="ui_dynamic_messaged_1_s_bd9371e" translatable="true" formatted="false">%1$s にメッセージを送信しました</string>
+    <string name="ui_dynamic_1_s_of_2_s_91d50e4" translatable="true" formatted="false">%1$s / %2$s</string>
+    <string name="ui_dynamic_1_s_connection_8b94a5f" translatable="true" formatted="false">%1$s 接続</string>
+    <string name="ui_dynamic_remove_1_s_key_128fb5a" translatable="true" formatted="false">%1$s のキーを削除しますか？</string>
+    <string name="ui_dynamic_bots_using_1_s_may_become_unavailable_5983068" translatable="true" formatted="false">%1$s を使用しているボットは、新しいキーが保存されるまで利用できなくなる場合があります。</string>
+    <string name="ui_dynamic_routine_1_s_dbdf8d6" translatable="true" formatted="false">ルーティン %1$s</string>
+    <string name="ui_dynamic_1_s_is_ready_7dd2ea0" translatable="true" formatted="false">%1$s の準備ができました</string>
+    <string name="ui_dynamic_1_s_has_a_question_13ca9f2" translatable="true" formatted="false">%1$sから質問があります</string>
+    <string name="ui_dynamic_only_1_s_d47f0d2" translatable="true" formatted="false">%1$s のみ</string>
+    <string name="ui_dynamic_1_s_minutes_29dd88a" translatable="true" formatted="false">%1$s分</string>
+    <string name="ui_dynamic_snooze_1_s_50ec2df" translatable="true" formatted="false">%1$s をスヌーズ</string>
+    <string name="ui_dynamic_1_s_s_threads_d34c7ce" translatable="true" formatted="false">%1$s のスレッド</string>
+    <string name="ui_dynamic_1_s_s_provider_cannot_coordinate_bots_630b82d" translatable="true" formatted="false">%1$s のプロバイダーはボットを調整できません。</string>
+    <string name="ui_dynamic_additional_teams_for_1_s_78587fb" translatable="true" formatted="false">%1$s の追加チーム</string>
+    <string name="ui_dynamic_give_1_s_access_to_more_teams_745ba86" translatable="true" formatted="false">%1$s に他のチームへのアクセスを許可しますか？</string>
+    <string name="ui_dynamic_copy_1_s_colors_825c9ef" translatable="true" formatted="false">%1$sの色をコピー</string>
+    <string name="ui_dynamic_backup_saved_1_s_bytes_b0e8870" translatable="true" formatted="false">バックアップを保存しました：%1$s バイト。</string>
+    <string name="ui_dynamic_backup_from_1_s_openmausbot_2_s_2e6a715" translatable="true" formatted="false">%1$s のバックアップ · OpenMausBot %2$s</string>
+    <string name="ui_dynamic_1_s_bots_2_s_groups_3_s_threads_4_s_me_8a1f5f2" translatable="true" formatted="false">ボット %1$s 件 · グループ %2$s 件 · スレッド %3$s 件 · メッセージ %4$s 件</string>
+    <string name="ui_dynamic_1_s_files_2_s_bytes_3ebbf28" translatable="true" formatted="false">ファイル %1$s 件 · %2$s バイト</string>
+    <string name="ui_dynamic_excluded_1_s_0335dd8" translatable="true" formatted="false">除外対象：%1$s</string>
+    <string name="ui_dynamic_warning_1_s_c0ecd56" translatable="true" formatted="false">警告：%1$s</string>
+    <string name="ui_dynamic_total_1_s_turns_2_s_input_3_s_cached_4_71addfc" translatable="true" formatted="false">合計：ターン数 %1$s · 入力 %2$s（キャッシュ済み %3$s）· 出力 %4$s</string>
+    <string name="ui_dynamic_1_s_unpriced_turn_s_are_excluded_from_187562f" translatable="true" formatted="false">価格未設定のターン %1$s 件は費用に含まれません。</string>
+    <string name="ui_dynamic_monthly_limit_1_s_of_2_s_afbe88f" translatable="true" formatted="false">月額上限：%2$s 中 %1$s</string>
+    <string name="ui_dynamic_1_s_turns_2_s_input_3_s_cached_4_s_out_8e3f5b3" translatable="true" formatted="false">ターン数 %1$s · 入力 %2$s（キャッシュ済み %3$s）· 出力 %4$s</string>
+    <string name="ui_profile_avatar_footer" translatable="true" formatted="false">PNG、JPEG、GIF、WebP形式（最大10 MB）。画像はペアリング済みのコンピューターに保存され、このスマートフォンのペアリングトークンを使って読み込まれます。</string>
+    <string name="ui_profile_generate_ready_footer" translatable="true" formatted="false">画像の生成には、コンピューターで設定した共有画像プロバイダーを使用します。プロバイダーのキーがこのスマートフォンに送信・保存されることはありません。</string>
+    <string name="ui_profile_generate_blocked_footer" translatable="true" formatted="false">画像を生成するには、コンピューターのOpenMausBotで共有画像プロバイダーを設定してください。スマートフォンからプロバイダーのキーを追加することはできません。</string>
+    <string name="ui_profile_tts_unconfigured" translatable="true" formatted="false">ElevenLabsが設定されていません</string>
+    <string name="ui_profile_system_tts_unconfigured" translatable="true" formatted="false">コンピューターの内蔵音声を利用できません</string>
+    <string name="ui_profile_voice_unconfigured_footer" translatable="true" formatted="false">コンピューター上のこのエージェントのプロフィールで、共有ElevenLabsキーを追加してください。キーがこのスマートフォンに返されることはありません。</string>
+    <string name="ui_profile_system_voice_unconfigured_footer" translatable="true" formatted="false">コンピューターの内蔵音声にはキーは不要ですが、利用可能な音声がないと報告されています。音声を再び有効にするには、コンピューターのOpenMausBotで音声エンジンを切り替えてください。</string>
+    <string name="ui_profile_voice_no_default_footer" translatable="true" formatted="false">ワークスペースのデフォルト音声が選択されていません。上でエージェント専用の音声を選んでください。音声合成には引き続き、コンピューター上の共有ElevenLabsキーが使用されます。</string>
+    <string name="ui_profile_fish_tts_unconfigured" translatable="true" formatted="false">Fish Audioが設定されていません</string>
+    <string name="ui_profile_fish_voice_unconfigured_footer" translatable="true" formatted="false">コンピューターのOpenMausBotで共有Fish Audio APIキーを追加してください。キーがこのスマートフォンに返されることはありません。</string>
+    <string name="ui_profile_fish_voice_no_default_footer" translatable="true" formatted="false">ワークスペースのデフォルト音声が選択されていません。上でエージェント専用の音声を選んでください。音声合成には引き続き、コンピューター上のFish Audioが使用されます。</string>
+    <string name="ui_profile_system_voice_no_default_footer" translatable="true" formatted="false">ワークスペースのデフォルト音声が選択されていません。上でエージェント専用の音声を選んでください。音声合成には引き続き、コンピューターの内蔵音声が使用されます。</string>
+    <string name="ui_profile_chatterbox_tts_unconfigured" translatable="true" formatted="false">Chatterboxサーバーに接続されていません</string>
+    <string name="ui_profile_chatterbox_voice_unconfigured_footer" translatable="true" formatted="false">音声を再び有効にするには、コンピューターのOpenMausBotでChatterboxサーバーのアドレスを追加してください。</string>
+    <string name="ui_profile_chatterbox_voice_no_default_footer" translatable="true" formatted="false">ワークスペースのデフォルト音声が選択されていません。上でエージェント専用の音声を選んでください。音声合成には引き続き、Chatterboxサーバーが使用されます。</string>
+    <string name="ui_profile_voice_ready_footer" translatable="true" formatted="false">音声の選択はこのエージェントに適用されます。ワークスペースのデフォルトでは、コンピューターで選択した共有音声が使用されます。</string>
+    <string name="ui_profile_pick_a_voice" translatable="true" formatted="false">音声を有効にする前に、このエージェントの音声を選んでください。</string>
+    <string name="ui_profile_preview_refused" translatable="true" formatted="false">まずエージェント音声を選ぶか、コンピューターでワークスペースのデフォルト音声を設定してください。</string>
+    <string name="ui_profile_workspace_default" translatable="true" formatted="false">ワークスペースのデフォルト</string>
+    <string name="ui_profile_choose_agent_voice" translatable="true" formatted="false">エージェントの音声を選択</string>
+    <string name="ui_profile_current_agent_voice" translatable="true" formatted="false">現在のエージェント音声</string>
+    <string name="ui_profile_builtin_mac_voices" translatable="true" formatted="false">Macの内蔵音声</string>
+    <string name="ui_profile_chatterbox_local" translatable="true" formatted="false">Chatterbox（ローカル）</string>
+    <string name="ui_profile_mascot" translatable="true" formatted="false">マスコット</string>
+    <string name="ui_profile_circle" translatable="true" formatted="false">円形</string>
+    <string name="ui_profile_rounded" translatable="true" formatted="false">角丸</string>
+    <string name="ui_profile_square" translatable="true" formatted="false">四角形</string>
+    <string name="ui_avatar_7631b26" translatable="true" formatted="false">アバター</string>
+    <string name="ui_generate_an_avatar_01e5cee" translatable="true" formatted="false">アバターを生成</string>
+    <string name="ui_identity_7e5a975" translatable="true" formatted="false">アイデンティティ</string>
+    <string name="ui_standing_instructions_4706e23" translatable="true" formatted="false">常時適用する指示</string>
+    <string name="ui_change_history_81cca21" translatable="true" formatted="false">変更履歴</string>
+    <string name="ui_usage_0bb1864" translatable="true" formatted="false">使用状況</string>
+    <string name="ui_memory_89c8a28" translatable="true" formatted="false">メモリ</string>
+    <string name="ui_skills_e09212c" translatable="true" formatted="false">スキル</string>
+    <string name="ui_access_details_1277ed4" translatable="true" formatted="false">アクセスの詳細</string>
+    <string name="ui_connected_apps_8f5e8ef" translatable="true" formatted="false">接続済みアプリ</string>
+    <string name="ui_mcp_servers_8d9a304" translatable="true" formatted="false">MCP サーバー</string>
+    <string name="ui_built_in_browser_ce1c92b" translatable="true" formatted="false">組み込みブラウザー</string>
+    <string name="ui_bot_coordination_a0133a3" translatable="true" formatted="false">ボット間連携</string>
+    <string name="ui_working_folder_00e69ec" translatable="true" formatted="false">作業フォルダー</string>
+    <string name="ui_slash_commands_efce77d" translatable="true" formatted="false">スラッシュコマンド</string>
+    <string name="ui_close_slash_commands_5ff49ab" translatable="true" formatted="false">スラッシュコマンドを閉じる</string>
+    <string name="ui_previous_version_989537a" translatable="true" formatted="false">前のバージョン</string>
+    <string name="ui_next_version_514439d" translatable="true" formatted="false">次のバージョン</string>
+    <string name="ui_a_frame_of_this_bot_s_computer_39b6a5b" translatable="true" formatted="false">このボットのコンピューターの1フレーム</string>
+    <string name="ui_your_chats_in_your_pocket_91291d7" translatable="true" formatted="false">チャットをいつでも手元に</string>
+    <string name="ui_respond_when_a_bot_needs_you_9697332" translatable="true" formatted="false">ボットからの呼びかけに応答</string>
+    <string name="ui_private_by_design_3aaa9fd" translatable="true" formatted="false">設計からプライバシーを重視</string>
+    <string name="ui_on_your_computer_9a62153" translatable="true" formatted="false">コンピューターで</string>
+    <string name="ui_on_this_network_4c9f524" translatable="true" formatted="false">このネットワーク上</string>
+    <string name="ui_or_enter_the_address_f74dcf1" translatable="true" formatted="false">またはアドレスを入力</string>
+    <string name="ui_confirm_computer_d778cfb" translatable="true" formatted="false">コンピューターを確認</string>
+    <string name="ui_scanner_unavailable_cc42e33" translatable="true" formatted="false">スキャナーを利用できません</string>
+    <string name="ui_requesting_camera_access_30e104c" translatable="true" formatted="false">カメラへのアクセスをリクエスト中…</string>
+    <string name="ui_camera_access_needed_28a22fc" translatable="true" formatted="false">カメラへのアクセスが必要です</string>
+    <string name="ui_delete_this_queued_message_4390e04" translatable="true" formatted="false">このキュー内のメッセージを削除</string>
+    <string name="ui_this_phone_was_unpaired_0927360" translatable="true" formatted="false">このスマートフォンのペアリングは解除されました</string>
+    <string name="ui_groups_ae9629f" translatable="true" formatted="false">グループ</string>
+    <string name="ui_bot_threads_ec81acf" translatable="true" formatted="false">ボットのスレッド</string>
+    <string name="ui_clear_search_67300d0" translatable="true" formatted="false">検索をクリア</string>
+    <string name="ui_search_bce0641" translatable="true" formatted="false">検索</string>
+    <string name="ui_organize_bots_into_a_section_9293c5a" translatable="true" formatted="false">ボットをセクションに整理</string>
+    <string name="ui_work_00040ba" translatable="true" formatted="false">作業</string>
+    <string name="ui_where_does_it_run_6e4a529" translatable="true" formatted="false">どこで実行しますか？</string>
+    <string name="ui_schedule_0a8adac" translatable="true" formatted="false">スケジュール</string>
+    <string name="ui_change_when_the_interval_starts_0a68203" translatable="true" formatted="false">間隔の開始日時を変更</string>
+    <string name="ui_new_thread_02057e2" translatable="true" formatted="false">新しいスレッド</string>
+    <string name="ui_new_routine_32809dc" translatable="true" formatted="false">新しいルーティン</string>
+    <string name="ui_webhooks_fdfe2da" translatable="true" formatted="false">Webhook</string>
+    <string name="ui_dynamic_1_s_avatar_de63895" translatable="true" formatted="false">%1$sのアバター</string>
+    <string name="ui_dynamic_new_thread_with_1_s_80fb451" translatable="true" formatted="false">%1$sとの新しいスレッド</string>
+    <string name="ui_dynamic_manage_1_s_s_threads_f3530e9" translatable="true" formatted="false">%1$sのスレッドを管理</string>
+    <string name="ui_dynamic_watch_1_s_s_computer_92efc11" translatable="true" formatted="false">%1$sのコンピューターを見る</string>
+    <string name="ui_dynamic_remove_1_s_ecd908a" translatable="true" formatted="false">%1$sを削除</string>
+    <string name="ui_dynamic_1_s_s_computer_7637def" translatable="true" formatted="false">%1$sのコンピューター</string>
+    <string name="ui_dynamic_delete_1_s_961ae88" translatable="true" formatted="false">%1$s を削除</string>
+    <string name="ui_dynamic_actions_for_1_s_767f154" translatable="true" formatted="false">%1$s のアクション</string>
+    <string name="ui_model_footer" translatable="true" formatted="false">プロバイダーのアカウント情報とAPIキーはお使いの端末内に保存されます。「デフォルト」では推論レベルを指定せず、プロバイダーに任せます。</string>
+    <string name="ui_model_loading" translatable="true" formatted="false">モデルを読み込み中</string>
+    <string name="ui_model_none_available" translatable="true" formatted="false">利用できるモデルプロバイダーはありません</string>
+    <string name="ui_model_current_provider_unavailable" translatable="true" formatted="false">現在のプロバイダー（利用不可）</string>
+    <string name="ui_model_default_effort" translatable="true" formatted="false">デフォルト</string>
+    <string name="ui_model_busy_note" translatable="true" formatted="false">モデルを変更するには、このボットを停止してください。</string>
+    <string name="ui_model_unavailable_note" translatable="true" formatted="false">このボットのモデルを変更するには、利用可能なプロバイダーを選択してください。</string>
+    <string name="ui_pairing_network_permission" translatable="true" formatted="true">このネットワークを検索するには %1$s が必要ですが、まだオフになっています。QRコードと下のアドレスは、これがなくても使えます。</string>
+    <string name="ui_pairing_scan_explanation" translatable="true" formatted="false">QRコードをスキャンし、コンピューター名を確認して承認してください。アドレスとワンタイム認証情報は安全に自動入力されます。</string>
+    <string name="ui_pairing_nothing_found" translatable="true" formatted="false">まだ見つかりません。スマートフォンとコンピューターが同じWi-Fiネットワークに接続されているか確認してください。ゲストネットワークでは互いを検出できないことがあります。下にアドレスを入力する方法もあります。</string>
+    <string name="ui_pairing_tailscale_hint" translatable="true" formatted="false">表示されない場合は、両方の端末にTailscaleをインストールし、同じアカウントでサインインしてください。すると、Phone設定に .ts.net で終わる名前が表示されるので、下に入力できます。</string>
+    <string name="ui_pairing_address_hint" translatable="true" formatted="false">コンピューターのPhone設定に表示されているものを入力してください。安全な https:// アドレス、このネットワーク上のアドレス、または macbook.tail1234.ts.net:8810 のようなTailscale名を使えます。</string>
+    <string name="ui_inspector_token_counts" translatable="true" formatted="true">未キャッシュ: %1$s    キャッシュ済み: %2$s    出力: %3$s</string>
+    <string name="ui_inspector_model_input" translatable="true" formatted="false">モデル入力</string>
+    <string name="ui_inspector_full_request" translatable="true" formatted="false">リクエスト全体</string>
+    <string name="ui_inspector_changes" translatable="true" formatted="false">変更内容</string>
+    <string name="ui_inspector_diagnostics" translatable="true" formatted="false">診断情報</string>
+    <string name="ui_profile_webhook_status" translatable="true" formatted="true">%1$s · %2$s · 配信%3$s件</string>
+    <string name="ui_status_active" translatable="true" formatted="false">有効</string>
+    <string name="ui_status_paused" translatable="true" formatted="false">一時停止</string>
+    <string name="ui_skill_status_and_source" translatable="true" formatted="true">%1$s・%2$s</string>
+    <string name="ui_status_enabled" translatable="true" formatted="false">有効</string>
+    <string name="ui_status_disabled" translatable="true" formatted="false">無効</string>
+    <string name="ui_engine_status_models" translatable="true" formatted="true">%1$s · %2$s · %3$s 個のモデル</string>
+    <string name="ui_engine_status_models_without_version" translatable="true" formatted="true">%1$s · %2$s 個のモデル</string>
+    <string name="ui_chief_extra_teams_explanation" translatable="true" formatted="true">このチーフは、%1$s のボットを調整し、セットアップの変更を提案できます。他のボットの権限はそのままで、関係のないチャット履歴は非公開のままです。</string>
+    <string name="ui_general_team_name" translatable="true" formatted="false">全般</string>
+    <string name="ui_theme_chat_layout" translatable="true" formatted="true">チャットレイアウト：%1$s</string>
+    <string name="ui_theme_standard" translatable="true" formatted="false">標準</string>
+    <string name="ui_backup_selected_file" translatable="true" formatted="true">選択済み：%1$s</string>
+    <string name="ui_backup_selected_file_bytes" translatable="true" formatted="true">選択済み：%1$s · %2$s バイト</string>
+    <string name="ui_usage_cost" translatable="true" formatted="true">費用：%1$s</string>
+    <string name="ui_usage_includes_estimates" translatable="true" formatted="false">（推定値を含む）</string>
+    <string name="ui_usage_unpriced_count" translatable="true" formatted="true"> · 価格未設定 %1$s 件</string>
+    <string name="ui_new_bot_skill_name" translatable="true" formatted="true">スキル：%1$s</string>
+    <string name="ui_new_bot_schedule_type" translatable="true" formatted="true">スケジュール：%1$s</string>
+    <string name="ui_vm_runtime_status" translatable="true" formatted="true">ランタイム：%1$s · %2$s</string>
+    <string name="ui_vm_not_installed" translatable="true" formatted="false">未インストール</string>
+    <string name="ui_vm_running" translatable="true" formatted="false">実行中</string>
+    <string name="ui_vm_not_running" translatable="true" formatted="false">停止中</string>
+    <string name="ui_vm_image_container_status" translatable="true" formatted="true">イメージ：%1$s · コンテナ：%2$s</string>
+    <string name="ui_vm_available" translatable="true" formatted="false">利用可能</string>
+    <string name="ui_vm_missing" translatable="true" formatted="false">未取得</string>
+    <string name="ui_vm_desktop_ready" translatable="true" formatted="false">デスクトップは準備完了</string>
+    <string name="ui_vm_desktop_not_ready" translatable="true" formatted="false">デスクトップは準備未完了</string>
+    <string name="ui_vm_shared" translatable="true" formatted="false">共有</string>
+    <string name="ui_vm_per_bot" translatable="true" formatted="false">ボットごと</string>
+    <string name="ui_vm_runtime_unavailable" translatable="true" formatted="false">ランタイムを利用できません</string>
+    <string name="ui_vm_instance_status" translatable="true" formatted="true">%1$s：%2$s · %3$s</string>
+    <string name="ui_vm_ready" translatable="true" formatted="false">準備完了</string>
+    <string name="ui_vm_not_ready" translatable="true" formatted="false">未準備</string>
+    <string name="ui_vm_in_use_suffix" translatable="true" formatted="false"> · 使用中</string>
+    <string name="ui_unpin_message" translatable="true" formatted="false">メッセージのピン留めを解除</string>
+    <string name="ui_pin_message" translatable="true" formatted="false">メッセージをピン留め</string>
+    <string name="ui_copied" translatable="true" formatted="false">コピーしました</string>
+    <string name="ui_copy_all" translatable="true" formatted="false">すべてコピー</string>
+    <string name="ui_hide" translatable="true" formatted="false">非表示</string>
+    <string name="ui_show" translatable="true" formatted="false">表示</string>
+    <string name="ui_new_quick_reply" translatable="true" formatted="false">クイック返信を新規作成</string>
+    <string name="ui_edit_quick_reply" translatable="true" formatted="false">クイック返信を編集</string>
+    <string name="ui_custom_theme_title" translatable="true" formatted="false">カスタムテーマ</string>
+    <string name="ui_appearance_title" translatable="true" formatted="false">外観</string>
+    <string name="ui_submit_answers" translatable="true" formatted="false">回答を送信</string>
+    <string name="ui_submit_answer" translatable="true" formatted="false">回答を送信</string>
+    <string name="ui_cancel_action" translatable="true" formatted="false">キャンセル</string>
+    <string name="ui_done_action" translatable="true" formatted="false">完了</string>
+    <string name="ui_exporting" translatable="true" formatted="false">エクスポート中…</string>
+    <string name="ui_export_csv" translatable="true" formatted="false">CSVをエクスポート</string>
+    <string name="ui_hide_changes" translatable="true" formatted="false">変更を非表示</string>
+    <string name="ui_show_changes" translatable="true" formatted="false">変更を表示</string>
+    <string name="ui_saving" translatable="true" formatted="false">保存中…</string>
+    <string name="ui_always_allow_exact_command" translatable="true" formatted="false">完全一致するコマンドを常に許可</string>
+    <string name="ui_read_skill" translatable="true" formatted="false">読む</string>
+    <string name="ui_review_enable_skill" translatable="true" formatted="false">確認して有効にする</string>
+    <string name="ui_refreshing" translatable="true" formatted="false">更新中…</string>
+    <string name="ui_refresh_action" translatable="true" formatted="false">更新</string>
+    <string name="ui_connecting" translatable="true" formatted="false">接続中…</string>
+    <string name="ui_connected" translatable="true" formatted="false">接続済み</string>
+    <string name="ui_status_pending" translatable="true" formatted="false">保留中</string>
+    <string name="ui_save_default" translatable="true" formatted="false">デフォルトを保存</string>
+    <string name="ui_save_action" translatable="true" formatted="false">保存</string>
+    <string name="ui_hide_full_address" translatable="true" formatted="false">完全なアドレスを隠す</string>
+    <string name="ui_show_full_address" translatable="true" formatted="false">完全なアドレスを表示</string>
+    <string name="ui_copy_action" translatable="true" formatted="false">コピー</string>
+    <string name="ui_retry_send" translatable="true" formatted="false">送信を再試行</string>
+    <string name="ui_try_again" translatable="true" formatted="false">もう一度試す</string>
+    <string name="ui_pause_action" translatable="true" formatted="false">一時停止</string>
+    <string name="ui_resume_action" translatable="true" formatted="false">再開</string>
+    <string name="ui_mistral_key_configured" translatable="true" formatted="false">このパソコンではキーが設定されています。</string>
+    <string name="ui_mistral_no_key" translatable="true" formatted="false">キーは設定されていません。</string>
+    <string name="ui_mistral_replace_key" translatable="true" formatted="false">API キーを変更</string>
+    <string name="ui_mistral_api_key" translatable="true" formatted="false">API キー</string>
+    <string name="ui_deleting" translatable="true" formatted="false">削除中…</string>
+    <string name="ui_delete_count" translatable="true" formatted="true">%1$s件を削除</string>
+    <string name="ui_delete_conversation_keep_files" translatable="true" formatted="false">この会話は削除されます。生成されたファイルは保持されます。</string>
+    <string name="ui_hide_bot_settings" translatable="true" formatted="false">ボット設定を閉じる</string>
+    <string name="ui_bot_settings" translatable="true" formatted="false">ボット設定</string>
+    <string name="ui_hide_bot_content" translatable="true" formatted="false">メモリー、スキル、ルーティンを閉じる</string>
+    <string name="ui_bot_content" translatable="true" formatted="false">メモリー、スキル、ルーティン</string>
+    <string name="ui_hide_template_editor" translatable="true" formatted="false">テンプレート全体のエディターを閉じる</string>
+    <string name="ui_edit_full_template" translatable="true" formatted="false">テンプレート全体を編集</string>
+    <string name="ui_creating_bot" translatable="true" formatted="false">作成中…</string>
+    <string name="ui_create_bot" translatable="true" formatted="false">ボットを作成</string>
+    <string name="ui_browser_session_erased" translatable="true" formatted="false">このブラウザセッションはコンピューター上で消去されます。</string>
+    <string name="ui_browser_session_erased_users" translatable="true" formatted="true">このブラウザセッションは消去されます。%1$s はそれぞれ自分のブラウザに戻ります。</string>
+    <string name="ui_bot_apps_connect_first" translatable="true" formatted="false">アクセスを有効にする前に、ペアリング済みのコンピューターでアプリを接続してください。</string>
+    <string name="ui_bot_apps_engine_unsupported" translatable="true" formatted="false">このボットの現在のエンジンは、接続済みアプリを使用できません。</string>
+    <string name="ui_bot_apps_allowed" translatable="true" formatted="false">このボットは、ペアリング済みのコンピューターで接続されたアプリを使用できます。</string>
+    <string name="ui_bot_apps_unavailable" translatable="true" formatted="false">接続済みアプリはこのボットでは使用できません。</string>
+    <string name="ui_bot_mcp_all_enabled" translatable="true" formatted="false">有効なサーバーをすべて使用します。後から追加されたサーバーも含みます。</string>
+    <string name="ui_bot_mcp_selected_only" translatable="true" formatted="false">選択したサーバーのみを使用します。何も選択しない場合、このボットはサーバーを使用できません。</string>
+    <string name="ui_bot_browser_computer_off" translatable="true" formatted="false">このボットのコンピューターの接続先は「オフ」です。</string>
+    <string name="ui_bot_browser_engine_unavailable" translatable="true" formatted="false">コンピューターでブラウザーエンジンを使用できません。</string>
+    <string name="ui_bot_browser_enable_first" translatable="true" formatted="false">まず、コンピューターの「実験的」設定で組み込みブラウザーを有効にしてください。</string>
+    <string name="ui_bot_browser_engine_unsupported" translatable="true" formatted="false">このボットの現在のエンジンは、組み込みブラウザーを使用できません。</string>
+    <string name="ui_bot_browser_allowed" translatable="true" formatted="false">このボットは、専用の組み込みブラウザーを使用できます。</string>
+    <string name="ui_bot_browser_unavailable" translatable="true" formatted="false">組み込みブラウザーはこのボットでは使用できません。</string>
+    <string name="ui_bot_coordination_unsupported" translatable="true" formatted="false">このボットの現在のエンジンは、他のボットに連絡できません。</string>
+    <string name="ui_bot_coordination_asks" translatable="true" formatted="false">このボットは、他のボットに連絡する前に確認を求めます。</string>
+    <string name="ui_bot_coordination_allowed" translatable="true" formatted="false">このボットは、事前に確認せずチームメイトに連絡できます。</string>
+    <string name="ui_bot_approval_desktop_only" translatable="true" formatted="false">Full と Custom の承認権限は、パッケージ版デスクトップアプリでのみ変更できます。</string>
+    <string name="ui_bot_approval_admin_desktop" translatable="true" formatted="false">ボット全体のデフォルト設定を変更するには、管理者としてペアリングする必要があります。Full と Custom の承認権限は、パッケージ版デスクトップアプリでのみ変更できます。</string>
+    <string name="ui_hide_exact_command_permissions" translatable="true" formatted="false">コマンドごとの権限を非表示</string>
+    <string name="ui_manage_exact_command_permissions" translatable="true" formatted="false">コマンドごとの許可設定を管理</string>
+    <string name="ui_bot_browser_profile_footer" translatable="true" formatted="false">ブラウザーセッションはペアリング済みのコンピューター上で実行されます。このボット専用のブラウザーは他のボットから利用できません。名前付きプロファイルは他のボットと共有できます。</string>
+    <string name="ui_bot_own_browser" translatable="true" formatted="false">このボット専用のブラウザー</string>
+    <string name="ui_bot_temporary_browser" translatable="true" formatted="false">一時ブラウザー</string>
+    <string name="ui_bot_profile_unavailable" translatable="true" formatted="true">プロファイルを利用できません（%1$s）</string>
+    <string name="ui_bot_memory_footer" translatable="true" formatted="false">コンピューターに保存され、毎ターンこのボットのコンテキストに含まれます。</string>
+    <string name="ui_hide_history" translatable="true" formatted="false">履歴を隠す</string>
+    <string name="ui_show_history" translatable="true" formatted="false">履歴を表示</string>
+    <string name="ui_hide_bot_usage" translatable="true" formatted="false">ボットの使用状況を隠す</string>
+    <string name="ui_show_bot_usage" translatable="true" formatted="false">ボットの使用状況を表示</string>
+    <string name="ui_hide_memory" translatable="true" formatted="false">メモリを隠す</string>
+    <string name="ui_open_memory" translatable="true" formatted="false">メモリを開く</string>
+    <string name="ui_hide_skills" translatable="true" formatted="false">スキルを隠す</string>
+    <string name="ui_manage_skills" translatable="true" formatted="false">スキルを管理</string>
+    <string name="ui_hide_access_details" translatable="true" formatted="false">アクセス詳細を隠す</string>
+    <string name="ui_show_access_details" translatable="true" formatted="false">アクセス詳細を表示</string>
+    <string name="ui_server_managed_by" translatable="true" formatted="true">（管理者: %1$s）</string>
+    <string name="ui_server_disabled_on_computer" translatable="true" formatted="false">（コンピューター上で無効）</string>
+    <string name="ui_bot_working_folder_footer" translatable="true" formatted="false">このパスはスマートフォン上ではなく、ペアリング済みのコンピューター上にあります。新しいタスクでは新しいフォルダーが使われます。既存のタスクは以前のフォルダーに固定されたままの場合があります。</string>
+    <string name="ui_adds_to_existing_section" translatable="true" formatted="false">既存のセクションに追加します</string>
+    <string name="ui_creates_new_section" translatable="true" formatted="false">新しいセクションを作成します</string>
+    <string name="ui_steering" translatable="true" formatted="false">指示中…</string>
+    <string name="ui_steer" translatable="true" formatted="false">指示する</string>
+    <string name="ui_new_routine_title" translatable="true" formatted="false">新しいルーティン</string>
+    <string name="ui_edit_routine_title" translatable="true" formatted="false">ルーティンを編集</string>
+    <string name="ui_turn_off" translatable="true" formatted="false">オフにする</string>
+    <string name="ui_turn_on" translatable="true" formatted="false">オンにする</string>
+    <string name="ui_remove_this_computer" translatable="true" formatted="false">このコンピューターを削除</string>
+    <string name="ui_unpair_this_phone" translatable="true" formatted="false">このスマートフォンのペアリングを解除</string>
+    <string name="ui_remove_action" translatable="true" formatted="false">削除</string>
+    <string name="ui_unpair_action" translatable="true" formatted="false">ペアリングを解除</string>
+    <string name="ui_thinking" translatable="true" formatted="false">思考中…</string>
+    <string name="ui_thought_process" translatable="true" formatted="false">思考プロセス</string>
+    <string name="ui_section_chief_conflict" translatable="true" formatted="false">Chiefは1つのセクションにつき1体までです。戻ってChiefを1体選ぶか、Chiefなしのセクションを使用してください。</string>
+    <string name="ui_section_pinned_stay" translatable="true" formatted="false">ピン留めされたボットは、ピン留めを解除するまで「ピン留め」に残ります。</string>
+    <string name="ui_section_at_limit" translatable="true" formatted="false">100体選択中 — これがセクションの上限です。</string>
+    <string name="ui_section_under_limit" translatable="true" formatted="false">1つのセクションに追加するボットを最大100体まで選択してください。</string>
+    <string name="ui_remove_computer_confirm" translatable="true" formatted="true">%1$sを削除しますか？</string>
+    <string name="ui_unpair_phone_confirm" translatable="true" formatted="false">このスマートフォンのペアリングを解除しますか？</string>
+    <string name="ui_remove_saved_connection_explanation" translatable="true" formatted="false">この操作で、このスマートフォンに保存された接続情報のみが削除されます。別の保存済みコンピューターは引き続き利用できます。</string>
+    <string name="ui_unpair_phone_explanation" translatable="true" formatted="false">再接続するには、新しいペアリングコードが必要です。</string>
+    <string name="ui_remove_named_chief" translatable="true" formatted="true">%1$sをチーフから外す</string>
+    <string name="ui_make_named_chief" translatable="true" formatted="true">%1$sをチーフにする</string>
+    <string name="ui_appoint_named_chief_confirm" translatable="true" formatted="true">%1$sをチーフに任命しますか？</string>
+    <string name="ui_remove_named_chief_confirm" translatable="true" formatted="true">%1$sをチーフから外しますか？</string>
+    <string name="ui_chief_role_handover" translatable="true" formatted="true">チームの役割が%1$sから%2$sに引き継がれます。</string>
+    <string name="ui_chief_can_coordinate" translatable="true" formatted="true">%1$sはこのチームで専門ボットを作成し、調整できます。</string>
+    <string name="ui_team_no_chief" translatable="true" formatted="false">別のボットを任命するまで、このチームにチーフはいません。</string>
+    <string name="ui_appoint_action" translatable="true" formatted="false">任命</string>
+    <string name="ui_vm_download_action" translatable="true" formatted="false">ダウンロード</string>
+    <string name="ui_vm_start_action" translatable="true" formatted="false">起動</string>
+    <string name="ui_vm_stop_action" translatable="true" formatted="false">停止</string>
+    <string name="ui_vm_change_action" translatable="true" formatted="false">変更</string>
+    <string name="ui_vm_bot_action_confirm" translatable="true" formatted="true">%2$sのローカルVMを%1$sしますか？</string>
+    <string name="ui_vm_shared_action_confirm" translatable="true" formatted="true">このコンピューター上のローカルVMを%1$sしますか？</string>
+    <string name="ui_vm_remove_bot_explanation" translatable="true" formatted="true">ペアリングされたコンピューターから%1$sのVMコンテナを削除します。中のファイルが失われる可能性があります。ボットとその会話は残ります。</string>
+    <string name="ui_vm_stop_bot_explanation" translatable="true" formatted="true">ペアリングされたコンピューター上の%1$sのVMを停止します。ボットとその会話は残ります。</string>
+    <string name="ui_vm_download_explanation" translatable="true" formatted="false">ペアリングされたコンピューターにVMイメージをダウンロードします。</string>
+    <string name="ui_vm_remove_shared_explanation" translatable="true" formatted="false">ペアリングされたコンピューターから共有VMコンテナを削除します。中に保存されたファイルが失われる可能性があります。</string>
+    <string name="ui_vm_change_shared_explanation" translatable="true" formatted="false">ペアリングされたコンピューター上の共有VMを変更します。</string>
+    <string name="ui_memory_load_failed" translatable="true" formatted="false">メモリを読み込めませんでした。</string>
+    <string name="ui_memory_file_load_failed" translatable="true" formatted="false">メモリファイルを読み込めませんでした。</string>
+    <string name="ui_memory_history_load_failed" translatable="true" formatted="false">メモリ履歴を読み込めませんでした。</string>
+    <string name="ui_memory_file_changed_before_save" translatable="true" formatted="false">このファイルはコンピューター上で変更されています。保存する前に両方のバージョンを確認してください。</string>
+    <string name="ui_memory_save_failed" translatable="true" formatted="false">メモリを保存できませんでした。</string>
+    <string name="ui_hide_memory_history" translatable="true" formatted="false">メモリ履歴を非表示</string>
+    <string name="ui_show_memory_history" translatable="true" formatted="false">メモリ履歴を表示</string>
+    <string name="ui_memory_file_changed_before_delete" translatable="true" formatted="false">このファイルはコンピューター上で変更されています。削除する前に両方のバージョンを確認してください。</string>
+    <string name="ui_memory_delete_failed" translatable="true" formatted="false">メモリファイルを削除できませんでした。</string>
+    <string name="ui_activity_export_file_open_failed" translatable="true" formatted="false">選択したファイルを開けませんでした。</string>
+    <string name="ui_activity_export_save_failed" translatable="true" formatted="false">アクティビティのエクスポートを保存できませんでした。</string>
+    <string name="ui_activity_date_range_invalid" translatable="true" formatted="false">YYYY-MM-DD形式の日付を指定してください。期間は順序どおりで、1年以内にしてください。</string>
+    <string name="ui_activity_load_failed" translatable="true" formatted="false">アクティビティを読み込めませんでした。</string>
+</resources>

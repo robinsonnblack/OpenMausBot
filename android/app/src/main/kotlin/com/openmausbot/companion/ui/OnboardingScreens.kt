@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -112,17 +114,17 @@ fun WelcomeScreen(onConnect: () -> Unit, onSkip: () -> Unit) {
         Spacer(Modifier.height(6.dp))
         Benefit(
             icon = Icons.AutoMirrored.Filled.Send,
-            title = "Your chats, in your pocket",
+            title = stringResource(R.string.ui_your_chats_in_your_pocket_91291d7),
             detail = "Pick up the same conversations from your computer.",
         )
         Benefit(
             icon = Icons.Filled.CheckCircle,
-            title = "Respond when a bot needs you",
+            title = stringResource(R.string.ui_respond_when_a_bot_needs_you_9697332),
             detail = "Review approvals without going back to your desk.",
         )
         Benefit(
             icon = Icons.Filled.Lock,
-            title = "Private by design",
+            title = stringResource(R.string.ui_private_by_design_3aaa9fd),
             detail = "You choose which trusted computer this phone connects to.",
         )
     }
@@ -151,7 +153,7 @@ fun UnpairedHomeScreen(onConnect: () -> Unit, onOpenSettings: () -> Unit) {
             )
             ChromeButton(
                 icon = Icons.Filled.Settings,
-                contentDescription = "Settings",
+                contentDescription = stringResource(R.string.ui_settings_c7f73bb),
                 onClick = onOpenSettings,
             )
         }

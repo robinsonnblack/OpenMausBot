@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
@@ -81,16 +83,16 @@ internal fun AdminActivitySheet(onDismiss: () -> Unit) {
             try {
                 withContext(Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.use { it.write(data) }
-                        ?: kotlin.error("Could not open the selected file.")
+                        ?: kotlin.error(context.getString(R.string.ui_activity_export_file_open_failed))
                 }
-            } catch (failure: Exception) { error = failure.message ?: "Could not save activity export." }
+            } catch (failure: Exception) { error = failure.message ?: context.getString(R.string.ui_activity_export_save_failed) }
         }
     }
 
     fun filter() = AdminActivityFilter(who, what, from, to)
     fun load() {
         if (!validActivityDates(from, to)) {
-            error = "Use YYYY-MM-DD dates in order, no more than one year apart."
+            error = context.getString(R.string.ui_activity_date_range_invalid)
             return
         }
         loading = true
@@ -103,7 +105,7 @@ internal fun AdminActivitySheet(onDismiss: () -> Unit) {
                 page = session.adminActivity(requested)
                 appliedFilter = requested
             }
-            catch (failure: Exception) { error = failure.message ?: "Could not load activity." }
+            catch (failure: Exception) { error = failure.message ?: context.getString(R.string.ui_activity_load_failed) }
             finally { loading = false }
         }
     }
@@ -115,10 +117,10 @@ internal fun AdminActivitySheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Activity", style = MaterialTheme.typography.titleLarge)
-            Text("Changes and approvals on the paired computer. Admin pairing required.",
+            Text(stringResource(R.string.ui_activity_81c0d91), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_changes_and_approvals_on_the_paired_comput_fe3af60),
                 style = MaterialTheme.typography.bodySmall)
-            OutlinedTextField(who, onValueChange = { who = it.take(200) }, label = { Text("Who") },
+            OutlinedTextField(who, onValueChange = { who = it.take(200) }, label = { Text(stringResource(R.string.ui_who_7d53161)) },
                 modifier = Modifier.fillMaxWidth(), singleLine = true)
             Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 activityCategories.forEach { category ->
@@ -126,13 +128,13 @@ internal fun AdminActivitySheet(onDismiss: () -> Unit) {
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(from, onValueChange = { from = it.take(10) }, label = { Text("From YYYY-MM-DD") },
+                OutlinedTextField(from, onValueChange = { from = it.take(10) }, label = { Text(stringResource(R.string.ui_from_yyyy_mm_dd_1a79f79)) },
                     modifier = Modifier.weight(1f), singleLine = true)
-                OutlinedTextField(to, onValueChange = { to = it.take(10) }, label = { Text("To YYYY-MM-DD") },
+                OutlinedTextField(to, onValueChange = { to = it.take(10) }, label = { Text(stringResource(R.string.ui_to_yyyy_mm_dd_9be123a)) },
                     modifier = Modifier.weight(1f), singleLine = true)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(enabled = !loading && !exporting, onClick = ::load) { Text("Apply filters") }
+                TextButton(enabled = !loading && !exporting, onClick = ::load) { Text(stringResource(R.string.ui_apply_filters_926161d)) }
                 TextButton(enabled = !loading && !exporting && page != null && appliedFilter == filter(), onClick = {
                     exporting = true
                     error = null
@@ -144,24 +146,24 @@ internal fun AdminActivitySheet(onDismiss: () -> Unit) {
                             error = failure.message ?: "Could not export activity."
                         } finally { exporting = false }
                     }
-                }) { Text(if (exporting) "Exporting…" else "Export CSV") }
+                }) { Text(stringResource(if (exporting) R.string.ui_exporting else R.string.ui_export_csv)) }
             }
             if (loading) CircularProgressIndicator()
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             page?.let { result ->
-                Text("${result.total} entries · retained ${result.retentionDays} days",
+                Text(stringResource(R.string.ui_activity_entries_retained, result.total, result.retentionDays),
                     style = MaterialTheme.typography.bodySmall)
-                if (!result.recording) Text("Admin changes are not being recorded for this one-person workspace. Approval history may still appear.",
+                if (!result.recording) Text(stringResource(R.string.ui_admin_changes_are_not_being_recorded_for_t_9cce5ee),
                     style = MaterialTheme.typography.bodySmall)
-                if (result.total > result.entries.size) Text("Showing the first ${result.entries.size} entries. Export CSV for the full range.",
+                if (result.total > result.entries.size) Text(stringResource(R.string.ui_activity_first_entries, result.entries.size),
                     style = MaterialTheme.typography.bodySmall)
-                if (result.entries.isEmpty()) Text("No activity in this range.")
+                if (result.entries.isEmpty()) Text(stringResource(R.string.ui_no_activity_in_this_range_f47c0f9))
                 result.entries.forEach { entry ->
                     HorizontalDivider()
                     ActivityEntryRow(entry)
                 }
             }
-            TextButton(onClick = onDismiss) { Text("Done") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 }
@@ -180,13 +182,13 @@ private fun ActivityEntryRow(entry: AdminActivityEntry) {
         Text(description, style = MaterialTheme.typography.bodyMedium)
         entry.summary?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
         if (entry.changed.isNotEmpty() || entry.before != null || entry.after != null) {
-            TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "Hide changes" else "Show changes") }
+            TextButton(onClick = { expanded = !expanded }) { Text(stringResource(if (expanded) R.string.ui_hide_changes else R.string.ui_show_changes)) }
             if (expanded) {
                 val keys = entry.changed.ifEmpty { (entry.before?.keys.orEmpty() + entry.after?.keys.orEmpty()).distinct() }
                 keys.forEach { key ->
                     Text(key, style = MaterialTheme.typography.labelMedium)
-                    Text("Before: ${activityValue(entry.before?.get(key))}", style = MaterialTheme.typography.bodySmall)
-                    Text("After: ${activityValue(entry.after?.get(key))}", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ui_activity_before_value, activityValue(entry.before?.get(key))), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ui_activity_after_value, activityValue(entry.after?.get(key))), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

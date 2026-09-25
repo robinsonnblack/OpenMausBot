@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,12 +65,12 @@ internal fun SkillAuthoringSheet(onDismiss: () -> Unit) {
 
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
         Column(modifier = Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            Text("Skill authoring on this computer", style = MaterialTheme.typography.titleLarge)
-            Text("When enabled, bots may draft new skills for your review. A draft never becomes active without approval.")
+            Text(stringResource(R.string.ui_skill_authoring_on_this_computer_c606f2d), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_when_enabled_bots_may_draft_new_skills_for_1370cc7))
             if (loading) CircularProgressIndicator()
             else config?.let { status ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Allow bots to draft skills", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.ui_allow_bots_to_draft_skills_40a0794), modifier = Modifier.weight(1f))
                     Switch(
                         checked = status.features?.skillAuthoring != false,
                         enabled = !busy,
@@ -77,7 +79,7 @@ internal fun SkillAuthoringSheet(onDismiss: () -> Unit) {
                 }
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 }

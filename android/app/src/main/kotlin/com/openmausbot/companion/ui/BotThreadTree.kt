@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -91,7 +93,7 @@ internal fun BotThreadTree(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 DisclosureIcon(isExpanded)
-                Text("Threads", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = secondaryTint)
+                Text(stringResource(R.string.ui_threads_bb12e8a), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = secondaryTint)
                 Text(count.toString(), fontSize = 13.sp, color = secondaryTint)
             }
             if (isExpanded) {
@@ -99,14 +101,14 @@ internal fun BotThreadTree(
                     onClick = onCreate,
                     enabled = !creating,
                     size = 48.dp,
-                    contentDescription = "New thread with ${bot.name}",
+                    contentDescription = stringResource(R.string.ui_dynamic_new_thread_with_1_s_80fb451, bot.name),
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = null, tint = secondaryTint)
                 }
                 TouchTarget(
                     onClick = onManage,
                     size = 48.dp,
-                    contentDescription = "Manage ${bot.name}'s threads",
+                    contentDescription = stringResource(R.string.ui_dynamic_manage_1_s_s_threads_f3530e9, bot.name),
                 ) {
                     Icon(Icons.Filled.MoreVert, contentDescription = null, tint = secondaryTint)
                 }

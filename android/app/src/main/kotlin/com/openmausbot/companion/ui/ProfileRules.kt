@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
 import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotProfilePatch
@@ -329,6 +330,38 @@ object ProfileRules {
         VoiceChoice(VoiceProvider.SYSTEM.wire, "Built-in Mac voices", null, enabled = true),
         VoiceChoice(VoiceProvider.CHATTERBOX.wire, "Chatterbox (local)", null, enabled = true),
     )
+
+    /** Resolve display copy at the Compose boundary; the rules remain locale-independent. */
+    fun copyResourceId(text: String): Int? = when (text) {
+        AVATAR_FOOTER -> R.string.ui_profile_avatar_footer
+        GENERATE_READY_FOOTER -> R.string.ui_profile_generate_ready_footer
+        GENERATE_BLOCKED_FOOTER -> R.string.ui_profile_generate_blocked_footer
+        TTS_UNCONFIGURED -> R.string.ui_profile_tts_unconfigured
+        SYSTEM_TTS_UNCONFIGURED -> R.string.ui_profile_system_tts_unconfigured
+        VOICE_UNCONFIGURED_FOOTER -> R.string.ui_profile_voice_unconfigured_footer
+        SYSTEM_VOICE_UNCONFIGURED_FOOTER -> R.string.ui_profile_system_voice_unconfigured_footer
+        VOICE_NO_DEFAULT_FOOTER -> R.string.ui_profile_voice_no_default_footer
+        FISH_TTS_UNCONFIGURED -> R.string.ui_profile_fish_tts_unconfigured
+        FISH_VOICE_UNCONFIGURED_FOOTER -> R.string.ui_profile_fish_voice_unconfigured_footer
+        FISH_VOICE_NO_DEFAULT_FOOTER -> R.string.ui_profile_fish_voice_no_default_footer
+        SYSTEM_VOICE_NO_DEFAULT_FOOTER -> R.string.ui_profile_system_voice_no_default_footer
+        CHATTERBOX_TTS_UNCONFIGURED -> R.string.ui_profile_chatterbox_tts_unconfigured
+        CHATTERBOX_VOICE_UNCONFIGURED_FOOTER -> R.string.ui_profile_chatterbox_voice_unconfigured_footer
+        CHATTERBOX_VOICE_NO_DEFAULT_FOOTER -> R.string.ui_profile_chatterbox_voice_no_default_footer
+        VOICE_READY_FOOTER -> R.string.ui_profile_voice_ready_footer
+        PICK_A_VOICE -> R.string.ui_profile_pick_a_voice
+        PREVIEW_REFUSED -> R.string.ui_profile_preview_refused
+        "Workspace default" -> R.string.ui_profile_workspace_default
+        "Choose an agent voice" -> R.string.ui_profile_choose_agent_voice
+        "Current agent voice" -> R.string.ui_profile_current_agent_voice
+        "Built-in Mac voices" -> R.string.ui_profile_builtin_mac_voices
+        "Chatterbox (local)" -> R.string.ui_profile_chatterbox_local
+        "Mascot" -> R.string.ui_profile_mascot
+        "Circle" -> R.string.ui_profile_circle
+        "Rounded" -> R.string.ui_profile_rounded
+        "Square" -> R.string.ui_profile_square
+        else -> null
+    }
 
     /**
      * What the loaded status does to the form: a stored `speakReplies` that

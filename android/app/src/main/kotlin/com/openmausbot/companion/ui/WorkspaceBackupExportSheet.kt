@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -88,34 +90,34 @@ internal fun WorkspaceBackupExportSheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Export workspace backup", style = MaterialTheme.typography.titleLarge)
-            Text("Creates an encrypted copy of the paired computer's workspace. Save the password separately; without it the backup cannot be restored.",
+            Text(stringResource(R.string.ui_export_workspace_backup_7f9b140), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_creates_an_encrypted_copy_of_the_paired_co_3b6819c),
                 style = MaterialTheme.typography.bodySmall)
-            Text("Use a secure HTTPS or Tailscale connection. The encrypted file is written directly to the location you choose, without loading it into phone memory.",
+            Text(stringResource(R.string.ui_use_a_secure_https_or_tailscale_connection_0418ff3),
                 style = MaterialTheme.typography.bodySmall)
             status?.let { current ->
-                if (current.pendingRestore) Text("A restore is pending. Restart the computer's app before making another backup.")
-                else if (current.busy) Text("Another backup operation is in progress on the computer.")
+                if (current.pendingRestore) Text(stringResource(R.string.ui_a_restore_is_pending_restart_the_computer_f6b7f8f))
+                else if (current.busy) Text(stringResource(R.string.ui_another_backup_operation_is_in_progress_on_de27387))
             }
             OutlinedTextField(password, onValueChange = { password = it.take(1024) },
-                label = { Text("New backup password (at least 12 characters)") },
+                label = { Text(stringResource(R.string.ui_new_backup_password_at_least_12_characters_6be1ab3)) },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(), enabled = !busy)
             OutlinedTextField(confirmation, onValueChange = { confirmation = it.take(1024) },
-                label = { Text("Confirm password") }, visualTransformation = PasswordVisualTransformation(),
+                label = { Text(stringResource(R.string.ui_confirm_password_4a7c565)) }, visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(), enabled = !busy)
             if (busy) {
                 CircularProgressIndicator()
-                Text("Creating or downloading the backup… Keep this screen open.")
+                Text(stringResource(R.string.ui_creating_or_downloading_the_backup_keep_th_6e4ab95))
             }
-            savedBytes?.let { Text("Backup saved: $it bytes.") }
+            savedBytes?.let { Text(stringResource(R.string.ui_dynamic_backup_saved_1_s_bytes_b0e8870, it)) }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             TextButton(
                 enabled = !busy && status?.busy == false && status?.pendingRestore == false &&
                     password.length in 12..1024 && password == confirmation,
                 onClick = { createFile.launch("OpenMausBot-${LocalDate.now()}.ombbackup") },
-            ) { Text("Choose file and export") }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            ) { Text(stringResource(R.string.ui_choose_file_and_export_fed6a25)) }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 }

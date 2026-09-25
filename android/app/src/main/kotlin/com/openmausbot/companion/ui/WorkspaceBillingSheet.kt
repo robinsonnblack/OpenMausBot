@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -118,38 +120,38 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
         Column(Modifier.fillMaxWidth().heightIn(max = 720.dp)
             .verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Model prices", style = MaterialTheme.typography.titleLarge)
-            Text("Prices per million tokens used by the paired computer. A 'default' row covers other models. Blank cached input uses the input rate. These prices can affect cost estimates and the spending limit.",
+            Text(stringResource(R.string.ui_model_prices_5f9f78a), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_prices_per_million_tokens_used_by_the_pair_7286bc9),
                 style = MaterialTheme.typography.bodySmall)
             if (loading || busy) CircularProgressIndicator()
             if (!loading && baseline != null) {
                 OutlinedTextField(currency, onValueChange = { currency = it.take(3); error = null },
-                    label = { Text("Currency") }, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                    label = { Text(stringResource(R.string.ui_currency_e070de2)) }, enabled = !busy, modifier = Modifier.fillMaxWidth())
                 rows.forEachIndexed { index, row ->
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         OutlinedTextField(row.model, onValueChange = { value -> update(index) { it.copy(model = value.take(160)) } },
-                            label = { Text("Model ID or default") }, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_model_id_or_default_d70af9a)) }, enabled = !busy, modifier = Modifier.fillMaxWidth())
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedTextField(row.input, onValueChange = { value -> update(index) { it.copy(input = value) } },
-                                label = { Text("Input") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                label = { Text(stringResource(R.string.ui_input_b568d47)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 enabled = !busy, modifier = Modifier.weight(1f))
                             OutlinedTextField(row.output, onValueChange = { value -> update(index) { it.copy(output = value) } },
-                                label = { Text("Output") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                label = { Text(stringResource(R.string.ui_output_4bed336)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 enabled = !busy, modifier = Modifier.weight(1f))
                         }
                         OutlinedTextField(row.cached, onValueChange = { value -> update(index) { it.copy(cached = value) } },
-                            label = { Text("Cached input (optional)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            label = { Text(stringResource(R.string.ui_cached_input_optional_c4f63ef)) }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             enabled = !busy, modifier = Modifier.fillMaxWidth())
                         TextButton(enabled = !busy, onClick = { rows = rows.filterIndexed { position, _ -> position != index }; error = null }) {
-                            Text("Remove row", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(R.string.ui_remove_row_bd7f4b4), color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
-                TextButton(enabled = !busy, onClick = { rows = rows + BillingRow() }) { Text("Add model") }
-                TextButton(enabled = !busy, onClick = ::save) { Text("Save prices") }
+                TextButton(enabled = !busy, onClick = { rows = rows + BillingRow() }) { Text(stringResource(R.string.ui_add_model_b6a86ca)) }
+                TextButton(enabled = !busy, onClick = ::save) { Text(stringResource(R.string.ui_save_prices_e452a2f)) }
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,32 +70,32 @@ internal fun ThreadSettingsSheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Thread settings", style = MaterialTheme.typography.titleLarge)
-            Text("These settings apply to the paired computer, not just this phone.",
+            Text(stringResource(R.string.ui_thread_settings_9ab5123), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_these_settings_apply_to_the_paired_compute_ab7235e),
                 style = MaterialTheme.typography.bodySmall)
             if (loading) CircularProgressIndicator()
             if (original != null) {
                 OutlinedTextField(
                     value = concurrent, onValueChange = { concurrent = it.filter(Char::isDigit).take(2); error = null },
-                    label = { Text("Parallel tasks per bot (1–10)") },
+                    label = { Text(stringResource(R.string.ui_parallel_tasks_per_bot_1_10_7a16634)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = capKiB, onValueChange = { capKiB = it.filter(Char::isDigit).take(7); error = null },
-                    label = { Text("Event-log cap in KiB (optional)") },
-                    supportingText = { Text("Leave empty to keep logs without a size cap. Minimum 256 KiB.") },
+                    label = { Text(stringResource(R.string.ui_event_log_cap_in_kib_optional_8815723)) },
+                    supportingText = { Text(stringResource(R.string.ui_leave_empty_to_keep_logs_without_a_size_ca_401ba8f)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = retentionDays, onValueChange = { retentionDays = it.filter(Char::isDigit).take(4); error = null },
-                    label = { Text("Closed-thread log retention in days (optional)") },
-                    supportingText = { Text("Leave empty to retain logs indefinitely.") },
+                    label = { Text(stringResource(R.string.ui_closed_thread_log_retention_in_days_option_c38fb4b)) },
+                    supportingText = { Text(stringResource(R.string.ui_leave_empty_to_retain_logs_indefinitely_c82c98d)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                 )
-                if (!valid) Text("Enter 1–10 tasks, a cap of 256–4,194,304 KiB, and 1–3650 days or leave optional fields empty.",
+                if (!valid) Text(stringResource(R.string.ui_enter_1_10_tasks_a_cap_of_256_4_194_304_ki_c966fd5),
                     color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
@@ -113,8 +115,8 @@ internal fun ThreadSettingsSheet(onDismiss: () -> Unit) {
                         error = failure.message ?: "Could not save thread settings."
                     } finally { saving = false }
                 }
-            }) { Text(if (saving) "Saving…" else "Save") }
-            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+            }) { Text(stringResource(if (saving) R.string.ui_saving else R.string.ui_save_action)) }
+            TextButton(enabled = !saving, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
         }
     }
 }

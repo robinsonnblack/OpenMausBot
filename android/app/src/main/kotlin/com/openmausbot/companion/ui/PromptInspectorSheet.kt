@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
@@ -107,8 +109,8 @@ internal fun PromptInspectorSheet(threadId: String, onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text("Prompt inspector", style = MaterialTheme.typography.titleLarge)
-            Text("Captured requests may contain full private conversations. Keep exported files private.")
+            Text(stringResource(R.string.ui_prompt_inspector_0885254), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_captured_requests_may_contain_full_private_08a9427))
             if (loading) CircularProgressIndicator()
             if (records.isNotEmpty()) Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
                 records.forEachIndexed { index, capture ->
@@ -122,22 +124,27 @@ internal fun PromptInspectorSheet(threadId: String, onDismiss: () -> Unit) {
             }
             row?.let { capture ->
                 val usage = capture.usage
-                Text("Uncached: ${usage?.uncached ?: "—"}    Cached: ${usage?.cached ?: "—"}    Output: ${usage?.output ?: "—"}")
+                Text(stringResource(R.string.ui_inspector_token_counts, usage?.uncached ?: "—", usage?.cached ?: "—", usage?.output ?: "—"))
             }
             Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                listOf("input" to "Model input", "full" to "Full request", "changes" to "Changes", "diagnostics" to "Diagnostics").forEach { (id, label) ->
-                    FilterChip(selected = view == id, onClick = { view = id }, label = { Text(label) }, modifier = Modifier.padding(end = 6.dp))
+                listOf(
+                    "input" to R.string.ui_inspector_model_input,
+                    "full" to R.string.ui_inspector_full_request,
+                    "changes" to R.string.ui_inspector_changes,
+                    "diagnostics" to R.string.ui_inspector_diagnostics,
+                ).forEach { (id, labelRes) ->
+                    FilterChip(selected = view == id, onClick = { view = id }, label = { Text(stringResource(labelRes)) }, modifier = Modifier.padding(end = 6.dp))
                 }
             }
-            OutlinedTextField(search, { search = it }, label = { Text("Find in preview") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(search, { search = it }, label = { Text(stringResource(R.string.ui_find_in_preview_82cf60d)) }, modifier = Modifier.fillMaxWidth())
             Text(display, style = MaterialTheme.typography.bodySmall)
-            if (value.length > PREVIEW_LIMIT) Text("Preview limited to 80,000 characters; copy the view or export the JSON for the full content.")
+            if (value.length > PREVIEW_LIMIT) Text(stringResource(R.string.ui_preview_limited_to_80_000_characters_copy_2214d4b))
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                TextButton(onClick = { scope.launch { load() } }, enabled = !loading) { Text("Refresh") }
-                TextButton(onClick = { clipboard.setText(AnnotatedString(value)) }, enabled = row != null) { Text("Copy view") }
-                TextButton(onClick = { export.launch("prompt-inspector.json") }, enabled = row != null) { Text("Export JSON") }
-                TextButton(onClick = onDismiss) { Text("Close") }
+                TextButton(onClick = { scope.launch { load() } }, enabled = !loading) { Text(stringResource(R.string.ui_refresh_56e3bad)) }
+                TextButton(onClick = { clipboard.setText(AnnotatedString(value)) }, enabled = row != null) { Text(stringResource(R.string.ui_copy_view_eb8c972)) }
+                TextButton(onClick = { export.launch("prompt-inspector.json") }, enabled = row != null) { Text(stringResource(R.string.ui_export_json_bc39905)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_close_bbfa773)) }
             }
         }
     }

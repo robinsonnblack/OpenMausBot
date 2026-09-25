@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -128,54 +130,58 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Import workspace backup", style = MaterialTheme.typography.titleLarge)
-            Text("This can replace all workspace data on the paired computer. First upload and inspect the encrypted backup; nothing is replaced until you confirm REPLACE.",
+            Text(stringResource(R.string.ui_import_workspace_backup_7a4b7cc), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_this_can_replace_all_workspace_data_on_the_d5973d7),
                 style = MaterialTheme.typography.bodySmall)
-            Text("Use HTTPS or Tailscale. Keep this screen open while the archive is uploading.",
+            Text(stringResource(R.string.ui_use_https_or_tailscale_keep_this_screen_op_08e5ec2),
                 style = MaterialTheme.typography.bodySmall)
             if (status?.pendingRestore == true || pendingRestart) {
-                Text("Restore committed. Restart OpenMausBot on the computer to complete it.")
+                Text(stringResource(R.string.ui_restore_committed_restart_openmausbot_on_t_2cf7bbd))
             } else {
                 TextButton(enabled = !busy && status?.busy == false, onClick = {
                     picker.launch(arrayOf("application/octet-stream", "*/*"))
-                }) { Text("Choose .ombbackup file") }
-                if (selected != null) Text("Selected: $filename${fileBytes?.let { " · $it bytes" }.orEmpty()}")
+                }) { Text(stringResource(R.string.ui_choose_ombbackup_file_ea3cf5a)) }
+                if (selected != null) Text(if (fileBytes == null) {
+                    stringResource(R.string.ui_backup_selected_file, filename)
+                } else {
+                    stringResource(R.string.ui_backup_selected_file_bytes, filename, fileBytes)
+                })
                 if (preview == null) {
                     OutlinedTextField(password, onValueChange = { password = it.take(1024); error = null },
-                        label = { Text("Backup password") }, visualTransformation = PasswordVisualTransformation(),
+                        label = { Text(stringResource(R.string.ui_backup_password_d96a607)) }, visualTransformation = PasswordVisualTransformation(),
                         enabled = !busy, modifier = Modifier.fillMaxWidth())
                     TextButton(enabled = !busy && selected != null && fileBytes != null &&
                         filename.endsWith(".ombbackup", ignoreCase = true) && password.length in 12..1024,
-                        onClick = ::startPreview) { Text("Upload and validate") }
+                        onClick = ::startPreview) { Text(stringResource(R.string.ui_upload_and_validate_cb162f1)) }
                 }
                 preview?.let { staged ->
                     val summary = staged.summary
-                    Text("Backup from ${summary.createdAt} · OpenMausBot ${summary.appVersion}", style = MaterialTheme.typography.titleMedium)
-                    Text("${summary.bots} bots · ${summary.groups} groups · ${summary.threads} threads · ${summary.messages} messages")
-                    Text("${summary.files} files · ${summary.bytes} bytes")
-                    summary.exclusions.forEach { Text("Excluded: $it", style = MaterialTheme.typography.bodySmall) }
-                    summary.warnings.forEach { Text("Warning: $it", color = MaterialTheme.colorScheme.error) }
-                    Text("Restoring replaces the computer's workspace. Review the backup and make a separate safety copy first.",
+                    Text(stringResource(R.string.ui_dynamic_backup_from_1_s_openmausbot_2_s_2e6a715, summary.createdAt, summary.appVersion), style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.ui_dynamic_1_s_bots_2_s_groups_3_s_threads_4_s_me_8a1f5f2, summary.bots, summary.groups, summary.threads, summary.messages))
+                    Text(stringResource(R.string.ui_dynamic_1_s_files_2_s_bytes_3ebbf28, summary.files, summary.bytes))
+                    summary.exclusions.forEach { Text(stringResource(R.string.ui_dynamic_excluded_1_s_0335dd8, it), style = MaterialTheme.typography.bodySmall) }
+                    summary.warnings.forEach { Text(stringResource(R.string.ui_dynamic_warning_1_s_c0ecd56, it), color = MaterialTheme.colorScheme.error) }
+                    Text(stringResource(R.string.ui_restoring_replaces_the_computer_s_workspac_218a6c6),
                         color = MaterialTheme.colorScheme.error)
                     OutlinedTextField(confirmation, onValueChange = { confirmation = it.take(7) },
-                        label = { Text("Type REPLACE to confirm") }, enabled = !busy,
+                        label = { Text(stringResource(R.string.ui_type_replace_to_confirm_0eae810)) }, enabled = !busy,
                         modifier = Modifier.fillMaxWidth())
                     TextButton(enabled = !busy && confirmation == "REPLACE", onClick = { confirmingRestore = true }) {
-                        Text("Replace computer workspace", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.ui_replace_computer_workspace_8bf7494), color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
-            if (busy) { CircularProgressIndicator(); Text("Working on the paired computer…") }
+            if (busy) { CircularProgressIndicator(); Text(stringResource(R.string.ui_working_on_the_paired_computer_635f578)) }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 
     if (confirmingRestore) AlertDialog(
         onDismissRequest = { confirmingRestore = false },
-        title = { Text("Replace this computer's workspace?") },
-        text = { Text("The staged backup will replace existing workspace data on the paired computer. This cannot be undone from the phone. Continue only if you have checked the preview and made a safety copy.") },
-        confirmButton = { TextButton(onClick = ::restore) { Text("Restore now", color = MaterialTheme.colorScheme.error) } },
-        dismissButton = { TextButton(onClick = { confirmingRestore = false }) { Text("Cancel") } },
+        title = { Text(stringResource(R.string.ui_replace_this_computer_s_workspace_7be159d)) },
+        text = { Text(stringResource(R.string.ui_the_staged_backup_will_replace_existing_wo_eadcd90)) },
+        confirmButton = { TextButton(onClick = ::restore) { Text(stringResource(R.string.ui_restore_now_1e4932d), color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton(onClick = { confirmingRestore = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }

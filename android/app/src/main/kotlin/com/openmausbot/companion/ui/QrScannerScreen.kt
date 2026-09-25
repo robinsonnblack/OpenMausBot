@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
@@ -72,10 +74,10 @@ fun QrScannerScreen(onCancel: () -> Unit, validate: (String) -> String?) {
     Column(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
             TextButton(onClick = onCancel, modifier = Modifier.align(Alignment.CenterStart)) {
-                Text("Cancel")
+                Text(stringResource(R.string.ui_cancel_77dfd21))
             }
             Text(
-                text = "Scan QR Code",
+                text = stringResource(R.string.ui_scan_qr_code_04e3f10),
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.align(Alignment.Center),
             )
@@ -83,21 +85,21 @@ fun QrScannerScreen(onCancel: () -> Unit, validate: (String) -> String?) {
 
         when {
             cameraFailure != null -> EmptyState(
-                title = "Scanner unavailable",
+                title = stringResource(R.string.ui_scanner_unavailable_cc42e33),
                 description = cameraFailure!!,
             )
 
             access == CameraAccess.UNKNOWN -> EmptyState(
-                title = "Requesting camera access…",
+                title = stringResource(R.string.ui_requesting_camera_access_30e104c),
                 description = "Allow camera access to scan the pairing QR code shown by OpenMausBot.",
             )
 
             access == CameraAccess.DENIED -> EmptyState(
-                title = "Camera access needed",
+                title = stringResource(R.string.ui_camera_access_needed_28a22fc),
                 description = "Allow camera access to scan the pairing QR code shown by " +
                     "OpenMausBot, or go back and enter the address and code by hand.",
             ) {
-                Button(onClick = environment.openAppSettings) { Text("Open Settings") }
+                Button(onClick = environment.openAppSettings) { Text(stringResource(R.string.ui_open_settings_134635e)) }
             }
 
             else -> ScannerSurface(

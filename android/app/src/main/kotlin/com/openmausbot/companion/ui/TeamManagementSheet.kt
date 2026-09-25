@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -108,20 +110,20 @@ internal fun TeamManagementSheet(
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Manage teams")
-            Text("Changes on this phone also change the paired computer.")
+            Text(stringResource(R.string.ui_manage_teams_c99bf82))
+            Text(stringResource(R.string.ui_changes_on_this_phone_also_change_the_pair_9f8fbb1))
             if (selected == null) {
                 names.forEach { name ->
                     TextButton(onClick = { openTeam(name) }) { Text(name) }
                 }
-                if (names.isEmpty() && error == null) Text("No teams yet.")
+                if (names.isEmpty() && error == null) Text(stringResource(R.string.ui_no_teams_yet_9210826))
             } else {
                 val team = requireNotNull(selected)
-                TextButton(enabled = !busy, onClick = { selected = null; error = null }) { Text("All teams") }
+                TextButton(enabled = !busy, onClick = { selected = null; error = null }) { Text(stringResource(R.string.ui_all_teams_e75f540)) }
                 OutlinedTextField(
                     value = nameDraft,
                     onValueChange = { nameDraft = it.take(60); error = null },
-                    label = { Text("Team name") },
+                    label = { Text(stringResource(R.string.ui_team_name_9b11ed1)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -139,11 +141,11 @@ internal fun TeamManagementSheet(
                             } finally { busy = false }
                         }
                     },
-                ) { Text("Rename team") }
+                ) { Text(stringResource(R.string.ui_rename_team_bbd28e3)) }
 
-                Text("Team members")
+                Text(stringResource(R.string.ui_team_members_8bd76ae))
                 TextButton(enabled = !busy, onClick = { onCreateBot(team) }) {
-                    Text("Create bot in this team")
+                    Text(stringResource(R.string.ui_create_bot_in_this_team_f2e808c))
                 }
                 state.bots.filter { it.hidden != true }.forEach { bot ->
                     Row(
@@ -175,8 +177,8 @@ internal fun TeamManagementSheet(
                             } finally { busy = false }
                         }
                     },
-                ) { Text("Save members") }
-                Text("Chief of Staff")
+                ) { Text(stringResource(R.string.ui_save_members_b5c33de)) }
+                Text(stringResource(R.string.ui_chief_of_staff_ab970be))
                 val teamBots = state.bots.filter { it.section == team && it.hidden != true }
                 val chief = teamBots.firstOrNull { it.chiefOfStaff == true }
                 Text(chief?.let { "Current Chief: ${it.name}" } ?: "No Chief appointed")
@@ -188,11 +190,11 @@ internal fun TeamManagementSheet(
                         enabled = !busy && (bot.chiefOfStaff == true || canCoordinate),
                         onClick = { pendingChief = bot },
                     ) {
-                        Text(if (bot.chiefOfStaff == true) "Remove ${bot.name} as Chief"
-                            else "Make ${bot.name} Chief")
+                        Text(stringResource(if (bot.chiefOfStaff == true) R.string.ui_remove_named_chief
+                            else R.string.ui_make_named_chief, bot.name))
                     }
                     if (bot.chiefOfStaff != true && !canCoordinate) {
-                        Text("${bot.name}'s provider cannot coordinate bots.")
+                        Text(stringResource(R.string.ui_dynamic_1_s_s_provider_cannot_coordinate_bots_630b82d, bot.name))
                     }
                 }
                 if (chief != null) {
@@ -201,9 +203,9 @@ internal fun TeamManagementSheet(
                         mutableStateOf(original)
                     }
                     val choices = (listOf("") + names).filter { it != team }.distinct().sorted()
-                    Text("Additional teams for ${chief.name}")
-                    Text("The Chief can coordinate bots and propose setup changes in selected teams. Its own team is always included; unrelated chats stay private.")
-                    if (choices.isEmpty()) Text("Create another team to extend the Chief's access.")
+                    Text(stringResource(R.string.ui_dynamic_additional_teams_for_1_s_78587fb, chief.name))
+                    Text(stringResource(R.string.ui_the_chief_can_coordinate_bots_and_propose_e6d0193))
+                    if (choices.isEmpty()) Text(stringResource(R.string.ui_create_another_team_to_extend_the_chief_s_36ad2a6))
                     choices.forEach { other ->
                         Row(
                             modifier = Modifier.fillMaxWidth().clickable(enabled = !busy) {
@@ -223,21 +225,21 @@ internal fun TeamManagementSheet(
                                 pendingManagedGrant = chief to selectedNames
                             } else saveManagedTeams(chief, selectedNames, false)
                         },
-                    ) { Text("Save Chief team access") }
+                    ) { Text(stringResource(R.string.ui_save_chief_team_access_9807639)) }
                 }
                 TextButton(enabled = !busy, onClick = { confirmDelete = true }) {
-                    Text("Delete team")
+                    Text(stringResource(R.string.ui_delete_team_a9661e7))
                 }
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 
     if (confirmDelete) AlertDialog(
         onDismissRequest = { confirmDelete = false },
-        title = { Text("Delete ${selected.orEmpty()}?") },
-        text = { Text("The team heading and membership are removed. Bots and conversations are kept.") },
+        title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, selected.orEmpty())) },
+        text = { Text(stringResource(R.string.ui_the_team_heading_and_membership_are_remove_ef3cdbe)) },
         confirmButton = {
             TextButton(onClick = {
                 val team = selected ?: return@TextButton
@@ -252,23 +254,27 @@ internal fun TeamManagementSheet(
                         error = failure.message ?: "Could not delete the team."
                     } finally { busy = false }
                 }
-            }) { Text("Delete team") }
+            }) { Text(stringResource(R.string.ui_delete_team_a9661e7)) }
         },
-        dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 
     pendingManagedGrant?.let { (bot, extraTeams) ->
+        val generalTeamName = stringResource(R.string.ui_general_team_name)
         AlertDialog(
             onDismissRequest = { pendingManagedGrant = null },
-            title = { Text("Give ${bot.name} access to more teams?") },
-            text = { Text("This Chief may coordinate bots and propose setup changes in ${extraTeams.joinToString { it.ifEmpty { "General" } }}. Other bots keep their permissions, and unrelated chat history stays private.") },
+            title = { Text(stringResource(R.string.ui_dynamic_give_1_s_access_to_more_teams_745ba86, bot.name)) },
+            text = { Text(stringResource(
+                R.string.ui_chief_extra_teams_explanation,
+                extraTeams.joinToString { it.ifEmpty { generalTeamName } },
+            )) },
             confirmButton = {
                 TextButton(onClick = {
                     pendingManagedGrant = null
                     saveManagedTeams(bot, extraTeams, true)
-                }) { Text("Grant team access") }
+                }) { Text(stringResource(R.string.ui_grant_team_access_03bbb07)) }
             },
-            dismissButton = { TextButton(onClick = { pendingManagedGrant = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { pendingManagedGrant = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 
@@ -279,12 +285,13 @@ internal fun TeamManagementSheet(
         val appoint = bot.chiefOfStaff != true
         AlertDialog(
             onDismissRequest = { pendingChief = null },
-            title = { Text(if (appoint) "Appoint ${bot.name} as Chief?" else "Remove ${bot.name} as Chief?") },
+            title = { Text(stringResource(if (appoint) R.string.ui_appoint_named_chief_confirm
+                else R.string.ui_remove_named_chief_confirm, bot.name)) },
             text = {
                 Text(if (appoint && previous != null)
-                    "This hands the team role over from ${previous.name} to ${bot.name}."
-                    else if (appoint) "${bot.name} can create and coordinate specialists in this team."
-                    else "This team will have no Chief until you appoint another bot.")
+                    stringResource(R.string.ui_chief_role_handover, previous.name, bot.name)
+                    else if (appoint) stringResource(R.string.ui_chief_can_coordinate, bot.name)
+                    else stringResource(R.string.ui_team_no_chief))
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -298,9 +305,9 @@ internal fun TeamManagementSheet(
                             error = failure.message ?: "Could not change the Chief."
                         } finally { busy = false }
                     }
-                }) { Text(if (appoint) "Appoint" else "Remove") }
+                }) { Text(stringResource(if (appoint) R.string.ui_appoint_action else R.string.ui_remove_action)) }
             },
-            dismissButton = { TextButton(onClick = { pendingChief = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { pendingChief = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 }

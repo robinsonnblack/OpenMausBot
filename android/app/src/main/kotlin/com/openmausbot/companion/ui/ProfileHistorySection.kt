@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,7 +56,7 @@ internal fun ProfileHistorySection(botId: String) {
         if (loading) CircularProgressIndicator()
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         val rows = history?.rows.orEmpty()
-        if (!loading && history != null && rows.isEmpty()) Text("No changes recorded yet.")
+        if (!loading && history != null && rows.isEmpty()) Text(stringResource(R.string.ui_no_changes_recorded_yet_2eab95e))
         rows.forEach { row ->
             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                 Text(
@@ -66,7 +68,7 @@ internal fun ProfileHistorySection(botId: String) {
                 if (row.field == "soul") {
                     if (row.canRestore == true) {
                         TextButton(onClick = { pendingUndo = row }, enabled = !undoing) {
-                            Text("Undo this instruction change")
+                            Text(stringResource(R.string.ui_undo_this_instruction_change_373a0dc))
                         }
                     } else {
                         Text(row.restoreUnavailableReason ?: "Exact previous instructions unavailable.")
@@ -75,15 +77,15 @@ internal fun ProfileHistorySection(botId: String) {
             }
         }
         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            TextButton(onClick = { revision++ }, enabled = !loading && !undoing) { Text("Refresh") }
+            TextButton(onClick = { revision++ }, enabled = !loading && !undoing) { Text(stringResource(R.string.ui_refresh_56e3bad)) }
         }
     }
 
     pendingUndo?.let { row ->
         AlertDialog(
             onDismissRequest = { if (!undoing) pendingUndo = null },
-            title = { Text("Undo instruction change?") },
-            text = { Text("This restores the previous standing instructions. The current text will be kept in history.") },
+            title = { Text(stringResource(R.string.ui_undo_instruction_change_0b5e098)) },
+            text = { Text(stringResource(R.string.ui_this_restores_the_previous_standing_instru_61fc443)) },
             confirmButton = {
                 TextButton(
                     enabled = !undoing,
@@ -103,9 +105,9 @@ internal fun ProfileHistorySection(botId: String) {
                             }
                         }
                     },
-                ) { Text("Undo") }
+                ) { Text(stringResource(R.string.ui_undo_39fc721)) }
             },
-            dismissButton = { TextButton(onClick = { pendingUndo = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { pendingUndo = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 }

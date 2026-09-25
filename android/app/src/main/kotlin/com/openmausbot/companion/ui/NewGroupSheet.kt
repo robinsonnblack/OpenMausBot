@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,10 +79,10 @@ internal fun NewGroupSheet(onCreated: (Room) -> Unit, onDismiss: () -> Unit) {
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.CenterStart),
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
                 }
                 Text(
-                    text = "New group",
+                    text = stringResource(R.string.ui_new_group_f9850c0),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center),
@@ -103,14 +105,14 @@ internal fun NewGroupSheet(onCreated: (Room) -> Unit, onDismiss: () -> Unit) {
                     enabled = NewGroupRules.canCreate(members, creating),
                     modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
-                    Text("Create")
+                    Text(stringResource(R.string.ui_create_6e157c5))
                 }
             }
 
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Group name (optional)") },
+                label = { Text(stringResource(R.string.ui_group_name_optional_0fd3a15)) },
                 singleLine = true,
                 // A room's name is a label, not prose; iOS turns autocorrect off
                 // here for the same reason.
@@ -122,7 +124,7 @@ internal fun NewGroupSheet(onCreated: (Room) -> Unit, onDismiss: () -> Unit) {
             )
 
             Text(
-                text = "Bots",
+                text = stringResource(R.string.ui_bots_4ca88ea),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = secondaryTint,

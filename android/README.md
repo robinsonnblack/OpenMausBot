@@ -344,6 +344,28 @@ rotatable later: without a v3 block there is no signing lineage for a new key to
 prove it descends from the old one. v1 stays off — it is JAR signing, for
 Android 6 and below, which `minSdk 26` already excludes.
 
+## Translating Android screens
+
+English UI strings live in `app/src/main/res/values/strings.xml`; translated
+overlays live in `values-<locale>/strings.xml`. New screen copy should use a
+string resource, including error messages and text selected at runtime.
+
+From the repository root, an authenticated Codex CLI can draft missing
+translations with screen code and neighboring copy as context:
+
+```sh
+node scripts/generate-android-locale.mjs de German
+node scripts/review-android-locale.mjs de German --screen BotMemorySection.kt
+```
+
+The Luna review can return zero corrections. Its report in
+`android/translation-reviews/de.json` is only a proposal; inspect meaning and product
+terminology in the actual screen. Apply a single verified change with
+`node scripts/review-android-locale.mjs de German --apply --apply-key resource_name`.
+Run `pnpm i18n:android:check` to require every Android locale to contain each
+translatable string and preserve its format arguments. Neither drafting nor
+review runs when the app starts or in CI.
+
 ## Versioning
 
 There is one line to edit per release, in `app/build.gradle.kts`:

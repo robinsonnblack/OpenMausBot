@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,19 +58,19 @@ internal fun MessageDeletionSheet(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text("Delete messages", style = MaterialTheme.typography.titleLarge)
-            Text("Select messages to permanently remove. Older edited and retried versions are included.")
+            Text(stringResource(R.string.ui_delete_messages_93f3675), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_select_messages_to_permanently_remove_olde_000f52e))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(enabled = selection != null && !deleting, onClick = {
                     selected = selection?.allIds.orEmpty().toSet()
-                }) { Text("Select all") }
+                }) { Text(stringResource(R.string.ui_select_all_913afff)) }
                 TextButton(enabled = selected.isNotEmpty() && !deleting, onClick = { selected = emptySet() }) {
-                    Text("Clear")
+                    Text(stringResource(R.string.ui_clear_719ea39))
                 }
-                Text("${selected.size} selected", modifier = Modifier.padding(top = 12.dp))
+                Text(stringResource(R.string.ui_dynamic_1_s_selected_51753f0, selected.size), modifier = Modifier.padding(top = 12.dp))
             }
             if (selection == null && error == null) CircularProgressIndicator()
-            if (selection?.allIds?.isEmpty() == true) Text("No messages in this conversation.")
+            if (selection?.allIds?.isEmpty() == true) Text(stringResource(R.string.ui_no_messages_in_this_conversation_089151e))
             LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 380.dp)) {
                 items(selection?.allIds.orEmpty(), key = { it }) { id ->
                     val message = labels[id]
@@ -87,17 +89,19 @@ internal fun MessageDeletionSheet(
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextButton(enabled = !deleting, onClick = onDismiss) { Text("Done") }
+                TextButton(enabled = !deleting, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
                 TextButton(enabled = selected.isNotEmpty() && !deleting, onClick = { confirm = true }) {
-                    Text(if (deleting) "Deleting…" else "Delete ${selected.size}", color = MaterialTheme.colorScheme.error)
+                    Text(if (deleting) stringResource(R.string.ui_deleting)
+                        else stringResource(R.string.ui_delete_count, selected.size),
+                        color = MaterialTheme.colorScheme.error)
                 }
             }
         }
     }
     if (confirm) AlertDialog(
         onDismissRequest = { confirm = false },
-        title = { Text("Delete ${selected.size} messages?") },
-        text = { Text("This permanently deletes the selected messages and cannot be undone.") },
+        title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_messages_3a611c8, selected.size)) },
+        text = { Text(stringResource(R.string.ui_this_permanently_deletes_the_selected_mess_0d8a658)) },
         confirmButton = { TextButton(onClick = {
             confirm = false
             deleting = true
@@ -114,7 +118,7 @@ internal fun MessageDeletionSheet(
                     error = failure.message ?: "Could not delete messages."
                 } finally { deleting = false }
             }
-        }) { Text("Delete messages", color = MaterialTheme.colorScheme.error) } },
-        dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancel") } },
+        }) { Text(stringResource(R.string.ui_delete_messages_93f3675), color = MaterialTheme.colorScheme.error) } },
+        dismissButton = { TextButton(onClick = { confirm = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }

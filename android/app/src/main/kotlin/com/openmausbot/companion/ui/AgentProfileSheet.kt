@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -263,10 +264,10 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = onDismiss,
                         modifier = Modifier.align(Alignment.CenterStart),
                     ) {
-                        Text("Done")
+                        Text(stringResource(R.string.ui_done_e9b450d))
                     }
                     Text(
-                        text = "Bot settings",
+                        text = stringResource(R.string.ui_bot_settings_7092a29),
                         fontSize = 17.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.align(Alignment.Center),
@@ -275,31 +276,31 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
 
                 FormSection(header = null) {
                     ActionRow(
-                        text = "What this bot does",
+                        text = stringResource(R.string.ui_what_this_bot_does_7a664f4),
                         icon = Icons.Filled.Info,
                         onClick = { onOpenOverview(bot.id) },
                     )
                 }
 
-                FormSection(header = "Model", footer = ModelRules.FOOTER) {
+                FormSection(header = stringResource(R.string.ui_model_68c2cc7), footer = localizedProfileCopy(ModelRules.FOOTER)) {
                     val instanceChoices = ModelRules.instanceChoices(instances, savedModel)
                     if (!modelsLoaded) {
                         Row(
                             modifier = Modifier.fillMaxWidth().heightIn(min = MIN_TOUCH_TARGET),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(ModelRules.LOADING, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                            Text(localizedProfileCopy(ModelRules.LOADING), fontSize = 15.sp, modifier = Modifier.weight(1f))
                             CircularProgressIndicator(modifier = Modifier.size(20.dp))
                         }
                     } else if (instanceChoices.isEmpty()) {
-                        IconNote(text = ModelRules.NONE_AVAILABLE, icon = Icons.Filled.Warning)
+                        IconNote(text = localizedProfileCopy(ModelRules.NONE_AVAILABLE), icon = Icons.Filled.Warning)
                     } else {
                         val providerRows = buildList {
                             if (ModelRules.providerMissing(instances, selectedInstanceId)) {
                                 add(
                                     VoiceChoice(
                                         id = selectedInstanceId,
-                                        label = ModelRules.CURRENT_PROVIDER_UNAVAILABLE,
+                                        label = localizedProfileCopy(ModelRules.CURRENT_PROVIDER_UNAVAILABLE),
                                         detail = null,
                                         enabled = false,
                                     ),
@@ -317,7 +318,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             }
                         }
                         ChoicePicker(
-                            label = "Provider",
+                            label = stringResource(R.string.ui_provider_7ceee3f),
                             choices = providerRows,
                             selected = selectedInstanceId,
                             onSelect = { id ->
@@ -326,7 +327,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             },
                         )
                         ChoicePicker(
-                            label = "Model",
+                            label = stringResource(R.string.ui_model_68c2cc7),
                             choices = ModelRules.modelChoices(selectedInstance, selectedModelId).map {
                                 VoiceChoice(id = it.id, label = it.label, detail = null, enabled = true)
                             },
@@ -337,9 +338,9 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         val effortLevels = ModelRules.effortLevels(selectedInstance)
                         if (effortLevels.isNotEmpty()) {
                             ChoicePicker(
-                                label = "Reasoning effort",
+                                label = stringResource(R.string.ui_reasoning_effort_cd32c0f),
                                 choices = buildList {
-                                    add(VoiceChoice(id = "", label = ModelRules.DEFAULT_EFFORT_LABEL, detail = null, enabled = true))
+                                    add(VoiceChoice(id = "", label = localizedProfileCopy(ModelRules.DEFAULT_EFFORT_LABEL), detail = null, enabled = true))
                                     effortLevels.forEach {
                                         add(VoiceChoice(id = it, label = ModelRules.effortLabel(it), detail = null, enabled = true))
                                     }
@@ -349,10 +350,10 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             )
                         }
                         ModelRules.note(currentTask?.busy, selectedInstance)?.let { note ->
-                            IconNote(text = note, icon = Icons.Filled.Info)
+                            IconNote(text = localizedProfileCopy(note), icon = Icons.Filled.Info)
                         }
                         ActionRow(
-                            text = "Apply model",
+                            text = stringResource(R.string.ui_apply_model_474897c),
                             icon = Icons.Filled.Check,
                             enabled = !busy && currentTask != null && ModelRules.canApply(
                                 loaded = modelsLoaded,
@@ -380,7 +381,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }
                 }
 
-                FormSection(header = "Avatar", footer = ProfileRules.AVATAR_FOOTER) {
+                FormSection(header = stringResource(R.string.ui_avatar_7631b26), footer = localizedProfileCopy(ProfileRules.AVATAR_FOOTER)) {
                     Box(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         contentAlignment = Alignment.Center,
@@ -389,7 +390,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             bot = current,
                             size = 112.dp,
                             state = MausState.HAPPY,
-                            contentDescription = "${current.name} avatar",
+                            contentDescription = stringResource(R.string.ui_dynamic_1_s_avatar_de63895, current.name),
                         )
                     }
 
@@ -405,13 +406,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                                     count = AvatarCrop.entries.size,
                                 ),
                             ) {
-                                Text(ProfileRules.cropLabel(option))
+                                Text(localizedProfileCopy(ProfileRules.cropLabel(option)))
                             }
                         }
                     }
 
                     ActionRow(
-                        text = "Upload image",
+                        text = stringResource(R.string.ui_upload_image_f35dec5),
                         icon = Icons.Filled.AddCircle,
                         enabled = !busy,
                         onClick = { pickImage.launch(AvatarImagePicker.request()) },
@@ -419,7 +420,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
 
                     if (current.avatarUrl != null) {
                         ActionRow(
-                            text = "Use mascot",
+                            text = stringResource(R.string.ui_use_mascot_0de90a1),
                             icon = Icons.Filled.Delete,
                             enabled = !busy,
                             destructive = true,
@@ -449,19 +450,19 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(
-                    header = "Generate an avatar",
-                    footer = ProfileRules.generateFooter(config),
+                    header = stringResource(R.string.ui_generate_an_avatar_01e5cee),
+                    footer = localizedProfileCopy(ProfileRules.generateFooter(config)),
                 ) {
                     OutlinedTextField(
                         value = prompt,
                         onValueChange = { prompt = it },
-                        label = { Text("Art direction") },
+                        label = { Text(stringResource(R.string.ui_art_direction_52d878a)) },
                         minLines = 2,
                         maxLines = 5,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     ActionRow(
-                        text = "Generate on computer",
+                        text = stringResource(R.string.ui_generate_on_computer_ff5b744),
                         painter = R.drawable.ic_sparkles,
                         enabled = ProfileRules.canGenerate(busy, config, prompt),
                         onClick = {
@@ -500,11 +501,11 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     )
                 }
 
-                FormSection(header = "Identity") {
+                FormSection(header = stringResource(R.string.ui_identity_7e5a975)) {
                     OutlinedTextField(
                         value = form.name,
                         onValueChange = { form = form.copy(name = it) },
-                        label = { Text("Name") },
+                        label = { Text(stringResource(R.string.ui_name_709a232)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Words,
@@ -514,53 +515,53 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     OutlinedTextField(
                         value = form.title,
                         onValueChange = { form = form.copy(title = it) },
-                        label = { Text("Title") },
+                        label = { Text(stringResource(R.string.ui_title_768e0c1)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
                         value = form.description,
                         onValueChange = { form = form.copy(description = it) },
-                        label = { Text("What this agent does") },
+                        label = { Text(stringResource(R.string.ui_what_this_agent_does_82aa1b5)) },
                         minLines = 3,
                         maxLines = 8,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     SwitchRow(
-                        label = "Agent notifications",
+                        label = stringResource(R.string.ui_agent_notifications_a3bd8bd),
                         checked = form.notifications,
                         onCheckedChange = { form = form.copy(notifications = it) },
                     )
                 }
 
                 FormSection(
-                    header = "Standing instructions",
-                    footer = "Saved on the computer and included in this bot's context on every turn.",
+                    header = stringResource(R.string.ui_standing_instructions_4706e23),
+                    footer = stringResource(R.string.ui_bot_memory_footer),
                 ) {
                     if (current.soulDrift == true) {
                         IconNote(
-                            text = "SOUL.md was changed outside OpenMausBot. Resolve the file difference on the computer before editing here.",
+                            text = stringResource(R.string.ui_soul_md_was_changed_outside_openmausbot_res_eec376d),
                             icon = Icons.Filled.Warning,
                         )
                     }
                     if (soulConflict) {
                         IconNote(
-                            text = "Standing instructions changed on the computer while you were editing. Close and reopen this sheet to review them before saving.",
+                            text = stringResource(R.string.ui_standing_instructions_changed_on_the_comput_13fc657),
                             icon = Icons.Filled.Warning,
                         )
                     }
                     OutlinedTextField(
                         value = soulDraft,
                         onValueChange = { soulDraft = it },
-                        label = { Text("Instructions (SOUL.md)") },
+                        label = { Text(stringResource(R.string.ui_instructions_soul_md_6a3c4fb)) },
                         minLines = 6,
                         maxLines = 15,
                         enabled = !savingSoul,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Text("$soulBytes / 24,000 bytes")
+                    Text(stringResource(R.string.ui_dynamic_1_s_24_000_bytes_5437d3f, soulBytes))
                     ActionRow(
-                        text = "Save standing instructions",
+                        text = stringResource(R.string.ui_save_standing_instructions_58af9a1),
                         icon = Icons.Filled.Check,
                         enabled = !busy && !savingSoul && !soulConflict && current.soulDrift != true &&
                             soulBytes <= 24_000 && soulDraft != soulBaseline,
@@ -586,56 +587,56 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     )
                 }
 
-                FormSection(header = "Change history") {
+                FormSection(header = stringResource(R.string.ui_change_history_81cca21)) {
                     ActionRow(
-                        text = if (showingHistory) "Hide history" else "Show history",
+                        text = stringResource(if (showingHistory) R.string.ui_hide_history else R.string.ui_show_history),
                         icon = Icons.Filled.Info,
                         onClick = { showingHistory = !showingHistory },
                     )
                     if (showingHistory) ProfileHistorySection(opened.id)
                 }
 
-                FormSection(header = "Usage") {
+                FormSection(header = stringResource(R.string.ui_usage_0bb1864)) {
                     val summary = summarizeBotUsage(current.tasks)
                     val usage = summary.usage
                     if (usage.turns == 0 && usage.input == 0L && usage.output == 0L) {
-                        Text("No usage recorded yet for this bot.")
+                        Text(stringResource(R.string.ui_no_usage_recorded_yet_for_this_bot_8c6a388))
                     } else {
                         ActionRow(
-                            text = if (showingBotUsage) "Hide bot usage" else "Show bot usage",
+                            text = stringResource(if (showingBotUsage) R.string.ui_hide_bot_usage else R.string.ui_show_bot_usage),
                             onClick = { showingBotUsage = !showingBotUsage },
                         )
                         if (showingBotUsage) {
-                            Text("${usage.turns} turns across this bot's threads")
+                            Text(stringResource(R.string.ui_dynamic_1_s_turns_across_this_bot_s_threads_66053f6, usage.turns))
                             taskUsageLines(usage).forEach { line -> Text(line) }
                             if (summary.hasUnpricedTurns) {
-                                Text("Some turns have no reported price; the cost shown covers priced turns only.")
+                                Text(stringResource(R.string.ui_some_turns_have_no_reported_price_the_cost_1852ebc))
                             }
                         }
                     }
                 }
 
-                FormSection(header = "Memory") {
+                FormSection(header = stringResource(R.string.ui_memory_89c8a28)) {
                     ActionRow(
-                        text = if (showingMemory) "Hide memory" else "Open memory",
+                        text = stringResource(if (showingMemory) R.string.ui_hide_memory else R.string.ui_open_memory),
                         icon = Icons.Filled.Info,
                         onClick = { showingMemory = !showingMemory },
                     )
                     if (showingMemory) BotMemorySection(opened.id)
                 }
 
-                FormSection(header = "Skills") {
+                FormSection(header = stringResource(R.string.ui_skills_e09212c)) {
                     ActionRow(
-                        text = if (showingSkills) "Hide skills" else "Manage skills",
+                        text = stringResource(if (showingSkills) R.string.ui_hide_skills else R.string.ui_manage_skills),
                         icon = Icons.Filled.Info,
                         onClick = { showingSkills = !showingSkills },
                     )
                     if (showingSkills) BotSkillsSection(opened.id)
                 }
 
-                FormSection(header = "Access details") {
+                FormSection(header = stringResource(R.string.ui_access_details_1277ed4)) {
                     ActionRow(
-                        text = if (showingAccessDetails) "Hide access details" else "Show access details",
+                        text = stringResource(if (showingAccessDetails) R.string.ui_hide_access_details else R.string.ui_show_access_details),
                         onClick = {
                             showingAccessDetails = !showingAccessDetails
                             if (showingAccessDetails) {
@@ -648,36 +649,41 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                     if (showingAccessDetails) {
-                        Text("Always allowed tools")
+                        Text(stringResource(R.string.ui_always_allowed_tools_a0e4e36))
                         val grants = current.alwaysAllow.orEmpty()
-                        if (grants.isEmpty()) Text("No standing tool approvals.")
+                        if (grants.isEmpty()) Text(stringResource(R.string.ui_no_standing_tool_approvals_e3c188a))
                         else grants.forEach { grant -> Text("• $grant") }
-                        Text("Inbound webhooks")
+                        Text(stringResource(R.string.ui_inbound_webhooks_7184d03))
                         if (loadingAccessWebhooks) CircularProgressIndicator()
                         else when (val hooks = accessWebhooks) {
-                            null -> Text("Webhook status unavailable. Try reopening this section.")
-                            else -> if (hooks.isEmpty()) Text("No webhooks for this bot.")
+                            null -> Text(stringResource(R.string.ui_webhook_status_unavailable_try_reopening_t_8830733))
+                            else -> if (hooks.isEmpty()) Text(stringResource(R.string.ui_no_webhooks_for_this_bot_53e4266))
                             else hooks.forEach { hook ->
-                                Text("${hook.name} · ${if (hook.enabled) "Active" else "Paused"} · ${hook.deliveryCount} deliveries")
+                                Text(stringResource(
+                                    R.string.ui_profile_webhook_status,
+                                    hook.name,
+                                    stringResource(if (hook.enabled) R.string.ui_status_active else R.string.ui_status_paused),
+                                    hook.deliveryCount,
+                                ))
                             }
                         }
                     }
                 }
 
-                FormSection(header = "Connected apps") {
+                FormSection(header = stringResource(R.string.ui_connected_apps_8f5e8ef)) {
                     val configured = config?.composio?.configured == true
                     val supported = instances.firstOrNull {
                         it.instanceId == current.modelSelection.instanceId
                     }?.capabilities?.composioMcp == true
                     val allowed = current.composio != false
                     Text(when {
-                        !configured -> "Connect apps on the paired computer before enabling access."
-                        !supported -> "This bot's current engine cannot use connected apps."
-                        allowed -> "This bot may use apps connected on the paired computer."
-                        else -> "Connected apps are unavailable to this bot."
+                        !configured -> stringResource(R.string.ui_bot_apps_connect_first)
+                        !supported -> stringResource(R.string.ui_bot_apps_engine_unsupported)
+                        allowed -> stringResource(R.string.ui_bot_apps_allowed)
+                        else -> stringResource(R.string.ui_bot_apps_unavailable)
                     })
                     SwitchRow(
-                        label = "Allow this bot to use connected apps",
+                        label = stringResource(R.string.ui_allow_this_bot_to_use_connected_apps_17416a3),
                         checked = allowed,
                         enabled = connection?.serverScopes?.contains("admin") == true && !busy &&
                             (!allowed && configured && supported || allowed),
@@ -690,17 +696,17 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                     if (connection?.serverScopes?.contains("admin") != true) {
-                        Text("Changing this access requires an admin pairing.")
+                        Text(stringResource(R.string.ui_changing_this_access_requires_an_admin_pai_8c816c6))
                     }
                 }
 
-                FormSection(header = "MCP servers") {
-                    Text("Choose which enabled servers on the paired computer this bot can use.")
+                FormSection(header = stringResource(R.string.ui_mcp_servers_8d9a304)) {
+                    Text(stringResource(R.string.ui_choose_which_enabled_servers_on_the_paired_a2312a2))
                     if (connection?.serverScopes?.contains("admin") != true) {
-                        Text("Managing MCP servers requires an admin pairing.")
+                        Text(stringResource(R.string.ui_managing_mcp_servers_requires_an_admin_pai_107eb99))
                     } else if (mcpError != null) {
                         Text(mcpError!!)
-                        ActionRow(text = "Try loading again", onClick = {
+                        ActionRow(text = stringResource(R.string.ui_try_loading_again_b5375fa), onClick = {
                             scope.launch {
                                 mcpError = null
                                 try { mcpServers = session.botMcpServers() }
@@ -711,16 +717,16 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         CircularProgressIndicator()
                     } else {
                         val available = mcpServers.orEmpty()
-                        Text(if (current.mcpServers == null) "Uses all enabled servers, including ones added later."
-                            else "Uses only the selected servers. An empty selection gives this bot none.")
-                        if (available.isEmpty()) Text("No MCP servers are configured on this computer.")
+                        Text(stringResource(if (current.mcpServers == null) R.string.ui_bot_mcp_all_enabled
+                            else R.string.ui_bot_mcp_selected_only))
+                        if (available.isEmpty()) Text(stringResource(R.string.ui_no_mcp_servers_are_configured_on_this_comp_353e4b4))
                         available.forEach { server ->
                             val allowed = server.enabled && server.managedBy == null
                             val selected = if (current.mcpServers == null) allowed else server.name in current.mcpServers.orEmpty()
                             SwitchRow(
                                 label = server.name + when {
-                                    server.managedBy != null -> " (managed by ${server.managedBy})"
-                                    !server.enabled -> " (disabled on computer)"
+                                    server.managedBy != null -> stringResource(R.string.ui_server_managed_by, server.managedBy)
+                                    !server.enabled -> stringResource(R.string.ui_server_disabled_on_computer)
                                     else -> ""
                                 },
                                 checked = selected,
@@ -739,7 +745,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             )
                         }
                         if (current.mcpServers != null) {
-                            ActionRow(text = "Use all enabled servers", enabled = current.busy != true && !busy,
+                            ActionRow(text = stringResource(R.string.ui_use_all_enabled_servers_c421ad8), enabled = current.busy != true && !busy,
                                 onClick = {
                                     scope.launch {
                                         busy = true
@@ -752,7 +758,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }
                 }
 
-                FormSection(header = "Built-in browser") {
+                FormSection(header = stringResource(R.string.ui_built_in_browser_ce1c92b)) {
                     val engineReady = config?.browserEngine?.kind == "engine"
                     val featureEnabled = config?.features?.browser == true
                     val supported = instances.firstOrNull {
@@ -760,15 +766,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }?.capabilities?.browserMcp == true
                     val allowed = current.browser != false
                     Text(when {
-                        current.computer == "off" -> "This bot's computer destination is Off."
-                        !engineReady -> config?.browserEngine?.reason ?: "The browser engine is unavailable on the computer."
-                        !featureEnabled -> "Enable the built-in browser in the computer's Experimental settings first."
-                        !supported -> "This bot's current engine cannot use the built-in browser."
-                        allowed -> "This bot may use its own built-in browser."
-                        else -> "The built-in browser is unavailable to this bot."
+                        current.computer == "off" -> stringResource(R.string.ui_bot_browser_computer_off)
+                        !engineReady -> config?.browserEngine?.reason ?: stringResource(R.string.ui_bot_browser_engine_unavailable)
+                        !featureEnabled -> stringResource(R.string.ui_bot_browser_enable_first)
+                        !supported -> stringResource(R.string.ui_bot_browser_engine_unsupported)
+                        allowed -> stringResource(R.string.ui_bot_browser_allowed)
+                        else -> stringResource(R.string.ui_bot_browser_unavailable)
                     })
                     SwitchRow(
-                        label = "Give this bot a built-in browser",
+                        label = stringResource(R.string.ui_give_this_bot_a_built_in_browser_3c98718),
                         checked = allowed && current.computer != "off",
                         enabled = connection?.serverScopes?.contains("admin") == true && !busy &&
                             current.computer != "off" && (allowed || engineReady && featureEnabled && supported),
@@ -781,22 +787,22 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                     if (connection?.serverScopes?.contains("admin") != true) {
-                        Text("Changing this access requires an admin pairing.")
+                        Text(stringResource(R.string.ui_changing_this_access_requires_an_admin_pai_8c816c6))
                     }
                 }
 
-                FormSection(header = "Bot coordination") {
+                FormSection(header = stringResource(R.string.ui_bot_coordination_a0133a3)) {
                     val canCoordinate = instances.firstOrNull {
                         it.instanceId == current.modelSelection.instanceId
                     }?.capabilities?.agentsMcp == true
                     val askFirst = current.approvePeerComms == true
                     Text(when {
-                        !canCoordinate -> "This bot's current engine cannot contact other bots."
-                        askFirst -> "This bot asks you before contacting another bot."
-                        else -> "This bot may contact teammates without asking first."
+                        !canCoordinate -> stringResource(R.string.ui_bot_coordination_unsupported)
+                        askFirst -> stringResource(R.string.ui_bot_coordination_asks)
+                        else -> stringResource(R.string.ui_bot_coordination_allowed)
                     })
                     SwitchRow(
-                        label = "Ask before contacting other bots",
+                        label = stringResource(R.string.ui_ask_before_contacting_other_bots_fb8e56d),
                         checked = askFirst,
                         enabled = connection?.serverScopes?.contains("admin") == true &&
                             !busy && current.busy != true && (askFirst || canCoordinate),
@@ -809,40 +815,40 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                     if (connection?.serverScopes?.contains("admin") != true) {
-                        Text("Changing this setting requires an admin pairing.")
+                        Text(stringResource(R.string.ui_changing_this_setting_requires_an_admin_pa_47a795c))
                     }
                 }
 
-                FormSection(header = "Computer access") {
-                    Text("Bot default: ${computerAccessLabel(current.computer)}")
+                FormSection(header = stringResource(R.string.ui_computer_access_b090ead)) {
+                    Text(stringResource(R.string.ui_dynamic_bot_default_1_s_775155b, computerAccessLabel(current.computer)))
                     if (connection?.serverScopes?.contains("admin") == true) {
                         ActionRow(
-                            text = "Change bot default computer",
+                            text = stringResource(R.string.ui_change_bot_default_computer_533fe72),
                             enabled = current.busy != true && !busy,
                             onClick = { choosingBotComputer = true },
                         )
                     }
-                    Text("This chat: ${taskSurfaceLabel(currentTaskRecord?.surface, current.computer)}")
+                    Text(stringResource(R.string.ui_dynamic_this_chat_1_s_3fdd6fa, taskSurfaceLabel(currentTaskRecord?.surface, current.computer)))
                     ActionRow(
-                        text = "Change this chat's computer",
+                        text = stringResource(R.string.ui_change_this_chat_s_computer_576f1d9),
                         enabled = currentTaskRecord != null && currentTaskRecord.busy != true && !busy,
                         onClick = { choosingTaskSurface = true },
                     )
-                    Text("Approvals for this chat: ${approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)}")
-                    Text("Bot approval default: ${approvalAccessLabel(current.approvalMode, current.autoApprove)}")
+                    Text(stringResource(R.string.ui_dynamic_approvals_for_this_chat_1_s_3fceff5, approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)))
+                    Text(stringResource(R.string.ui_dynamic_bot_approval_default_1_s_825c310, approvalAccessLabel(current.approvalMode, current.autoApprove)))
                     if (connection?.serverScopes?.contains("admin") == true && current.approvalMode !in listOf("full", "custom")) {
                         ActionRow(
-                            text = "Change Ask / Auto approval",
+                            text = stringResource(R.string.ui_change_ask_auto_approval_fc82281),
                             enabled = current.busy != true && !busy,
                             onClick = { choosingSafeApproval = true },
                         )
                     }
-                    Text(if (connection?.serverScopes?.contains("admin") == true)
-                        "Full and Custom approval permissions can only be changed in the packaged desktop app."
-                    else "Changing bot-wide defaults requires an admin pairing. Full and Custom approval permissions require the packaged desktop app.")
+                    Text(stringResource(if (connection?.serverScopes?.contains("admin") == true)
+                        R.string.ui_bot_approval_desktop_only else R.string.ui_bot_approval_admin_desktop))
                     if (connection?.serverScopes?.contains("admin") == true) {
                         ActionRow(
-                            text = if (showingCommandRules) "Hide exact command permissions" else "Manage exact command permissions",
+                            text = stringResource(if (showingCommandRules) R.string.ui_hide_exact_command_permissions
+                                else R.string.ui_manage_exact_command_permissions),
                             onClick = { showingCommandRules = !showingCommandRules },
                         )
                         if (showingCommandRules) BotCommandAllowlistSection(opened.id, connection?.id)
@@ -850,46 +856,46 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(
-                    header = "Browser profile",
-                    footer = "Browser sessions live on the paired computer. A bot's own browser is private to that bot; a named profile can be shared with other bots.",
+                    header = stringResource(R.string.ui_browser_profile_d7d5c8f),
+                    footer = stringResource(R.string.ui_bot_browser_profile_footer),
                 ) {
                     Text(when (current.browserProfile) {
-                        null -> "This bot's own browser"
-                        "guest" -> "Temporary browser"
+                        null -> stringResource(R.string.ui_bot_own_browser)
+                        "guest" -> stringResource(R.string.ui_bot_temporary_browser)
                         else -> config?.browserProfiles?.firstOrNull { it.id == current.browserProfile }?.name
-                            ?: "Profile unavailable (${current.browserProfile})"
+                            ?: stringResource(R.string.ui_bot_profile_unavailable, current.browserProfile)
                     })
                     if (connection?.serverScopes?.contains("admin") == true) {
                         ActionRow(
-                            text = "Choose browser profile",
+                            text = stringResource(R.string.ui_choose_browser_profile_2cdb00e),
                             enabled = current.busy != true && !busy && config != null,
                             onClick = { choosingBrowserProfile = true },
                         )
-                    } else Text("Changing the browser profile requires an admin pairing.")
+                    } else Text(stringResource(R.string.ui_changing_the_browser_profile_requires_an_a_5d29d91))
                 }
 
                 FormSection(
-                    header = "Working folder",
-                    footer = "This path is on the paired computer, not on your phone. New tasks use the new folder; existing tasks may remain pinned to their earlier folder.",
+                    header = stringResource(R.string.ui_working_folder_00e69ec),
+                    footer = stringResource(R.string.ui_bot_working_folder_footer),
                 ) {
                     Text(current.cwd?.takeIf { it.isNotBlank() } ?: "Private bot folder")
                     if (currentTaskRecord?.cwd != null && currentTaskRecord.cwd != current.cwd) {
-                        Text("This chat is still pinned to ${currentTaskRecord.cwd}.")
+                        Text(stringResource(R.string.ui_dynamic_this_chat_is_still_pinned_to_1_s_b8c7601, currentTaskRecord.cwd))
                     }
                     if (connection?.serverScopes?.contains("admin") == true) {
                         if (workingFolderConflict) {
-                            IconNote(text = "The working folder changed on the computer while you were editing. Close and reopen this sheet before saving.", icon = Icons.Filled.Warning)
+                            IconNote(text = stringResource(R.string.ui_the_working_folder_changed_on_the_computer_9271460), icon = Icons.Filled.Warning)
                         }
                         OutlinedTextField(
                             value = workingFolderDraft,
                             onValueChange = { workingFolderDraft = it },
-                            label = { Text("Absolute path on the computer") },
+                            label = { Text(stringResource(R.string.ui_absolute_path_on_the_computer_53474d4)) },
                             singleLine = true,
                             enabled = !busy,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         ActionRow(
-                            text = "Save working folder",
+                            text = stringResource(R.string.ui_save_working_folder_62fa68c),
                             icon = Icons.Filled.Check,
                             enabled = !busy && !workingFolderConflict && workingFolderDraft != workingFolderBaseline,
                             onClick = {
@@ -906,7 +912,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         )
                         if (!current.cwd.isNullOrBlank()) {
                             ActionRow(
-                                text = "Use private bot folder",
+                                text = stringResource(R.string.ui_use_private_bot_folder_c5897aa),
                                 enabled = !busy,
                                 onClick = {
                                     scope.launch {
@@ -921,7 +927,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                                 },
                             )
                         }
-                    } else Text("Changing this folder requires an admin pairing.")
+                    } else Text(stringResource(R.string.ui_changing_this_folder_requires_an_admin_pai_9e46413))
                 }
 
                 VoiceSection(
@@ -957,25 +963,26 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     },
                 ) {
                     ChoicePicker(
-                        label = "Voice",
-                        choices = ProfileRules.voiceChoices(config, voices, form.voice),
+                        label = stringResource(R.string.ui_voice_3091c84),
+                        choices = localizedVoiceChoices(ProfileRules.voiceChoices(config, voices, form.voice)),
                         selected = form.voice,
                         onSelect = { form = form.copy(voice = it) },
                     )
                     SwitchRow(
-                        label = "Speak replies",
+                        label = stringResource(R.string.ui_speak_replies_90b05ae),
                         checked = form.speakReplies,
                         enabled = ProfileRules.selectedVoiceCanSpeak(config, form.voice),
                         onCheckedChange = { form = form.copy(speakReplies = it) },
                     )
+                    val previewRefused = localizedProfileCopy(ProfileRules.PREVIEW_REFUSED)
                     ActionRow(
-                        text = "Preview voice",
+                        text = stringResource(R.string.ui_preview_voice_560a6fe),
                         painter = R.drawable.ic_volume_up,
                         enabled = ProfileRules.canPreview(busy, config, form.voice),
                         onClick = {
                             scope.launch {
                                 if (!ProfileRules.selectedVoiceCanSpeak(config, form.voice)) {
-                                    session.actionError = ProfileRules.PREVIEW_REFUSED
+                                    session.actionError = previewRefused
                                     return@launch
                                 }
                                 busy = true
@@ -1002,13 +1009,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         },
                     )
                     ProfileRules.pickAVoiceHint(config, form.voice)?.let { hint ->
-                        IconNote(text = hint, icon = Icons.Filled.Info)
+                        IconNote(text = localizedProfileCopy(hint), icon = Icons.Filled.Info)
                     }
                 }
 
                 FormSection(header = null) {
                     ActionRow(
-                        text = "Save profile changes",
+                        text = stringResource(R.string.ui_save_profile_changes_49c8333),
                         enabled = ProfileRules.canSave(form, busy),
                         onClick = {
                             scope.launch {
@@ -1030,7 +1037,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 if (connection?.serverScopes?.contains("admin") == true) {
                     FormSection(header = null) {
                         ActionRow(
-                            text = "Delete bot",
+                            text = stringResource(R.string.ui_delete_bot_f633250),
                             icon = Icons.Filled.Delete,
                             enabled = !busy && state.bot(opened.id) != null,
                             destructive = true,
@@ -1054,7 +1061,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     if (choosingTaskSurface && currentTaskRecord != null) {
         AlertDialog(
             onDismissRequest = { if (!busy) choosingTaskSurface = false },
-            title = { Text("Computer for this chat") },
+            title = { Text(stringResource(R.string.ui_computer_for_this_chat_cda3c01)) },
             text = {
                 Column {
                     listOf(
@@ -1078,13 +1085,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { choosingTaskSurface = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { choosingTaskSurface = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (choosingBotComputer) {
         AlertDialog(
             onDismissRequest = { if (!busy) choosingBotComputer = false },
-            title = { Text("Default computer for this bot") },
+            title = { Text(stringResource(R.string.ui_default_computer_for_this_bot_4e6e9ae)) },
             text = {
                 Column {
                     listOf(
@@ -1112,13 +1119,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { choosingBotComputer = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { choosingBotComputer = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (choosingBrowserProfile) {
         AlertDialog(
             onDismissRequest = { if (!busy) choosingBrowserProfile = false },
-            title = { Text("Browser profile for this bot") },
+            title = { Text(stringResource(R.string.ui_browser_profile_for_this_bot_d11b9e8)) },
             text = {
                 Column {
                     (listOf(null to "This bot's own browser", "guest" to "Temporary browser") +
@@ -1134,14 +1141,14 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { choosingBrowserProfile = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { choosingBrowserProfile = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (confirmingLocalAuto) {
         AlertDialog(
             onDismissRequest = { if (!busy) confirmingLocalAuto = false },
-            title = { Text("Allow automatic use of this computer?") },
-            text = { Text("This bot is set to Auto approval. Choosing This computer lets it use the paired computer without asking for every action.") },
+            title = { Text(stringResource(R.string.ui_allow_automatic_use_of_this_computer_f2feeaf)) },
+            text = { Text(stringResource(R.string.ui_this_bot_is_set_to_auto_approval_choosing_9e8896d)) },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = {
                     scope.launch {
@@ -1149,15 +1156,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         if (session.setBotComputerDefault(liveBot(), "local", acknowledgeLocalAuto = true) != null) confirmingLocalAuto = false
                         busy = false
                     }
-                }) { Text("Allow") }
+                }) { Text(stringResource(R.string.ui_allow_3ad0e36)) }
             },
-            dismissButton = { TextButton(onClick = { confirmingLocalAuto = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { confirmingLocalAuto = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (choosingSafeApproval) {
         AlertDialog(
             onDismissRequest = { if (!busy) choosingSafeApproval = false },
-            title = { Text("Approval default for this bot") },
+            title = { Text(stringResource(R.string.ui_approval_default_for_this_bot_69550b5)) },
             text = {
                 Column {
                     listOf("ask" to "Ask before actions", "auto" to "Auto approval").forEach { (mode, label) ->
@@ -1175,14 +1182,14 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = { choosingSafeApproval = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { choosingSafeApproval = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (confirmingAutoOnComputer) {
         AlertDialog(
             onDismissRequest = { if (!busy) confirmingAutoOnComputer = false },
-            title = { Text("Allow automatic use of this computer?") },
-            text = { Text("Auto approval on This computer lets this bot use the paired computer without asking for every action.") },
+            title = { Text(stringResource(R.string.ui_allow_automatic_use_of_this_computer_f2feeaf)) },
+            text = { Text(stringResource(R.string.ui_auto_approval_on_this_computer_lets_this_b_0d85a61)) },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = {
                     scope.launch {
@@ -1190,15 +1197,15 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         if (session.setBotApprovalMode(liveBot(), "auto", acknowledgeLocalAuto = true) != null) confirmingAutoOnComputer = false
                         busy = false
                     }
-                }) { Text("Allow") }
+                }) { Text(stringResource(R.string.ui_allow_3ad0e36)) }
             },
-            dismissButton = { TextButton(onClick = { confirmingAutoOnComputer = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { confirmingAutoOnComputer = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
     if (confirmDelete) AlertDialog(
         onDismissRequest = { if (!busy) confirmDelete = false },
-        title = { Text("Delete ${current.name}?") },
-        text = { Text("This permanently deletes the bot and its conversations. This cannot be undone.") },
+        title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, current.name)) },
+        text = { Text(stringResource(R.string.ui_this_permanently_deletes_the_bot_and_its_c_0c94492)) },
         confirmButton = {
             TextButton(enabled = !busy, onClick = {
                 scope.launch {
@@ -1214,9 +1221,9 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         confirmDelete = false
                     } finally { busy = false }
                 }
-            }) { Text("Delete bot") }
+            }) { Text(stringResource(R.string.ui_delete_bot_f633250)) }
         },
-        dismissButton = { TextButton(enabled = !busy, onClick = { confirmDelete = false }) { Text("Cancel") } },
+        dismissButton = { TextButton(enabled = !busy, onClick = { confirmDelete = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }
 
@@ -1294,6 +1301,19 @@ internal fun ChoicePicker(
  * an engine whose credential is missing.
  */
 @Composable
+private fun localizedProfileCopy(text: String): String =
+    (ProfileRules.copyResourceId(text) ?: ModelRules.copyResourceId(text))?.let { stringResource(it) } ?: text
+
+@Composable
+private fun localizedVoiceChoices(choices: List<VoiceChoice>): List<VoiceChoice> {
+    val localized = ArrayList<VoiceChoice>(choices.size)
+    for (choice in choices) {
+        localized += choice.copy(label = localizedProfileCopy(choice.label))
+    }
+    return localized
+}
+
+@Composable
 internal fun VoiceSection(
     config: ConfigStatus?,
     switching: Boolean = false,
@@ -1301,16 +1321,16 @@ internal fun VoiceSection(
     canSpeak: @Composable () -> Unit,
 ) {
     val copy = ProfileRules.voiceCopy(config)
-    FormSection(header = "Voice", footer = copy.footer) {
+    FormSection(header = stringResource(R.string.ui_voice_3091c84), footer = localizedProfileCopy(copy.footer)) {
         ChoicePicker(
-            label = "Voice engine",
-            choices = ProfileRules.providerChoices(),
+            label = stringResource(R.string.ui_voice_engine_3b4d8de),
+            choices = localizedVoiceChoices(ProfileRules.providerChoices()),
             selected = (config?.voiceProvider ?: VoiceProvider.ELEVENLABS).wire,
             onSelect = { next -> onSwitchEngine(VoiceProvider.fromWire(next)) },
             enabled = !switching,
         )
         if (copy.unconfiguredNotice != null) {
-            IconNote(text = copy.unconfiguredNotice, painter = R.drawable.ic_volume_off)
+            IconNote(text = localizedProfileCopy(copy.unconfiguredNotice), painter = R.drawable.ic_volume_off)
         } else {
             canSpeak()
         }

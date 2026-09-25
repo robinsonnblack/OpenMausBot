@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -93,7 +95,7 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
         if (image != null) {
             Image(
                 bitmap = image,
-                contentDescription = "${bot.name}'s computer",
+                contentDescription = stringResource(R.string.ui_dynamic_1_s_s_computer_7637def, bot.name),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize(),
             )
@@ -115,7 +117,7 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.ui_back_b52b36b),
                 tint = Color.White,
                 modifier = Modifier
                     .size(32.dp)
@@ -209,10 +211,10 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
                             }
                         }
                     },
-                ) { Text("Open desktop") }
+                ) { Text(stringResource(R.string.ui_open_desktop_cd6f821)) }
             },
             dismissButton = {
-                TextButton(onClick = { confirming = false }) { Text("Cancel") }
+                TextButton(onClick = { confirming = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         )
     }

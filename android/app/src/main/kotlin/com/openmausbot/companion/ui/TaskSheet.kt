@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -170,14 +172,14 @@ fun TaskSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "${current.name}'s threads",
+                        text = stringResource(R.string.ui_dynamic_1_s_s_threads_d34c7ce, current.name),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
                     )
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "New thread",
+                        contentDescription = stringResource(R.string.ui_new_thread_02057e2),
                         tint = if (TaskRules.canCreate(current)) {
                             MaterialTheme.colorScheme.onSurface
                         } else {
@@ -322,7 +324,7 @@ fun TaskSheet(
                         .padding(horizontal = 12.dp),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = onDismiss, enabled = !saving) { Text("Done") }
+                    TextButton(onClick = onDismiss, enabled = !saving) { Text(stringResource(R.string.ui_done_e9b450d)) }
                 }
             }
         }
@@ -331,7 +333,7 @@ fun TaskSheet(
     renaming?.let { task ->
         TaskTitleDialog(
             heading = "Rename thread",
-            label = "Title",
+            label = stringResource(R.string.ui_title_768e0c1),
             title = title,
             onTitleChange = { title = it },
             confirmText = "Save",
@@ -355,8 +357,8 @@ fun TaskSheet(
     pendingDelete?.takeIf { canDeleteThreads }?.let { task ->
         AlertDialog(
             onDismissRequest = { if (!saving) pendingDelete = null },
-            title = { Text("Delete ${TaskRules.title(task)}?") },
-            text = { Text(error ?: "This conversation will be deleted. Generated files are kept.") },
+            title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, TaskRules.title(task))) },
+            text = { Text(error ?: stringResource(R.string.ui_delete_conversation_keep_files)) },
             confirmButton = {
                 TextButton(enabled = !saving && canDeleteThreads && TaskRules.canDelete(task, current), onClick = {
                     if (!canDeleteThreads || !TaskRules.canDelete(task, current)) return@TextButton
@@ -373,9 +375,9 @@ fun TaskSheet(
                             }
                         }
                     }
-                }) { Text("Delete", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.ui_delete_f6fdbe4), color = MaterialTheme.colorScheme.error) }
             },
-            dismissButton = { TextButton(enabled = !saving, onClick = { pendingDelete = null; error = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(enabled = !saving, onClick = { pendingDelete = null; error = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 
@@ -387,14 +389,14 @@ fun TaskSheet(
         val working = TaskRules.isWorking(task)
         AlertDialog(
             onDismissRequest = { if (!saving) pendingSnooze = null },
-            title = { Text("Snooze ${TaskRules.title(task)}") },
+            title = { Text(stringResource(R.string.ui_dynamic_snooze_1_s_50ec2df, TaskRules.title(task))) },
             text = {
                 Column {
                     error?.let {
                         Text(it, color = MaterialTheme.colorScheme.error)
                     }
                     if (working) {
-                        Text("Stop this thread before snoozing it.", color = secondaryTint)
+                        Text(stringResource(R.string.ui_stop_this_thread_before_snoozing_it_d76b3d2), color = secondaryTint)
                     } else {
                         SnoozeRules.presets.forEach { preset ->
                             TextButton(
@@ -442,7 +444,7 @@ fun TaskSheet(
             confirmButton = {},
             dismissButton = {
                 TextButton(enabled = !saving, onClick = { pendingSnooze = null; error = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.ui_cancel_77dfd21))
                 }
             },
         )
@@ -514,7 +516,7 @@ private fun TaskRow(
 
         Icon(
             imageVector = Icons.Filled.Edit,
-            contentDescription = "Rename ${TaskRules.title(task)}",
+            contentDescription = stringResource(R.string.ui_dynamic_rename_1_s_f90cb3c, TaskRules.title(task)),
             tint = secondaryTint,
             modifier = Modifier
                 .size(48.dp)
@@ -525,7 +527,7 @@ private fun TaskRow(
         if (onSnooze != null) {
             Icon(
                 imageVector = Icons.Filled.Notifications,
-                contentDescription = "Snooze ${TaskRules.title(task)}",
+                contentDescription = stringResource(R.string.ui_dynamic_snooze_1_s_50ec2df, TaskRules.title(task)),
                 tint = if (enabled && !TaskRules.isWorking(task)) secondaryTint
                 else secondaryTint.copy(alpha = 0.4f),
                 modifier = Modifier
@@ -537,7 +539,7 @@ private fun TaskRow(
 
         if (onDelete != null) Icon(
             imageVector = Icons.Filled.Delete,
-            contentDescription = "Delete ${TaskRules.title(task)}",
+            contentDescription = stringResource(R.string.ui_dynamic_delete_1_s_961ae88, TaskRules.title(task)),
             tint = if (canDelete) MaterialTheme.colorScheme.error else secondaryTint.copy(alpha = 0.4f),
             modifier = Modifier
                 .size(48.dp)
@@ -616,6 +618,6 @@ private fun TaskTitleDialog(
         confirmButton = {
             TextButton(onClick = onConfirm, enabled = confirmEnabled) { Text(confirmText) }
         },
-        dismissButton = { TextButton(onClick = onCancel) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onCancel) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }

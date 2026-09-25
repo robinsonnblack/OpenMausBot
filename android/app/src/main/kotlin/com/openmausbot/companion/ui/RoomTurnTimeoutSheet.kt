@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,21 +54,21 @@ internal fun RoomTurnTimeoutSheet(onDismiss: () -> Unit) {
     val parsed = minutes.toIntOrNull()
     ModalBottomSheet(onDismissRequest = { if (!saving) onDismiss() }) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Room turn timeout", style = MaterialTheme.typography.titleLarge)
-            Text("How long one bot may take to finish a room turn before the computer stops it.")
+            Text(stringResource(R.string.ui_room_turn_timeout_0bf9d2d), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_how_long_one_bot_may_take_to_finish_a_room_21a83ff))
             if (loading) CircularProgressIndicator()
             if (original != null) {
                 OutlinedTextField(
                     value = minutes,
                     onValueChange = { minutes = it.filter(Char::isDigit).take(4); error = null },
-                    label = { Text("Minutes (1–1,440)") },
+                    label = { Text(stringResource(R.string.ui_minutes_1_1_440_856bca8)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !saving,
                 )
             }
             if (parsed !in 1..1440 && original != null) {
-                Text("Enter a whole number from 1 to 1,440.", color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.ui_enter_a_whole_number_from_1_to_1_440_5fcb58c), color = MaterialTheme.colorScheme.error)
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             TextButton(enabled = !loading && !saving && parsed in 1..1440, onClick = {
@@ -86,8 +88,8 @@ internal fun RoomTurnTimeoutSheet(onDismiss: () -> Unit) {
                         saving = false
                     }
                 }
-            }) { Text(if (saving) "Saving…" else "Save") }
-            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+            }) { Text(stringResource(if (saving) R.string.ui_saving else R.string.ui_save_action)) }
+            TextButton(enabled = !saving, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
         }
     }
 }

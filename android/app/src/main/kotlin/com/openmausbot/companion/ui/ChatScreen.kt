@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import android.view.KeyCharacterMap
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.filled.Warning
@@ -840,7 +841,7 @@ private fun LoadedChat(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
-                                Text("Load earlier messages", fontSize = 13.sp)
+                                Text(stringResource(R.string.ui_load_earlier_messages_4ac08d1), fontSize = 13.sp)
                             }
                         }
                     }
@@ -964,7 +965,7 @@ private fun LoadedChat(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
-                            text = "Pinned · $pinnedSnippet",
+                            text = stringResource(R.string.ui_dynamic_pinned_1_s_aad27eb, pinnedSnippet),
                             modifier = Modifier.weight(1f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -972,7 +973,7 @@ private fun LoadedChat(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         TextButton(onClick = { scope.launch { session.pinMessage(chat, null) } }) {
-                            Text("Unpin")
+                            Text(stringResource(R.string.ui_unpin_2eba6a0))
                         }
                     }
                 }
@@ -1196,19 +1197,19 @@ private fun ChatHeader(
             Spacer(Modifier.weight(1f))
             if (onDeleteMessages != null) ChromeButton(
                 icon = Icons.Filled.Delete,
-                contentDescription = "Delete messages",
+                contentDescription = stringResource(R.string.ui_delete_messages_93f3675),
                 onClick = onDeleteMessages,
             )
             if (onInspectPrompt != null) ChromeButton(
                 icon = Icons.Filled.Info,
-                contentDescription = "Prompt inspector",
+                contentDescription = stringResource(R.string.ui_prompt_inspector_0885254),
                 onClick = onInspectPrompt,
             )
             // The computer is a bot idea; a room has none (§12).
             if (chat is Chat.BotChat) {
                 ChromeButton(
                     painter = painterResource(R.drawable.ic_display),
-                    contentDescription = "Watch ${chat.name}'s computer",
+                    contentDescription = stringResource(R.string.ui_dynamic_watch_1_s_s_computer_92efc11, chat.name),
                     onClick = onWatchComputer,
                 )
             } else {
@@ -1256,7 +1257,7 @@ private fun BackPill(unreadElsewhere: Int, onBack: () -> Unit) {
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back",
+            contentDescription = stringResource(R.string.ui_back_b52b36b),
             modifier = Modifier.size(20.dp),
         )
         if (unreadElsewhere > 0) {
@@ -1517,7 +1518,7 @@ private fun Composer(
     val turn = animateFloatAsState(
         targetValue = if (plusOpen) PLUS_TURN_DEGREES else 0f,
         animationSpec = tween(PLUS_MILLIS),
-        label = "plus",
+        label = stringResource(R.string.ui_plus_6a8437d),
     )
     Column(
         modifier = modifier
@@ -1559,7 +1560,7 @@ private fun Composer(
                 )
                 Text(text = attachmentError, fontSize = 13.sp, modifier = Modifier.weight(1f))
                 Text(
-                    text = "Dismiss",
+                    text = stringResource(R.string.ui_dismiss_70afe9e),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -1668,7 +1669,7 @@ private fun Composer(
                 // it better than a borrowed symbol would.
                 TouchTarget(
                     onClick = onToggleHud,
-                    contentDescription = "Slash commands",
+                    contentDescription = stringResource(R.string.ui_slash_commands_efce77d),
                     modifier = Modifier.semantics {
                         stateDescription = if (accessory == ComposerAccessory.HUD) {
                             "Expanded"
@@ -1783,7 +1784,7 @@ private fun Composer(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Send",
+                            contentDescription = stringResource(R.string.ui_send_9bc2575),
                             tint = if (canSend) BubbleColor.mineText else secondaryTint,
                             modifier = Modifier.size(16.dp),
                         )

@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -169,10 +171,10 @@ internal fun NewBotModelSheet(
 
     if (confirmingLocalAuto) AlertDialog(
         onDismissRequest = { confirmingLocalAuto = false },
-        title = { Text("Allow automatic PC actions?") },
-        text = { Text("This bot can act on this computer without asking for each action. Only enable this for a bot you trust.") },
-        confirmButton = { TextButton(onClick = { confirmingLocalAuto = false; submit(true) }) { Text("Create with auto approval") } },
-        dismissButton = { TextButton(onClick = { confirmingLocalAuto = false }) { Text("Cancel") } },
+        title = { Text(stringResource(R.string.ui_allow_automatic_pc_actions_3f3cbfd)) },
+        text = { Text(stringResource(R.string.ui_this_bot_can_act_on_this_computer_without_51d302f)) },
+        confirmButton = { TextButton(onClick = { confirmingLocalAuto = false; submit(true) }) { Text(stringResource(R.string.ui_create_with_auto_approval_4786fc0)) } },
+        dismissButton = { TextButton(onClick = { confirmingLocalAuto = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 
     ModalBottomSheet(onDismissRequest = { if (!saving) onDismiss() }) {
@@ -181,30 +183,30 @@ internal fun NewBotModelSheet(
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("New bot")
+            Text(stringResource(R.string.ui_new_bot_66d3c05))
             if (!loaded) CircularProgressIndicator()
             else {
                 OutlinedTextField(
                     value = name, onValueChange = { name = it.take(80) },
-                    label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.ui_name_709a232)) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = title, onValueChange = { title = it.take(200) },
-                    label = { Text("Role or title") }, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.ui_role_or_title_53f2cc0)) }, modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = description, onValueChange = { description = it.take(2_000) },
-                    label = { Text("Description") }, minLines = 2, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.ui_description_55f8ebc)) }, minLines = 2, modifier = Modifier.fillMaxWidth(),
                 )
                 ChoicePicker(
-                    label = "Team",
+                    label = stringResource(R.string.ui_team_2188872),
                     choices = listOf(VoiceChoice("", "No team", null, true)) +
                         state.sidebarSections.map { VoiceChoice(it.name, it.name, null, true) },
                     selected = section,
                     onSelect = { section = it },
                 )
                 ChoicePicker(
-                    label = "Provider",
+                    label = stringResource(R.string.ui_provider_7ceee3f),
                     choices = instances.filter { it.snapshot.isAvailable }.map {
                         VoiceChoice(it.instanceId, ModelRules.instanceLabel(it), null, true)
                     },
@@ -216,7 +218,7 @@ internal fun NewBotModelSheet(
                     },
                 )
                 ChoicePicker(
-                    label = "Model",
+                    label = stringResource(R.string.ui_model_68c2cc7),
                     choices = models.map { VoiceChoice(it.id, it.label, null, true) },
                     selected = selected?.model.orEmpty(),
                     enabled = available,
@@ -224,47 +226,47 @@ internal fun NewBotModelSheet(
                 )
                 val efforts = ModelRules.effortLevels(instance)
                 if (efforts.isNotEmpty()) ChoicePicker(
-                    label = "Reasoning effort",
+                    label = stringResource(R.string.ui_reasoning_effort_cd32c0f),
                     choices = listOf(VoiceChoice("", "Default", null, true)) +
                         efforts.map { VoiceChoice(it, ModelRules.effortLabel(it), null, true) },
                     selected = selected?.effort.orEmpty(),
                     onSelect = { effort -> selected?.let { selection = it.copy(effort = effort.ifEmpty { null }) } },
                 )
                 if (isAdmin) TextButton(onClick = { showingAdvanced = !showingAdvanced }) {
-                    Text(if (showingAdvanced) "Hide bot settings" else "Bot settings")
+                    Text(stringResource(if (showingAdvanced) R.string.ui_hide_bot_settings else R.string.ui_bot_settings))
                 }
                 if (showingAdvanced && isAdmin) {
                     OutlinedTextField(
                         value = preferences.soul,
                         onValueChange = { preferences = preferences.copy(soul = it) },
-                        label = { Text("Bot instructions") },
+                        label = { Text(stringResource(R.string.ui_bot_instructions_67fe721)) },
                         minLines = 3,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     if (preferences.soul.toByteArray(Charsets.UTF_8).size > 24_000) {
-                        Text("Bot instructions must be at most 24 KB.", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(R.string.ui_bot_instructions_must_be_at_most_24_kb_a655cb6), color = MaterialTheme.colorScheme.error)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text("Notifications", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.ui_notifications_753a22b), modifier = Modifier.weight(1f))
                         Switch(checked = preferences.notifications, onCheckedChange = {
                             preferences = preferences.copy(notifications = it)
                         })
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text("Speak replies", modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.ui_speak_replies_90b05ae), modifier = Modifier.weight(1f))
                         Switch(checked = preferences.speakReplies, onCheckedChange = {
                             preferences = preferences.copy(speakReplies = it)
                         })
                     }
                     ChoicePicker(
-                        label = "Color",
+                        label = stringResource(R.string.ui_color_1d0c830),
                         choices = listOf("green", "blue", "red", "orange", "purple", "cyan", "pink", "yellow", "teal", "coral")
                             .map { VoiceChoice(it, it.replaceFirstChar(Char::uppercaseChar), null, true) },
                         selected = preferences.color,
                         onSelect = { preferences = preferences.copy(color = it) },
                     )
                     ChoicePicker(
-                        label = "Computer access",
+                        label = stringResource(R.string.ui_computer_access_b090ead),
                         choices = listOf(VoiceChoice("", "Default", null, true)) +
                             listOf("cloud", "vm", "local", "browser", "off")
                                 .map { VoiceChoice(it, it.replaceFirstChar(Char::uppercaseChar), null, true) },
@@ -272,7 +274,7 @@ internal fun NewBotModelSheet(
                         onSelect = { preferences = preferences.copy(computer = it.ifEmpty { null }) },
                     )
                     ChoicePicker(
-                        label = "Browser profile",
+                        label = stringResource(R.string.ui_browser_profile_d7d5c8f),
                         choices = listOf(
                             VoiceChoice("", "This bot's own browser", null, true),
                             VoiceChoice("guest", "Temporary browser", null, true),
@@ -281,7 +283,7 @@ internal fun NewBotModelSheet(
                         onSelect = { preferences = preferences.copy(browserProfile = it.ifEmpty { null }) },
                     )
                     ChoicePicker(
-                        label = "Action approval",
+                        label = stringResource(R.string.ui_action_approval_d6cf31e),
                         choices = listOf(
                             VoiceChoice("ask", "Ask before actions", null, true),
                             VoiceChoice("auto", "Approve automatically", null, true),
@@ -289,27 +291,27 @@ internal fun NewBotModelSheet(
                         selected = preferences.approvalMode,
                         onSelect = { preferences = preferences.copy(approvalMode = it) },
                     )
-                    Text("Full and custom desktop grants must be configured on the computer.", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ui_full_and_custom_desktop_grants_must_be_con_9e2da95), style = MaterialTheme.typography.bodySmall)
                     OutlinedTextField(
                         value = preferences.cwd.orEmpty(),
                         onValueChange = { preferences = preferences.copy(cwd = it.take(4_096).ifBlank { null }) },
-                        label = { Text("Working folder on computer (optional)") },
+                        label = { Text(stringResource(R.string.ui_working_folder_on_computer_optional_702ecf4)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
                         value = preferences.voice,
                         onValueChange = { preferences = preferences.copy(voice = it.take(200)) },
-                        label = { Text("Voice ID (optional)") },
+                        label = { Text(stringResource(R.string.ui_voice_id_optional_b8dd8bb)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
                 if (isAdmin) TextButton(onClick = { showingContent = !showingContent }) {
-                    Text(if (showingContent) "Hide Memory, Skills and Routines" else "Memory, Skills and Routines")
+                    Text(stringResource(if (showingContent) R.string.ui_hide_bot_content else R.string.ui_bot_content))
                 }
                 if (showingContent && isAdmin) {
-                    Text("These are part of this bot's draft. They are installed when the bot is created; editing them here does not change the saved defaults.", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ui_these_are_part_of_this_bot_s_draft_they_ar_ff27d04), style = MaterialTheme.typography.bodySmall)
                     val memoryFiles = runCatching { draftJson.parseToJsonElement(memoryText).jsonObject }.getOrNull()
                     if (memoryFiles != null) {
                         OutlinedTextField(
@@ -318,7 +320,7 @@ internal fun NewBotModelSheet(
                                 memoryText = draftJson.encodeToString(JsonElement.serializer(),
                                     JsonObject(memoryFiles + ("MEMORY.md" to JsonPrimitive(value))))
                             },
-                            label = { Text("Memory index") }, minLines = 3, modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.ui_memory_index_1254180)) }, minLines = 3, modifier = Modifier.fillMaxWidth(),
                         )
                         memoryFiles.filterKeys { it != "MEMORY.md" }.forEach { (path, content) ->
                             OutlinedTextField(
@@ -339,18 +341,19 @@ internal fun NewBotModelSheet(
                             memoryText = draftJson.encodeToString(JsonElement.serializer(),
                                 JsonObject(existing + (path to JsonPrimitive(""))))
                         } catch (_: Exception) { error = "Fix Memory JSON before adding a file." }
-                    }) { Text("Add memory topic") }
+                    }) { Text(stringResource(R.string.ui_add_memory_topic_3bf3be5)) }
                     val skillItems = runCatching { draftJson.parseToJsonElement(skillsText).jsonArray }.getOrNull()
                     skillItems?.forEachIndexed { index, item ->
                         val skill = item as? JsonObject ?: return@forEachIndexed
-                        Text("Skill: ${skill["name"]?.jsonPrimitive?.contentOrNull ?: index + 1}")
+                        Text(stringResource(R.string.ui_new_bot_skill_name,
+                            skill["name"]?.jsonPrimitive?.contentOrNull ?: index + 1))
                         OutlinedTextField(
                             value = skill["text"]?.jsonPrimitive?.contentOrNull.orEmpty(),
                             onValueChange = { skillsText = updateArrayEntry(skillsText, index, "text", JsonPrimitive(it)) },
-                            label = { Text("SKILL.md") }, minLines = 4, modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.ui_skill_md_55b8417)) }, minLines = 4, modifier = Modifier.fillMaxWidth(),
                         )
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Enable after creation", modifier = Modifier.weight(1f))
+                            Text(stringResource(R.string.ui_enable_after_creation_63ce6fd), modifier = Modifier.weight(1f))
                             Switch(checked = skill["enabled"]?.jsonPrimitive?.booleanOrNull == true,
                                 onCheckedChange = { skillsText = updateArrayEntry(skillsText, index, "enabled", JsonPrimitive(it)) })
                         }
@@ -368,25 +371,26 @@ internal fun NewBotModelSheet(
                             ))
                             skillsText = draftJson.encodeToString(JsonElement.serializer(), JsonArray(existing + skill))
                         } catch (_: Exception) { error = "Fix Skills JSON before adding a skill." }
-                    }) { Text("Add skill") }
+                    }) { Text(stringResource(R.string.ui_add_skill_d61f09b)) }
                     val routineItems = runCatching { draftJson.parseToJsonElement(routinesText).jsonArray }.getOrNull()
                     routineItems?.forEachIndexed { index, item ->
                         val routine = item as? JsonObject ?: return@forEachIndexed
-                        Text("Routine ${index + 1}")
+                        Text(stringResource(R.string.ui_dynamic_routine_1_s_dbdf8d6, index + 1))
                         OutlinedTextField(
                             value = routine["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
                             onValueChange = { routinesText = updateArrayEntry(routinesText, index, "name", JsonPrimitive(it)) },
-                            label = { Text("Routine name") }, modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.ui_routine_name_9a8a0dd)) }, modifier = Modifier.fillMaxWidth(),
                         )
                         OutlinedTextField(
                             value = routine["prompt"]?.jsonPrimitive?.contentOrNull.orEmpty(),
                             onValueChange = { routinesText = updateArrayEntry(routinesText, index, "prompt", JsonPrimitive(it)) },
-                            label = { Text("Routine instructions") }, minLines = 2, modifier = Modifier.fillMaxWidth(),
+                            label = { Text(stringResource(R.string.ui_routine_instructions_d1546d5)) }, minLines = 2, modifier = Modifier.fillMaxWidth(),
                         )
-                        Text("Schedule: ${routine["schedule"]?.jsonObject?.get("type")?.jsonPrimitive?.contentOrNull.orEmpty()}",
+                        Text(stringResource(R.string.ui_new_bot_schedule_type,
+                            routine["schedule"]?.jsonObject?.get("type")?.jsonPrimitive?.contentOrNull.orEmpty()),
                             style = MaterialTheme.typography.bodySmall)
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Enable after creation", modifier = Modifier.weight(1f))
+                            Text(stringResource(R.string.ui_enable_after_creation_63ce6fd), modifier = Modifier.weight(1f))
                             Switch(checked = routine["enabled"]?.jsonPrimitive?.booleanOrNull == true,
                                 onCheckedChange = { routinesText = updateArrayEntry(routinesText, index, "enabled", JsonPrimitive(it)) })
                         }
@@ -403,23 +407,23 @@ internal fun NewBotModelSheet(
                             ))
                             routinesText = draftJson.encodeToString(JsonElement.serializer(), JsonArray(existing + routine))
                         } catch (_: Exception) { error = "Fix Routines JSON before adding a routine." }
-                    }) { Text("Add daily routine") }
+                    }) { Text(stringResource(R.string.ui_add_daily_routine_3e412e7)) }
                     TextButton(onClick = { showingRawContent = !showingRawContent }) {
-                        Text(if (showingRawContent) "Hide full template editor" else "Edit full template")
+                        Text(stringResource(if (showingRawContent) R.string.ui_hide_template_editor else R.string.ui_edit_full_template))
                     }
                     if (showingRawContent) {
-                        Text("Advanced editor: profile fields, all memory paths, skill metadata and schedule types are available here. Bot settings above override the same profile fields. Invalid values are rejected before creating the bot.", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.ui_advanced_editor_profile_fields_all_memory_8d81fcd), style = MaterialTheme.typography.bodySmall)
                         OutlinedTextField(value = profileText, onValueChange = { profileText = it },
-                            label = { Text("Profile (JSON object)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_profile_json_object_66c6703)) }, minLines = 4, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = memoryText, onValueChange = { memoryText = it },
-                            label = { Text("Memory files (JSON object)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_memory_files_json_object_121129d)) }, minLines = 4, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = skillsText, onValueChange = { skillsText = it },
-                            label = { Text("Skills (JSON array)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_skills_json_array_41eb708)) }, minLines = 4, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(value = routinesText, onValueChange = { routinesText = it },
-                            label = { Text("Routines (JSON array)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                            label = { Text(stringResource(R.string.ui_routines_json_array_a50d811)) }, minLines = 4, modifier = Modifier.fillMaxWidth())
                     }
                 }
-                if (!available) Text("Choose an available provider.", color = MaterialTheme.colorScheme.error)
+                if (!available) Text(stringResource(R.string.ui_choose_an_available_provider_66910a4), color = MaterialTheme.colorScheme.error)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 TextButton(
                     enabled = !saving && name.trim().isNotEmpty() && available && modelOffered &&
@@ -429,9 +433,9 @@ internal fun NewBotModelSheet(
                             confirmingLocalAuto = true
                         else submit(false)
                     },
-                ) { Text(if (saving) "Creating…" else "Create bot") }
+                ) { Text(stringResource(if (saving) R.string.ui_creating_bot else R.string.ui_create_bot)) }
             }
-            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+            TextButton(enabled = !saving, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -262,7 +263,7 @@ internal fun PendingAttachmentChip(
         TouchTarget(
             onClick = onRemove,
             enabled = enabled,
-            contentDescription = "Remove ${attachment.name}",
+            contentDescription = stringResource(R.string.ui_dynamic_remove_1_s_ecd908a, attachment.name),
         ) {
             Box(
                 modifier = Modifier

@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import android.content.ClipData
 import android.util.Base64
 import androidx.compose.foundation.Canvas
@@ -171,7 +173,7 @@ fun MessageRow(
 
             message.comm?.let {
                 Text(
-                    text = "Messaged ${it.withName}",
+                    text = stringResource(R.string.ui_dynamic_messaged_1_s_bd9371e, it.withName),
                     fontSize = 12.sp,
                     color = secondaryTint,
                 )
@@ -212,7 +214,7 @@ fun MessageRow(
                     val busy = bot.busy == true
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Previous version",
+                        contentDescription = stringResource(R.string.ui_previous_version_989537a),
                         tint = if (versionIndex == 0 || busy) {
                             secondaryTint.copy(alpha = 0.4f)
                         } else {
@@ -227,14 +229,14 @@ fun MessageRow(
                             },
                     )
                     Text(
-                        text = "${versionIndex + 1} of ${versions.size}",
+                        text = stringResource(R.string.ui_dynamic_1_s_of_2_s_91d50e4, versionIndex + 1, versions.size),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = secondaryTint,
                     )
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "Next version",
+                        contentDescription = stringResource(R.string.ui_next_version_514439d),
                         tint = if (versionIndex + 1 >= versions.size || busy) {
                             secondaryTint.copy(alpha = 0.4f)
                         } else {
@@ -271,7 +273,7 @@ fun MessageRow(
             MessageActions.copyableText(message)?.let { text ->
                 HorizontalDivider()
                 DropdownMenuItem(
-                    text = { Text("Copy") },
+                    text = { Text(stringResource(R.string.ui_copy_af74f7c)) },
                     onClick = {
                         menuOpen = false
                         scope.launch {
@@ -282,7 +284,7 @@ fun MessageRow(
                     },
                 )
                 DropdownMenuItem(
-                    text = { Text("Select text") },
+                    text = { Text(stringResource(R.string.ui_select_text_9d49219)) },
                     onClick = {
                         menuOpen = false
                         selectingText = text
@@ -294,7 +296,7 @@ fun MessageRow(
                 val pinned = chat.pinnedMessageId == message.id
                 HorizontalDivider()
                 DropdownMenuItem(
-                    text = { Text(if (pinned) "Unpin message" else "Pin message") },
+                    text = { Text(stringResource(if (pinned) R.string.ui_unpin_message else R.string.ui_pin_message)) },
                     onClick = {
                         menuOpen = false
                         scope.launch { session.pinMessage(chat, if (pinned) null else message.id) }
@@ -307,7 +309,7 @@ fun MessageRow(
             if (editableText != null && bot != null && !isPendingEdit) {
                 HorizontalDivider()
                 DropdownMenuItem(
-                    text = { Text("Edit and retry") },
+                    text = { Text(stringResource(R.string.ui_edit_and_retry_f683a3c)) },
                     enabled = bot.busy != true && editPending == null,
                     onClick = {
                         menuOpen = false
@@ -322,14 +324,14 @@ fun MessageRow(
     if (editing && bot != null) {
         AlertDialog(
             onDismissRequest = { editing = false },
-            title = { Text("Edit and retry") },
+            title = { Text(stringResource(R.string.ui_edit_and_retry_f683a3c)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("This creates a new version and continues from there.", fontSize = 14.sp)
+                    Text(stringResource(R.string.ui_this_creates_a_new_version_and_continues_f_9a5d779), fontSize = 14.sp)
                     OutlinedTextField(
                         value = editText,
                         onValueChange = { editText = it },
-                        label = { Text("Message") },
+                        label = { Text(stringResource(R.string.ui_message_68f4145)) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
@@ -347,10 +349,10 @@ fun MessageRow(
                         if (text.isEmpty()) return@TextButton
                         scope.launch { session.edit(message, bot, text) }
                     },
-                ) { Text("Send") }
+                ) { Text(stringResource(R.string.ui_send_9bc2575)) }
             },
             dismissButton = {
-                TextButton(onClick = { editing = false }) { Text("Cancel") }
+                TextButton(onClick = { editing = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
             },
         )
     }
@@ -372,7 +374,7 @@ private fun SelectableTextDialog(text: String, onDismiss: () -> Unit) {
     var copied by remember(text) { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Select text") },
+        title = { Text(stringResource(R.string.ui_select_text_9d49219)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SelectionContainer {
@@ -404,9 +406,9 @@ private fun SelectableTextDialog(text: String, onDismiss: () -> Unit) {
                         copied = true
                     }
                 },
-            ) { Text(if (copied) "Copied" else "Copy all") }
+            ) { Text(stringResource(if (copied) R.string.ui_copied else R.string.ui_copy_all)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) } },
     )
 }
 
@@ -592,7 +594,7 @@ private fun SharedAttachmentView(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("FILE", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BubbleColor.mineText.copy(alpha = 0.68f))
+        Text(stringResource(R.string.ui_file_b4915d3), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = BubbleColor.mineText.copy(alpha = 0.68f))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 attachment.name,
@@ -602,7 +604,7 @@ private fun SharedAttachmentView(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text("Tap to preview", fontSize = 12.sp, color = BubbleColor.mineText.copy(alpha = 0.68f))
+            Text(stringResource(R.string.ui_tap_to_preview_fa5ce0e), fontSize = 12.sp, color = BubbleColor.mineText.copy(alpha = 0.68f))
         }
     }
 }
@@ -669,7 +671,7 @@ private fun SharedImageAttachment(
                 AttachmentThumbnailState.Loading ->
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 AttachmentThumbnailState.Failed -> AttachmentLoadFailure(
-                    label = "Image unavailable",
+                    label = stringResource(R.string.ui_image_unavailable_f2cca83),
                     foreground = foreground,
                     onRetry = { attempt += 1 },
                 )
@@ -703,7 +705,7 @@ private fun AttachmentLoadFailure(label: String, foreground: Color = BubbleColor
             modifier = Modifier.size(20.dp),
         )
         Text(label, fontSize = 13.sp, color = foreground.copy(alpha = 0.80f))
-        TextButton(onClick = onRetry) { Text("Retry") }
+        TextButton(onClick = onRetry) { Text(stringResource(R.string.ui_retry_9f5cd8a)) }
     }
 }
 
@@ -789,7 +791,7 @@ private fun VoiceNoteAttachmentView(
 
     if (clip is VoiceNoteClipState.Failed) {
         AttachmentLoadFailure(
-            label = "Voice note unavailable",
+            label = stringResource(R.string.ui_voice_note_unavailable_426ad5f),
             foreground = foreground,
             onRetry = { clip = VoiceNoteClipState.NotLoaded },
         )
@@ -1063,7 +1065,7 @@ fun ActivityRunChip(items: List<Message>, openThread: ((ThreadRef) -> Unit)? = n
                     )
                 }
                 Text(summary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Text(if (expanded) "Hide" else "Show", fontSize = 12.sp, color = secondaryTint)
+                Text(stringResource(if (expanded) R.string.ui_hide else R.string.ui_show), fontSize = 12.sp, color = secondaryTint)
             }
         }
         if (expanded) {
@@ -1129,7 +1131,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                             modifier = Modifier.weight(1f),
                         )
                         Text(
-                            "sha256 ${reviewed.take(8)}",
+                            stringResource(R.string.ui_dynamic_sha256_1_s_d401381, reviewed.take(8)),
                             fontSize = 10.sp,
                             fontFamily = FontFamily.Monospace,
                             color = secondaryTint,
@@ -1231,7 +1233,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                     },
                     enabled = !answering,
                 ) {
-                    Text("Always allow this tool", fontSize = 14.sp)
+                    Text(stringResource(R.string.ui_always_allow_this_tool_2ce82a7), fontSize = 14.sp)
                 }
             }
         } else {
@@ -1310,12 +1312,12 @@ private fun ScreenShot(threadId: String, message: Message) {
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(20.dp),
                     )
-                    Text("Screenshot unavailable", fontSize = 13.sp, color = secondaryTint)
-                    TextButton(onClick = { attempt += 1 }) { Text("Retry") }
+                    Text(stringResource(R.string.ui_screenshot_unavailable_cfe6fcb), fontSize = 13.sp, color = secondaryTint)
+                    TextButton(onClick = { attempt += 1 }) { Text(stringResource(R.string.ui_retry_9f5cd8a)) }
                 }
                 is ScreenShotState.Ready -> Image(
                     bitmap = current.image,
-                    contentDescription = "A frame of this bot's computer",
+                    contentDescription = stringResource(R.string.ui_a_frame_of_this_bot_s_computer_39b6a5b),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                 )

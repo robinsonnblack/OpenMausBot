@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,20 +66,20 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("${provider.label} connection")
-            Text(if (configured) "A key is configured on this computer." else "No key is configured.")
-            Text("The key is saved on the paired computer, not on this phone.")
+            Text(stringResource(R.string.ui_dynamic_1_s_connection_8b94a5f, provider.label))
+            Text(stringResource(if (configured) R.string.ui_mistral_key_configured else R.string.ui_mistral_no_key))
+            Text(stringResource(R.string.ui_the_key_is_saved_on_the_paired_computer_no_4b5a828))
             OutlinedTextField(
                 value = draft,
                 onValueChange = { draft = it.take(512); verdict = null; error = null },
-                label = { Text(if (configured) "Replace API key" else "API key") },
+                label = { Text(stringResource(if (configured) R.string.ui_mistral_replace_key else R.string.ui_mistral_api_key)) },
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             if (provider != ProviderConnection.MISTRAL) OutlinedTextField(
                 value = url, onValueChange = { url = it.take(2_000); verdict = null; error = null },
-                label = { Text("Custom API URL (optional)") }, singleLine = true,
+                label = { Text(stringResource(R.string.ui_custom_api_url_optional_35fec44)) }, singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             TextButton(enabled = !busy && draft.trim().isNotEmpty(), onClick = {
@@ -92,7 +94,7 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                         error = failure.message ?: "Could not save the key."
                     } finally { busy = false }
                 }
-            }) { Text("Save key") }
+            }) { Text(stringResource(R.string.ui_save_key_f5216b3)) }
             TextButton(enabled = !busy && (draft.trim().isNotEmpty() || configured), onClick = {
                 scope.launch {
                     busy = true
@@ -113,20 +115,20 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                         error = failure.message ?: "Could not test the key."
                     } finally { busy = false }
                 }
-            }) { Text("Test and discover models") }
+            }) { Text(stringResource(R.string.ui_test_and_discover_models_726e489)) }
             if (configured) TextButton(enabled = !busy, onClick = { confirmRemove = true }) {
-                Text("Remove key")
+                Text(stringResource(R.string.ui_remove_key_582d9a7))
             }
             verdict?.let { Text(it) }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 
     if (confirmRemove) AlertDialog(
         onDismissRequest = { confirmRemove = false },
-        title = { Text("Remove ${provider.label} key?") },
-        text = { Text("Bots using ${provider.label} may become unavailable until a new key is saved.") },
+        title = { Text(stringResource(R.string.ui_dynamic_remove_1_s_key_128fb5a, provider.label)) },
+        text = { Text(stringResource(R.string.ui_dynamic_bots_using_1_s_may_become_unavailable_5983068, provider.label)) },
         confirmButton = {
             TextButton(onClick = {
                 confirmRemove = false
@@ -141,8 +143,8 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                         error = failure.message ?: "Could not remove the key."
                     } finally { busy = false }
                 }
-            }) { Text("Remove") }
+            }) { Text(stringResource(R.string.ui_remove_e963907)) }
         },
-        dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
     )
 }

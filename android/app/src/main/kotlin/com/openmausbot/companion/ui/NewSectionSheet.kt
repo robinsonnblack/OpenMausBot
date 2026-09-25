@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -97,10 +99,10 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
                     modifier = Modifier.align(Alignment.CenterStart),
                 ) {
                     // Once something has been filed, leaving is finishing.
-                    Text(if (lastCreated == null) "Cancel" else "Done")
+                    Text(stringResource(if (lastCreated == null) R.string.ui_cancel_action else R.string.ui_done_action))
                 }
                 Text(
-                    text = "Organize bots",
+                    text = stringResource(R.string.ui_organize_bots_08f4197),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center),
@@ -123,13 +125,13 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
                     },
                     modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.ui_save_efc007a))
                 }
             }
 
             lastCreated?.let { section ->
                 SectionNote(
-                    text = "$section is ready",
+                    text = stringResource(R.string.ui_dynamic_1_s_is_ready_7dd2ea0, section),
                     // Android files by checkbox, so there is nothing to swipe together.
                     detail = "Choose more bots for another section, or tap Done.",
                     container = MaterialTheme.colorScheme.secondaryContainer,
@@ -140,12 +142,13 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Section name") },
+                label = { Text(stringResource(R.string.ui_section_name_75e2b3c)) },
                 isError = trimmed.length > SectionRules.MAX_NAME_LENGTH,
                 supportingText = {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = if (joinsExisting) "Adds to existing section" else "Creates a new section",
+                            text = stringResource(if (joinsExisting) R.string.ui_adds_to_existing_section
+                                else R.string.ui_creates_new_section),
                             fontSize = 13.sp,
                             modifier = Modifier.weight(1f),
                         )
@@ -167,14 +170,14 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
 
             if (chiefConflict) {
                 SectionNote(
-                    text = SectionRules.CHIEF_CONFLICT,
+                    text = stringResource(R.string.ui_section_chief_conflict),
                     container = MaterialTheme.colorScheme.tertiaryContainer,
                     content = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
             }
             if (pinnedSelection) {
                 Text(
-                    text = SectionRules.PINNED_STAY,
+                    text = stringResource(R.string.ui_section_pinned_stay),
                     fontSize = 13.sp,
                     color = secondaryTint,
                     modifier = Modifier.padding(horizontal = 20.dp),
@@ -182,7 +185,7 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
             }
 
             Text(
-                text = "Bots",
+                text = stringResource(R.string.ui_bots_4ca88ea),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = secondaryTint,
@@ -192,9 +195,9 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
             if (bots.size > SectionRules.MAX_BOTS) {
                 Text(
                     text = if (selected.size == SectionRules.MAX_BOTS) {
-                        SectionRules.AT_LIMIT
+                        stringResource(R.string.ui_section_at_limit)
                     } else {
-                        SectionRules.UNDER_LIMIT
+                        stringResource(R.string.ui_section_under_limit)
                     },
                     fontSize = 12.sp,
                     color = secondaryTint,

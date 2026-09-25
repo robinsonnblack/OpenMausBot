@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -73,15 +75,16 @@ internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
         val users = state.bots.filter { it.browserProfile == profile.id }
         AlertDialog(
             onDismissRequest = { if (!busy) deleting = null },
-            title = { Text("Delete ${profile.name}?") },
-            text = { Text(if (users.isEmpty()) "This browser session will be erased on the computer."
-                else "This browser session will be erased. ${users.joinToString { it.name }} will return to their own browser.") },
+            title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, profile.name)) },
+            text = { Text(if (users.isEmpty()) stringResource(R.string.ui_browser_session_erased)
+                else stringResource(R.string.ui_browser_session_erased_users,
+                    users.joinToString { it.name })) },
             confirmButton = {
                 TextButton(enabled = !busy && users.none { it.busy == true }, onClick = {
                     save(profiles.filterNot { it.id == profile.id }) { deleting = null }
-                }) { Text("Delete") }
+                }) { Text(stringResource(R.string.ui_delete_f6fdbe4)) }
             },
-            dismissButton = { TextButton(onClick = { deleting = null }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { deleting = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) } },
         )
     }
 
@@ -91,27 +94,27 @@ internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Browser profiles", style = MaterialTheme.typography.titleLarge)
-            Text("Named browser sessions live on the paired computer and can be shared by bots.")
+            Text(stringResource(R.string.ui_browser_profiles_f7370dc), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_named_browser_sessions_live_on_the_paired_863fb0f))
             if (loading) CircularProgressIndicator()
             else {
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                if (profiles.isEmpty()) Text("No named browser profiles yet.")
+                if (profiles.isEmpty()) Text(stringResource(R.string.ui_no_named_browser_profiles_yet_3363a04))
                 profiles.forEach { profile ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         Text(profile.name, modifier = Modifier.weight(1f))
                         TextButton(enabled = !busy, onClick = {
                             editing = profile
                             editName = profile.name
-                        }) { Text("Rename") }
+                        }) { Text(stringResource(R.string.ui_rename_d3f4cb8)) }
                         TextButton(enabled = !busy && state.bots.none { it.browserProfile == profile.id && it.busy == true },
-                            onClick = { deleting = profile }) { Text("Delete") }
+                            onClick = { deleting = profile }) { Text(stringResource(R.string.ui_delete_f6fdbe4)) }
                     }
                 }
                 editing?.let { profile ->
                     OutlinedTextField(
                         value = editName, onValueChange = { editName = it.take(40) },
-                        label = { Text("Rename ${profile.name}") }, singleLine = true,
+                        label = { Text(stringResource(R.string.ui_dynamic_rename_1_s_f90cb3c, profile.name)) }, singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Row {
@@ -121,22 +124,22 @@ internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
                             } else save(profiles.map { if (it.id == profile.id) it.copy(name = editName.trim()) else it }) {
                                 editing = null
                             }
-                        }) { Text("Save name") }
-                        TextButton(enabled = !busy, onClick = { editing = null }) { Text("Cancel") }
+                        }) { Text(stringResource(R.string.ui_save_name_8ce6864)) }
+                        TextButton(enabled = !busy, onClick = { editing = null }) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
                     }
                 }
                 OutlinedTextField(
                     value = newName, onValueChange = { newName = it.take(40) },
-                    label = { Text("New profile name") }, singleLine = true,
+                    label = { Text(stringResource(R.string.ui_new_profile_name_393313b)) }, singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 TextButton(enabled = !busy && newName.isNotBlank() && profiles.size < 20, onClick = {
                     val id = "profile-${UUID.randomUUID().toString().replace("-", "")}"
                     save(profiles + BrowserProfile(id, newName.trim())) { newName = "" }
-                }) { Text("Create profile") }
-                if (profiles.size >= 20) Text("The computer allows at most 20 profiles.")
+                }) { Text(stringResource(R.string.ui_create_profile_96b8eeb)) }
+                if (profiles.size >= 20) Text(stringResource(R.string.ui_the_computer_allows_at_most_20_profiles_e631e10))
             }
-            TextButton(enabled = !busy, onClick = onDismiss) { Text("Done") }
+            TextButton(enabled = !busy, onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         }
     }
 }

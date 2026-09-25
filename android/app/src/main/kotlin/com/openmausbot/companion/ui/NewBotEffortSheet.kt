@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,11 +49,11 @@ internal fun NewBotEffortSheet(onDismiss: () -> Unit) {
 
     ModalBottomSheet(onDismissRequest = { if (!saving) onDismiss() }) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Default reasoning for new bots", style = MaterialTheme.typography.titleLarge)
-            Text("This is a fallback for future bots. Their own model and effort choices take priority, and unsupported levels are skipped.")
+            Text(stringResource(R.string.ui_default_reasoning_for_new_bots_a4425be), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.ui_this_is_a_fallback_for_future_bots_their_o_ad2831e))
             if (!loading) {
                 ChoicePicker(
-                    label = "Reasoning effort",
+                    label = stringResource(R.string.ui_reasoning_effort_cd32c0f),
                     choices = listOf(VoiceChoice("", "Use model default", null, true)) +
                         listOf("none", "low", "medium", "high", "xhigh", "max").map {
                             VoiceChoice(it, ModelRules.effortLabel(it), null, true)
@@ -80,8 +82,8 @@ internal fun NewBotEffortSheet(onDismiss: () -> Unit) {
                         saving = false
                     }
                 }
-            }) { Text(if (saving) "Saving…" else "Save") }
-            TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
+            }) { Text(stringResource(if (saving) R.string.ui_saving else R.string.ui_save_action)) }
+            TextButton(enabled = !saving, onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
         }
     }
 }

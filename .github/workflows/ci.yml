@@ -47,6 +47,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Validate locale catalogs
         run: pnpm i18n:check
+      - name: Validate Android locale coverage and format arguments
+        run: pnpm i18n:android:check
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm check:electron

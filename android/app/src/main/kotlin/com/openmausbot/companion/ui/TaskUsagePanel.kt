@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -44,7 +46,7 @@ internal fun TaskUsagePanel(usage: TaskUsage) {
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Text("This thread's usage", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.ui_this_thread_s_usage_9245e98), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
         taskUsageLines(usage).forEach { line ->
             Text(line, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }

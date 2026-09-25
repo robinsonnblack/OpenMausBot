@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,14 +51,14 @@ fun ThemeEditor(preferences: ChatPreferences, onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (editing) "Custom theme" else "Appearance") },
+        title = { Text(stringResource(if (editing) R.string.ui_custom_theme_title else R.string.ui_appearance_title)) },
         text = {
             Column(
                 modifier = Modifier.heightIn(max = 540.dp).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 if (!editing) {
-                    Text("Choose a look for this phone. Your computer has its own theme setting.")
+                    Text(stringResource(R.string.ui_choose_a_look_for_this_phone_your_computer_43e0f76))
                     (listOf("system") + PresetThemes.colors.keys + "custom").forEach { id ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = selected == id, onClick = {
@@ -71,17 +73,20 @@ fun ThemeEditor(preferences: ChatPreferences, onDismiss: () -> Unit) {
                             Text(names[id] ?: id)
                         }
                     }
-                    TextButton(onClick = { editing = true }) { Text("Edit custom colors") }
+                    TextButton(onClick = { editing = true }) { Text(stringResource(R.string.ui_edit_custom_colors_c23f59a)) }
                 } else {
-                    Text("Start from a preset, then change any color. Hex values support #RRGGBB and #RRGGBBAA; transparent is also allowed.")
+                    Text(stringResource(R.string.ui_start_from_a_preset_then_change_any_color_b788e2a))
                     PresetThemes.colors.keys.forEach { id ->
                         TextButton(onClick = { draft = PresetThemes.colors.getValue(id) + ("chat-layout" to if (id == "chatgpt") "chatgpt" else "standard") }) {
-                            Text("Copy ${names[id] ?: id} colors")
+                            Text(stringResource(R.string.ui_dynamic_copy_1_s_colors_825c9ef, names[id] ?: id))
                         }
                     }
                     TextButton(onClick = {
                         draft = draft + ("chat-layout" to if (draft["chat-layout"] == "chatgpt") "standard" else "chatgpt")
-                    }) { Text("Chat layout: ${if (draft["chat-layout"] == "chatgpt") "ChatGPT" else "Standard"}") }
+                    }) { Text(stringResource(
+                        R.string.ui_theme_chat_layout,
+                        if (draft["chat-layout"] == "chatgpt") "ChatGPT" else stringResource(R.string.ui_theme_standard),
+                    )) }
                     PresetThemes.colorRoles.forEach { role ->
                         val value = draft[role].orEmpty()
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -98,7 +103,7 @@ fun ThemeEditor(preferences: ChatPreferences, onDismiss: () -> Unit) {
                             )
                         }
                     }
-                    if (!valid) Text("Correct invalid colors before saving.", color = MaterialTheme.colorScheme.error)
+                    if (!valid) Text(stringResource(R.string.ui_correct_invalid_colors_before_saving_a1c9f07), color = MaterialTheme.colorScheme.error)
                 }
             }
         },
@@ -106,12 +111,12 @@ fun ThemeEditor(preferences: ChatPreferences, onDismiss: () -> Unit) {
             if (editing) TextButton(enabled = valid, onClick = {
                 preferences.setCustomColors(draft)
                 onDismiss()
-            }) { Text("Save and use") }
-            else TextButton(onClick = onDismiss) { Text("Done") }
+            }) { Text(stringResource(R.string.ui_save_and_use_dd8b341)) }
+            else TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_done_e9b450d)) }
         },
         dismissButton = {
-            if (editing) TextButton(onClick = { editing = false }) { Text("Back") }
-            else TextButton(onClick = onDismiss) { Text("Cancel") }
+            if (editing) TextButton(onClick = { editing = false }) { Text(stringResource(R.string.ui_back_b52b36b)) }
+            else TextButton(onClick = onDismiss) { Text(stringResource(R.string.ui_cancel_77dfd21)) }
         },
     )
 }
