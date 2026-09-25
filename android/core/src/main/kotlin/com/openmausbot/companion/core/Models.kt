@@ -434,6 +434,8 @@ data class Bot(
     val cloudBackend: String? = null,
     /** Named browser session, guest session, or null for the bot's own browser. */
     val browserProfile: String? = null,
+    /** Null follows all enabled host MCP servers; [] explicitly mounts none. */
+    val mcpServers: List<String>? = null,
     /** Server-side working folder; null uses the bot's private folder. */
     val cwd: String? = null,
     val speakReplies: Boolean? = null,
@@ -1586,6 +1588,12 @@ internal data class ActiveBranchResponse(val activeLeafId: String)
 
 @Serializable
 internal data class BotResponse(val bot: Bot)
+
+@Serializable
+data class McpServerSummary(val name: String, val enabled: Boolean, val managedBy: String? = null)
+
+@Serializable
+internal data class McpServerListResponse(val servers: List<McpServerSummary>)
 
 /** Non-secret status of inbound triggers shown in the desktop bot Access section. */
 @Serializable
