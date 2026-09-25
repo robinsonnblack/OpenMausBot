@@ -3,12 +3,32 @@ package com.openmausbot.companion.core
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BotCreationModelClientTest {
+    @Test fun sendsAnIndependentCreationTemplateOnlyWhenProvided() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            val client = CompanionClient(requireNotNull(Connection.parse(server.url("/").toString())), "token")
+            val bot = """{"id":"bot-1","threadId":"thread-1","name":"Draft","title":"",
+                "description":"","notifications":true,"color":"green","unread":false,
+                "modelSelection":{"instanceId":"codex","model":"luna"},"createdAt":1}"""
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody("""{"bot":$bot}"""))
+            val template = JsonObject(mapOf("memory" to JsonObject(mapOf("MEMORY.md" to JsonPrimitive("Draft note")))))
+            client.createBot("Draft", "", "", ModelSelection("codex", "luna"),
+                preferences = BotCreationPreferences(), creationTemplate = template)
+            val body = CompanionJson.parseToJsonElement(server.takeRequest().body.readUtf8()).jsonObject
+            assertEquals("false", body.getValue("useDefaults").jsonPrimitive.content)
+            assertEquals("Draft note", body.getValue("creationTemplate").jsonObject
+                .getValue("memory").jsonObject.getValue("MEMORY.md").jsonPrimitive.content)
+        } finally { server.shutdown() }
+    }
     @Test fun createsBotWithExplicitPreferencesAndLocalAutoConsent() = runBlocking {
         val server = MockWebServer()
         server.start()

@@ -411,6 +411,7 @@ class CompanionClient(
         section: String? = null,
         preferences: BotCreationPreferences? = null,
         acknowledgeLocalAuto: Boolean = false,
+        creationTemplate: JsonObject? = null,
     ): Bot = send<CreatedBot>(makeRequest(
         "POST", "/api/bots",
         body = buildJsonObject {
@@ -421,7 +422,8 @@ class CompanionClient(
             put("requireAvailableModel", true)
             // A client pairing may create a basic bot, but must not replay an
             // admin's saved template containing access grants or host assets.
-            if (preferences == null) put("useDefaults", false)
+            if (preferences == null || creationTemplate != null) put("useDefaults", false)
+            creationTemplate?.let { put("creationTemplate", it) }
             section?.let { put("section", it) }
             preferences?.let { prefs ->
                 put("settings", buildJsonObject {

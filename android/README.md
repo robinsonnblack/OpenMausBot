@@ -24,8 +24,12 @@ be selected before creation. Advanced choices are shown only for an admin
 pairing; a client pairing can still create with basic identity and model fields.
 Android requires separate confirmation before
 combining This computer with Auto approval. Full and Custom desktop grants
-still require the computer's permission flow. Saved skills, memories and
-routines remain inherited from the computer's default template.
+still require the computer's permission flow. Memory files, SKILL.md text,
+and routine names and instructions can be edited in the creation draft.
+The full-template editor also supports additional skill metadata and all
+schedule types. These edits apply only to the new bot, not to the saved
+defaults. The server validates the complete template before creating it;
+client-scoped pairings cannot submit template content.
 
 An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a
