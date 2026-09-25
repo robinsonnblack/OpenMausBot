@@ -2210,6 +2210,14 @@ class Session(
         return (client ?: throw APIError.Transport("This computer is offline.")).updateAboutMe(text)
     }
 
+    suspend fun updateSharedProfile(name: String, email: String, aboutMe: String): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Editing the shared profile requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .updateSharedProfile(name, email, aboutMe)
+    }
+
     private fun requireProviderAdmin(): CompanionClient {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Provider setup requires an admin pairing.")

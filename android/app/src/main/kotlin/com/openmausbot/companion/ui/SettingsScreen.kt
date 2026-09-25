@@ -89,6 +89,10 @@ fun SettingsScreen(
     var editingAboutMe by remember { mutableStateOf(false) }
     var aboutMeText by remember { mutableStateOf("") }
     var aboutMeOriginal by remember { mutableStateOf("") }
+    var profileName by remember { mutableStateOf("") }
+    var profileEmail by remember { mutableStateOf("") }
+    var profileNameOriginal by remember { mutableStateOf("") }
+    var profileEmailOriginal by remember { mutableStateOf("") }
     var aboutMeLoading by remember { mutableStateOf(false) }
     var aboutMeSaving by remember { mutableStateOf(false) }
     var aboutMeError by remember { mutableStateOf<String?>(null) }
@@ -220,16 +224,20 @@ fun SettingsScreen(
 
             if (connection?.serverScopes?.contains("admin") == true) {
                 SettingsSection("Shared profile") {
-                    SettingsButton("About me") {
+                    SettingsButton("Name, email and About me") {
                         editingAboutMe = true
                         aboutMeLoading = true
                         aboutMeError = null
                         scope.launch {
                             try {
-                                val text = session.configStatus()?.profile?.aboutMe
+                                val profile = session.configStatus()?.profile
                                     ?: throw IllegalStateException("Could not load the shared profile.")
-                                aboutMeText = text
-                                aboutMeOriginal = text
+                                aboutMeText = profile.aboutMe.orEmpty()
+                                aboutMeOriginal = aboutMeText
+                                profileName = profile.name
+                                profileNameOriginal = profile.name
+                                profileEmail = profile.email
+                                profileEmailOriginal = profile.email
                             } catch (error: Exception) {
                                 aboutMeError = error.message ?: "Could not load the shared profile."
                             } finally {
@@ -477,12 +485,16 @@ fun SettingsScreen(
     if (editingAboutMe) {
         AlertDialog(
             onDismissRequest = { if (!aboutMeSaving) editingAboutMe = false },
-            title = { Text("About me") },
+            title = { Text("Shared profile") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("This profile is shared with every bot on the paired computer.")
                     if (aboutMeLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     else if (aboutMeError == null || aboutMeText.isNotEmpty() || aboutMeOriginal.isNotEmpty()) {
+                        OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(200); aboutMeError = null },
+                            label = { Text("Your name") }, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(value = profileEmail, onValueChange = { profileEmail = it.take(320); aboutMeError = null },
+                            label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(
                             value = aboutMeText,
                             onValueChange = {
@@ -501,18 +513,21 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(
-                    enabled = !aboutMeLoading && !aboutMeSaving && aboutMeError == null && aboutMeText != aboutMeOriginal,
+                    enabled = !aboutMeLoading && !aboutMeSaving && aboutMeError == null &&
+                        (aboutMeText != aboutMeOriginal || profileName != profileNameOriginal || profileEmail != profileEmailOriginal),
                     onClick = {
                         scope.launch {
                             aboutMeSaving = true
                             try {
-                                val current = session.configStatus()?.profile?.aboutMe
+                                val current = session.configStatus()?.profile
                                     ?: throw IllegalStateException("Could not verify the current shared profile.")
-                                if (current != aboutMeOriginal) {
+                                if (current.aboutMe.orEmpty() != aboutMeOriginal || current.name != profileNameOriginal ||
+                                    current.email != profileEmailOriginal) {
                                     throw IllegalStateException("The profile changed on the computer. Close and reopen to review it.")
                                 }
-                                val saved = session.updateAboutMe(aboutMeText).profile?.aboutMe
-                                if (saved != aboutMeText) throw IllegalStateException("The computer did not confirm the saved profile.")
+                                val saved = session.updateSharedProfile(profileName, profileEmail, aboutMeText).profile
+                                if (saved?.aboutMe.orEmpty() != aboutMeText || saved?.name != profileName || saved?.email != profileEmail)
+                                    throw IllegalStateException("The computer did not confirm the saved profile.")
                                 editingAboutMe = false
                             } catch (error: Exception) {
                                 aboutMeError = error.message ?: "Could not save the shared profile."

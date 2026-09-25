@@ -4,8 +4,8 @@ The Android counterpart to the iOS companion app: pair a phone with a computer
 running OpenMausBot, then read and answer from the phone.
 
 With an admin-scoped pairing, Settings → Shared profile lets the phone edit
-the paired computer's "About me" text, which is shared with all bots. The
-editor checks for a change made elsewhere before saving. A client-scoped
+the paired computer's name, email and "About me" text, which are shared with
+all bots. The editor checks for a change made elsewhere before saving. A client-scoped
 pairing cannot read or edit that text.
 
 Admin-paired phones can manage teams under Settings: rename a team, move bots
