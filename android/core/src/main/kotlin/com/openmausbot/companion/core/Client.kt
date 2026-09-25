@@ -259,6 +259,13 @@ class CompanionClient(
         makeRequest("GET", "/api/instances"),
     ).instances
 
+    suspend fun manageEngine(instanceId: String, action: String): List<Instance> {
+        require(Regex("^[\\w.-]+$").matches(instanceId)) { "Invalid engine ID." }
+        require(action == "install" || action == "refresh-models") { "Invalid engine action." }
+        return send<InstanceList>(makeRequest("POST", "/api/instances/$instanceId/$action",
+            body = JsonObject(emptyMap()))).instances
+    }
+
     /** Missing capability data fails closed: image prompts must be readable by the selected model. */
     suspend fun imageCapableInstanceIds(): Set<String> = instances()
         .filter { it.capabilities?.images == true }

@@ -100,6 +100,7 @@ fun SettingsScreen(
     var creatingBotForTeam by remember { mutableStateOf<String?>(null) }
     val teamDraft = remember { TeamManagementDraft() }
     var configuringProvider by remember { mutableStateOf<ProviderConnection?>(null) }
+    var managingEngines by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
 
@@ -293,6 +294,9 @@ fun SettingsScreen(
                     ProviderConnection.entries.forEach { provider ->
                         SettingsButton("${provider.label} API and models") { configuringProvider = provider }
                     }
+                }
+                SettingsSection("Engines") {
+                    SettingsButton("Manage engines on this computer") { managingEngines = true }
                 }
                 SettingsSection("Browser") {
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
@@ -561,6 +565,7 @@ fun SettingsScreen(
         )
     }
     configuringProvider?.let { provider -> ProviderSetupSheet(provider) { configuringProvider = null } }
+    if (managingEngines) EngineManagementSheet { managingEngines = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }
