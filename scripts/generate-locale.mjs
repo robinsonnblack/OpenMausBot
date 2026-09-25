@@ -265,32 +265,43 @@ function sectionForKey(key) {
   return parts.slice(0, parts.length >= 4 ? 3 : 2).join(".");
 }
 
-export function contextForKeys(source, keys, existing, files) {
+export function usageIndex(files, source) {
+  const index = new Map();
+  for (const file of files) {
+    const lines = file.text.split(/\r?\n/);
+    for (let line = 0; line < lines.length; line += 1) {
+      for (const match of lines[line].matchAll(/\bt\(["']([^"']+)["']/g)) {
+        if (!Object.hasOwn(source, match[1])) continue;
+        const sites = index.get(match[1]) ?? [];
+        sites.push({ path: file.path, line: line + 1,
+          snippet: lines.slice(Math.max(0, line - 3), line + 4).join(" ").trim().slice(0, 700) });
+        index.set(match[1], sites);
+      }
+    }
+  }
+  return index;
+}
+
+export function contextForKeys(source, keys, existing, files, suppliedIndex) {
   const first = keys[0];
-  const section = sectionForKey(first);
+  const index = suppliedIndex ?? usageIndex(files, source);
+  const screen = index.get(first)?.[0]?.path;
+  const section = screen ?? sectionForKey(first);
   const parent = section.split(".").slice(0, -1).join(".");
   const related = Object.keys(source)
-    .filter((key) => !keys.includes(key) && key.startsWith(`${section}.`));
+    .filter((key) => !keys.includes(key) && (screen
+      ? index.get(key)?.some((site) => site.path === screen)
+      : key.startsWith(`${section}.`)));
   const nearby = Object.keys(source)
-    .filter((key) => !keys.includes(key) && key.startsWith(`${parent}.`) && !related.includes(key));
+    .filter((key) => !keys.includes(key) && !related.includes(key) &&
+      key.startsWith(`${screen ? sectionForKey(first).split(".")[0] : parent}.`));
   const siblings = Object.fromEntries([...related, ...nearby].slice(0, 32).map((key) => [key, source[key]]));
   const terminology = Object.fromEntries([...related, ...nearby]
     .filter((key) => Object.hasOwn(existing, key))
     .slice(0, 20)
     .map((key) => [key, existing[key]]));
-  const usage = Object.fromEntries(keys.map((key) => {
-    const hits = [];
-    for (const file of files) {
-      const lines = file.text.split(/\r?\n/);
-      for (let index = 0; index < lines.length; index += 1) {
-        if (!lines[index].includes(`"${key}"`) && !lines[index].includes(`'${key}'`)) continue;
-        hits.push(`${file.path}:${index + 1} ${lines.slice(Math.max(0, index - 4), index + 5).join(" ").trim().slice(0, 900)}`);
-        if (hits.length === 2) break;
-      }
-      if (hits.length === 2) break;
-    }
-    return [key, hits];
-  }));
+  const usage = Object.fromEntries(keys.map((key) => [key,
+    (index.get(key) ?? []).slice(0, 2).map((site) => `${site.path}:${site.line} ${site.snippet}`)]));
   return { section, siblings, terminology, usage };
 }
 
@@ -349,6 +360,7 @@ function usage() {
     "  node scripts/generate-locale.mjs <locale> --accept",
     "  node scripts/generate-locale.mjs <locale> [label] [--force]",
     "  node scripts/generate-locale.mjs <locale> [label] --section remote.client.server",
+    "  node scripts/generate-locale.mjs <locale> [label] --plan",
     "",
     "Existing packs refresh only missing or stale keys; --force re-drafts all keys.",
   ].join("\n");
@@ -357,12 +369,14 @@ function usage() {
 function parseArguments(argv) {
   let force = false;
   let accept = false;
+  let plan = false;
   let section;
   const positional = [];
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--force") force = true;
     else if (arg === "--accept") accept = true;
+    else if (arg === "--plan") plan = true;
     else if (arg === "--section") {
       section = argv[++index];
       if (!section || section.startsWith("--")) throw new Error(usage());
@@ -370,10 +384,10 @@ function parseArguments(argv) {
     else if (arg.startsWith("--")) throw new Error(usage());
     else positional.push(arg);
   }
-  if (positional.length < 1 || positional.length > 2 || (accept && (force || section || positional.length !== 1))) {
+  if (positional.length < 1 || positional.length > 2 || (accept && (force || section || plan || positional.length !== 1))) {
     throw new Error(usage());
   }
-  return { accept, force, section, positional };
+  return { accept, force, plan, section, positional };
 }
 
 function acceptCatalog(code, source) {
@@ -396,7 +410,7 @@ export function main(argv = process.argv.slice(2)) {
     return;
   }
 
-  const { accept, force, section, positional } = parseArguments(argv);
+  const { accept, force, plan, section, positional } = parseArguments(argv);
   const code = normalizeLocaleCode(positional[0]);
   if (code === "en") throw new Error("English is the source catalog and cannot be model-generated or accepted");
   const label = positional[1] ?? code;
@@ -419,17 +433,29 @@ export function main(argv = process.argv.slice(2)) {
   if (keys.length === 0) throw new Error(`${code}.json is already current`);
 
   const files = walkUiSources(join(dirname(SCRIPT_PATH), "..", "src"));
+  const index = usageIndex(files, source);
   const batches = [];
+  const groups = new Map();
   for (const key of keys) {
-    const section = sectionForKey(key);
-    const last = batches.at(-1);
-    if (last && last.section === section && last.keys.length < BATCH_SIZE) last.keys.push(key);
-    else batches.push({ section, keys: [key] });
+    const section = index.get(key)?.[0]?.path ?? sectionForKey(key);
+    const group = groups.get(section) ?? [];
+    group.push(key);
+    groups.set(section, group);
+  }
+  for (const [section, group] of groups) {
+    for (let i = 0; i < group.length; i += BATCH_SIZE) {
+      batches.push({ section, keys: group.slice(i, i + BATCH_SIZE) });
+    }
+  }
+  if (plan) {
+    console.log(JSON.stringify({ strings: keys.length, screens: groups.size, batches: batches.length,
+      groups: [...groups].map(([screen, group]) => ({ screen, strings: group.length })) }, null, 2));
+    return;
   }
   console.error(`asking Luna to draft ${keys.length} missing or stale strings in ${batches.length} contextual batches for ${label}…`);
   for (const [index, batch] of batches.entries()) {
     const requested = Object.fromEntries(batch.keys.map((key) => [key, source[key]]));
-    const context = contextForKeys(source, batch.keys, existing, files);
+    const context = contextForKeys(source, batch.keys, existing, files, index);
     const result = parseModelCatalog(runModel(translationPrompt(requested, label, code, context), batch.keys));
     const problems = validateTranslationCatalog(requested, result, { requireComplete: true });
     if (problems.length > 0) throw new Error(`refusing invalid model output for ${batch.section}:\n${problems.join("\n")}`);

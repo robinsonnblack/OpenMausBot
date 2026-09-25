@@ -125,7 +125,7 @@ describe("locale draft validation", () => {
     const context = contextForKeys(source, ["remote.pair.title"], { "remote.pair.hint": "Auf deinem Computer" }, [
       { path: "components/Remote.tsx", text: 'label={t("remote.pair.title")}\nbutton={t("remote.pair.hint")}' },
     ]);
-    expect(context.section).toBe("remote.pair");
+    expect(context.section).toBe("components/Remote.tsx");
     expect(context.siblings).toEqual({ "remote.pair.hint": "On your computer", "remote.other": "Other" });
     expect(context.terminology).toEqual({ "remote.pair.hint": "Auf deinem Computer" });
     expect(context.usage["remote.pair.title"][0]).toContain("components/Remote.tsx:1");
