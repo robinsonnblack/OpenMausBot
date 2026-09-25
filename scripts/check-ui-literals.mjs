@@ -75,8 +75,12 @@ function collect() {
 }
 
 export function newLiteralErrors(current, baseline) {
-  return Object.entries(current).filter(([id, count]) => count > (baseline[id] ?? 0))
-    .map(([id, count]) => `New hardcoded UI text (${count - (baseline[id] ?? 0)}): ${id.replaceAll("\u0000", " | ")}`);
+  return [
+    ...Object.entries(current).filter(([id, count]) => count > (baseline[id] ?? 0))
+      .map(([id, count]) => `New hardcoded UI text (${count - (baseline[id] ?? 0)}): ${id.replaceAll("\u0000", " | ")}`),
+    ...Object.entries(baseline).filter(([id, count]) => (current[id] ?? 0) < count)
+      .map(([id]) => `Resolved hardcoded UI text; shrink the debt baseline: ${id.replaceAll("\u0000", " | ")}`),
+  ];
 }
 
 export function checkUiLiterals({ update = false } = {}) {

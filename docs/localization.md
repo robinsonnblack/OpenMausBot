@@ -33,7 +33,9 @@ Keep visible text in catalog or Android string resources. Code literals can
 escape a catalog check, so `pnpm i18n:check` also rejects new direct JSX and
 Compose text literals against `scripts/ui-literal-debt.json`. This scanner
 covers common static text but cannot prove that all dynamic text is localized;
-reviewers must look for it in new UI. A present
+reviewers must look for it in new UI. When removing older direct UI text,
+refresh the baseline with `node scripts/check-ui-literals.mjs --update-baseline`
+and verify the diff shrinks. A present
 translation is also not proof of correct wording: review each language's copy
 and test the interface before release.
 
