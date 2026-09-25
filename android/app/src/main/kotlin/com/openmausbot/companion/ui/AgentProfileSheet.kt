@@ -624,6 +624,36 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }
                 }
 
+                FormSection(header = "Connected apps") {
+                    val configured = config?.composio?.configured == true
+                    val supported = instances.firstOrNull {
+                        it.instanceId == current.modelSelection.instanceId
+                    }?.capabilities?.composioMcp == true
+                    val allowed = current.composio != false
+                    Text(when {
+                        !configured -> "Connect apps on the paired computer before enabling access."
+                        !supported -> "This bot's current engine cannot use connected apps."
+                        allowed -> "This bot may use apps connected on the paired computer."
+                        else -> "Connected apps are unavailable to this bot."
+                    })
+                    SwitchRow(
+                        label = "Allow this bot to use connected apps",
+                        checked = allowed,
+                        enabled = connection?.serverScopes?.contains("admin") == true && !busy &&
+                            (!allowed && configured && supported || allowed),
+                        onCheckedChange = { next ->
+                            scope.launch {
+                                busy = true
+                                try { session.setBotConnectedApps(liveBot(), next) }
+                                finally { busy = false }
+                            }
+                        },
+                    )
+                    if (connection?.serverScopes?.contains("admin") != true) {
+                        Text("Changing this access requires an admin pairing.")
+                    }
+                }
+
                 FormSection(header = "Computer access") {
                     Text("Bot default: ${computerAccessLabel(current.computer)}")
                     if (connection?.serverScopes?.contains("admin") == true) {

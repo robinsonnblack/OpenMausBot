@@ -423,6 +423,8 @@ data class Bot(
     val autoApprove: Boolean? = null,
     val alwaysAllow: List<String>? = null,
     val computer: String? = null,
+    /** Whether this bot may use host-connected apps; absent means allowed. */
+    val composio: Boolean? = null,
     val cloudBackend: String? = null,
     /** Named browser session, guest session, or null for the bot's own browser. */
     val browserProfile: String? = null,
@@ -788,6 +790,7 @@ data class Instance(
 data class InstanceCapabilities(
     val images: Boolean? = null,
     val effortLevels: List<String>? = null,
+    val composioMcp: Boolean? = null,
     /** A Chief needs this engine's ability to contact and coordinate other bots. */
     val agentsMcp: Boolean? = null,
     /**

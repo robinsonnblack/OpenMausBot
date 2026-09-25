@@ -169,6 +169,10 @@ The bot's Access details can show its existing standing tool approvals and
 inbound webhook names, active/paused status, and delivery counts. This view
 does not expose webhook credentials or grant new tool permissions; webhook
 management and permission changes remain on the paired computer.
+With an admin pairing, the bot profile can also allow or deny that bot access
+to the computer's connected apps. Enabling requires an already configured
+connection and an engine that supports connected-app tools; the phone does not
+configure the external accounts or show their credentials.
 
 Bot settings also show the browser session selected on the paired computer.
 An admin-paired phone can choose the bot's own browser, a temporary browser,
