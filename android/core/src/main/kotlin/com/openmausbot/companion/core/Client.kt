@@ -386,6 +386,17 @@ class CompanionClient(
 
     suspend fun localVmStatus(): LocalVmStatus = send(makeRequest("GET", "/api/local-computer"))
 
+    suspend fun updateWorkspaceBudget(budget: WorkspaceBudgetConfig): ConfigStatus {
+        require(budget.monthlyUsd.isFinite() && budget.monthlyUsd in 0.0..1_000_000.0)
+        require(budget.warnAtPercent in 1..100)
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("budgets", buildJsonObject {
+                put("monthlyUsd", budget.monthlyUsd)
+                put("warnAtPercent", budget.warnAtPercent)
+            })
+        }))
+    }
+
     suspend fun localVmInventory(): LocalVmInventory = send(makeRequest("GET", "/api/local-computer/instances"))
 
     suspend fun updateLocalVmConfig(config: LocalVmConfig): ConfigStatus {

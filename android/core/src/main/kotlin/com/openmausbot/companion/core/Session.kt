@@ -2204,6 +2204,13 @@ class Session(
         null
     }
 
+    suspend fun updateWorkspaceBudget(budget: WorkspaceBudgetConfig): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Changing the workspace budget requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline.")).updateWorkspaceBudget(budget)
+    }
+
     private fun requireWorkspaceBackupAdmin(): CompanionClient {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Workspace backups require an admin pairing.")
