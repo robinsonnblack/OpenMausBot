@@ -431,7 +431,7 @@ import { createBotPackageExport, createLibraryPackageExport, createTeamPackageEx
 import { importPackageDocument, importTeamManifest, PackageImportError, type PackageImportDeps, type PackageImportResult } from "./package-import.ts";
 import {
   applyPresetToBot, createPresetStore, DEFAULTS_PRESET_KEY, PRESET_UNAVAILABLE_MESSAGE,
-  presetFromDefaults, presetOffered, readOrgInstallStatuses, readPublishedLibrary, writePublishedLibrary,
+  presetFromDefaults, presetOffered, readPublishedLibrary, writePublishedLibrary,
 } from "./presets.ts";
 import { readPublishedTeam, writePublishedTeam } from "./published-teams.ts";
 import { OrgLibrary } from "./org-library.ts";
@@ -12787,7 +12787,10 @@ const workspaceBackupRoutes = createWorkspaceBackupRoutes({
 // Route modules (server/routes/README.md). `workspaceAccess` is assigned at
 // boot, after this line, so the dependency reads it per request.
 ROUTES.push(createHostedSlackRoutes({ bot: (id) => store.bot(id), hostedReady: () => Boolean(workspaceAccess) && entitled("admin") }));
-ROUTES.push(createBotPresetRoutes({ presets: presetStore, orgStatuses: readOrgInstallStatuses }));
+// Install statuses come from the organization library's own state, never
+// its file, so New bot cannot disagree with it. No organization: none.
+const orgInstallStatuses = () => orgLibrary?.installStatuses() ?? new Map();
+ROUTES.push(createBotPresetRoutes({ presets: presetStore, orgStatuses: orgInstallStatuses }));
 
 const toolResults = new ToolResults();
 const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
@@ -16958,7 +16961,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         return json(res, 400, { error: "preset must be a preset id from New bot" });
       }
       const resolvedPreset = typeof body.preset === "string" ? presetStore.resolve(body.preset) : null;
-      const preset = resolvedPreset && presetOffered(resolvedPreset.row, readOrgInstallStatuses()) ? resolvedPreset : null;
+      const preset = resolvedPreset && presetOffered(resolvedPreset.row, orgInstallStatuses()) ? resolvedPreset : null;
       if (body.preset !== undefined && !preset) return json(res, 404, { error: PRESET_UNAVAILABLE_MESSAGE });
       body = { ...body, ...settings, name: settings.name };
       if (settings.approvalMode === "full" || settings.approvalMode === "custom") {
@@ -17052,7 +17055,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
         if (preset) {
           applyPresetToBot(bot.id, preset, {
             store,
-            skills: { install: installSkill, setEnabled: setSkillEnabled },
+            skills: { install: installSkill, setEnabled: setSkillEnabled, installOrg: installOrgSkill },
             memory: { writeIndex: writeMemoryFile, writeTopic: writeMemoryTopic },
           });
         }
