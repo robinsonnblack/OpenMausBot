@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -18,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.GroupResponder
 import com.openmausbot.companion.core.Room
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /** Edit the same room fields as the desktop, using the paired computer's validation. */
@@ -39,14 +42,17 @@ internal fun RoomSettingsSheet(
     room: Room,
     bots: List<Bot>,
     onDismiss: () -> Unit,
+    onDeleted: () -> Unit,
 ) {
     val session = LocalCompanion.current.session
+    val connection by session.connection.collectAsState()
     val scope = rememberCoroutineScope()
     var name by remember(room.id) { mutableStateOf(room.name) }
     var bulletin by remember(room.id) { mutableStateOf(room.bulletin) }
     var members by remember(room.id) { mutableStateOf(room.memberIds.toSet()) }
     var responder by remember(room.id) { mutableStateOf(room.defaultResponder) }
     var saving by remember(room.id) { mutableStateOf(false) }
+    var confirmDelete by remember(room.id) { mutableStateOf(false) }
     var error by remember(room.id) { mutableStateOf<String?>(null) }
     val available = bots.filter { it.hidden != true || it.id in room.memberIds }
     val orderedMembers = room.memberIds.filter { it in members } +
@@ -55,7 +61,7 @@ internal fun RoomSettingsSheet(
     val changed = name.trim() != room.name || bulletin != room.bulletin ||
         orderedMembers != room.memberIds || responder != room.defaultResponder
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(onDismissRequest = { if (!saving) onDismiss() }) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -118,7 +124,7 @@ internal fun RoomSettingsSheet(
             }
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(enabled = !saving, onClick = onDismiss) { Text("Cancel") }
                 TextButton(
                     enabled = !saving && changed && name.trim().isNotEmpty() &&
                         name.trim().length <= 100 && bulletin.length <= 12_000 &&
@@ -147,6 +153,34 @@ internal fun RoomSettingsSheet(
                     if (saving) CircularProgressIndicator() else Text("Save")
                 }
             }
+            if (connection?.serverScopes?.contains("admin") == true) {
+                TextButton(enabled = !saving, onClick = { confirmDelete = true }) {
+                    Text("Delete group", color = MaterialTheme.colorScheme.error)
+                }
+            }
         }
     }
+    if (confirmDelete) AlertDialog(
+        onDismissRequest = { if (!saving) confirmDelete = false },
+        title = { Text("Delete ${room.name}?") },
+        text = { Text("This permanently deletes the group conversation and its threads. The bots remain. This cannot be undone.") },
+        confirmButton = {
+            TextButton(enabled = !saving, onClick = {
+                saving = true
+                error = null
+                scope.launch {
+                    try {
+                        session.deleteRoom(room.id)
+                        confirmDelete = false
+                        onDeleted()
+                    } catch (failure: Exception) {
+                        if (failure is CancellationException) throw failure
+                        error = failure.message ?: "Could not delete the group."
+                        confirmDelete = false
+                    } finally { saving = false }
+                }
+            }) { Text("Delete group", color = MaterialTheme.colorScheme.error) }
+        },
+        dismissButton = { TextButton(enabled = !saving, onClick = { confirmDelete = false }) { Text("Cancel") } },
+    )
 }

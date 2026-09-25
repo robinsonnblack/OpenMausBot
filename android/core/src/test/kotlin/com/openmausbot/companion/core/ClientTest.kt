@@ -40,6 +40,22 @@ class ClientTest {
         assertEquals("stop the active routine first", error.message)
     }
 
+    @Test
+    fun deleteRoomUsesTheAdminOnlyEndpointAndReportsBusyRefusal() = runBlocking {
+        server.enqueue(json("""{"error":"this channel is working"}""", code = 409))
+        val refusal = assertFailsWith<APIError.Status> { client.deleteRoom("room-1") }
+        assertEquals(409, refusal.code)
+        assertEquals("this channel is working", refusal.message)
+        server.enqueue(json("""{"ok":true}"""))
+        client.deleteRoom("room-1")
+        repeat(2) {
+            val request = server.takeRequest()
+            assertEquals("DELETE", request.method)
+            assertEquals("/api/groups/room-1", request.path)
+            assertEquals("Bearer device-token", request.getHeader("Authorization"))
+        }
+    }
+
     @BeforeTest
     fun setUp() {
         server = MockWebServer()

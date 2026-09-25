@@ -1088,6 +1088,7 @@ private fun LoadedChat(
             room = chat.room,
             bots = state.bots,
             onDismiss = { showingRoomSettings = false },
+            onDeleted = { showingRoomSettings = false; onBack() },
         )
     }
 
