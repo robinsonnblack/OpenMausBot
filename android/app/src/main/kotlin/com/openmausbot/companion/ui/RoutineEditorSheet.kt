@@ -458,10 +458,11 @@ internal fun RoutineEditorSheet(
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(vertical = 12.dp),
                             )
+                            val changeWhenDescription = stringResource(R.string.ui_change_when_the_interval_starts_0a68203)
                             TextButton(
                                 onClick = { pickingDate = true },
                                 modifier = Modifier.semantics {
-                                    contentDescription = stringResource(R.string.ui_change_when_the_interval_starts_0a68203)
+                                    contentDescription = changeWhenDescription
                                 },
                             ) {
                                 Text(

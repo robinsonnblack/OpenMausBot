@@ -144,7 +144,7 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
                 if (selected != null) Text(if (fileBytes == null) {
                     stringResource(R.string.ui_backup_selected_file, filename)
                 } else {
-                    stringResource(R.string.ui_backup_selected_file_bytes, filename, fileBytes)
+                    stringResource(R.string.ui_backup_selected_file_bytes, filename, fileBytes ?: 0L)
                 })
                 if (preview == null) {
                     OutlinedTextField(password, onValueChange = { password = it.take(1024); error = null },

@@ -445,7 +445,7 @@ fun SettingsScreen(
     if (confirmingUnpair) {
         AlertDialog(
             onDismissRequest = { confirmingUnpair = false },
-            title = { Text(if (connections.size > 1) stringResource(R.string.ui_remove_computer_confirm, connection?.name)
+            title = { Text(if (connections.size > 1) stringResource(R.string.ui_remove_computer_confirm, connection?.name.orEmpty())
                 else stringResource(R.string.ui_unpair_phone_confirm)) },
             text = {
                 Text(

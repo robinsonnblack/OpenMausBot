@@ -725,7 +725,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             val selected = if (current.mcpServers == null) allowed else server.name in current.mcpServers.orEmpty()
                             SwitchRow(
                                 label = server.name + when {
-                                    server.managedBy != null -> stringResource(R.string.ui_server_managed_by, server.managedBy)
+                                    server.managedBy != null -> stringResource(R.string.ui_server_managed_by, server.managedBy.orEmpty())
                                     !server.enabled -> stringResource(R.string.ui_server_disabled_on_computer)
                                     else -> ""
                                 },
@@ -863,7 +863,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         null -> stringResource(R.string.ui_bot_own_browser)
                         "guest" -> stringResource(R.string.ui_bot_temporary_browser)
                         else -> config?.browserProfiles?.firstOrNull { it.id == current.browserProfile }?.name
-                            ?: stringResource(R.string.ui_bot_profile_unavailable, current.browserProfile)
+                            ?: stringResource(R.string.ui_bot_profile_unavailable, current.browserProfile.orEmpty())
                     })
                     if (connection?.serverScopes?.contains("admin") == true) {
                         ActionRow(
@@ -880,7 +880,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 ) {
                     Text(current.cwd?.takeIf { it.isNotBlank() } ?: "Private bot folder")
                     if (currentTaskRecord?.cwd != null && currentTaskRecord.cwd != current.cwd) {
-                        Text(stringResource(R.string.ui_dynamic_this_chat_is_still_pinned_to_1_s_b8c7601, currentTaskRecord.cwd))
+                        Text(stringResource(R.string.ui_dynamic_this_chat_is_still_pinned_to_1_s_b8c7601, currentTaskRecord.cwd.orEmpty()))
                     }
                     if (connection?.serverScopes?.contains("admin") == true) {
                         if (workingFolderConflict) {

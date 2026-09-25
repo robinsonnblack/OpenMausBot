@@ -134,7 +134,7 @@ internal fun BotSkillsSection(botId: String) {
         }) { Text(stringResource(R.string.ui_import_d6fbc9d)) }
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (organization != null && offered.isNotEmpty()) {
-            Text(stringResource(R.string.ui_dynamic_from_1_s_1616793, organization), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.ui_dynamic_from_1_s_1616793, organization.orEmpty()), style = MaterialTheme.typography.titleSmall)
             Text(stringResource(R.string.ui_these_skills_were_published_by_your_organi_0205790))
             offered.forEach { skill ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

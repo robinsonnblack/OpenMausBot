@@ -75,7 +75,7 @@ internal fun EngineManagementSheet(onDismiss: () -> Unit) {
                             engine.snapshot.state, engine.models.options.size)
                     } else {
                         stringResource(R.string.ui_engine_status_models,
-                            engine.snapshot.state, engine.snapshot.version, engine.models.options.size)
+                            engine.snapshot.state, engine.snapshot.version.orEmpty(), engine.models.options.size)
                     })
                     engine.snapshot.reason?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                     Row {

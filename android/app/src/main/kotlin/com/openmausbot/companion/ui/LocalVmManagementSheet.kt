@@ -187,11 +187,11 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
         })
         AlertDialog(
             onDismissRequest = { confirmation = null },
-            title = { Text(if (target.botId != null) stringResource(R.string.ui_vm_bot_action_confirm, actionName, target.botName)
+            title = { Text(if (target.botId != null) stringResource(R.string.ui_vm_bot_action_confirm, actionName, target.botName.orEmpty())
                 else stringResource(R.string.ui_vm_shared_action_confirm, actionName)) },
             text = { Text(if (target.botId != null) when (target.action) {
-                "remove" -> stringResource(R.string.ui_vm_remove_bot_explanation, target.botName)
-                else -> stringResource(R.string.ui_vm_stop_bot_explanation, target.botName)
+                "remove" -> stringResource(R.string.ui_vm_remove_bot_explanation, target.botName.orEmpty())
+                else -> stringResource(R.string.ui_vm_stop_bot_explanation, target.botName.orEmpty())
             } else when (target.action) {
                 "pull" -> stringResource(R.string.ui_vm_download_explanation)
                 "remove" -> stringResource(R.string.ui_vm_remove_shared_explanation)
