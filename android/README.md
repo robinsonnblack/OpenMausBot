@@ -108,8 +108,10 @@ Settings → Computer → Local VM shows the paired computer's container runtime
 shared desktop and per-bot inventory. An admin pairing can change shared vs.
 per-bot isolation and the 1–4 instance limit. The shared VM's image download,
 creation, start, stop and removal are explicit, confirmed actions on the PC;
-opening the screen never starts a container. Runtime installation and per-bot
-container deletion still use the desktop's setup flow.
+opening the screen never starts a container. In per-bot mode, an admin can
+also stop or remove an existing managed bot VM after a separate confirmation;
+the bot and its conversations remain. Runtime installation still uses the
+desktop's setup flow.
 Settings → Backups can create an encrypted workspace archive on the paired
 computer and stream it into a document chosen with Android's file picker.
 The password and file content require HTTPS or Tailscale; the phone does not

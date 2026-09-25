@@ -404,6 +404,12 @@ class CompanionClient(
         return send(makeRequest("POST", "/api/local-computer/$action", body = buildJsonObject { }))
     }
 
+    suspend fun botLocalVmAction(botId: String, action: String): LocalVmStatus {
+        require(botId.matches(Regex("[A-Za-z0-9_-]+")))
+        require(action in setOf("stop", "remove"))
+        return send(makeRequest("POST", "/api/bots/$botId/local-computer/$action", body = buildJsonObject { }))
+    }
+
     suspend fun adminActivity(filter: AdminActivityFilter): AdminActivityPage =
         send(makeRequest("GET", "/api/admin-activity", filter.query()))
 
