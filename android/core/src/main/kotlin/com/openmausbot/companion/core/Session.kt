@@ -2180,6 +2180,31 @@ class Session(
         return (client ?: throw APIError.Transport("This computer is offline.")).mcpServers()
     }
 
+    suspend fun botCommandAllowlist(botId: String): CommandAllowlistStatus {
+        requireAdminCommandRules()
+        return (client ?: throw APIError.Transport("This computer is offline.")).botCommandAllowlist(botId)
+    }
+
+    suspend fun addBotCommandRule(
+        botId: String, command: String, cwd: String, providerInstanceId: String,
+    ): CommandAllowlistStatus {
+        requireAdminCommandRules()
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .addBotCommandRule(botId, command, cwd, providerInstanceId)
+    }
+
+    suspend fun removeBotCommandRule(botId: String, ruleId: String): CommandAllowlistStatus {
+        requireAdminCommandRules()
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .removeBotCommandRule(botId, ruleId)
+    }
+
+    private fun requireAdminCommandRules() {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Managing command permissions requires an admin pairing.")
+        }
+    }
+
     suspend fun setBotMcpServers(forBot: Bot, names: List<String>?): Bot? {
         val activeClient = client ?: return null
         if (_connection.value?.serverScopes?.contains("admin") != true) {

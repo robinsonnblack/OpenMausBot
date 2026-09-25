@@ -1595,6 +1595,24 @@ data class McpServerSummary(val name: String, val enabled: Boolean, val managedB
 @Serializable
 internal data class McpServerListResponse(val servers: List<McpServerSummary>)
 
+@Serializable
+data class CommandAllowlistRule(
+    val id: String,
+    val command: String,
+    val cwd: String,
+    val providerInstanceId: String,
+)
+
+@Serializable
+data class CommandAllowlistContext(val providerInstanceId: String, val cwd: String? = null)
+
+@Serializable
+data class CommandAllowlistStatus(
+    val rules: List<CommandAllowlistRule>,
+    val context: CommandAllowlistContext,
+    val supported: Boolean,
+)
+
 /** Non-secret status of inbound triggers shown in the desktop bot Access section. */
 @Serializable
 data class BotWebhook(

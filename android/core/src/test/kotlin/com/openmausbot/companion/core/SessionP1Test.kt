@@ -47,6 +47,15 @@ class SessionP1Test {
     }
 
     @Test
+    fun clientScopeCannotManageExactCommandPermissions() = runTest {
+        val session = session()
+        assertFailsWith<APIError.Transport> { session.botCommandAllowlist("b1") }
+        assertFailsWith<APIError.Transport> { session.addBotCommandRule("b1", "echo hello", "C:\\work", "codex") }
+        assertFailsWith<APIError.Transport> { session.removeBotCommandRule("b1", "r1") }
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
     fun capturedTaskPinsPlainMessagesStopReadGrantsEditsAndQueueCancellation() = runTest {
         val captured = bot("b1", "task-a", "task-a", "task-b")
         val elsewhere = captured.copy(threadId = "task-b")
