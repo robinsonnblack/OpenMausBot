@@ -43,6 +43,15 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
     val session = LocalCompanion.current.session
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val loadError = stringResource(R.string.android_backup_load_error)
+    val inspectError = stringResource(R.string.android_backup_inspect_error)
+    val extensionError = stringResource(R.string.android_backup_extension_error)
+    val sizeError = stringResource(R.string.android_backup_size_error)
+    val busyError = stringResource(R.string.android_backup_busy_error)
+    val openError = stringResource(R.string.android_backup_open_error)
+    val validateError = stringResource(R.string.android_backup_validate_error)
+    val confirmError = stringResource(R.string.android_backup_confirm_error)
+    val restoreError = stringResource(R.string.android_backup_restore_error)
     var status by remember { mutableStateOf<WorkspaceBackupStatus?>(null) }
     var selected by remember { mutableStateOf<Uri?>(null) }
     var filename by remember { mutableStateOf("") }
@@ -58,7 +67,7 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try { status = session.workspaceBackupStatus() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load backup status." }
+        catch (failure: Exception) { error = failure.message ?: loadError }
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
@@ -79,9 +88,9 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
                     fileBytes = if (sizeIndex >= 0 && !cursor.isNull(sizeIndex)) cursor.getLong(sizeIndex) else null
                 }
             }
-        } catch (failure: Exception) { error = failure.message ?: "Could not inspect selected file." }
-        if (!filename.endsWith(".ombbackup", ignoreCase = true)) error = "Choose an .ombbackup file."
-        if (fileBytes == null || fileBytes!! <= 0L) error = "The selected document did not report a usable file size."
+        } catch (failure: Exception) { error = failure.message ?: inspectError }
+        if (!filename.endsWith(".ombbackup", ignoreCase = true)) error = extensionError
+        if (fileBytes == null || fileBytes!! <= 0L) error = sizeError
     }
 
     fun startPreview() {
@@ -92,16 +101,16 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
         scope.launch {
             try {
                 val current = session.workspaceBackupStatus()
-                if (current.busy || current.pendingRestore) throw IllegalStateException("The computer is busy with a backup or restore.")
+                if (current.busy || current.pendingRestore) throw IllegalStateException(busyError)
                 val id = uploadedId ?: session.uploadWorkspaceBackup(bytes) {
                     context.contentResolver.openInputStream(uri)
-                        ?: throw IllegalStateException("Could not open the selected backup file.")
+                        ?: throw IllegalStateException(openError)
                 }.id.also { uploadedId = it }
                 preview = session.previewWorkspaceBackup(id, password)
                 uploadedId = null
                 password = ""
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not validate the backup. Select it again if the upload expired."
+                error = failure.message ?: validateError
             } finally { busy = false }
         }
     }
@@ -114,12 +123,12 @@ internal fun WorkspaceBackupRestoreSheet(onDismiss: () -> Unit) {
         scope.launch {
             try {
                 val result = session.restoreWorkspaceBackup(stage.id)
-                if (!result.restartRequired || result.id != stage.id) throw IllegalStateException("The computer did not confirm the restore.")
+                if (!result.restartRequired || result.id != stage.id) throw IllegalStateException(confirmError)
                 preview = null
                 confirmation = ""
                 pendingRestart = true
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not restore the backup."
+                error = failure.message ?: restoreError
             } finally { busy = false }
         }
     }

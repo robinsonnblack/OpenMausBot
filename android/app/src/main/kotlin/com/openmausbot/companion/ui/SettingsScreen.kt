@@ -76,6 +76,12 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
     val haptics = rememberHaptics()
+    val invalidAddressError = stringResource(R.string.android_settings_invalid_address)
+    val loadProfileError = stringResource(R.string.android_settings_load_profile_error)
+    val verifyProfileError = stringResource(R.string.android_settings_verify_profile_error)
+    val profileChangedError = stringResource(R.string.android_settings_profile_changed_error)
+    val profileNotConfirmedError = stringResource(R.string.android_settings_profile_not_confirmed_error)
+    val saveProfileError = stringResource(R.string.android_settings_save_profile_error)
 
     var editingAddress by remember { mutableStateOf(false) }
     var addressText by remember { mutableStateOf("") }
@@ -149,11 +155,11 @@ fun SettingsScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            SettingsSection("Computer") {
+            SettingsSection(stringResource(R.string.android_settings_computer_924645)) {
                 val bound = connection
                 if (bound != null) {
                     val address = SettingsPolicy.addressText(bound)
-                    SettingsRow("Name", bound.name)
+                    SettingsRow(stringResource(R.string.android_settings_name_709a23), bound.name)
                     AddressRow(
                         address = address,
                         expanded = showingFullAddress,
@@ -172,19 +178,19 @@ fun SettingsScreen(
                     )
                     // The stored address can simply go stale. Editing it here
                     // keeps the pairing and its token (§7).
-                    SettingsButton("Edit address") {
+                    SettingsButton(stringResource(R.string.android_settings_edit_address_31fe67)) {
                         addressText = address
                         addressError = null
                         editingAddress = true
                     }
                 } else if (onConnect != null) {
-                    SettingsButton("Connect a computer", onClick = onConnect)
+                    SettingsButton(stringResource(R.string.android_settings_connect_a_computer_08ad5a), onClick = onConnect)
                 }
-                SettingsRow("Connection", SettingsPolicy.statusText(status))
+                SettingsRow(stringResource(R.string.android_settings_connection_6512ee), localizedConnectionStatus(status))
                 if (bound != null) {
-                    SettingsRow("Pairing access", SettingsPolicy.pairingAccessText(bound))
-                    Footnote("This is the access granted to this phone for the selected computer. Bots may still ask before using the computer.")
-                    SettingsButton("Connect another computer") {
+                    SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), localizedPairingAccess(bound))
+                    Footnote(stringResource(R.string.android_settings_this_is_the_access_granted_to_this_phone_f_70120e))
+                    SettingsButton(stringResource(R.string.android_settings_connect_another_computer_2a3942)) {
                         haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
                         session.beginPairing()
                     }
@@ -193,23 +199,23 @@ fun SettingsScreen(
 
             val otherComputers = connections.filter { it.id != connection?.id }
             if (otherComputers.isNotEmpty()) {
-                SettingsSection("Other computers") {
+                SettingsSection(stringResource(R.string.android_settings_other_computers_a46a75)) {
                     otherComputers.forEach { computer ->
-                        SettingsButton("Use ${computer.name}") {
+                        SettingsButton(stringResource(R.string.android_settings_use_computer_name_199816, computer.name)) {
                             haptics.play(TactileAction.SWITCH_COMPUTER)
                             session.switchComputer(computer.id)
                         }
-                        SettingsButton("Remove ${computer.name}", destructive = true) {
+                        SettingsButton(stringResource(R.string.android_settings_remove_computer_name_23f432, computer.name), destructive = true) {
                             pendingComputerRemoval = computer
                         }
                     }
-                    Footnote("Each computer is paired separately. Only the selected computer is active at a time.")
+                    Footnote(stringResource(R.string.android_settings_each_computer_is_paired_separately_only_th_d4064b))
                 }
             }
 
             if (connection != null) {
-                SettingsSection("Troubleshooting") {
-                    Footnote(troubleshootingText(status))
+                SettingsSection(stringResource(R.string.android_settings_troubleshooting_285ec8)) {
+                    Footnote(localizedTroubleshooting(status))
                     SettingsButton(
                         text = stringResource(R.string.ui_try_reconnecting_8310b02),
                         enabled = !reconnecting,
@@ -233,34 +239,42 @@ fun SettingsScreen(
                 }
             }
 
-            SettingsSection("Notifications") {
+            SettingsSection(stringResource(R.string.android_settings_notifications_753a22)) {
                 SettingsRow(
-                    "Status",
-                    NotificationPermissionController.statusText(notifications),
+                    stringResource(R.string.android_settings_status_bae7d5),
+                    stringResource(when (notifications) {
+                        NotificationAccess.GRANTED -> R.string.android_settings_notifications_allowed
+                        NotificationAccess.ASKABLE -> R.string.android_settings_notifications_not_allowed
+                        NotificationAccess.BLOCKED -> R.string.android_settings_notifications_system_off
+                    }),
                 )
                 SettingsButton(
-                    text = NotificationPermissionController.buttonText(notifications),
+                    text = stringResource(when (notifications) {
+                        NotificationAccess.GRANTED -> R.string.android_settings_notifications_on
+                        NotificationAccess.ASKABLE -> R.string.android_onboarding_enable_notifications
+                        NotificationAccess.BLOCKED -> R.string.android_settings_open_notification_settings
+                    }),
                     enabled = NotificationPermissionController.buttonEnabled(notifications),
                     onClick = environment.notifications::act,
                 )
-                Footnote(SettingsPolicy.NOTIFICATIONS_FOOTER)
+                Footnote(stringResource(R.string.android_onboarding_notifications_body))
             }
 
-            SettingsSection("Appearance") {
+            SettingsSection(stringResource(R.string.android_settings_appearance_41def7)) {
                 val themeId by environment.chatPreferences.themeId.collectAsState()
-                SettingsButton("Theme: ${themeId.replaceFirstChar(Char::uppercase)}") { editingTheme = true }
+                SettingsButton(stringResource(R.string.android_settings_theme_themeid_replacefirstchar_char_upperc_700698, themeId.replaceFirstChar(Char::uppercase))) { editingTheme = true }
             }
 
             if (connection?.serverScopes?.contains("admin") == true) {
-                SettingsSection("Shared profile") {
-                    SettingsButton("Name, email and About me") {
+                SettingsSection(stringResource(R.string.android_settings_shared_profile_ff09ab)) {
+                    SettingsButton(stringResource(R.string.android_settings_name_email_and_about_me_b2337b)) {
                         editingAboutMe = true
                         aboutMeLoading = true
                         aboutMeError = null
                         scope.launch {
                             try {
                                 val profile = session.configStatus()?.profile
-                                    ?: throw IllegalStateException("Could not load the shared profile.")
+                                    ?: throw IllegalStateException(loadProfileError)
                                 aboutMeText = profile.aboutMe.orEmpty()
                                 aboutMeOriginal = aboutMeText
                                 profileName = profile.name
@@ -268,94 +282,95 @@ fun SettingsScreen(
                                 profileEmail = profile.email
                                 profileEmailOriginal = profile.email
                             } catch (error: Exception) {
-                                aboutMeError = error.message ?: "Could not load the shared profile."
+                                aboutMeError = error.message ?: loadProfileError
                             } finally {
                                 aboutMeLoading = false
                             }
                         }
                     }
-                    Footnote("Shared with bots on this computer. Editing requires an admin pairing.")
+                    Footnote(stringResource(R.string.android_settings_shared_with_bots_on_this_computer_editing_382ab3))
                 }
             }
 
-            SettingsSection("Background connection") {
+            SettingsSection(stringResource(R.string.android_settings_background_connection_570dc0)) {
                 val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
-                SettingsRow("Status", if (alwaysOnEnabled) "Always on" else "Only while open")
+                SettingsRow(stringResource(R.string.android_settings_status_bae7d5), stringResource(
+                    if (alwaysOnEnabled) R.string.android_settings_always_on else R.string.android_settings_only_while_open,
+                ))
                 SettingsButton(
                     text = stringResource(if (alwaysOnEnabled) R.string.ui_turn_off else R.string.ui_turn_on),
                     onClick = environment.onToggleAlwaysOn,
                 )
                 Footnote(
                     if (alwaysOnEnabled) {
-                        "OpenMausBot keeps a permanent notification while this is on, so scheduled " +
-                            "reminders and routine results reach you even with the app fully closed."
+                        stringResource(R.string.android_settings_background_on_help)
                     } else {
-                        "Notifications only arrive while the app is open or was recently backgrounded. " +
-                            "Turn this on if you rely on scheduled routines to notify you later — it adds " +
-                            "a permanent low-priority notification and uses a little more battery."
+                        stringResource(R.string.android_settings_background_off_help)
                     },
                 )
             }
 
-            SettingsSection("Chat") {
-                SettingsRow("Activity", activityDetail.label)
-                SettingsButton("Change activity detail") { choosingActivity = true }
-                SettingsButton("Quick replies") { editingQuickReplies = true }
-                SettingsRow("Thread lists", if (showThreads) "Shown" else "Hidden")
-                SettingsButton(if (showThreads) "Hide thread lists" else "Show thread lists") {
+            SettingsSection(stringResource(R.string.android_settings_chat_2ced57)) {
+                SettingsRow(stringResource(R.string.android_settings_activity_81c0d9), activityDetail.label)
+                SettingsButton(stringResource(R.string.android_settings_change_activity_detail_f396fa)) { choosingActivity = true }
+                SettingsButton(stringResource(R.string.android_settings_quick_replies_c14223)) { editingQuickReplies = true }
+                SettingsRow(stringResource(R.string.android_settings_thread_lists_f64d31), stringResource(
+                    if (showThreads) R.string.android_settings_shown else R.string.android_settings_hidden,
+                ))
+                SettingsButton(stringResource(if (showThreads) R.string.android_settings_hide_thread_lists else R.string.android_settings_show_thread_lists)) {
                     environment.chatPreferences.setShowThreads(!showThreads)
                 }
-                Footnote("This only changes the bot list. You can still open and manage threads from each bot, and search finds them.")
+                Footnote(stringResource(R.string.android_settings_this_only_changes_the_bot_list_you_can_sti_d94a78))
                 Footnote(activityDetail.caption)
             }
 
-            if (connection != null) SettingsSection("Usage") {
-                SettingsButton(if (showingUsage) "Hide workspace usage" else "Show workspace usage") {
+            if (connection != null) SettingsSection(stringResource(R.string.android_settings_usage_0bb186)) {
+                SettingsButton(stringResource(if (showingUsage) R.string.android_settings_hide_usage else R.string.android_settings_show_usage)) {
                     showingUsage = !showingUsage
                 }
                 if (showingUsage) WorkspaceUsageSection()
-                if (budgetEntitled) SettingsButton("Monthly spending limit") { editingBudget = true }
-                if (billingEntitled) SettingsButton("Model prices") { editingBilling = true }
+                if (budgetEntitled) SettingsButton(stringResource(R.string.android_settings_monthly_spending_limit_4a8a9e)) { editingBudget = true }
+                if (billingEntitled) SettingsButton(stringResource(R.string.android_settings_model_prices_5f9f78)) { editingBilling = true }
             }
 
             if (connection?.serverScopes?.contains("admin") == true) {
-                SettingsSection("Bot defaults") {
-                    SettingsButton("Default model for new bots") { editingDefaultBotModel = true }
-                    SettingsButton("Default reasoning for new bots") { editingNewBotEffort = true }
+                SettingsSection(stringResource(R.string.android_settings_bot_defaults_f064df)) {
+                    SettingsButton(stringResource(R.string.android_settings_default_model_for_new_bots_e47907)) { editingDefaultBotModel = true }
+                    SettingsButton(stringResource(R.string.android_settings_default_reasoning_for_new_bots_a4425b)) { editingNewBotEffort = true }
                 }
-                SettingsSection("Teams") {
-                    SettingsButton("Manage teams") { managingTeams = true }
+                SettingsSection(stringResource(R.string.android_settings_teams_cbfd44)) {
+                    SettingsButton(stringResource(R.string.android_settings_manage_teams_c99bf8)) { managingTeams = true }
                 }
-                SettingsSection("Providers") {
+                SettingsSection(stringResource(R.string.android_settings_providers_87b7c0)) {
                     ProviderConnection.entries.forEach { provider ->
-                        SettingsButton("${provider.label} API and models") { configuringProvider = provider }
+                        SettingsButton(stringResource(R.string.android_settings_provider_label_api_and_models_d95ab7, provider.label)) { configuringProvider = provider }
                     }
                 }
-                SettingsSection("Engines") {
-                    SettingsButton("Manage engines on this computer") { managingEngines = true }
+                SettingsSection(stringResource(R.string.android_settings_engines_7f5d63)) {
+                    SettingsButton(stringResource(R.string.android_settings_manage_engines_on_this_computer_a0a12c)) { managingEngines = true }
                 }
-                SettingsSection("Threads") {
-                    SettingsButton("Concurrency and log retention") { managingThreads = true }
+                SettingsSection(stringResource(R.string.android_settings_threads_bb12e8)) {
+                    SettingsButton(stringResource(R.string.android_settings_concurrency_and_log_retention_ea73fb)) { managingThreads = true }
                 }
-                SettingsSection("Room turns") {
-                    SettingsButton("Turn timeout") { editingRoomTurnTimeout = true }
+                SettingsSection(stringResource(R.string.android_settings_room_turns_6062aa)) {
+                    SettingsButton(stringResource(R.string.android_settings_turn_timeout_70c2c0)) { editingRoomTurnTimeout = true }
                 }
-                SettingsSection("Activity") {
-                    SettingsButton("Changes and approvals") { viewingAdminActivity = true }
+                SettingsSection(stringResource(R.string.android_settings_activity_81c0d9)) {
+                    SettingsButton(stringResource(R.string.android_settings_changes_and_approvals_1afb99)) { viewingAdminActivity = true }
                 }
-                SettingsSection("Computer") {
-                    SettingsButton("Manage Local VM on this computer") { managingLocalVm = true }
+                SettingsSection(stringResource(R.string.android_settings_computer_924645)) {
+                    SettingsButton(stringResource(R.string.android_settings_manage_local_vm_on_this_computer_906520)) { managingLocalVm = true }
                 }
-                SettingsSection("Backups") {
-                    SettingsButton("Export encrypted workspace backup") { exportingBackup = true }
-                    SettingsButton("Import and restore a workspace backup") { restoringBackup = true }
+                SettingsSection(stringResource(R.string.android_settings_backups_530cc2)) {
+                    SettingsButton(stringResource(R.string.android_settings_export_encrypted_workspace_backup_484354)) { exportingBackup = true }
+                    SettingsButton(stringResource(R.string.android_settings_import_and_restore_a_workspace_backup_291447)) { restoringBackup = true }
                 }
-                SettingsSection("Browser") {
-                    SettingsButton("Built-in browser on this computer") { editingHostBrowser = true }
-                    SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
+                SettingsSection(stringResource(R.string.android_settings_browser_54a2cf)) {
+                    SettingsButton(stringResource(R.string.android_settings_built_in_browser_on_this_computer_fca83a)) { editingHostBrowser = true }
+                    SettingsButton(stringResource(R.string.android_settings_manage_browser_profiles_b7690f)) { managingBrowserProfiles = true }
                 }
-                SettingsSection("Experimental") {
-                    SettingsButton("Bot skill authoring") { editingSkillAuthoring = true }
+                SettingsSection(stringResource(R.string.android_settings_experimental_b718f8)) {
+                    SettingsButton(stringResource(R.string.android_settings_bot_skill_authoring_25b0fc)) { editingSkillAuthoring = true }
                 }
             }
 
@@ -363,7 +378,7 @@ fun SettingsScreen(
             // With no binding there is nothing to schedule against, so the row
             // is absent rather than present and dead.
             if (onOpenRoutines != null || onOpenConnectedApps != null) {
-                SettingsSection("Workspace") {
+                SettingsSection(stringResource(R.string.android_settings_workspace_4ca0a7)) {
                     onOpenRoutines?.let { openRoutines ->
                         SettingsButton(
                             text = stringResource(R.string.ui_threads_routines_65d7efc),
@@ -377,7 +392,7 @@ fun SettingsScreen(
                             onClick = openConnectedApps,
                         )
                     }
-                    Footnote(SettingsPolicy.WORKSPACE_FOOTER)
+                    Footnote(stringResource(R.string.android_settings_workspace_help))
                 }
             }
 
@@ -388,12 +403,12 @@ fun SettingsScreen(
                             else R.string.ui_unpair_this_phone),
                         destructive = true,
                     ) { confirmingUnpair = true }
-                    Footnote(SettingsPolicy.UNPAIR_FOOTER)
+                    Footnote(stringResource(R.string.android_settings_unpair_help))
                 }
             }
 
-            SettingsSection("Not here") {
-                Footnote(SettingsPolicy.NOT_HERE)
+            SettingsSection(stringResource(R.string.android_settings_not_here_1f3909)) {
+                Footnote(stringResource(R.string.android_settings_not_here_help))
             }
         }
     }
@@ -404,7 +419,7 @@ fun SettingsScreen(
             title = { Text(stringResource(R.string.ui_edit_address_31fe67f)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(SettingsPolicy.EDIT_ADDRESS_MESSAGE, fontSize = 14.sp)
+                    Text(stringResource(R.string.android_settings_edit_address_help), fontSize = 14.sp)
                     OutlinedTextField(
                         value = addressText,
                         onValueChange = {
@@ -431,7 +446,7 @@ fun SettingsScreen(
                         if (session.updateAddress(addressText)) {
                             editingAddress = false
                         } else {
-                            addressError = AddressEdit.INVALID
+                            addressError = invalidAddressError
                         }
                     },
                 ) { Text(stringResource(R.string.ui_save_efc007a)) }
@@ -582,17 +597,17 @@ fun SettingsScreen(
                             aboutMeSaving = true
                             try {
                                 val current = session.configStatus()?.profile
-                                    ?: throw IllegalStateException("Could not verify the current shared profile.")
+                                    ?: throw IllegalStateException(verifyProfileError)
                                 if (current.aboutMe.orEmpty() != aboutMeOriginal || current.name != profileNameOriginal ||
                                     current.email != profileEmailOriginal) {
-                                    throw IllegalStateException("The profile changed on the computer. Close and reopen to review it.")
+                                    throw IllegalStateException(profileChangedError)
                                 }
                                 val saved = session.updateSharedProfile(profileName, profileEmail, aboutMeText).profile
                                 if (saved?.aboutMe.orEmpty() != aboutMeText || saved?.name != profileName || saved?.email != profileEmail)
-                                    throw IllegalStateException("The computer did not confirm the saved profile.")
+                                    throw IllegalStateException(profileNotConfirmedError)
                                 editingAboutMe = false
                             } catch (error: Exception) {
-                                aboutMeError = error.message ?: "Could not save the shared profile."
+                                aboutMeError = error.message ?: saveProfileError
                             } finally {
                                 aboutMeSaving = false
                             }
@@ -768,6 +783,39 @@ private const val ADDRESS_CLIP_LABEL = "OpenMausMobile computer address"
 
 /** Long enough for "Copied" to be read, short enough not to linger (iOS `:363-367`). */
 private const val COPIED_LABEL_MILLIS = 2_000L
+
+@Composable
+private fun localizedConnectionStatus(status: Session.Status): String = when (status) {
+    Session.Status.Live -> stringResource(R.string.android_settings_connected)
+    Session.Status.Connecting -> stringResource(R.string.android_settings_connecting)
+    Session.Status.Unpaired -> stringResource(R.string.android_settings_not_paired)
+    Session.Status.Unauthorized -> stringResource(R.string.android_settings_unpaired_on_computer)
+    is Session.Status.Offline -> status.message
+}
+
+@Composable
+private fun localizedPairingAccess(connection: Connection): String {
+    val scopes = connection.serverScopes
+    val resource = when {
+        !connection.pairedWithServer || scopes == null -> R.string.android_settings_unknown_pairing
+        "admin" in scopes -> R.string.android_settings_full_access
+        "client" in scopes -> R.string.android_settings_chat_approvals
+        else -> R.string.android_settings_limited_access
+    }
+    return stringResource(resource)
+}
+
+@Composable
+private fun localizedTroubleshooting(status: Session.Status): String {
+    if (status is Session.Status.Offline) return status.message
+    return stringResource(when (status) {
+    Session.Status.Live -> R.string.android_settings_troubleshoot_live
+    Session.Status.Connecting -> R.string.android_settings_troubleshoot_connecting
+    Session.Status.Unauthorized -> R.string.android_settings_troubleshoot_unauthorized
+    Session.Status.Unpaired -> R.string.android_settings_troubleshoot_unpaired
+    is Session.Status.Offline -> error("handled above")
+    })
+}
 
 /**
  * What the Troubleshooting section says before offering to reconnect — the port

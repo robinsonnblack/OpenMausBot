@@ -91,22 +91,22 @@ fun WelcomeScreen(onConnect: () -> Unit, onSkip: () -> Unit) {
     OnboardingLayout(
         actions = {
             Button(onClick = onConnect, modifier = Modifier.fillMaxWidth()) {
-                Text(OnboardingCopy.WELCOME_CONNECT)
+                Text(stringResource(R.string.android_onboarding_connect_my_computer))
             }
             TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
-                Text(OnboardingCopy.NOT_NOW)
+                Text(stringResource(R.string.ui_not_now_e457149))
             }
         },
     ) {
         OnboardingHero(Icons.AutoMirrored.Filled.Send)
         Text(
-            text = OnboardingCopy.WELCOME_TITLE,
+            text = stringResource(R.string.android_onboarding_welcome_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
         )
         Text(
-            text = OnboardingCopy.WELCOME_SUBTITLE,
+            text = stringResource(R.string.android_onboarding_welcome_subtitle),
             style = MaterialTheme.typography.bodyLarge,
             color = secondaryTint,
             textAlign = TextAlign.Center,
@@ -115,17 +115,17 @@ fun WelcomeScreen(onConnect: () -> Unit, onSkip: () -> Unit) {
         Benefit(
             icon = Icons.AutoMirrored.Filled.Send,
             title = stringResource(R.string.ui_your_chats_in_your_pocket_91291d7),
-            detail = "Pick up the same conversations from your computer.",
+            detail = stringResource(R.string.android_onboarding_chats_detail),
         )
         Benefit(
             icon = Icons.Filled.CheckCircle,
             title = stringResource(R.string.ui_respond_when_a_bot_needs_you_9697332),
-            detail = "Review approvals without going back to your desk.",
+            detail = stringResource(R.string.android_onboarding_approvals_detail),
         )
         Benefit(
             icon = Icons.Filled.Lock,
             title = stringResource(R.string.ui_private_by_design_3aaa9fd),
-            detail = "You choose which trusted computer this phone connects to.",
+            detail = stringResource(R.string.android_onboarding_private_detail),
         )
     }
 }
@@ -161,25 +161,25 @@ fun UnpairedHomeScreen(onConnect: () -> Unit, onOpenSettings: () -> Unit) {
         OnboardingLayout(
             actions = {
                 Button(onClick = onConnect, modifier = Modifier.fillMaxWidth()) {
-                    Text(OnboardingCopy.UNPAIRED_HOME_CONNECT)
+                    Text(stringResource(R.string.android_onboarding_connect_computer))
                 }
             },
         ) {
             OnboardingHero(Icons.Filled.Phone)
             Text(
-                text = OnboardingCopy.UNPAIRED_HOME_TITLE,
+                text = stringResource(R.string.android_onboarding_unpaired_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = OnboardingCopy.UNPAIRED_HOME_BODY,
+                text = stringResource(R.string.android_onboarding_unpaired_body),
                 style = MaterialTheme.typography.bodyLarge,
                 color = secondaryTint,
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = OnboardingCopy.UNPAIRED_HOME_HINT,
+                text = stringResource(R.string.android_onboarding_unpaired_hint),
                 fontSize = 13.sp,
                 color = secondaryTint,
                 textAlign = TextAlign.Center,
@@ -213,7 +213,7 @@ fun NotificationOnboardingScreen(
                 if (enabling) {
                     CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                 } else {
-                    Text(OnboardingCopy.NOTIFICATIONS_ENABLE)
+                    Text(stringResource(R.string.android_onboarding_enable_notifications))
                 }
             }
             TextButton(
@@ -221,19 +221,19 @@ fun NotificationOnboardingScreen(
                 enabled = !enabling,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(OnboardingCopy.NOT_NOW)
+                Text(stringResource(R.string.ui_not_now_e457149))
             }
         },
     ) {
         OnboardingHero(Icons.Filled.Notifications)
         Text(
-            text = OnboardingCopy.NOTIFICATIONS_TITLE,
+            text = stringResource(R.string.android_onboarding_notifications_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
         )
         Text(
-            text = OnboardingCopy.NOTIFICATIONS_BODY,
+            text = stringResource(R.string.android_onboarding_notifications_body),
             style = MaterialTheme.typography.bodyMedium,
             color = secondaryTint,
             textAlign = TextAlign.Center,
@@ -241,12 +241,12 @@ fun NotificationOnboardingScreen(
         Spacer(Modifier.height(6.dp))
         Benefit(
             icon = Icons.Filled.CheckCircle,
-            title = OnboardingCopy.NOTIFICATIONS_APPROVALS,
+            title = stringResource(R.string.android_onboarding_notifications_approvals),
             detail = null,
         )
         Benefit(
             icon = Icons.AutoMirrored.Filled.Send,
-            title = OnboardingCopy.NOTIFICATIONS_FINISHED,
+            title = stringResource(R.string.android_onboarding_notifications_finished),
             detail = null,
         )
     }

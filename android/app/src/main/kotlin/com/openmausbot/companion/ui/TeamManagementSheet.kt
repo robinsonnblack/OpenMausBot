@@ -65,6 +65,13 @@ internal fun TeamManagementSheet(
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
+    val loadTeamsError = stringResource(R.string.android_team_load_error)
+    val loadModelsError = stringResource(R.string.android_team_load_models_error)
+    val updateAccessError = stringResource(R.string.android_team_update_access_error)
+    val renameError = stringResource(R.string.android_team_rename_error)
+    val updateMembersError = stringResource(R.string.android_team_update_members_error)
+    val deleteError = stringResource(R.string.android_team_delete_error)
+    val changeChiefError = stringResource(R.string.android_team_change_chief_error)
     var names by remember { mutableStateOf<List<String>>(emptyList()) }
     var selected by draft.selectedState
     var nameDraft by draft.nameDraftState
@@ -79,9 +86,9 @@ internal fun TeamManagementSheet(
 
     LaunchedEffect(Unit) {
         try { names = session.teamSections() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load teams." }
+        catch (failure: Exception) { error = failure.message ?: loadTeamsError }
         try { instances = session.modelInstances() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load model capabilities." }
+        catch (failure: Exception) { error = failure.message ?: loadModelsError }
     }
 
     fun openTeam(name: String) {
@@ -99,7 +106,7 @@ internal fun TeamManagementSheet(
                 session.setChiefManagedTeams(bot.id, selectedTeams, confirmed)
                 selected?.let(::openTeam)
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not update the Chief's team access."
+                error = failure.message ?: updateAccessError
             } finally { busy = false }
         }
     }
@@ -137,7 +144,7 @@ internal fun TeamManagementSheet(
                                 names = session.teamSections()
                                 openTeam(nameDraft.trim())
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not rename the team."
+                                error = failure.message ?: renameError
                             } finally { busy = false }
                         }
                     },
@@ -173,7 +180,7 @@ internal fun TeamManagementSheet(
                                 names = session.teamSections()
                                 openTeam(team)
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not update team members."
+                                error = failure.message ?: updateMembersError
                             } finally { busy = false }
                         }
                     },
@@ -181,7 +188,8 @@ internal fun TeamManagementSheet(
                 Text(stringResource(R.string.ui_chief_of_staff_ab970be))
                 val teamBots = state.bots.filter { it.section == team && it.hidden != true }
                 val chief = teamBots.firstOrNull { it.chiefOfStaff == true }
-                Text(chief?.let { "Current Chief: ${it.name}" } ?: "No Chief appointed")
+                Text(chief?.let { stringResource(R.string.android_team_current_chief, it.name) }
+                    ?: stringResource(R.string.android_team_no_chief))
                 teamBots.forEach { bot ->
                     val canCoordinate = instances.firstOrNull {
                         it.instanceId == bot.modelSelection.instanceId
@@ -214,7 +222,7 @@ internal fun TeamManagementSheet(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Checkbox(checked = other in selectedExtra, onCheckedChange = null)
-                            Text(other.ifEmpty { "General" })
+                            Text(other.ifEmpty { stringResource(R.string.android_team_general) })
                         }
                     }
                     val selectedNames = choices.filter { it in selectedExtra }
@@ -251,7 +259,7 @@ internal fun TeamManagementSheet(
                         names = session.teamSections()
                         selected = null
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not delete the team."
+                        error = failure.message ?: deleteError
                     } finally { busy = false }
                 }
             }) { Text(stringResource(R.string.ui_delete_team_a9661e7)) }
@@ -302,7 +310,7 @@ internal fun TeamManagementSheet(
                             session.setChiefOfStaff(bot.id, appoint)
                             selected?.let(::openTeam)
                         } catch (failure: Exception) {
-                            error = failure.message ?: "Could not change the Chief."
+                            error = failure.message ?: changeChiefError
                         } finally { busy = false }
                     }
                 }) { Text(stringResource(if (appoint) R.string.ui_appoint_action else R.string.ui_remove_action)) }

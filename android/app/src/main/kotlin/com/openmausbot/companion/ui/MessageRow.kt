@@ -388,7 +388,7 @@ private fun SelectableTextDialog(text: String, onDismiss: () -> Unit) {
                     )
                 }
                 Text(
-                    "Touch and hold the text to select part of it.",
+                    stringResource(R.string.android_message_select_text_hint),
                     fontSize = 12.sp,
                     color = secondaryTint,
                 )
@@ -581,6 +581,7 @@ private fun SharedAttachmentView(
         SharedImageAttachment(threadId, message, attachment, onOpen)
         return
     }
+    val fileDescription = stringResource(R.string.android_accessibility_file_attachment, attachment.name)
     Row(
         modifier = Modifier
             .widthIn(max = 360.dp)
@@ -590,7 +591,7 @@ private fun SharedAttachmentView(
                 onOpen?.invoke(attachment, message, null)
             }
             .padding(horizontal = 12.dp, vertical = 10.dp)
-            .semantics { contentDescription = "File attachment: ${attachment.name}. Tap to preview." },
+            .semantics { contentDescription = fileDescription },
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -651,6 +652,7 @@ private fun SharedImageAttachment(
     }
 
     val ready = state as? AttachmentThumbnailState.Ready
+    val imageDescription = stringResource(R.string.android_accessibility_image_attachment, attachment.name)
     Column(
         modifier = Modifier
             .widthIn(max = 360.dp)
@@ -659,7 +661,7 @@ private fun SharedImageAttachment(
             .clickable(enabled = ready != null && onOpen != null, role = Role.Button) {
                 ready?.let { onOpen?.invoke(attachment, message, it.file) }
             }
-            .semantics { contentDescription = "Image attachment: ${attachment.name}. Tap to preview." },
+            .semantics { contentDescription = imageDescription },
     ) {
         Box(
             modifier = Modifier
@@ -802,6 +804,10 @@ private fun VoiceNoteAttachmentView(
     val durationMs = active?.durationMs ?: note.durationMs?.toLong()?.takeIf { it > 0 }
     val durationSeconds = durationMs?.let { it / 1000f } ?: 0f
     val positionMs = scrub?.toLong() ?: (active?.positionMs ?: 0L)
+    val playbackDescription = stringResource(
+        if (playing) R.string.android_accessibility_pause_voice else R.string.android_accessibility_play_voice,
+    )
+    val seekDescription = stringResource(R.string.android_accessibility_seek_voice)
 
     Row(
         modifier = Modifier
@@ -829,7 +835,7 @@ private fun VoiceNoteAttachmentView(
                     }
                 }
                 .semantics {
-                    contentDescription = if (playing) "Pause voice note" else "Play voice note"
+                    contentDescription = playbackDescription
                 },
             contentAlignment = Alignment.Center,
         ) {
@@ -864,7 +870,7 @@ private fun VoiceNoteAttachmentView(
             enabled = active != null && durationMs != null,
             modifier = Modifier
                 .weight(1f)
-                .semantics { contentDescription = "Seek voice note" },
+                .semantics { contentDescription = seekDescription },
         )
         Text(
             voiceNoteClock(positionMs) + " / " + (durationMs?.let(::voiceNoteClock) ?: "--:--"),
@@ -1027,7 +1033,15 @@ fun ActivityRunChip(items: List<Message>, openThread: ((ThreadRef) -> Unit)? = n
     // while the run is still going. iOS holds a `@State` with no key at all.
     var expanded by remember(items.first().id) { mutableStateOf(false) }
     val running = items.any { it.tool?.ok == null }
-    val summary = if (running) "Running ${items.size} steps" else "Ran ${items.size} steps"
+    val summary = stringResource(
+        if (running) R.string.android_accessibility_running_steps else R.string.android_accessibility_ran_steps,
+        items.size,
+    )
+    val runDescription = stringResource(
+        R.string.android_accessibility_run_state,
+        summary,
+        stringResource(if (expanded) R.string.android_accessibility_expanded else R.string.android_accessibility_collapsed),
+    )
     Column(
         modifier = Modifier.padding(start = 4.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -1043,7 +1057,7 @@ fun ActivityRunChip(items: List<Message>, openThread: ((ThreadRef) -> Unit)? = n
                     haptics.play(TactileAction.TOGGLE_ACTIVITY_RUN)
                 }
                 .semantics {
-                    contentDescription = "$summary, ${if (expanded) "expanded" else "collapsed"}"
+                    contentDescription = runDescription
                 },
             contentAlignment = Alignment.CenterStart,
         ) {
@@ -1125,7 +1139,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                 Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            "Review the complete SKILL.md",
+                            stringResource(R.string.android_message_review_skill),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f),
@@ -1139,7 +1153,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                     }
                     SelectionContainer {
                         Text(
-                            "Source: ${skill.source ?: "Unknown"}",
+                            stringResource(R.string.android_message_skill_source, skill.source ?: stringResource(R.string.android_message_unknown_source)),
                             fontSize = 11.sp,
                             color = secondaryTint,
                         )
@@ -1172,8 +1186,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                         tint = Color(MausPalette.argb("orange")),
                     )
                     Text(
-                        "This proposal was created by an older build and cannot be safely enabled. " +
-                            "Deny it and ask the bot to create it again.",
+                        stringResource(R.string.android_message_old_skill_proposal),
                         fontSize = 12.sp,
                         color = Color(MausPalette.argb("orange")),
                         modifier = Modifier.weight(1f),

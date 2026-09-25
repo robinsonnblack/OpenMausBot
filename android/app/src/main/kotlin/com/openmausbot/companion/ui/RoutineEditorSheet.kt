@@ -187,6 +187,8 @@ internal fun RoutineEditorSheet(
 
     val cloudSelectable = RoutineRules.cloudSelectable(availability, runOn)
     val intervalMinutes = RoutineRules.intervalMinutes(intervalMinutesText)
+    val intervalDescription = if (intervalUsesCustom) stringResource(R.string.android_routine_choose_custom_interval)
+        else stringResource(R.string.android_routine_repeat_interval, intervalMinutesText)
     val canSave = RoutineRules.canSave(
         saving = saving,
         kind = kind,
@@ -406,7 +408,7 @@ internal fun RoutineEditorSheet(
                             verticalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
                             Text(
-                                "Runs every",
+                                stringResource(R.string.android_routine_runs_every),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(vertical = 12.dp),
                             )
@@ -414,15 +416,11 @@ internal fun RoutineEditorSheet(
                                 TextButton(
                                     onClick = { intervalMenuExpanded = true },
                                     modifier = Modifier.semantics {
-                                        contentDescription = if (intervalUsesCustom) {
-                                            "Choose a custom repeat interval"
-                                        } else {
-                                            "Repeat interval, $intervalMinutesText minutes"
-                                        }
+                                        contentDescription = intervalDescription
                                     },
                                 ) {
                                     Text(
-                                        if (intervalUsesCustom) "Custom" else intervalMinutesText,
+                                        if (intervalUsesCustom) stringResource(R.string.ui_custom_081ae3f) else intervalMinutesText,
                                         style = MaterialTheme.typography.bodyLarge,
                                     )
                                     ExposedDropdownMenuDefaults.TrailingIcon(
@@ -507,7 +505,7 @@ internal fun RoutineEditorSheet(
             FormSection(
                 header = null,
                 footer = if (advancedExpanded) {
-                    "Optional. This only stops a stuck run; it does not control how often the routine starts."
+                    stringResource(R.string.android_routine_timeout_help)
                 } else {
                     null
                 },
@@ -515,9 +513,10 @@ internal fun RoutineEditorSheet(
                 ValueRow(
                     label = stringResource(R.string.ui_advanced_4d06472),
                     value = if (advancedExpanded) {
-                        "Hide"
+                        stringResource(R.string.android_routine_hide_advanced)
                     } else {
-                        timeoutMinutes?.let { "$it min limit" } ?: "No limit"
+                        timeoutMinutes?.let { stringResource(R.string.android_routine_minute_limit, it) }
+                            ?: stringResource(R.string.ui_no_limit_10850b9)
                     },
                     onClick = { advancedExpanded = !advancedExpanded },
                 )
@@ -679,9 +678,9 @@ internal fun RoutineEditorSheet(
             title = {
                 Text(
                     when (kind) {
-                        RoutineSchedule.Kind.INTERVAL -> "Alignment time"
-                        RoutineSchedule.Kind.ONCE -> "Run"
-                        else -> "Time"
+                        RoutineSchedule.Kind.INTERVAL -> stringResource(R.string.android_routine_alignment_time)
+                        RoutineSchedule.Kind.ONCE -> stringResource(R.string.ui_run_b1b3926)
+                        else -> stringResource(R.string.ui_time_6c82e6d)
                     },
                 )
             },
@@ -695,13 +694,15 @@ internal fun RoutineEditorSheet(
 @Composable
 private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    val timeoutDescription = stringResource(R.string.android_routine_timeout)
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
         modifier = Modifier.fillMaxWidth(),
     ) {
         OutlinedTextField(
-            value = value?.let { "$it minutes" } ?: "No limit",
+            value = value?.let { stringResource(R.string.ui_dynamic_1_s_minutes_29dd88a, it.toString()) }
+                ?: stringResource(R.string.ui_no_limit_10850b9),
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.ui_stop_if_still_running_after_45efb17)) },
@@ -709,7 +710,7 @@ private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
-                .semantics { contentDescription = "Routine timeout" },
+                .semantics { contentDescription = timeoutDescription },
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             DropdownMenuItem(
@@ -740,7 +741,7 @@ private fun AgentPicker(
     onSelect: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val label = bots.firstOrNull { it.id == selected }?.name ?: "Choose an agent"
+    val label = bots.firstOrNull { it.id == selected }?.name ?: stringResource(R.string.ui_choose_an_agent_faaaf2b)
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },

@@ -82,6 +82,16 @@ internal fun NewBotModelSheet(
     var showingContent by remember { mutableStateOf(false) }
     var showingRawContent by remember { mutableStateOf(false) }
     val draftJson = remember { Json { prettyPrint = true } }
+    val loadError = stringResource(R.string.android_new_bot_load_error)
+    val createError = stringResource(R.string.android_new_bot_create_error)
+    val jsonError = stringResource(R.string.android_new_bot_json_error)
+    val memoryJsonError = stringResource(R.string.android_new_bot_memory_json_error)
+    val skillsJsonError = stringResource(R.string.android_new_bot_skills_json_error)
+    val routinesJsonError = stringResource(R.string.android_new_bot_routines_json_error)
+    val skillDescription = stringResource(R.string.android_new_bot_skill_description)
+    val skillInstructions = stringResource(R.string.android_new_bot_skill_instructions)
+    val dailyCheck = stringResource(R.string.android_new_bot_daily_check)
+    val routineTask = stringResource(R.string.android_new_bot_describe_task)
 
     LaunchedEffect(Unit) {
         try {
@@ -118,7 +128,7 @@ internal fun NewBotModelSheet(
             try { browserProfiles = session.configStatus()?.browserProfiles.orEmpty() }
             catch (_: Exception) { /* Model-first creation still works without profile discovery. */ }
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load bot creation settings."
+            error = failure.message ?: loadError
         } finally { loaded = true }
     }
 
@@ -147,7 +157,7 @@ internal fun NewBotModelSheet(
             JsonObject(savedTemplate + mapOf("profile" to profile, "memory" to memory,
                 "skills" to skills, "routines" to routines))
         } catch (failure: Exception) {
-            error = "Check the Profile, Memory, Skills and Routines JSON: ${failure.message}"
+            error = "$jsonError ${failure.message.orEmpty()}"
             return
         } else null
         saving = true
@@ -162,9 +172,9 @@ internal fun NewBotModelSheet(
                     creationTemplate,
                 )
                 if (bot != null) onCreated(bot)
-                else error = session.actionError ?: "Could not create the bot."
+                else error = session.actionError ?: createError
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not create the bot."
+                error = failure.message ?: createError
             } finally { saving = false }
         }
     }
@@ -200,7 +210,7 @@ internal fun NewBotModelSheet(
                 )
                 ChoicePicker(
                     label = stringResource(R.string.ui_team_2188872),
-                    choices = listOf(VoiceChoice("", "No team", null, true)) +
+                    choices = listOf(VoiceChoice("", stringResource(R.string.android_new_bot_no_team), null, true)) +
                         state.sidebarSections.map { VoiceChoice(it.name, it.name, null, true) },
                     selected = section,
                     onSelect = { section = it },
@@ -227,7 +237,7 @@ internal fun NewBotModelSheet(
                 val efforts = ModelRules.effortLevels(instance)
                 if (efforts.isNotEmpty()) ChoicePicker(
                     label = stringResource(R.string.ui_reasoning_effort_cd32c0f),
-                    choices = listOf(VoiceChoice("", "Default", null, true)) +
+                    choices = listOf(VoiceChoice("", stringResource(R.string.ui_model_default_effort), null, true)) +
                         efforts.map { VoiceChoice(it, ModelRules.effortLabel(it), null, true) },
                     selected = selected?.effort.orEmpty(),
                     onSelect = { effort -> selected?.let { selection = it.copy(effort = effort.ifEmpty { null }) } },
@@ -267,7 +277,7 @@ internal fun NewBotModelSheet(
                     )
                     ChoicePicker(
                         label = stringResource(R.string.ui_computer_access_b090ead),
-                        choices = listOf(VoiceChoice("", "Default", null, true)) +
+                        choices = listOf(VoiceChoice("", stringResource(R.string.ui_model_default_effort), null, true)) +
                             listOf("cloud", "vm", "local", "browser", "off")
                                 .map { VoiceChoice(it, it.replaceFirstChar(Char::uppercaseChar), null, true) },
                         selected = preferences.computer.orEmpty(),
@@ -276,8 +286,8 @@ internal fun NewBotModelSheet(
                     ChoicePicker(
                         label = stringResource(R.string.ui_browser_profile_d7d5c8f),
                         choices = listOf(
-                            VoiceChoice("", "This bot's own browser", null, true),
-                            VoiceChoice("guest", "Temporary browser", null, true),
+                            VoiceChoice("", stringResource(R.string.android_new_bot_own_browser), null, true),
+                            VoiceChoice("guest", stringResource(R.string.ui_bot_temporary_browser), null, true),
                         ) + browserProfiles.map { VoiceChoice(it.id, it.name, null, true) },
                         selected = preferences.browserProfile.orEmpty(),
                         onSelect = { preferences = preferences.copy(browserProfile = it.ifEmpty { null }) },
@@ -285,8 +295,8 @@ internal fun NewBotModelSheet(
                     ChoicePicker(
                         label = stringResource(R.string.ui_action_approval_d6cf31e),
                         choices = listOf(
-                            VoiceChoice("ask", "Ask before actions", null, true),
-                            VoiceChoice("auto", "Approve automatically", null, true),
+                            VoiceChoice("ask", stringResource(R.string.android_new_bot_ask_actions), null, true),
+                            VoiceChoice("auto", stringResource(R.string.android_new_bot_approve_automatically), null, true),
                         ),
                         selected = preferences.approvalMode,
                         onSelect = { preferences = preferences.copy(approvalMode = it) },
@@ -340,7 +350,7 @@ internal fun NewBotModelSheet(
                                 .first { it !in existing }
                             memoryText = draftJson.encodeToString(JsonElement.serializer(),
                                 JsonObject(existing + (path to JsonPrimitive(""))))
-                        } catch (_: Exception) { error = "Fix Memory JSON before adding a file." }
+                        } catch (_: Exception) { error = memoryJsonError }
                     }) { Text(stringResource(R.string.ui_add_memory_topic_3bf3be5)) }
                     val skillItems = runCatching { draftJson.parseToJsonElement(skillsText).jsonArray }.getOrNull()
                     skillItems?.forEachIndexed { index, item ->
@@ -364,13 +374,13 @@ internal fun NewBotModelSheet(
                             val name = generateSequence(1) { it + 1 }.map { "new-skill-$it" }
                                 .first { candidate -> existing.none { (it as? JsonObject)?.get("name")?.jsonPrimitive?.contentOrNull == candidate } }
                             val skill = JsonObject(mapOf(
-                                "name" to JsonPrimitive(name), "description" to JsonPrimitive("Describe this skill"),
+                                "name" to JsonPrimitive(name), "description" to JsonPrimitive(skillDescription),
                                 "source" to JsonPrimitive("android-draft"), "enabled" to JsonPrimitive(false),
                                 "warnings" to JsonArray(emptyList()),
-                                "text" to JsonPrimitive("---\nname: $name\ndescription: Describe this skill\n---\nWrite the instructions here."),
+                                "text" to JsonPrimitive("---\nname: $name\ndescription: $skillDescription\n---\n$skillInstructions"),
                             ))
                             skillsText = draftJson.encodeToString(JsonElement.serializer(), JsonArray(existing + skill))
-                        } catch (_: Exception) { error = "Fix Skills JSON before adding a skill." }
+                        } catch (_: Exception) { error = skillsJsonError }
                     }) { Text(stringResource(R.string.ui_add_skill_d61f09b)) }
                     val routineItems = runCatching { draftJson.parseToJsonElement(routinesText).jsonArray }.getOrNull()
                     routineItems?.forEachIndexed { index, item ->
@@ -399,14 +409,14 @@ internal fun NewBotModelSheet(
                         try {
                             val existing = draftJson.parseToJsonElement(routinesText).jsonArray
                             val routine = JsonObject(mapOf(
-                                "name" to JsonPrimitive("Daily check"), "prompt" to JsonPrimitive("Describe the task"),
+                                "name" to JsonPrimitive(dailyCheck), "prompt" to JsonPrimitive(routineTask),
                                 "enabled" to JsonPrimitive(false),
                                 "schedule" to JsonObject(mapOf("type" to JsonPrimitive("daily"),
                                     "time" to JsonPrimitive("09:00"),
                                     "weekdays" to JsonArray((1..5).map(::JsonPrimitive)))),
                             ))
                             routinesText = draftJson.encodeToString(JsonElement.serializer(), JsonArray(existing + routine))
-                        } catch (_: Exception) { error = "Fix Routines JSON before adding a routine." }
+                        } catch (_: Exception) { error = routinesJsonError }
                     }) { Text(stringResource(R.string.ui_add_daily_routine_3e412e7)) }
                     TextButton(onClick = { showingRawContent = !showingRawContent }) {
                         Text(stringResource(if (showingRawContent) R.string.ui_hide_template_editor else R.string.ui_edit_full_template))

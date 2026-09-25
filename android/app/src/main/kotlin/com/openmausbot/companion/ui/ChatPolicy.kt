@@ -177,9 +177,6 @@ enum class ChatActionId { PHOTOS, FILES, NEW_TASK, TASKS, WATCH_COMPUTER, SETTIN
 
 data class ChatAction(
     val id: ChatActionId,
-    val title: String,
-    /** The line under the title, which the sheet has room for. */
-    val subtitle: String,
     val destructive: Boolean = false,
     val enabled: Boolean = true,
 )
@@ -201,43 +198,29 @@ object ChatActions {
         // while a send or an import is in flight.
         out += ChatAction(
             id = ChatActionId.PHOTOS,
-            title = "Photo Library",
-            subtitle = "Add a photo to this message",
             enabled = canAddAttachment,
         )
         out += ChatAction(
             id = ChatActionId.FILES,
-            title = "Choose File",
-            subtitle = "Add a document from Files",
             enabled = canAddAttachment,
         )
         if (bot != null) {
             out += ChatAction(
                 id = ChatActionId.NEW_TASK,
-                title = "New thread",
-                subtitle = "Start a fresh thread with ${bot.name}",
                 enabled = TaskRules.canCreate(bot),
             )
             out += ChatAction(
                 id = ChatActionId.TASKS,
-                title = "Threads",
-                subtitle = "Switch, rename or remove one",
             )
             out += ChatAction(
                 id = ChatActionId.SETTINGS,
-                title = "Bot settings",
-                subtitle = "Model, profile, voice and notifications",
             )
             out += ChatAction(
                 id = ChatActionId.WATCH_COMPUTER,
-                title = "Watch computer",
-                subtitle = "Live view of what ${bot.name} is doing",
             )
         } else if (chat.supportsTasks) {
             out += ChatAction(
                 id = ChatActionId.NEW_TASK,
-                title = "New thread",
-                subtitle = "Start a fresh conversation in ${chat.name}",
                 // iOS: `disabled: current.busy || hasPendingApproval`, on the room
                 // branch only — a channel waiting on an answer does not get a
                 // second thread started over it.
@@ -245,25 +228,17 @@ object ChatActions {
             )
             out += ChatAction(
                 id = ChatActionId.TASKS,
-                title = "Threads",
-                subtitle = "Switch, rename or remove one",
             )
         }
         out += ChatAction(
             id = ChatActionId.SHARE_MARKDOWN,
-            title = "Share transcript",
-            subtitle = "This thread as Markdown",
         )
         out += ChatAction(
             id = ChatActionId.SHARE_JSON,
-            title = "Share as JSON",
-            subtitle = "Structured transcript data",
         )
         if (chat.busy && bot != null) {
             out += ChatAction(
                 id = ChatActionId.INTERRUPT,
-                title = "Interrupt",
-                subtitle = "Stop the current turn",
                 destructive = true,
             )
         }

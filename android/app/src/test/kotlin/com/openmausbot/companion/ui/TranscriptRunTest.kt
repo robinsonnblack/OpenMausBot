@@ -121,22 +121,6 @@ class ChatActionsTest {
             ),
             actions.map { it.id },
         )
-        assertEquals("Photo Library", actions[0].title)
-        assertEquals("Add a photo to this message", actions[0].subtitle)
-        assertEquals("Choose File", actions[1].title)
-        assertEquals("Add a document from Files", actions[1].subtitle)
-        assertEquals("New thread", actions[2].title)
-        assertEquals("Start a fresh thread with Scout", actions[2].subtitle)
-        assertEquals("Threads", actions[3].title)
-        assertEquals("Switch, rename or remove one", actions[3].subtitle)
-        assertEquals("Bot settings", actions[4].title)
-        assertEquals("Model, profile, voice and notifications", actions[4].subtitle)
-        assertEquals("Watch computer", actions[5].title)
-        assertEquals("Live view of what Scout is doing", actions[5].subtitle)
-        assertEquals("Share transcript", actions[6].title)
-        assertEquals("This thread as Markdown", actions[6].subtitle)
-        assertEquals("Share as JSON", actions[7].title)
-        assertEquals("Structured transcript data", actions[7].subtitle)
     }
 
     @Test
@@ -144,8 +128,6 @@ class ChatActionsTest {
         val actions = sheet(Chat.BotChat(bot(busy = true)))
         val interrupt = actions.last()
         assertEquals(ChatActionId.INTERRUPT, interrupt.id)
-        assertEquals("Interrupt", interrupt.title)
-        assertEquals("Stop the current turn", interrupt.subtitle)
         assertTrue(interrupt.destructive)
         // iOS: `.disabled(bot.busy == true)` on New task only.
         assertFalse(actions.single { it.id == ChatActionId.NEW_TASK }.enabled)

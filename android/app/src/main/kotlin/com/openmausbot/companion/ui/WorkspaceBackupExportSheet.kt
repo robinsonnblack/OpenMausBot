@@ -41,6 +41,11 @@ internal fun WorkspaceBackupExportSheet(onDismiss: () -> Unit) {
     val session = LocalCompanion.current.session
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val loadError = stringResource(R.string.android_backup_load_error)
+    val busyError = stringResource(R.string.android_backup_busy_error)
+    val createFileError = stringResource(R.string.android_backup_create_file_error)
+    val incompleteError = stringResource(R.string.android_backup_incomplete_error)
+    val exportError = stringResource(R.string.android_backup_export_error)
     var status by remember { mutableStateOf<WorkspaceBackupStatus?>(null) }
     var password by remember { mutableStateOf("") }
     var confirmation by remember { mutableStateOf("") }
@@ -50,7 +55,7 @@ internal fun WorkspaceBackupExportSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try { status = session.workspaceBackupStatus() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load backup status." }
+        catch (failure: Exception) { error = failure.message ?: loadError }
     }
     val createFile = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -62,20 +67,20 @@ internal fun WorkspaceBackupExportSheet(onDismiss: () -> Unit) {
         scope.launch {
             try {
                 val current = session.workspaceBackupStatus()
-                if (current.busy || current.pendingRestore) throw IllegalStateException("The computer is busy with a backup or restore.")
+                if (current.busy || current.pendingRestore) throw IllegalStateException(busyError)
                 val exported = session.createWorkspaceBackup(password)
                 password = ""
                 confirmation = ""
                 val output = context.contentResolver.openOutputStream(uri)
-                    ?: throw IllegalStateException("Could not create the selected file.")
+                    ?: throw IllegalStateException(createFileError)
                 val written = output.use { session.downloadWorkspaceBackup(exported.id, it) }
-                if (written != exported.bytes) throw IllegalStateException("The backup download was incomplete.")
+                if (written != exported.bytes) throw IllegalStateException(incompleteError)
                 savedBytes = written
                 status = session.workspaceBackupStatus()
             } catch (failure: Exception) {
                 runCatching { context.contentResolver.delete(uri, null, null) }
                 if (failure is CancellationException) throw failure
-                error = failure.message ?: "Could not export the workspace backup."
+                error = failure.message ?: exportError
             } finally {
                 password = ""
                 confirmation = ""

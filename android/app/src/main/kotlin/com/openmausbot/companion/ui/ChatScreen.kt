@@ -212,6 +212,13 @@ private fun LoadedChat(
     val chatDrafts = environment.chatDrafts
     val haptics = rememberHaptics()
     val scope = rememberCoroutineScope()
+    val addAttachmentError = stringResource(R.string.android_chat_add_attachment_error)
+    val openFileError = stringResource(R.string.android_chat_open_file_error)
+    val previewFileError = stringResource(R.string.android_chat_preview_file_error)
+    val openLinkError = stringResource(R.string.android_chat_open_link_error)
+    val insecureLinkError = stringResource(R.string.android_chat_insecure_link_error)
+    val createThreadError = stringResource(R.string.android_chat_create_thread_error)
+    val sendMessageError = stringResource(R.string.android_chat_send_message_error)
     var threadOpenJob by remember { mutableStateOf<Job?>(null) }
     DisposableEffect(threadId) {
         onDispose { threadOpenJob?.cancel() }
@@ -317,7 +324,7 @@ private fun LoadedChat(
             haptics.play(HapticCue.SELECT)
         } catch (error: Exception) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            target.error.value = error.message ?: "Couldn't add that attachment."
+            target.error.value = error.message ?: addAttachmentError
         } finally {
             target.preparing.value = false
         }
@@ -367,7 +374,7 @@ private fun LoadedChat(
             if (!filePreviews.isCurrent(requestGeneration)) return@launch
             openingFileName = null
             if (fetched == null) {
-                fileOpenError = session.actionError ?: "Couldn't open that file. Try again."
+                fileOpenError = session.actionError ?: openFileError
                 session.actionError = null
                 return@launch
             }
@@ -380,7 +387,7 @@ private fun LoadedChat(
                 throw error
             } catch (_: Throwable) {
                 if (!filePreviews.isCurrent(requestGeneration)) return@launch
-                fileOpenError = "The downloaded file couldn't be previewed."
+                fileOpenError = previewFileError
                 return@launch
             } ?: return@launch
             if (!filePreviews.isCurrent(requestGeneration)) return@launch
@@ -393,9 +400,9 @@ private fun LoadedChat(
     fun openLink(url: String, message: Message) {
         when (val target = LocalMessageLink.resolve(url)) {
             is LocalMessageLink.Web -> runCatching { uriHandler.openUri(target.url) }
-                .onFailure { fileOpenError = "This link can't be opened on this phone." }
+                .onFailure { fileOpenError = openLinkError }
             is LocalMessageLink.DesktopFile -> openFile(target.path, message)
-            null -> fileOpenError = "This link can't be opened securely."
+            null -> fileOpenError = insecureLinkError
         }
     }
 
@@ -609,7 +616,7 @@ private fun LoadedChat(
     val pinnedId = chat.pinnedMessageId
     val pinnedSnippet = pinnedId?.let { id ->
         rawTranscript.firstOrNull { it.id == id }?.text?.trim()?.take(100)
-    }?.takeIf { it.isNotEmpty() } ?: "Tap to view pinned message"
+    }?.takeIf { it.isNotEmpty() } ?: stringResource(R.string.android_chat_pinned_message_hint)
     // The computer is bot-only; a non-DM room exposes task navigation when the
     // paired desktop supplied a task list. Both answers are constants.
     val commands = SlashCommands.forChat(chat)
@@ -640,7 +647,7 @@ private fun LoadedChat(
                                 ?.let(Chat::RoomChat) else null
                         }
                         if (created == null) {
-                            attachmentError = session.actionError ?: "Couldn't create this thread. Try again."
+                            attachmentError = session.actionError ?: createThreadError
                             session.actionError = null
                         } else onSelectTask(created.target)
                     } finally {
@@ -698,7 +705,7 @@ private fun LoadedChat(
                     sendingMessage = false
                 }
                 if (!sent) {
-                    attachmentError = session.actionError ?: "Couldn't send this message. Try again."
+                    attachmentError = session.actionError ?: sendMessageError
                     session.actionError = null
                     return@launch
                 }
@@ -1058,6 +1065,7 @@ private fun LoadedChat(
 
         PlusSheet(
             open = showingPlus,
+            chat = chat,
             actions = remember(chat, pendingApproval, canAddAttachment) {
                 ChatActions.sheet(chat, hasPendingApproval = pendingApproval, canAddAttachment = canAddAttachment)
             },
@@ -1171,6 +1179,7 @@ private fun ChatHeader(
     modifier: Modifier = Modifier,
 ) {
     val surface = MaterialTheme.colorScheme.surface
+    val openSettingsDescription = stringResource(R.string.android_accessibility_open_chat_settings, chat.name)
     Box(modifier = modifier.fillMaxWidth()) {
         Spacer(
             modifier = Modifier
@@ -1231,7 +1240,7 @@ private fun ChatHeader(
                 modifier = if (chat is Chat.BotChat || chat is Chat.RoomChat && chat.room.dm != true) {
                     Modifier
                         .clickable(role = Role.Button, onClick = onOpenProfile)
-                        .semantics { contentDescription = "Open ${chat.name} settings" }
+                        .semantics { contentDescription = openSettingsDescription }
                 } else Modifier,
             )
             NamePill(chat = chat, onOpen = if (chat.supportsTasks) onOpenThreads else onOpenProfile)
@@ -1283,6 +1292,8 @@ private fun BackPill(unreadElsewhere: Int, onBack: () -> Unit) {
 @Composable
 private fun NamePill(chat: Chat, onOpen: () -> Unit) {
     val hasThreads = chat.supportsTasks
+    val switchThreadLabel = stringResource(R.string.android_chat_switch_thread)
+    val openChatOptionsLabel = stringResource(R.string.android_chat_open_options, chat.name)
     Row(
         modifier = Modifier
             .chromeCapsule()
@@ -1291,9 +1302,9 @@ private fun NamePill(chat: Chat, onOpen: () -> Unit) {
             .clickable(
                 role = Role.Button,
                 onClickLabel = if (hasThreads) {
-                    "Switch thread"
+                    switchThreadLabel
                 } else {
-                    "Open ${chat.name} chat options"
+                    openChatOptionsLabel
                 },
                 onClick = onOpen,
             )
@@ -1337,10 +1348,12 @@ private fun NamePill(chat: Chat, onOpen: () -> Unit) {
 @Composable
 private fun BoxScope.PlusSheet(
     open: Boolean,
+    chat: Chat,
     actions: List<ChatAction>,
     onDismiss: () -> Unit,
     onAction: (ChatActionId) -> Unit,
 ) {
+    val closeDescription = stringResource(R.string.ui_close_bbfa773)
     AnimatedVisibility(
         visible = open,
         enter = fadeIn(tween(PLUS_MILLIS)),
@@ -1359,7 +1372,7 @@ private fun BoxScope.PlusSheet(
                     role = Role.Button,
                     onClick = onDismiss,
                 )
-                .semantics { contentDescription = "Close" },
+                .semantics { contentDescription = closeDescription },
         )
     }
 
@@ -1378,6 +1391,7 @@ private fun BoxScope.PlusSheet(
                 .padding(vertical = 10.dp),
         ) {
             actions.forEach { action ->
+                val (title, subtitle) = chatActionCopy(action.id, chat)
                 val tint = if (action.destructive) {
                     MaterialTheme.colorScheme.error
                 } else {
@@ -1410,13 +1424,13 @@ private fun BoxScope.PlusSheet(
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = action.title,
+                            text = title,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium,
                             color = tint.copy(alpha = alpha),
                         )
                         Text(
-                            text = action.subtitle,
+                            text = subtitle,
                             fontSize = 13.sp,
                             color = secondaryTint.copy(alpha = alpha),
                         )
@@ -1425,6 +1439,21 @@ private fun BoxScope.PlusSheet(
             }
         }
     }
+}
+
+@Composable
+private fun chatActionCopy(id: ChatActionId, chat: Chat): Pair<String, String> = when (id) {
+    ChatActionId.PHOTOS -> stringResource(R.string.android_action_photo_library) to stringResource(R.string.android_action_add_photo)
+    ChatActionId.FILES -> stringResource(R.string.android_action_choose_file) to stringResource(R.string.android_action_add_document)
+    ChatActionId.NEW_TASK -> stringResource(R.string.ui_new_thread_02057e2) to
+        if (chat is Chat.BotChat) stringResource(R.string.android_action_new_bot_thread, chat.name)
+        else stringResource(R.string.android_action_new_room_thread, chat.name)
+    ChatActionId.TASKS -> stringResource(R.string.ui_threads_bb12e8a) to stringResource(R.string.android_action_manage_threads)
+    ChatActionId.SETTINGS -> stringResource(R.string.android_action_bot_settings) to stringResource(R.string.android_action_bot_settings_detail)
+    ChatActionId.WATCH_COMPUTER -> stringResource(R.string.android_action_watch_computer) to stringResource(R.string.android_action_watch_computer_detail, chat.name)
+    ChatActionId.SHARE_MARKDOWN -> stringResource(R.string.android_action_share_transcript) to stringResource(R.string.android_action_share_markdown_detail)
+    ChatActionId.SHARE_JSON -> stringResource(R.string.android_action_share_json) to stringResource(R.string.android_action_share_json_detail)
+    ChatActionId.INTERRUPT -> stringResource(R.string.android_action_interrupt) to stringResource(R.string.android_action_interrupt_detail)
 }
 
 private const val PLUS_MILLIS = 280
@@ -1512,6 +1541,8 @@ private fun Composer(
     onDismissError: () -> Unit,
 ) {
     val canSend = AttachmentImportRules.canSend(draft, attachments.size, preparing, sending)
+    val expandedDescription = stringResource(R.string.android_accessibility_expanded)
+    val collapsedDescription = stringResource(R.string.android_accessibility_collapsed)
     val inFlight = preparing || sending
     // Held as the state rather than unwrapped with `by`: read inside the layer
     // block, the turn is a new frame, not a new composition of the composer.
@@ -1537,10 +1568,10 @@ private fun Composer(
         // What is in flight, in the order iOS stacks them: the send or the
         // import, then a file on its way, then whatever went wrong.
         if (inFlight) {
-            ComposerStatusLine(if (preparing) "Preparing attachments…" else "Sending…")
+            ComposerStatusLine(stringResource(if (preparing) R.string.android_chat_preparing_attachments else R.string.android_chat_sending))
         }
         if (openingFileName != null) {
-            ComposerStatusLine("Opening $openingFileName…")
+            ComposerStatusLine(stringResource(R.string.android_chat_opening_file, openingFileName))
         }
         if (attachmentError != null) {
             Row(
@@ -1621,7 +1652,7 @@ private fun Composer(
         ) {
             TouchTarget(
                 onClick = onTogglePlus,
-                contentDescription = if (plusOpen) "Close" else "More",
+                contentDescription = stringResource(if (plusOpen) R.string.ui_close_bbfa773 else R.string.android_accessibility_more),
             ) {
                 Box(
                     modifier = Modifier
@@ -1672,9 +1703,9 @@ private fun Composer(
                     contentDescription = stringResource(R.string.ui_slash_commands_efce77d),
                     modifier = Modifier.semantics {
                         stateDescription = if (accessory == ComposerAccessory.HUD) {
-                            "Expanded"
+                            expandedDescription
                         } else {
-                            "Collapsed"
+                            collapsedDescription
                         }
                     },
                 ) {
@@ -1745,9 +1776,9 @@ private fun Composer(
                 TouchTarget(
                     onClick = onToggleDictation,
                     contentDescription = if (dictationListening) {
-                        "Stop dictation"
+                        stringResource(R.string.android_accessibility_stop_dictation)
                     } else {
-                        "Start dictation"
+                        stringResource(R.string.android_accessibility_start_dictation)
                     },
                 ) {
                     Box(

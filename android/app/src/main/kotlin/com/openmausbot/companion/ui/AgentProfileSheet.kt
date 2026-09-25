@@ -106,6 +106,10 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val player = environment.voicePreview
+    val deleteBotError = stringResource(R.string.android_profile_delete_bot_error)
+    val loadMcpError = stringResource(R.string.android_profile_load_mcp_error)
+    val changeMcpError = stringResource(R.string.android_profile_change_mcp_error)
+    val resetMcpError = stringResource(R.string.android_profile_reset_mcp_error)
 
     // The record the sheet was opened on, so the form has an origin even after
     // the fleet drops the agent; `current` is what every action is applied to.
@@ -206,7 +210,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             try {
                 mcpServers = session.botMcpServers()
             } catch (error: Exception) {
-                mcpError = error.message ?: "Could not load MCP servers."
+                mcpError = error.message ?: loadMcpError
             }
         }
     }
@@ -710,7 +714,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             scope.launch {
                                 mcpError = null
                                 try { mcpServers = session.botMcpServers() }
-                                catch (error: Exception) { mcpError = error.message ?: "Could not load MCP servers." }
+                                catch (error: Exception) { mcpError = error.message ?: loadMcpError }
                             }
                         })
                     } else if (mcpServers == null) {
@@ -738,7 +742,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                                     scope.launch {
                                         busy = true
                                         val result = session.setBotMcpServers(liveBot(), selectedNames.distinct())
-                                        if (result == null) mcpError = session.actionError ?: "Could not change MCP access."
+                                        if (result == null) mcpError = session.actionError ?: changeMcpError
                                         busy = false
                                     }
                                 },
@@ -750,7 +754,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                                     scope.launch {
                                         busy = true
                                         val result = session.setBotMcpServers(liveBot(), null)
-                                        if (result == null) mcpError = session.actionError ?: "Could not reset MCP access."
+                                        if (result == null) mcpError = session.actionError ?: resetMcpError
                                         busy = false
                                     }
                                 })
@@ -820,7 +824,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(header = stringResource(R.string.ui_computer_access_b090ead)) {
-                    Text(stringResource(R.string.ui_dynamic_bot_default_1_s_775155b, computerAccessLabel(current.computer)))
+                    Text(stringResource(R.string.ui_dynamic_bot_default_1_s_775155b, localizedComputerAccess(current.computer)))
                     if (connection?.serverScopes?.contains("admin") == true) {
                         ActionRow(
                             text = stringResource(R.string.ui_change_bot_default_computer_533fe72),
@@ -828,14 +832,14 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             onClick = { choosingBotComputer = true },
                         )
                     }
-                    Text(stringResource(R.string.ui_dynamic_this_chat_1_s_3fdd6fa, taskSurfaceLabel(currentTaskRecord?.surface, current.computer)))
+                    Text(stringResource(R.string.ui_dynamic_this_chat_1_s_3fdd6fa, localizedTaskSurface(currentTaskRecord?.surface, current.computer)))
                     ActionRow(
                         text = stringResource(R.string.ui_change_this_chat_s_computer_576f1d9),
                         enabled = currentTaskRecord != null && currentTaskRecord.busy != true && !busy,
                         onClick = { choosingTaskSurface = true },
                     )
-                    Text(stringResource(R.string.ui_dynamic_approvals_for_this_chat_1_s_3fceff5, approvalAccessLabel(currentTask?.approvalMode, currentTask?.autoApprove)))
-                    Text(stringResource(R.string.ui_dynamic_bot_approval_default_1_s_825c310, approvalAccessLabel(current.approvalMode, current.autoApprove)))
+                    Text(stringResource(R.string.ui_dynamic_approvals_for_this_chat_1_s_3fceff5, localizedApprovalAccess(currentTask?.approvalMode, currentTask?.autoApprove)))
+                    Text(stringResource(R.string.ui_dynamic_bot_approval_default_1_s_825c310, localizedApprovalAccess(current.approvalMode, current.autoApprove)))
                     if (connection?.serverScopes?.contains("admin") == true && current.approvalMode !in listOf("full", "custom")) {
                         ActionRow(
                             text = stringResource(R.string.ui_change_ask_auto_approval_fc82281),
@@ -878,7 +882,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     header = stringResource(R.string.ui_working_folder_00e69ec),
                     footer = stringResource(R.string.ui_bot_working_folder_footer),
                 ) {
-                    Text(current.cwd?.takeIf { it.isNotBlank() } ?: "Private bot folder")
+                    Text(current.cwd?.takeIf { it.isNotBlank() } ?: stringResource(R.string.android_profile_private_bot_folder))
                     if (currentTaskRecord?.cwd != null && currentTaskRecord.cwd != current.cwd) {
                         Text(stringResource(R.string.ui_dynamic_this_chat_is_still_pinned_to_1_s_b8c7601, currentTaskRecord.cwd.orEmpty()))
                     }
@@ -1065,11 +1069,11 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             text = {
                 Column {
                     listOf(
-                        null to "Follow bot default",
-                        "browser" to "Browser",
-                        "local" to "This computer",
-                        "cloud" to "Cloud computer",
-                        "vm" to "Local VM",
+                        null to stringResource(R.string.android_profile_follow_bot_default),
+                        "browser" to stringResource(R.string.android_profile_browser),
+                        "local" to stringResource(R.string.android_profile_this_computer),
+                        "cloud" to stringResource(R.string.android_profile_cloud_computer),
+                        "vm" to stringResource(R.string.ui_local_vm_7f61d89),
                     ).forEach { (surface, label) ->
                         TextButton(
                             enabled = !busy,
@@ -1095,12 +1099,12 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             text = {
                 Column {
                     listOf(
-                        null to "Automatic",
-                        "browser" to "Browser",
-                        "local" to "This computer",
-                        "cloud" to "Cloud computer",
-                        "vm" to "Local VM",
-                        "off" to "Off",
+                        null to stringResource(R.string.android_profile_automatic),
+                        "browser" to stringResource(R.string.android_profile_browser),
+                        "local" to stringResource(R.string.android_profile_this_computer),
+                        "cloud" to stringResource(R.string.android_profile_cloud_computer),
+                        "vm" to stringResource(R.string.ui_local_vm_7f61d89),
+                        "off" to stringResource(R.string.android_profile_off),
                     ).forEach { (computer, label) ->
                         TextButton(
                             enabled = !busy,
@@ -1128,7 +1132,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             title = { Text(stringResource(R.string.ui_browser_profile_for_this_bot_d11b9e8)) },
             text = {
                 Column {
-                    (listOf(null to "This bot's own browser", "guest" to "Temporary browser") +
+                    (listOf(null to stringResource(R.string.android_new_bot_own_browser), "guest" to stringResource(R.string.ui_bot_temporary_browser)) +
                         (config?.browserProfiles.orEmpty().map { it.id to it.name })).forEach { (profileId, label) ->
                         TextButton(enabled = !busy, onClick = {
                             scope.launch {
@@ -1167,7 +1171,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             title = { Text(stringResource(R.string.ui_approval_default_for_this_bot_69550b5)) },
             text = {
                 Column {
-                    listOf("ask" to "Ask before actions", "auto" to "Auto approval").forEach { (mode, label) ->
+                    listOf("ask" to stringResource(R.string.android_new_bot_ask_actions), "auto" to stringResource(R.string.android_profile_auto_approval)).forEach { (mode, label) ->
                         TextButton(enabled = !busy, onClick = {
                             if (mode == "auto" && liveBot().computer == "local") {
                                 choosingSafeApproval = false
@@ -1217,7 +1221,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onDismiss()
                     } catch (error: Exception) {
                         if (error is kotlinx.coroutines.CancellationException) throw error
-                        deleteError = error.message ?: "Could not delete the bot."
+                        deleteError = error.message ?: deleteBotError
                         confirmDelete = false
                     } finally { busy = false }
                 }
@@ -1227,12 +1231,37 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     )
 }
 
-private fun taskSurfaceLabel(surface: String?, botDefault: String?): String = when (surface) {
-    null -> "Follow bot default (${computerAccessLabel(botDefault)})"
-    "browser" -> "Browser"
-    "local" -> "This computer"
-    "cloud" -> "Cloud computer"
-    "vm" -> "Local VM"
+@Composable
+private fun localizedComputerAccess(computer: String?): String = stringResource(when (computer) {
+    "browser" -> R.string.android_profile_browser
+    "local" -> R.string.android_profile_this_computer
+    "vm" -> R.string.ui_local_vm_7f61d89
+    "cloud" -> R.string.android_profile_cloud_computer
+    "off" -> R.string.android_profile_off
+    null -> R.string.android_profile_automatic
+    else -> R.string.android_profile_not_reported
+})
+
+@Composable
+private fun localizedApprovalAccess(mode: String?, autoApprove: Boolean?): String = stringResource(when (mode) {
+    "ask" -> R.string.android_profile_ask
+    "auto" -> R.string.android_profile_auto
+    "full" -> R.string.android_settings_full_access
+    "custom" -> R.string.ui_custom_081ae3f
+    else -> when (autoApprove) {
+        true -> R.string.android_profile_auto
+        false -> R.string.android_profile_ask
+        null -> R.string.android_profile_not_reported
+    }
+})
+
+@Composable
+private fun localizedTaskSurface(surface: String?, botDefault: String?): String = when (surface) {
+    null -> stringResource(R.string.android_profile_follow_bot_default_detail, localizedComputerAccess(botDefault))
+    "browser" -> stringResource(R.string.android_profile_browser)
+    "local" -> stringResource(R.string.android_profile_this_computer)
+    "cloud" -> stringResource(R.string.android_profile_cloud_computer)
+    "vm" -> stringResource(R.string.ui_local_vm_7f61d89)
     else -> surface
 }
 

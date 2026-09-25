@@ -72,6 +72,12 @@ internal fun BotThreadTree(
         queuedThreadIds = queuedThreadIds,
     )
     val count = bot.threadGroups(queuedThreadIds = queuedThreadIds).sumOf { it.tasks.size }
+    val threadsDescription = stringResource(R.string.ui_dynamic_1_s_s_threads_d34c7ce, bot.name)
+    val threadsState = stringResource(
+        R.string.android_accessibility_thread_count,
+        stringResource(if (isExpanded) R.string.android_accessibility_expanded else R.string.android_accessibility_collapsed),
+        count,
+    )
 
     Column(
         modifier = Modifier
@@ -84,8 +90,8 @@ internal fun BotThreadTree(
                     .weight(1f)
                     .testTag("threads-toggle.${bot.id}")
                     .semantics(mergeDescendants = true) {
-                        contentDescription = "${bot.name}'s threads"
-                        stateDescription = "${if (isExpanded) "Expanded" else "Collapsed"}, $count threads"
+                        contentDescription = threadsDescription
+                        stateDescription = threadsState
                     }
                     .clickable(enabled = !searching, role = Role.Button, onClick = onToggle)
                     .heightIn(min = 48.dp),
@@ -122,13 +128,15 @@ internal fun BotThreadTree(
                 } else {
                     val key = "${bot.id}:${folder.id}"
                     val folderExpanded = searching || key !in collapsedFolders
+                    val folderDescription = stringResource(R.string.android_accessibility_folder, folder.name)
+                    val folderState = stringResource(if (folderExpanded) R.string.android_accessibility_expanded else R.string.android_accessibility_collapsed)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("thread-folder.$key")
                             .semantics(mergeDescendants = true) {
-                                contentDescription = "${folder.name} folder"
-                                stateDescription = if (folderExpanded) "Expanded" else "Collapsed"
+                                contentDescription = folderDescription
+                                stateDescription = folderState
                             }
                             .clickable(enabled = !searching, role = Role.Button) { onToggleFolder(key) }
                             .heightIn(min = 48.dp),
