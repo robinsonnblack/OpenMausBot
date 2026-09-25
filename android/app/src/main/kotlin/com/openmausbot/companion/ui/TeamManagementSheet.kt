@@ -72,6 +72,7 @@ internal fun TeamManagementSheet(
     var error by remember { mutableStateOf<String?>(null) }
     var confirmDelete by remember { mutableStateOf(false) }
     var pendingChief by remember { mutableStateOf<Bot?>(null) }
+    var pendingManagedGrant by remember { mutableStateOf<Pair<Bot, List<String>>?>(null) }
     var instances by remember { mutableStateOf<List<Instance>>(emptyList()) }
 
     LaunchedEffect(Unit) {
@@ -87,6 +88,18 @@ internal fun TeamManagementSheet(
         originalIds = state.bots.filter { it.section == name }.map(Bot::id).toSet()
         pickedIds = originalIds
         error = null
+    }
+
+    fun saveManagedTeams(bot: Bot, selectedTeams: List<String>, confirmed: Boolean) {
+        scope.launch {
+            busy = true
+            try {
+                session.setChiefManagedTeams(bot.id, selectedTeams, confirmed)
+                selected?.let(::openTeam)
+            } catch (failure: Exception) {
+                error = failure.message ?: "Could not update the Chief's team access."
+            } finally { busy = false }
+        }
     }
 
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
@@ -182,6 +195,36 @@ internal fun TeamManagementSheet(
                         Text("${bot.name}'s provider cannot coordinate bots.")
                     }
                 }
+                if (chief != null) {
+                    val original = chief.managedSections.orEmpty().toSet()
+                    var selectedExtra by remember(chief.id, chief.managedSections) {
+                        mutableStateOf(original)
+                    }
+                    val choices = (listOf("") + names).filter { it != team }.distinct().sorted()
+                    Text("Additional teams for ${chief.name}")
+                    Text("The Chief can coordinate bots and propose setup changes in selected teams. Its own team is always included; unrelated chats stay private.")
+                    if (choices.isEmpty()) Text("Create another team to extend the Chief's access.")
+                    choices.forEach { other ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable(enabled = !busy) {
+                                selectedExtra = if (other in selectedExtra) selectedExtra - other else selectedExtra + other
+                            }.padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(checked = other in selectedExtra, onCheckedChange = null)
+                            Text(other.ifEmpty { "General" })
+                        }
+                    }
+                    val selectedNames = choices.filter { it in selectedExtra }
+                    TextButton(
+                        enabled = !busy && selectedNames.toSet() != original,
+                        onClick = {
+                            if (selectedNames.any { it !in original }) {
+                                pendingManagedGrant = chief to selectedNames
+                            } else saveManagedTeams(chief, selectedNames, false)
+                        },
+                    ) { Text("Save Chief team access") }
+                }
                 TextButton(enabled = !busy, onClick = { confirmDelete = true }) {
                     Text("Delete team")
                 }
@@ -213,6 +256,21 @@ internal fun TeamManagementSheet(
         },
         dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
     )
+
+    pendingManagedGrant?.let { (bot, extraTeams) ->
+        AlertDialog(
+            onDismissRequest = { pendingManagedGrant = null },
+            title = { Text("Give ${bot.name} access to more teams?") },
+            text = { Text("This Chief may coordinate bots and propose setup changes in ${extraTeams.joinToString { it.ifEmpty { "General" } }}. Other bots keep their permissions, and unrelated chat history stays private.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingManagedGrant = null
+                    saveManagedTeams(bot, extraTeams, true)
+                }) { Text("Grant team access") }
+            },
+            dismissButton = { TextButton(onClick = { pendingManagedGrant = null }) { Text("Cancel") } },
+        )
+    }
 
     pendingChief?.let { bot ->
         val previous = state.bots.firstOrNull {

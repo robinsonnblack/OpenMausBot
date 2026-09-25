@@ -418,6 +418,8 @@ data class Bot(
     /** Desktop sidebar section. Missing or blank means the built-in Bots area. */
     val section: String? = null,
     val chiefOfStaff: Boolean? = null,
+    /** Other existing teams this Chief may coordinate, besides its own. */
+    val managedSections: List<String>? = null,
     /** Require owner approval before this bot contacts another bot. */
     val approvePeerComms: Boolean? = null,
     /** ask, auto, full, or custom; null when paired to an older harness. */

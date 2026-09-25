@@ -716,6 +716,15 @@ class CompanionClient(
             body = buildJsonObject { put("chiefOfStaff", enabled) },
         )).bot
 
+    suspend fun setChiefManagedTeams(botId: String, names: List<String>, confirmed: Boolean): Bot =
+        send<BotResponse>(makeRequest(
+            "PATCH", "/api/bots/${segment(botId)}",
+            body = buildJsonObject {
+                put("managedSections", JsonArray(names.distinct().map(::JsonPrimitive)))
+                if (confirmed) put("acknowledgePeerScope", true)
+            },
+        )).bot
+
     suspend fun botWebhooks(botId: String): List<BotWebhook> =
         send<WebhookListResponse>(makeRequest("GET", "/api/webhooks"))
             .webhooks.filter { it.botId == botId }
