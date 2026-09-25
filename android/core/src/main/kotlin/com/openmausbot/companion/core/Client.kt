@@ -1,6 +1,7 @@
 package com.openmausbot.companion.core
 
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -45,6 +46,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
+import okio.BufferedSink
 
 internal data class ConnectionEndpoint(val baseUrl: HttpUrl, val dns: Dns)
 
@@ -329,6 +331,50 @@ class CompanionClient(
                 }
             }
         } finally { cancellation?.dispose() }
+    }
+
+    /** Uploads a document as a bounded stream; the server requires an exact Content-Length. */
+    suspend fun uploadWorkspaceBackup(bytes: Long, openInput: () -> InputStream): WorkspaceBackupUpload {
+        requireProtectedBackupRoute()
+        require(bytes in 1..(10L * 1024 * 1024 * 1024 + 256L * 1024 * 1024)) {
+            "Choose a workspace backup no larger than 10 GB."
+        }
+        val body = object : RequestBody() {
+            override fun contentType() = "application/octet-stream".toMediaType()
+            override fun contentLength() = bytes
+            override fun writeTo(sink: BufferedSink) {
+                openInput().use { input ->
+                    val buffer = ByteArray(64 * 1024)
+                    var written = 0L
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        written += count
+                        if (written > bytes) throw IOException("Selected backup grew during upload.")
+                        sink.write(buffer, 0, count)
+                    }
+                    if (written != bytes) throw IOException("Selected backup changed size during upload.")
+                }
+            }
+        }
+        return send(makeRequest("POST", "/api/workspace-backup/upload", rawBody = body), uploadClient)
+    }
+
+    suspend fun previewWorkspaceBackup(id: String, password: String): WorkspaceBackupPreview {
+        requireProtectedBackupRoute()
+        require(password.length in 12..1024)
+        return send(makeRequest("POST", "/api/workspace-backup/preview", body = buildJsonObject {
+            put("id", id)
+            put("password", password)
+        }), uploadClient)
+    }
+
+    suspend fun restoreWorkspaceBackup(id: String): WorkspaceBackupRestoreResult {
+        requireProtectedBackupRoute()
+        return send(makeRequest("POST", "/api/workspace-backup/restore", body = buildJsonObject {
+            put("id", id)
+            put("confirmation", "REPLACE")
+        }), uploadClient)
     }
 
     private fun requireProtectedBackupRoute() {

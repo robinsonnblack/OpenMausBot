@@ -114,7 +114,12 @@ Settings → Backups can create an encrypted workspace archive on the paired
 computer and stream it into a document chosen with Android's file picker.
 The password and file content require HTTPS or Tailscale; the phone does not
 retain the password or buffer the full archive. A partial chosen document is
-removed if the transfer fails. Import/restore still uses the desktop flow.
+removed if the transfer fails. An admin can also select an `.ombbackup` file
+on Android, stream it to the paired computer, validate it with the password,
+and inspect the backup summary. Nothing is replaced until the user types
+`REPLACE` and confirms a second dialog. A successful restore needs a desktop
+restart. Import and restore require HTTPS or Tailscale; ordinary LAN pairing
+cannot send a backup password or archive.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
