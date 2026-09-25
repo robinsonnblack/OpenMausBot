@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.serialization.json.JsonObject
 import okhttp3.OkHttpClient
 
 /**
@@ -1489,11 +1490,12 @@ class Session(
         section: String? = null,
         preferences: BotCreationPreferences? = null,
         acknowledgeLocalAuto: Boolean = false,
+        creationTemplate: JsonObject? = null,
     ): Bot? {
         val activeClient = client ?: return null
         return try {
             val bot = activeClient.createBot(
-                name, title, description, selection, section, preferences, acknowledgeLocalAuto,
+                name, title, description, selection, section, preferences, acknowledgeLocalAuto, creationTemplate,
             )
             _state.update { it.apply(Frame.Bot(bot)) }
             bot

@@ -37,9 +37,15 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonArray
 
 /** Create on the paired computer with a model chosen before the first turn. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,6 +72,13 @@ internal fun NewBotModelSheet(
     var loaded by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var savedTemplate by remember { mutableStateOf(JsonObject(emptyMap())) }
+    var memoryText by remember { mutableStateOf("{}") }
+    var skillsText by remember { mutableStateOf("[]") }
+    var routinesText by remember { mutableStateOf("[]") }
+    var showingContent by remember { mutableStateOf(false) }
+    var showingRawContent by remember { mutableStateOf(false) }
+    val draftJson = remember { Json { prettyPrint = true } }
 
     LaunchedEffect(Unit) {
         try {
@@ -75,6 +88,10 @@ internal fun NewBotModelSheet(
                 defaults.await() to models.await()
             }
             val profile = result.first.defaults["profile"] as? JsonObject
+            savedTemplate = result.first.defaults
+            memoryText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["memory"] ?: JsonObject(emptyMap()))
+            skillsText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["skills"] ?: JsonArray(emptyList()))
+            routinesText = draftJson.encodeToString(JsonElement.serializer(), result.first.defaults["routines"] ?: JsonArray(emptyList()))
             fun string(key: String): String? = profile?.get(key)?.jsonPrimitive?.contentOrNull
             fun bool(key: String): Boolean? = profile?.get(key)?.jsonPrimitive?.booleanOrNull
             name = string("name")?.takeIf(String::isNotBlank) ?: result.first.suggestedName
@@ -110,8 +127,23 @@ internal fun NewBotModelSheet(
             instance?.models?.options?.any { it.id == selected.model } == true
     )
     val isAdmin = connection?.serverScopes?.contains("admin") == true
+
+    fun updateArrayEntry(source: String, index: Int, field: String, value: JsonElement): String {
+        val items = draftJson.parseToJsonElement(source).jsonArray.toMutableList()
+        items[index] = JsonObject(items[index].jsonObject + (field to value))
+        return draftJson.encodeToString(JsonElement.serializer(), JsonArray(items))
+    }
     fun submit(acknowledge: Boolean) {
         val model = selection ?: return
+        val creationTemplate = if (isAdmin) try {
+            val memory = draftJson.parseToJsonElement(memoryText).jsonObject
+            val skills = draftJson.parseToJsonElement(skillsText).jsonArray
+            val routines = draftJson.parseToJsonElement(routinesText).jsonArray
+            JsonObject(savedTemplate + mapOf("memory" to memory, "skills" to skills, "routines" to routines))
+        } catch (failure: Exception) {
+            error = "Check the Memory, Skills and Routines JSON: ${failure.message}"
+            return
+        } else null
         saving = true
         error = null
         scope.launch {
@@ -121,6 +153,7 @@ internal fun NewBotModelSheet(
                     section.ifEmpty { null },
                     if (isAdmin) preferences else null,
                     acknowledge,
+                    creationTemplate,
                 )
                 if (bot != null) onCreated(bot)
                 else error = session.actionError ?: "Could not create the bot."
@@ -267,6 +300,118 @@ internal fun NewBotModelSheet(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                }
+                if (isAdmin) TextButton(onClick = { showingContent = !showingContent }) {
+                    Text(if (showingContent) "Hide Memory, Skills and Routines" else "Memory, Skills and Routines")
+                }
+                if (showingContent && isAdmin) {
+                    Text("These are part of this bot's draft. They are installed when the bot is created; editing them here does not change the saved defaults.", style = MaterialTheme.typography.bodySmall)
+                    val memoryFiles = runCatching { draftJson.parseToJsonElement(memoryText).jsonObject }.getOrNull()
+                    if (memoryFiles != null) {
+                        OutlinedTextField(
+                            value = memoryFiles["MEMORY.md"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                            onValueChange = { value ->
+                                memoryText = draftJson.encodeToString(JsonElement.serializer(),
+                                    JsonObject(memoryFiles + ("MEMORY.md" to JsonPrimitive(value))))
+                            },
+                            label = { Text("Memory index") }, minLines = 3, modifier = Modifier.fillMaxWidth(),
+                        )
+                        memoryFiles.filterKeys { it != "MEMORY.md" }.forEach { (path, content) ->
+                            OutlinedTextField(
+                                value = content.jsonPrimitive.contentOrNull.orEmpty(),
+                                onValueChange = { value ->
+                                    memoryText = draftJson.encodeToString(JsonElement.serializer(),
+                                        JsonObject(memoryFiles + (path to JsonPrimitive(value))))
+                                },
+                                label = { Text(path) }, minLines = 2, modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                    TextButton(onClick = {
+                        try {
+                            val existing = draftJson.parseToJsonElement(memoryText).jsonObject
+                            val path = generateSequence(1) { it + 1 }.map { "memory/topic$it.md" }
+                                .first { it !in existing }
+                            memoryText = draftJson.encodeToString(JsonElement.serializer(),
+                                JsonObject(existing + (path to JsonPrimitive(""))))
+                        } catch (_: Exception) { error = "Fix Memory JSON before adding a file." }
+                    }) { Text("Add memory topic") }
+                    val skillItems = runCatching { draftJson.parseToJsonElement(skillsText).jsonArray }.getOrNull()
+                    skillItems?.forEachIndexed { index, item ->
+                        val skill = item as? JsonObject ?: return@forEachIndexed
+                        Text("Skill: ${skill["name"]?.jsonPrimitive?.contentOrNull ?: index + 1}")
+                        OutlinedTextField(
+                            value = skill["text"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                            onValueChange = { skillsText = updateArrayEntry(skillsText, index, "text", JsonPrimitive(it)) },
+                            label = { Text("SKILL.md") }, minLines = 4, modifier = Modifier.fillMaxWidth(),
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Enable after creation", modifier = Modifier.weight(1f))
+                            Switch(checked = skill["enabled"]?.jsonPrimitive?.booleanOrNull == true,
+                                onCheckedChange = { skillsText = updateArrayEntry(skillsText, index, "enabled", JsonPrimitive(it)) })
+                        }
+                    }
+                    TextButton(onClick = {
+                        try {
+                            val existing = draftJson.parseToJsonElement(skillsText).jsonArray
+                            val name = generateSequence(1) { it + 1 }.map { "new-skill-$it" }
+                                .first { candidate -> existing.none { (it as? JsonObject)?.get("name")?.jsonPrimitive?.contentOrNull == candidate } }
+                            val skill = JsonObject(mapOf(
+                                "name" to JsonPrimitive(name), "description" to JsonPrimitive("Describe this skill"),
+                                "source" to JsonPrimitive("android-draft"), "enabled" to JsonPrimitive(false),
+                                "warnings" to JsonArray(emptyList()),
+                                "text" to JsonPrimitive("---\nname: $name\ndescription: Describe this skill\n---\nWrite the instructions here."),
+                            ))
+                            skillsText = draftJson.encodeToString(JsonElement.serializer(), JsonArray(existing + skill))
+                        } catch (_: Exception) { error = "Fix Skills JSON before adding a skill." }
+                    }) { Text("Add skill") }
+                    val routineItems = runCatching { draftJson.parseToJsonElement(routinesText).jsonArray }.getOrNull()
+                    routineItems?.forEachIndexed { index, item ->
+                        val routine = item as? JsonObject ?: return@forEachIndexed
+                        Text("Routine ${index + 1}")
+                        OutlinedTextField(
+                            value = routine["name"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                            onValueChange = { routinesText = updateArrayEntry(routinesText, index, "name", JsonPrimitive(it)) },
+                            label = { Text("Routine name") }, modifier = Modifier.fillMaxWidth(),
+                        )
+                        OutlinedTextField(
+                            value = routine["prompt"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                            onValueChange = { routinesText = updateArrayEntry(routinesText, index, "prompt", JsonPrimitive(it)) },
+                            label = { Text("Routine instructions") }, minLines = 2, modifier = Modifier.fillMaxWidth(),
+                        )
+                        Text("Schedule: ${routine["schedule"]?.jsonObject?.get("type")?.jsonPrimitive?.contentOrNull.orEmpty()}",
+                            style = MaterialTheme.typography.bodySmall)
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Enable after creation", modifier = Modifier.weight(1f))
+                            Switch(checked = routine["enabled"]?.jsonPrimitive?.booleanOrNull == true,
+                                onCheckedChange = { routinesText = updateArrayEntry(routinesText, index, "enabled", JsonPrimitive(it)) })
+                        }
+                    }
+                    TextButton(onClick = {
+                        try {
+                            val existing = draftJson.parseToJsonElement(routinesText).jsonArray
+                            val routine = JsonObject(mapOf(
+                                "name" to JsonPrimitive("Daily check"), "prompt" to JsonPrimitive("Describe the task"),
+                                "enabled" to JsonPrimitive(false),
+                                "schedule" to JsonObject(mapOf("type" to JsonPrimitive("daily"),
+                                    "time" to JsonPrimitive("09:00"),
+                                    "weekdays" to JsonArray((1..5).map(::JsonPrimitive)))),
+                            ))
+                            routinesText = draftJson.encodeToString(JsonElement.serializer(), JsonArray(existing + routine))
+                        } catch (_: Exception) { error = "Fix Routines JSON before adding a routine." }
+                    }) { Text("Add daily routine") }
+                    TextButton(onClick = { showingRawContent = !showingRawContent }) {
+                        Text(if (showingRawContent) "Hide full template editor" else "Edit full template")
+                    }
+                    if (showingRawContent) {
+                        Text("Advanced editor: all memory paths, skill metadata and schedule types are available here. Invalid values are rejected before creating the bot.", style = MaterialTheme.typography.bodySmall)
+                        OutlinedTextField(value = memoryText, onValueChange = { memoryText = it },
+                            label = { Text("Memory files (JSON object)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(value = skillsText, onValueChange = { skillsText = it },
+                            label = { Text("Skills (JSON array)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(value = routinesText, onValueChange = { routinesText = it },
+                            label = { Text("Routines (JSON array)") }, minLines = 4, modifier = Modifier.fillMaxWidth())
+                    }
                 }
                 if (!available) Text("Choose an available provider.", color = MaterialTheme.colorScheme.error)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }

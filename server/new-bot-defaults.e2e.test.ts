@@ -44,6 +44,21 @@ it("applies independent creation templates through the real isolated HTTP routes
     const optOut = (await api("POST", "/api/bots", { useDefaults: false, name: "Resolved draft" }, 201)).bot;
     expect(optOut.title).toBe("");
     expect((await api("GET", `/api/bots/${optOut.id}/skills`)).skills).toHaveLength(0);
+    const mobileDraft = (await api("POST", "/api/bots", {
+      useDefaults: false, name: "Mobile draft", creationTemplate: {
+        memory: { "MEMORY.md": "A note chosen in this draft" }, skills: [skill],
+        routines: [{ name: "Mobile review", prompt: "Review status", enabled: false,
+          schedule: { type: "daily", time: "09:00", weekdays: [1] } }],
+      },
+    }, 201)).bot;
+    expect(mobileDraft.title).toBe("");
+    expect(JSON.stringify(await api("GET", `/api/bots/${mobileDraft.id}/memory/file?path=MEMORY.md`)))
+      .toContain("A note chosen in this draft");
+    expect((await api("GET", `/api/bots/${mobileDraft.id}/skills`)).skills).toHaveLength(1);
+    expect((await api("GET", "/api/routines")).routines.some((routine: any) =>
+      routine.botId === mobileDraft.id && routine.name === "Mobile review")).toBe(true);
+    await api("POST", "/api/bots", { useDefaults: true, creationTemplate: {} }, 400);
+    await api("POST", "/api/bots", { useDefaults: false, creationTemplate: { memory: { "bad/path": "x" } } }, 400);
     const restricted = (await api("POST", "/api/bots", { useDefaults: false, name: "Restricted draft", visibility: "admins" }, 201)).bot;
     expect(restricted.visibility).toBe("admins");
     const beforeInvalid = (await api("GET", "/api/bots")).bots.length;
