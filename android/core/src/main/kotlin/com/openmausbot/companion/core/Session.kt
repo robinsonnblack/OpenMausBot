@@ -2193,6 +2193,14 @@ class Session(
         null
     }
 
+    suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Managing browser profiles requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .updateBrowserProfiles(expected, next)
+    }
+
     suspend fun updateAboutMe(text: String): ConfigStatus {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Editing the shared profile requires an admin pairing.")

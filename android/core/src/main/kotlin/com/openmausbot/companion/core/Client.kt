@@ -266,6 +266,16 @@ class CompanionClient(
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
+    /** Compare-and-swap the host's named browser sessions without sending partition IDs. */
+    suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus =
+        send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            fun profiles(items: List<BrowserProfile>) = JsonArray(items.map { profile ->
+                buildJsonObject { put("id", profile.id); put("name", profile.name) }
+            })
+            put("expectedBrowserProfiles", profiles(expected))
+            put("browserProfiles", profiles(next))
+        }))
+
     /** Admin-scoped workspace profile shared by bots on the paired computer. */
     suspend fun updateAboutMe(text: String): ConfigStatus {
         require(text.length <= 24_000) { "About me is limited to 24,000 characters." }
