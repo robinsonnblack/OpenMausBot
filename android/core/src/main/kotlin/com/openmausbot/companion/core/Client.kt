@@ -285,6 +285,17 @@ class CompanionClient(
         ))
     }
 
+    suspend fun updateSharedProfile(name: String, email: String, aboutMe: String): ConfigStatus {
+        require(name.length <= 200 && email.length <= 320 && aboutMe.length <= 24_000)
+        return send(makeRequest("PUT", "/api/config", body = buildJsonObject {
+            put("profile", buildJsonObject {
+                put("name", name)
+                put("email", email)
+                put("aboutMe", aboutMe)
+            })
+        }))
+    }
+
     /** The credential is sent to the paired computer; it is never retained in phone storage. */
     suspend fun setProviderConnection(provider: ProviderConnection, key: String, url: String? = null): ConfigStatus {
         requireProtectedProviderRoute()
