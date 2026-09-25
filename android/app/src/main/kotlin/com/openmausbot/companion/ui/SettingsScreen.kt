@@ -80,6 +80,7 @@ fun SettingsScreen(
     val status by session.status.collectAsState()
     val notifications by environment.notifications.access.collectAsState()
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
+    val showThreads by environment.chatPreferences.showThreads.collectAsState()
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
     val haptics = rememberHaptics()
@@ -232,6 +233,11 @@ fun SettingsScreen(
                 SettingsRow("Activity", activityDetail.label)
                 SettingsButton("Change activity detail") { choosingActivity = true }
                 SettingsButton("Quick replies") { editingQuickReplies = true }
+                SettingsRow("Thread lists", if (showThreads) "Shown" else "Hidden")
+                SettingsButton(if (showThreads) "Hide thread lists" else "Show thread lists") {
+                    environment.chatPreferences.setShowThreads(!showThreads)
+                }
+                Footnote("This only changes the bot list. You can still open and manage threads from each bot, and search finds them.")
                 Footnote(activityDetail.caption)
             }
 

@@ -33,6 +33,9 @@ class ChatPreferences(
     private val _quickReplies = MutableStateFlow(QuickReply.decode(prefs.getString(QUICK_REPLIES, "").orEmpty()))
     val quickReplies: StateFlow<List<QuickReply>> = _quickReplies.asStateFlow()
 
+    private val _showThreads = MutableStateFlow(prefs.getBoolean(SHOW_THREADS, true))
+    val showThreads: StateFlow<Boolean> = _showThreads.asStateFlow()
+
     fun setActivityDetail(detail: ActivityDetail) {
         if (_activityDetail.value == detail && prefs.contains(ACTIVITY_DETAIL)) return
         // The value is small and changed only from Settings. Commit makes a
@@ -52,6 +55,12 @@ class ChatPreferences(
     }
 
     fun resetQuickReplies() = setQuickReplies(QuickReply.DEFAULTS)
+
+    fun setShowThreads(enabled: Boolean) {
+        if (_showThreads.value == enabled) return
+        prefs.edit().putBoolean(SHOW_THREADS, enabled).commit()
+        _showThreads.value = enabled
+    }
 
     fun lastShareDestination(connectionId: String): String? =
         prefs.getString(destinationKey(connectionId), null)?.takeIf(String::isNotBlank)
@@ -82,6 +91,7 @@ class ChatPreferences(
         const val FILE = "$NAME.xml"
         private const val ACTIVITY_DETAIL = "companion.prefs.activityDetail"
         private const val QUICK_REPLIES = "companion.prefs.quickReplies"
+        private const val SHOW_THREADS = "companion.prefs.showThreads"
 
         private fun threadKey(connectionId: String, botId: String): String =
             "thread.last-opened.${connectionId.length}:$connectionId$botId"

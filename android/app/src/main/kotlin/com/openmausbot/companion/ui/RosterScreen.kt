@@ -111,6 +111,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
     // The same preference the transcript folds by, from the same store: a reader
     // who turned activity off must not still read tool names here.
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
+    val showThreads by environment.chatPreferences.showThreads.collectAsState()
 
     var bar by rememberSaveable(stateSaver = RosterBarSaver) { mutableStateOf(RosterBar()) }
     var hits by remember { mutableStateOf<List<SearchHit>>(emptyList()) }
@@ -184,7 +185,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                 last = last,
                 onClick = { navigator.open(environment.chatPreferences.restoringThread(summary.chat, connection?.id)) },
             )
-            (summary.chat as? Chat.BotChat)?.bot?.let { bot ->
+            (summary.chat as? Chat.BotChat)?.bot?.takeIf { showThreads || query.isNotBlank() }?.let { bot ->
                 BotThreadTree(
                     bot = bot,
                     queuedThreadIds = state.queuedThreadIds,
