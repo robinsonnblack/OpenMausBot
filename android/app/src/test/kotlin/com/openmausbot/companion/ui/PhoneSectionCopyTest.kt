@@ -37,10 +37,12 @@ class PhoneSectionCopyTest {
     @Test
     fun `pairing sends the person to Settings then Phone`() {
         val source = sourceFile("ui/PairingScreen.kt").readText()
+        val resources = locate("src/main/res/values/strings.xml").readText()
 
         // Step one of setup. Upstream: `ios/App/OnboardingViews.swift:137`.
         assertTrue(
-            source.contains("1.  Open OpenMausBot → Settings → Phone"),
+            source.contains("R.string.ui_1_open_openmausbot_settings_phone_38cfc5b") &&
+                resources.contains("1.  Open OpenMausBot → Settings → Phone"),
             "the setup steps must name the Phone section",
         )
         // A discovered computer that answered without an address.
@@ -50,11 +52,13 @@ class PhoneSectionCopyTest {
         )
         // The tailnet hint, and the manual-address footnote.
         assertTrue(
-            source.contains("same account — Phone settings will then show a name ending in "),
+            source.contains("R.string.ui_pairing_tailscale_hint") &&
+                resources.contains("same account — Phone settings will then show a name ending in "),
             "the Tailscale hint must name Phone settings",
         )
         assertTrue(
-            source.contains("Whatever Phone settings on your computer shows — "),
+            source.contains("R.string.ui_pairing_address_hint") &&
+                resources.contains("Whatever Phone settings on your computer shows — "),
             "the manual-address footnote must name Phone settings",
         )
     }
