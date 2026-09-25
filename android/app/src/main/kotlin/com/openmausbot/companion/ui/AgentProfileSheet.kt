@@ -69,6 +69,7 @@ import com.openmausbot.companion.avatar.AvatarImageRules
 import com.openmausbot.companion.avatar.PreparedAvatar
 import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.BotWebhook
 import com.openmausbot.companion.core.forTask
 import com.openmausbot.companion.core.BotProfilePatch
 import com.openmausbot.companion.core.ConfigStatus
@@ -134,6 +135,9 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingHistory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var showingAccessDetails by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var accessWebhooks by remember(opened.id) { mutableStateOf<List<BotWebhook>?>(null) }
+    var loadingAccessWebhooks by remember(opened.id) { mutableStateOf(false) }
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
     var choosingBotComputer by remember(opened.id) { mutableStateOf(false) }
     var choosingBrowserProfile by remember(opened.id) { mutableStateOf(false) }
@@ -587,6 +591,37 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { showingSkills = !showingSkills },
                     )
                     if (showingSkills) BotSkillsSection(opened.id)
+                }
+
+                FormSection(header = "Access details") {
+                    ActionRow(
+                        text = if (showingAccessDetails) "Hide access details" else "Show access details",
+                        onClick = {
+                            showingAccessDetails = !showingAccessDetails
+                            if (showingAccessDetails) {
+                                scope.launch {
+                                    loadingAccessWebhooks = true
+                                    accessWebhooks = session.loadBotWebhooks(opened.id)
+                                    loadingAccessWebhooks = false
+                                }
+                            }
+                        },
+                    )
+                    if (showingAccessDetails) {
+                        Text("Always allowed tools")
+                        val grants = current.alwaysAllow.orEmpty()
+                        if (grants.isEmpty()) Text("No standing tool approvals.")
+                        else grants.forEach { grant -> Text("• $grant") }
+                        Text("Inbound webhooks")
+                        if (loadingAccessWebhooks) CircularProgressIndicator()
+                        else when (val hooks = accessWebhooks) {
+                            null -> Text("Webhook status unavailable. Try reopening this section.")
+                            else -> if (hooks.isEmpty()) Text("No webhooks for this bot.")
+                            else hooks.forEach { hook ->
+                                Text("${hook.name} · ${if (hook.enabled) "Active" else "Paused"} · ${hook.deliveryCount} deliveries")
+                            }
+                        }
+                    }
                 }
 
                 FormSection(header = "Computer access") {

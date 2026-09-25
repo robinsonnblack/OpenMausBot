@@ -2386,6 +2386,20 @@ class Session(
         }
     }
 
+    suspend fun loadBotWebhooks(botId: String): List<BotWebhook>? {
+        val activeClient = client ?: return null
+        val connectionId = _connection.value?.id
+        return try {
+            val hooks = activeClient.botWebhooks(botId)
+            currentCoroutineContext().ensureActive()
+            hooks.takeIf { _connection.value?.id == connectionId }
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            if (_connection.value?.id == connectionId) _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun loadRoutineRunAvailability(): RoutineRunAvailability? {
         val activeClient = client ?: return null
         return try {
