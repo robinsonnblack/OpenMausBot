@@ -815,6 +815,11 @@ class CompanionClient(
         body = buildJsonObject { put("browserProfile", profileId?.let(::JsonPrimitive) ?: JsonNull) },
     )).bot
 
+    suspend fun setBotConnectedApps(botId: String, allowed: Boolean): Bot = send<BotResponse>(makeRequest(
+        "PATCH", "/api/bots/${segment(botId)}",
+        body = buildJsonObject { put("composio", allowed) },
+    )).bot
+
     /** Safe admin changes only. Full and Custom require the desktop's private confirmation flow. */
     suspend fun setBotApprovalMode(botId: String, mode: String, acknowledgeLocalAuto: Boolean = false): Bot {
         require(mode == "ask" || mode == "auto")

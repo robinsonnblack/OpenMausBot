@@ -2105,6 +2105,24 @@ class Session(
         }
     }
 
+    suspend fun setBotConnectedApps(forBot: Bot, allowed: Boolean): Bot? {
+        val activeClient = client ?: return null
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            _actionError.value = "Changing a bot's connected-app access requires an admin pairing."
+            return null
+        }
+        return try {
+            val updated = activeClient.setBotConnectedApps(forBot.id, allowed)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated.forTask(forBot.threadId)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun setBotApprovalMode(forBot: Bot, mode: String, acknowledgeLocalAuto: Boolean = false): Bot? {
         val activeClient = client ?: return null
         if (_connection.value?.serverScopes?.contains("admin") != true) {
