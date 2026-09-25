@@ -999,7 +999,13 @@ data class RoomTurnSettings(val turnTimeoutMinutes: Int = 5)
 data class NewBotSettings(val effort: String? = null)
 
 @Serializable
-data class BrowserEngineStatus(val kind: String = "unavailable", val reason: String? = null)
+data class BrowserEngineStatus(
+    val kind: String = "unavailable",
+    val reason: String? = null,
+    val installable: Boolean? = null,
+    val installing: Boolean? = null,
+    val installError: String? = null,
+)
 
 @Serializable
 data class FeatureFlags(val browser: Boolean? = null)
