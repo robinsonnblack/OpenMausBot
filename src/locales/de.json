@@ -1449,5 +1449,7 @@
   "promptInspector.noPrevious": "Keine frühere Erfassung desselben Typs und Anbieters vorhanden.",
   "promptInspector.copyFailed": "Kopieren fehlgeschlagen.",
   "promptInspector.loadFailed": "Anfragen können nicht geladen werden ({status}).",
-  "promptInspector.previewLimit": "Vorschau begrenzt; für den vollständigen Inhalt kopieren oder exportieren."
+  "promptInspector.previewLimit": "Vorschau begrenzt; für den vollständigen Inhalt kopieren oder exportieren.",
+  "room.responder.dynamicOption": "Dynamisch",
+  "room.setup.dynamic": "Die Mitglieder folgen dem Thema und antworten einander."
 }

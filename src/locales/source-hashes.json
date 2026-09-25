@@ -1452,7 +1452,9 @@
       "promptInspector.noPrevious": "409d2cbf8357ba6aa3a7d8db4aff22b8c0ffdbc7d7b542812f7167794338dddb",
       "promptInspector.copyFailed": "f5230b7225bfd497cc358169af86f1c28135d39002fae9cd923a853e81742c26",
       "promptInspector.loadFailed": "ac47a2458356a0fe364e98c99206d2ec3d4849ddae80dc6ad878e0ab50669c10",
-      "promptInspector.previewLimit": "4b8cf1da5c7ab6c29b5e721e5cf424b2026267054fc008a87a44754da46f0af8"
+      "promptInspector.previewLimit": "4b8cf1da5c7ab6c29b5e721e5cf424b2026267054fc008a87a44754da46f0af8",
+      "room.responder.dynamicOption": "b6ee7b3e8d9c49d8599a79b0d17a3524522c29584e79d66fbf772446ab6ba10d",
+      "room.setup.dynamic": "50d691d560cab98a519d53725f6f466ce1fb15cbc18bdf38d5a4f4936d6f5035"
     },
     "es": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
