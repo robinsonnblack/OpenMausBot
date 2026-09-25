@@ -16,4 +16,9 @@ describe("new visible UI text guard", () => {
     expect(newLiteralErrors({ old: 1, added: 1 }, { old: 1 }))
       .toEqual(["New hardcoded UI text (1): added"]);
   });
+
+  it("requires the exception list to shrink when direct text is removed", () => {
+    expect(newLiteralErrors({}, { old: 1 }))
+      .toEqual(["Resolved hardcoded UI text; shrink the debt baseline: old"]);
+  });
 });
