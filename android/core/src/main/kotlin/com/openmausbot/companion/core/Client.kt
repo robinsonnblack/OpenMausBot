@@ -1,6 +1,7 @@
 package com.openmausbot.companion.core
 
 import java.io.IOException
+import java.io.OutputStream
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -10,11 +11,17 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
@@ -272,6 +279,64 @@ class CompanionClient(
         .mapTo(mutableSetOf(), Instance::instanceId)
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
+
+    suspend fun workspaceBackupStatus(): WorkspaceBackupStatus =
+        send(makeRequest("GET", "/api/workspace-backup/status"))
+
+    suspend fun createWorkspaceBackup(password: String): WorkspaceBackupExport {
+        requireProtectedBackupRoute()
+        require(password.length in 12..1024) { "Backup password must contain 12–1024 characters." }
+        return send(makeRequest("POST", "/api/workspace-backup/export", body = buildJsonObject {
+            put("password", password)
+            put("clientState", buildJsonObject { })
+        }), uploadClient)
+    }
+
+    /** Streams the encrypted archive to the caller's output; never buffers it in phone memory. */
+    suspend fun downloadWorkspaceBackup(id: String, output: OutputStream): Long {
+        requireProtectedBackupRoute()
+        require(id.matches(Regex("[A-Za-z0-9_-]+")))
+        val request = makeRequest("GET", "/api/workspace-backup/download/$id")
+        if (token != null && connection.serverEnvironmentId != null &&
+            environment().environmentId != connection.serverEnvironmentId
+        ) throw APIError.Status(401, "This address belongs to a different server. Pair again to continue.")
+        val call = uploadClient.newCall(request)
+        val cancellation = coroutineContext[Job]?.invokeOnCompletion { cause -> if (cause != null) call.cancel() }
+        try {
+            return withContext(Dispatchers.IO) {
+                call.execute().use { response ->
+                    if (!response.isSuccessful) {
+                        check(RawResponse(response.code, response.headers,
+                            response.body?.byteStream()?.readNBytes(64 * 1024) ?: ByteArray(0)))
+                    }
+                    val body = response.body ?: throw APIError.Transport("The computer returned an empty backup.")
+                    val maxBytes = 10L * 1024 * 1024 * 1024 + 256L * 1024 * 1024
+                    if (body.contentLength() > maxBytes) throw APIError.Transport("The backup exceeds 10 GB.")
+                    var written = 0L
+                    body.byteStream().use { input ->
+                        val buffer = ByteArray(64 * 1024)
+                        while (true) {
+                            currentCoroutineContext().ensureActive()
+                            val count = input.read(buffer)
+                            if (count < 0) break
+                            written += count
+                            if (written > maxBytes) throw APIError.Transport("The backup exceeds 10 GB.")
+                            output.write(buffer, 0, count)
+                        }
+                    }
+                    output.flush()
+                    written
+                }
+            }
+        } finally { cancellation?.dispose() }
+    }
+
+    private fun requireProtectedBackupRoute() {
+        if (connection.activeEndpoint?.protectsCredentials == true) return
+        val host = connection.baseUrl?.host?.lowercase()
+        if (host == "localhost" || host == "127.0.0.1" || host == "::1") return
+        throw APIError.Transport("Workspace backup requires secure HTTPS or a Tailscale connection.")
+    }
 
     suspend fun localVmStatus(): LocalVmStatus = send(makeRequest("GET", "/api/local-computer"))
 

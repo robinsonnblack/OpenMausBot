@@ -885,6 +885,12 @@ data class LocalVmInventory(
 )
 
 @Serializable
+data class WorkspaceBackupStatus(val busy: Boolean, val pendingRestore: Boolean)
+
+@Serializable
+data class WorkspaceBackupExport(val id: String, val filename: String, val bytes: Long)
+
+@Serializable
 data class AdminActivityTarget(val kind: String, val id: String? = null, val name: String? = null)
 
 @Serializable

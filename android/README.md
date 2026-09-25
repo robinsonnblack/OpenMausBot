@@ -110,6 +110,11 @@ per-bot isolation and the 1–4 instance limit. The shared VM's image download,
 creation, start, stop and removal are explicit, confirmed actions on the PC;
 opening the screen never starts a container. Runtime installation and per-bot
 container deletion still use the desktop's setup flow.
+Settings → Backups can create an encrypted workspace archive on the paired
+computer and stream it into a document chosen with Android's file picker.
+The password and file content require HTTPS or Tailscale; the phone does not
+retain the password or buffer the full archive. A partial chosen document is
+removed if the transfer fails. Import/restore still uses the desktop flow.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
