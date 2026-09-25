@@ -2,6 +2,7 @@
 // routes answer with, the calls, and the pure wording helpers the panel
 // renders from — kept here so the sentences can be tested without React.
 import { ApiError, api } from "@/state/store";
+import { activeLocale, t } from "@/lib/i18n";
 
 export const MEMORY_INDEX = "MEMORY.md";
 
@@ -123,15 +124,15 @@ export function formatBytes(bytes: number): string {
  * finer grain. */
 export function relativeTime(at: number, now = Date.now()): string {
   const seconds = Math.max(0, Math.round((now - at) / 1000));
-  if (seconds < 45) return "just now";
+  if (seconds < 45) return t("botMemory.time.justNow");
   const minutes = Math.round(seconds / 60);
-  if (minutes < 60) return `${minutes} min ago`;
+  if (minutes < 60) return t("botMemory.time.minutesAgo", { count: minutes });
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} hr ago`;
+  if (hours < 24) return t("botMemory.time.hoursAgo", { count: hours });
   const days = Math.round(hours / 24);
-  if (days === 1) return "yesterday";
-  if (days < 7) return `${days} days ago`;
-  return new Date(at).toLocaleDateString([], { month: "short", day: "numeric" });
+  if (days === 1) return t("botMemory.time.yesterday");
+  if (days < 7) return t("botMemory.time.daysAgo", { count: days });
+  return new Date(at).toLocaleDateString(activeLocale(), { month: "short", day: "numeric" });
 }
 
 export type CapacityLevel = "ok" | "near" | "over";
@@ -154,20 +155,20 @@ export function capacityStatus(index: MemoryCapacity): CapacityStatus {
   const lineShare = index.maxLines ? index.lines / index.maxLines : 0;
   const byteShare = index.maxBytes ? index.bytes / index.maxBytes : 0;
   const level: CapacityLevel = index.truncated ? "over" : Math.max(lineShare, byteShare) >= 0.8 ? "near" : "ok";
-  const sentence = `${index.lines} of ${index.maxLines} lines · ${formatBytes(index.bytes)} of ${formatBytes(index.maxBytes)} — only the first ${index.maxLines} lines load each turn.`;
+  const sentence = t("botMemory.capacitySentence", { lines: index.lines, maxLines: index.maxLines, bytes: formatBytes(index.bytes), maxBytes: formatBytes(index.maxBytes) });
   let warning: string | null = null;
   if (index.truncated) {
     const missingLines = index.lines - index.loadedLines;
     warning = missingLines > 0
-      ? `${index.lines} lines saved, ${index.loadedLines} load into every conversation — ${missingLines} ${missingLines === 1 ? "line is" : "lines are"} not being loaded. Trim this file or move notes into a topic file.`
-      : `${formatBytes(index.bytes)} saved, ${formatBytes(index.loadedBytes)} load into every conversation — the rest is not being loaded. Trim this file or move notes into a topic file.`;
+      ? t(missingLines === 1 ? "botMemory.warningOneLine" : "botMemory.warningLines", { lines: index.lines, loadedLines: index.loadedLines, missingLines })
+      : t("botMemory.warningBytes", { bytes: formatBytes(index.bytes), loadedBytes: formatBytes(index.loadedBytes) });
   }
   return { level, lineShare, byteShare, sentence, warning };
 }
 
 function fileLabel(path: string): string {
   if (path === MEMORY_INDEX) return "MEMORY.md";
-  if (path.startsWith("memory/log/")) return `the ${path.slice("memory/log/".length).replace(/\.md$/, "")} log`;
+  if (path.startsWith("memory/log/")) return t("botMemory.logLabel", { name: path.slice("memory/log/".length).replace(/\.md$/, "") });
   return path.replace(/^memory\//, "").replace(/\.md$/, "");
 }
 
@@ -175,36 +176,36 @@ function fileLabel(path: string): string {
  * "Scout rewrote 3 lines in MEMORY.md". Subject first, in the person's
  * words: what the row means, not which fields it has. */
 export function journalSummary(row: MemoryJournalRow, botName: string): string {
-  const who = row.actor === "bot" ? botName : row.actor === "import" ? "An import" : "You";
+  const who = row.actor === "bot" ? t("botMemory.actorBot", { bot: botName }) : row.actor === "import" ? t("botMemory.actorImport") : t("botMemory.actorYou");
   const file = fileLabel(row.path);
   const isIndex = row.path === MEMORY_INDEX;
-  const topic = isIndex ? file : row.path.startsWith("memory/log/") ? file : `the ${file} topic`;
-  if (row.kind === "created") return `${who} created ${topic}${row.added ? ` with ${plural(row.added, "line")}` : ""}`;
-  if (row.kind === "deleted") return `${who} deleted ${topic}`;
-  if (row.added && !row.removed) return `${who} added ${plural(row.added, "line")} to ${topic}`;
-  if (row.removed && !row.added) return `${who} removed ${plural(row.removed, "line")} from ${topic}`;
-  return `${who} rewrote ${plural(Math.max(row.added, row.removed), "line")} in ${topic}`;
+  const topic = isIndex || row.path.startsWith("memory/log/") ? file : t("botMemory.topicLabel", { name: file });
+  if (row.kind === "created") return t(row.actor === "person" ? "botMemory.journalCreatedYou" : "botMemory.journalCreated", { who, topic }) + (row.added ? t("botMemory.journalWithLines", { lines: plural(row.added) }) : "");
+  if (row.kind === "deleted") return t(row.actor === "person" ? "botMemory.journalDeletedYou" : "botMemory.journalDeleted", { who, topic });
+  if (row.added && !row.removed) return t(row.actor === "person" ? "botMemory.journalAddedYou" : "botMemory.journalAdded", { who, lines: plural(row.added), topic });
+  if (row.removed && !row.added) return t(row.actor === "person" ? "botMemory.journalRemovedYou" : "botMemory.journalRemoved", { who, lines: plural(row.removed), topic });
+  return t(row.actor === "person" ? "botMemory.journalRewroteYou" : "botMemory.journalRewrote", { who, lines: plural(Math.max(row.added, row.removed)), topic });
 }
 
-function plural(count: number, noun: string): string {
-  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+function plural(count: number): string {
+  return t(count === 1 ? "botMemory.oneLine" : "botMemory.manyLines", { count });
 }
 
 /** Where the change came from, as the second clause of the row. */
 export function journalSource(row: MemoryJournalRow): string | null {
-  if (row.via === "revert") return "undo";
-  if (row.via === "disk") return "changed outside the app";
-  if (row.threadTitle) return `from chat “${row.threadTitle}”`;
-  if (row.actor === "bot") return "during a task";
-  if (row.via === "ui") return "in Settings";
-  if (row.via === "api") return "through the API";
+  if (row.via === "revert") return t("botMemory.sourceUndo");
+  if (row.via === "disk") return t("botMemory.sourceDisk");
+  if (row.threadTitle) return t("botMemory.sourceChat", { title: row.threadTitle });
+  if (row.actor === "bot") return t("botMemory.sourceTask");
+  if (row.via === "ui") return t("botMemory.sourceSettings");
+  if (row.via === "api") return t("botMemory.sourceApi");
   return null;
 }
 
 export function fileManagerLabel(platform: string | undefined): string {
-  if (platform === "darwin") return "Show in Finder";
-  if (platform === "win32") return "Show in Explorer";
-  return "Show in file manager";
+  if (platform === "darwin") return t("botMemory.showFinder");
+  if (platform === "win32") return t("botMemory.showExplorer");
+  return t("botMemory.showFileManager");
 }
 
 /** A new topic's file name from whatever the person typed: spaces and

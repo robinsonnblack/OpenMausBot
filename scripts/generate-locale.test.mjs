@@ -131,6 +131,15 @@ describe("locale draft validation", () => {
     expect(context.usage["remote.pair.title"][0]).toContain("components/Remote.tsx:1");
   });
 
+  it("prioritizes sibling translations of an ambiguous UI term", () => {
+    const source = { "model.switch.title": "Switch with Ask?", "model.other": "Other",
+      "model.switch.body": "Reset permissions to Ask" };
+    const context = contextForKeys(source, ["model.switch.title"],
+      { "model.switch.body": "Berechtigungen auf Fragen zurücksetzen" }, []);
+    expect(Object.keys(context.siblings)[0]).toBe("model.switch.body");
+    expect(context.terminology["model.switch.body"]).toContain("Fragen");
+  });
+
   it("lets structural validation report null catalogs without a hash crash", () => {
     const source = { first: "One" };
     expect(validateTranslationCatalog(source, null)).toEqual(["translation must be a JSON object"]);

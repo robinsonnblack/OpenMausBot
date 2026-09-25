@@ -40,3 +40,7 @@ deploy/podman/.env
 deploy/podman/.env.*
 !deploy/podman/.env.example
 /.env
+
+# Model-assisted locale review reports contain unaccepted suggestions.
+/translation-reviews/
+/android/translation-reviews/

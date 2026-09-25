@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { activeLocale, setLocale, t } from "./i18n";
 
 import {
   capacityStatus,
@@ -148,4 +149,21 @@ describe("small helpers", () => {
     expect(topicFileName("   ")).toBeNull();
     expect(topicFileName("..")).toBeNull();
   });
+});
+
+it("uses the singular German term Erinnerung throughout the memory view", () => {
+  const previousLocale = activeLocale();
+  try {
+    setLocale("de");
+    expect(t("botMemory.title")).toBe("Erinnerung");
+    expect(t("botMemory.editorLabel")).toBe("Erinnerung des Bots");
+    expect(t("botMemory.fileEditorLabel", { path: "MEMORY.md" })).toBe("Erinnerungsdatei MEMORY.md");
+    expect(journalSummary(row(), "Scout")).toContain("Scout hat MEMORY.md um 2 Zeilen ergänzt");
+    expect(journalSummary(row({ actor: "person", via: "ui" }), "Scout")).toContain("Du hast MEMORY.md um 2 Zeilen ergänzt");
+    expect(capacityStatus(index()).sentence).toContain("pro Zug werden nur die ersten 200 Zeilen geladen");
+    setLocale("fr");
+    expect(journalSummary(row({ actor: "person", via: "ui" }), "Scout")).toContain("Vous avez ajouté 2 lignes (MEMORY.md)");
+  } finally {
+    setLocale(previousLocale);
+  }
 });

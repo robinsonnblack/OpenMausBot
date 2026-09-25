@@ -54,3 +54,12 @@ Model output is a draft, not an authority. Review tone, terminology, grammar,
 product names, and safety-sensitive copy before committing it. AI translation
 does not run in GitHub Actions: normal CI stays deterministic, secret-free,
 and safe for forks.
+
+For a second contextual pass, run `node scripts/review-locale.mjs de German`.
+Use `--term 'thread|team|provider|approval'` to inspect ambiguous product terms
+first. The reviewer may return no corrections. It writes proposed changes to
+`translation-reviews/de.json` without changing the catalog. Inspect each
+proposal against the English copy and the surrounding screen; a different
+wording is not necessarily an improvement. Apply only a verified proposal with
+`node scripts/review-locale.mjs de German --apply --apply-key key.name`, then
+run `node scripts/generate-locale.mjs de --accept` and `pnpm i18n:check`.

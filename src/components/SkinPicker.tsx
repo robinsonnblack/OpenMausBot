@@ -8,6 +8,7 @@ import { useState, type CSSProperties } from "react";
 import { Check } from "lucide-react";
 import { COLOR_ROLES, SKINS, applySkin, colorsFromSkin, readCustomTheme, readSkin, saveCustomTheme, type CustomTheme, type SkinId } from "@/lib/skins";
 import { cn } from "@/lib/cn";
+import { t } from "@/lib/i18n";
 
 /**
  * The app's own layout at roughly 1/14 scale: rail, sidebar with a selected
@@ -113,9 +114,9 @@ export function SkinPicker() {
             <Miniature skin={skin.id} custom={draft} />
             <div className="flex items-start gap-1.5 px-0.5 pb-0.5">
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-medium text-ink">{skin.name}</div>
+                <div className="text-[13px] font-medium text-ink">{t(`theme.skin.${skin.id}.name`)}</div>
                 <div className="mt-0.5 text-[11px] leading-snug text-ink-secondary">
-                  {skin.tagline}
+                  {t(`theme.skin.${skin.id}.tagline`)}
                 </div>
               </div>
               {selected && <Check size={13} className="mt-0.5 shrink-0 text-accent-text" />}
@@ -125,42 +126,42 @@ export function SkinPicker() {
       })}
     </div>
     <button type="button" className="mt-4 rounded-lg border border-hairline px-3 py-2 text-sm text-ink hover:bg-raised" onClick={() => setEditing(!editing)}>
-      {editing ? "Close custom theme editor" : "Edit custom theme"}
+      {editing ? t("theme.editor.close") : t("theme.editor.open")}
     </button>
     {editing && <div className="mt-3 rounded-xl border border-hairline bg-card p-4 text-ink">
-      <p className="mb-3 text-sm text-ink-secondary">Choose every color. Start from any preset, then save your own version.</p>
-      <label className="mb-3 block text-sm">Start from{" "}
+      <p className="mb-3 text-sm text-ink-secondary">{t("theme.editor.intro")}</p>
+      <label className="mb-3 block text-sm">{t("theme.editor.startFrom")}{" "}
         <select className="rounded-md border border-hairline bg-inset px-2 py-1 text-ink" value={base}
           onChange={(event) => {
             const id = event.target.value as Exclude<SkinId, "custom">;
             setBase(id);
             setDraft(colorsFromSkin(id));
           }}>
-          {SKINS.filter((skin) => skin.id !== "custom").map((skin) => <option key={skin.id} value={skin.id}>{skin.name}</option>)}
+          {SKINS.filter((skin) => skin.id !== "custom").map((skin) => <option key={skin.id} value={skin.id}>{t(`theme.skin.${skin.id}.name`)}</option>)}
         </select>
       </label>
-      <label className="mb-3 block text-sm">Chat layout{" "}
+      <label className="mb-3 block text-sm">{t("theme.editor.chatLayout")}{" "}
         <select className="rounded-md border border-hairline bg-inset px-2 py-1 text-ink"
           value={draft.layout ?? "standard"}
           onChange={(event) => setDraft({ ...draft, layout: event.target.value as "standard" | "chatgpt" })}>
-          <option value="standard">Standard bubbles</option>
-          <option value="chatgpt">ChatGPT-style assistant text</option>
+          <option value="standard">{t("theme.editor.standardBubbles")}</option>
+          <option value="chatgpt">{t("theme.editor.chatgptText")}</option>
         </select>
       </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {COLOR_ROLES.map((role) => <label key={role} className="flex items-center gap-2 text-xs">
-          <input type="color" aria-label={`${role} color`} value={draft[role].startsWith("#") ? draft[role].slice(0, 7) : "#000000"}
+          <input type="color" aria-label={t("theme.editor.colorAria", { role: t(`theme.role.${role}`) })} value={draft[role].startsWith("#") ? draft[role].slice(0, 7) : "#000000"}
             onChange={(event) => setDraft({ ...draft, [role]: event.target.value })} />
-          <span className="min-w-0 flex-1">{role.replaceAll("-", " ")}</span>
+          <span className="min-w-0 flex-1">{t(`theme.role.${role}`)}</span>
           <input className="w-[88px] rounded border border-hairline bg-inset px-1.5 py-1 font-mono text-xs text-ink"
-            aria-label={`${role} hex`} value={draft[role]}
+            aria-label={t("theme.editor.hexAria", { role: t(`theme.role.${role}`) })} value={draft[role]}
             onChange={(event) => setDraft({ ...draft, [role]: event.target.value })} />
         </label>)}
       </div>
       <button type="button" className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
         disabled={!COLOR_ROLES.every((role) => draft[role] === "transparent" || /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(draft[role]))}
         onClick={() => { saveCustomTheme(draft); setActive("custom"); }}>
-        Save and use custom theme
+        {t("theme.editor.save")}
       </button>
     </div>}
     </div>
