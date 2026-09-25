@@ -181,6 +181,9 @@ the computer's browser engine, its Experimental feature switch and an engine
 with browser-tool support. The control is unavailable when the bot's computer
 destination is Off. These are bot-wide settings; ordinary phone pairings may
 view them but cannot change them.
+An admin-paired phone can change the host-wide Experimental browser switch in
+Settings → Browser. Turning it off asks for confirmation because the computer
+closes live built-in browser sessions. Each bot still needs its own permission.
 The bot profile also mirrors the desktop's "Ask before contacting other bots"
 setting. An admin-paired phone can change it when the bot is idle; enabling it
 requires an engine that supports bot coordination. A client-only pairing can

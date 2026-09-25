@@ -115,6 +115,7 @@ fun SettingsScreen(
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var editingNewBotEffort by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
+    var editingHostBrowser by remember { mutableStateOf(false) }
 
     LaunchedEffect(connection) {
         budgetEntitled = false
@@ -340,6 +341,7 @@ fun SettingsScreen(
                     SettingsButton("Import and restore a workspace backup") { restoringBackup = true }
                 }
                 SettingsSection("Browser") {
+                    SettingsButton("Built-in browser on this computer") { editingHostBrowser = true }
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
                 }
             }
@@ -618,6 +620,7 @@ fun SettingsScreen(
     if (editingBilling) WorkspaceBillingSheet { editingBilling = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
+    if (editingHostBrowser) HostBrowserFeatureSheet { editingHostBrowser = false }
 }
 
 @Composable

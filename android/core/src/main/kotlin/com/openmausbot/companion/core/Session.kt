@@ -2349,6 +2349,14 @@ class Session(
             .updateNewBotEffort(effort)
     }
 
+    suspend fun updateHostBrowserEnabled(enabled: Boolean): ConfigStatus {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Changing the host browser feature requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline."))
+            .updateHostBrowserEnabled(enabled)
+    }
+
     suspend fun updateBrowserProfiles(expected: List<BrowserProfile>, next: List<BrowserProfile>): ConfigStatus {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Managing browser profiles requires an admin pairing.")
