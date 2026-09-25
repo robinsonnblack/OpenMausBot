@@ -11,6 +11,27 @@ import kotlin.test.assertFailsWith
 
 class MistralSetupClientTest {
     @Test
+    fun savesAndTestsOtherProviderKeysWithoutPersistingThemOnThePhone() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            val client = CompanionClient(requireNotNull(Connection.parse("http://127.0.0.1:${server.port}")), "token")
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"openaiCompat":{"configured":true,"url":"https://openrouter.ai/api/v1"}}"""))
+            val status = client.setProviderConnection(ProviderConnection.OPENAI_COMPAT, "key", "https://openrouter.ai/api/v1")
+            assertTrue(status.openaiCompat?.configured == true)
+            val saved = server.takeRequest()
+            assertEquals("PUT", saved.method)
+            assertTrue(saved.body.readUtf8().contains(""""openaiCompat":{"key":"key","url":"https://openrouter.ai/api/v1"}"""))
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"ok":true,"check":"models","models":[]}"""))
+            assertTrue(client.testProviderConnection(ProviderConnection.OPENAI_COMPAT).ok)
+            val tested = server.takeRequest().body.readUtf8()
+            assertTrue(tested.contains(""""provider":"openaiCompat""""))
+            assertFalse(tested.contains("key"))
+        } finally { server.shutdown() }
+    }
+    @Test
     fun storesAndChecksKeyAgainstPairedComputer() = runBlocking {
         val server = MockWebServer()
         server.start()

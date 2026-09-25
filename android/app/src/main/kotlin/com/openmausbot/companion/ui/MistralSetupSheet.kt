@@ -24,23 +24,37 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.openmausbot.companion.core.ConfigStatus
+import com.openmausbot.companion.core.ProviderConnection
 import kotlinx.coroutines.launch
 
 /** Admin-scoped provider setup; keys never enter Android preferences or logs. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun MistralSetupSheet(onDismiss: () -> Unit) {
+internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> Unit) {
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var configured by remember { mutableStateOf(false) }
     var draft by remember { mutableStateOf("") }
+    var url by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var verdict by remember { mutableStateOf<String?>(null) }
     var confirmRemove by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        try { configured = session.configStatus()?.mistral?.configured == true }
+    fun configuredIn(status: ConfigStatus?): Boolean = when (provider) {
+        ProviderConnection.MISTRAL -> status?.mistral?.configured == true
+        ProviderConnection.ANTHROPIC -> status?.anthropic?.configured == true
+        ProviderConnection.XAI -> status?.xai?.configured == true
+        ProviderConnection.OPENAI_COMPAT -> status?.openaiCompat?.configured == true
+    }
+
+    LaunchedEffect(provider) {
+        try {
+            val status = session.configStatus()
+            configured = configuredIn(status)
+            url = if (provider == ProviderConnection.OPENAI_COMPAT) status?.openaiCompat?.url.orEmpty() else ""
+        }
         catch (failure: Exception) { error = failure.message ?: "Could not read provider status." }
     }
 
@@ -50,7 +64,7 @@ internal fun MistralSetupSheet(onDismiss: () -> Unit) {
                 .verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Mistral connection")
+            Text("${provider.label} connection")
             Text(if (configured) "A key is configured on this computer." else "No key is configured.")
             Text("The key is saved on the paired computer, not on this phone.")
             OutlinedTextField(
@@ -61,11 +75,17 @@ internal fun MistralSetupSheet(onDismiss: () -> Unit) {
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
+            if (provider != ProviderConnection.MISTRAL) OutlinedTextField(
+                value = url, onValueChange = { url = it.take(2_000); verdict = null; error = null },
+                label = { Text("Custom API URL (optional)") }, singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
             TextButton(enabled = !busy && draft.trim().isNotEmpty(), onClick = {
                 scope.launch {
                     busy = true
                     try {
-                        configured = session.setMistralKey(draft.trim()).mistral?.configured == true
+                        configured = configuredIn(session.setProviderConnection(provider, draft.trim(),
+                            if (provider == ProviderConnection.MISTRAL) null else url.trim()))
                         draft = ""
                         verdict = if (configured) "Saved on this computer." else "The computer did not confirm the key."
                     } catch (failure: Exception) {
@@ -77,15 +97,16 @@ internal fun MistralSetupSheet(onDismiss: () -> Unit) {
                 scope.launch {
                     busy = true
                     try {
-                        val check = session.testMistralKey(draft.trim().ifEmpty { null })
+                        val check = session.testProviderConnection(provider, draft.trim().ifEmpty { null },
+                            if (provider == ProviderConnection.MISTRAL) null else url.trim().ifEmpty { null })
                         verdict = if (check.ok) {
-                            if (check.models.isEmpty()) "The key reached Mistral; no models were listed."
+                            if (check.models.isEmpty()) "The key reached ${provider.label}; no models were listed."
                             else "Available models: " + check.models.joinToString(", ")
                         } else {
                             when (check.reason) {
-                                "rejected" -> "Mistral rejected the key."
-                                "unreachable" -> "The computer could not reach Mistral."
-                                else -> "Mistral returned an unexpected response."
+                                "rejected" -> "${provider.label} rejected the key."
+                                "unreachable" -> "The computer could not reach ${provider.label}."
+                                else -> "${provider.label} returned an unexpected response."
                             }
                         }
                     } catch (failure: Exception) {
@@ -104,17 +125,18 @@ internal fun MistralSetupSheet(onDismiss: () -> Unit) {
 
     if (confirmRemove) AlertDialog(
         onDismissRequest = { confirmRemove = false },
-        title = { Text("Remove Mistral key?") },
-        text = { Text("Bots using Mistral may become unavailable until a new key is saved.") },
+        title = { Text("Remove ${provider.label} key?") },
+        text = { Text("Bots using ${provider.label} may become unavailable until a new key is saved.") },
         confirmButton = {
             TextButton(onClick = {
                 confirmRemove = false
                 scope.launch {
                     busy = true
                     try {
-                        configured = session.setMistralKey("").mistral?.configured == true
+                        configured = configuredIn(session.setProviderConnection(provider, "",
+                            if (provider == ProviderConnection.MISTRAL) null else url.trim()))
                         draft = ""
-                        verdict = "Mistral key removed from this computer."
+                        verdict = "${provider.label} key removed from this computer."
                     } catch (failure: Exception) {
                         error = failure.message ?: "Could not remove the key."
                     } finally { busy = false }

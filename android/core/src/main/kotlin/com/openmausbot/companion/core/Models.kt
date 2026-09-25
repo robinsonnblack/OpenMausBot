@@ -841,12 +841,25 @@ data class Profile(val name: String, val email: String, val aboutMe: String? = n
 data class BrowserProfile(val id: String, val name: String)
 
 @Serializable
+data class OpenAICompatibleStatus(val configured: Boolean, val url: String = "")
+
+enum class ProviderConnection(val wire: String, val label: String) {
+    ANTHROPIC("anthropic", "Anthropic"),
+    OPENAI_COMPAT("openaiCompat", "OpenAI-compatible / OpenRouter"),
+    XAI("xai", "xAI"),
+    MISTRAL("mistral", "Mistral"),
+}
+
+@Serializable
 data class ConfigStatus(
     val composio: ConfigFlag? = null,
     val box: ConfigFlag? = null,
     val tts: ConfigFlag? = null,
     val imageGen: ConfigFlag? = null,
     val mistral: ConfigFlag? = null,
+    val anthropic: ConfigFlag? = null,
+    val xai: ConfigFlag? = null,
+    val openaiCompat: OpenAICompatibleStatus? = null,
     val profile: Profile? = null,
     val browserProfiles: List<BrowserProfile> = emptyList(),
 ) {

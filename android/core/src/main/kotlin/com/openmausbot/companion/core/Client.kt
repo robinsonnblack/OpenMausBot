@@ -286,18 +286,29 @@ class CompanionClient(
     }
 
     /** The credential is sent to the paired computer; it is never retained in phone storage. */
-    suspend fun setMistralKey(key: String): ConfigStatus = send(makeRequest(
-        "PUT", "/api/config",
-        body = buildJsonObject { put("mistral", buildJsonObject { put("key", key) }) },
-    ).also { requireProtectedProviderRoute() })
+    suspend fun setProviderConnection(provider: ProviderConnection, key: String, url: String? = null): ConfigStatus {
+        requireProtectedProviderRoute()
+        require(key.length <= 512) { "API key is too long." }
+        if (provider == ProviderConnection.MISTRAL) require(url.isNullOrBlank()) { "Mistral does not use a custom URL." }
+        return send(makeRequest("PUT", "/api/config", body = buildJsonObject {
+            put(provider.wire, buildJsonObject {
+                put("key", key)
+                if (provider != ProviderConnection.MISTRAL && url != null) put("url", url)
+            })
+        }))
+    }
 
-    suspend fun testMistralKey(key: String? = null): ProviderKeyVerdict = send(makeRequest(
-        "POST", "/api/keys/test",
-        body = buildJsonObject {
-            put("provider", "mistral")
+    suspend fun testProviderConnection(provider: ProviderConnection, key: String? = null, url: String? = null): ProviderKeyVerdict {
+        requireProtectedProviderRoute()
+        return send(makeRequest("POST", "/api/keys/test", body = buildJsonObject {
+            put("provider", provider.wire)
             key?.let { put("key", it) }
-        },
-    ).also { requireProtectedProviderRoute() })
+            if (provider != ProviderConnection.MISTRAL) url?.let { put("url", it) }
+        }))
+    }
+
+    suspend fun setMistralKey(key: String): ConfigStatus = setProviderConnection(ProviderConnection.MISTRAL, key)
+    suspend fun testMistralKey(key: String? = null): ProviderKeyVerdict = testProviderConnection(ProviderConnection.MISTRAL, key)
 
     private fun requireProtectedProviderRoute() {
         if (connection.activeEndpoint?.protectsCredentials == true) return
