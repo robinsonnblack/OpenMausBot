@@ -986,6 +986,9 @@ enum class ProviderConnection(val wire: String, val label: String) {
 data class RoomTurnSettings(val turnTimeoutMinutes: Int = 5)
 
 @Serializable
+data class NewBotSettings(val effort: String? = null)
+
+@Serializable
 data class ConfigStatus(
     val edition: EditionStatus? = null,
     val budgets: WorkspaceBudgetConfig? = null,
@@ -1002,6 +1005,7 @@ data class ConfigStatus(
     val browserProfiles: List<BrowserProfile> = emptyList(),
     val threads: ThreadSettings? = null,
     val rooms: RoomTurnSettings? = null,
+    val newBots: NewBotSettings? = null,
     val localVm: LocalVmConfig? = null,
 ) {
     /**
