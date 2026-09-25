@@ -43,6 +43,19 @@ class ChatPreferencesTest {
     }
 
     @Test
+    fun `thread lists default to visible and a hidden choice survives relaunch`() {
+        val name = "chat-thread-list-visibility"
+        context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit()
+        assertEquals(true, store(name).showThreads.value)
+
+        store(name).setShowThreads(false)
+        assertEquals(false, store(name).showThreads.value)
+
+        store(name).setShowThreads(true)
+        assertEquals(true, store(name).showThreads.value)
+    }
+
+    @Test
     fun `custom quick replies persist in their selected order`() {
         val name = "chat-custom-quick-replies"
         val replies = listOf(

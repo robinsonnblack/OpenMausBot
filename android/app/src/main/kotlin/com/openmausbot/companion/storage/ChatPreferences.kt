@@ -58,6 +58,8 @@ class ChatPreferences(
         _customColors.value = colors
         _themeId.value = "custom"
     }
+    private val _showThreads = MutableStateFlow(prefs.getBoolean(SHOW_THREADS, true))
+    val showThreads: StateFlow<Boolean> = _showThreads.asStateFlow()
 
     fun setActivityDetail(detail: ActivityDetail) {
         if (_activityDetail.value == detail && prefs.contains(ACTIVITY_DETAIL)) return
@@ -78,6 +80,12 @@ class ChatPreferences(
     }
 
     fun resetQuickReplies() = setQuickReplies(QuickReply.DEFAULTS)
+
+    fun setShowThreads(enabled: Boolean) {
+        if (_showThreads.value == enabled) return
+        prefs.edit().putBoolean(SHOW_THREADS, enabled).commit()
+        _showThreads.value = enabled
+    }
 
     fun lastShareDestination(connectionId: String): String? =
         prefs.getString(destinationKey(connectionId), null)?.takeIf(String::isNotBlank)
@@ -110,6 +118,7 @@ class ChatPreferences(
         private const val QUICK_REPLIES = "companion.prefs.quickReplies"
         private const val THEME_ID = "companion.prefs.themeId"
         private const val CUSTOM_COLORS = "companion.prefs.customColors"
+        private const val SHOW_THREADS = "companion.prefs.showThreads"
 
         private fun threadKey(connectionId: String, botId: String): String =
             "thread.last-opened.${connectionId.length}:$connectionId$botId"
