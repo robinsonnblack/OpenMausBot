@@ -76,6 +76,7 @@ import com.openmausbot.companion.core.BotProfilePatch
 import com.openmausbot.companion.core.ConfigStatus
 import com.openmausbot.companion.core.Instance
 import com.openmausbot.companion.core.ModelSelection
+import com.openmausbot.companion.core.McpServerSummary
 import com.openmausbot.companion.core.Voice
 import com.openmausbot.companion.core.VoiceProvider
 import kotlinx.coroutines.Dispatchers
@@ -140,6 +141,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var showingBotUsage by rememberSaveable(opened.id) { mutableStateOf(false) }
     var accessWebhooks by remember(opened.id) { mutableStateOf<List<BotWebhook>?>(null) }
     var loadingAccessWebhooks by remember(opened.id) { mutableStateOf(false) }
+    var mcpServers by remember(opened.id) { mutableStateOf<List<McpServerSummary>?>(null) }
+    var mcpError by remember(opened.id) { mutableStateOf<String?>(null) }
     var choosingTaskSurface by remember(opened.threadId) { mutableStateOf(false) }
     var choosingBotComputer by remember(opened.id) { mutableStateOf(false) }
     var choosingBrowserProfile by remember(opened.id) { mutableStateOf(false) }
@@ -190,6 +193,18 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
         // A stored "speak replies" that nothing can speak is turned off before
         // the toggle is ever drawn.
         form = ProfileRules.applyLoadedConfig(form, loaded.first)
+    }
+
+    LaunchedEffect(connection?.id, connection?.serverScopes) {
+        mcpServers = null
+        mcpError = null
+        if (connection?.serverScopes?.contains("admin") == true) {
+            try {
+                mcpServers = session.botMcpServers()
+            } catch (error: Exception) {
+                mcpError = error.message ?: "Could not load MCP servers."
+            }
+        }
     }
 
     // One preview at a time, and none that outlives this sheet.
@@ -673,6 +688,64 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     )
                     if (connection?.serverScopes?.contains("admin") != true) {
                         Text("Changing this access requires an admin pairing.")
+                    }
+                }
+
+                FormSection(header = "MCP servers") {
+                    Text("Choose which enabled servers on the paired computer this bot can use.")
+                    if (connection?.serverScopes?.contains("admin") != true) {
+                        Text("Managing MCP servers requires an admin pairing.")
+                    } else if (mcpError != null) {
+                        Text(mcpError!!)
+                        ActionRow(text = "Try loading again", onClick = {
+                            scope.launch {
+                                mcpError = null
+                                try { mcpServers = session.botMcpServers() }
+                                catch (error: Exception) { mcpError = error.message ?: "Could not load MCP servers." }
+                            }
+                        })
+                    } else if (mcpServers == null) {
+                        CircularProgressIndicator()
+                    } else {
+                        val available = mcpServers.orEmpty()
+                        Text(if (current.mcpServers == null) "Uses all enabled servers, including ones added later."
+                            else "Uses only the selected servers. An empty selection gives this bot none.")
+                        if (available.isEmpty()) Text("No MCP servers are configured on this computer.")
+                        available.forEach { server ->
+                            val allowed = server.enabled && server.managedBy == null
+                            val selected = if (current.mcpServers == null) allowed else server.name in current.mcpServers.orEmpty()
+                            SwitchRow(
+                                label = server.name + when {
+                                    server.managedBy != null -> " (managed by ${server.managedBy})"
+                                    !server.enabled -> " (disabled on computer)"
+                                    else -> ""
+                                },
+                                checked = selected,
+                                enabled = (allowed || selected) && current.busy != true && !busy,
+                                onCheckedChange = { checked ->
+                                    val selectedNames = current.mcpServers?.toMutableList()
+                                        ?: available.filter { it.enabled && it.managedBy == null }.mapTo(mutableListOf()) { it.name }
+                                    if (checked) selectedNames.add(server.name) else selectedNames.remove(server.name)
+                                    scope.launch {
+                                        busy = true
+                                        val result = session.setBotMcpServers(liveBot(), selectedNames.distinct())
+                                        if (result == null) mcpError = session.actionError ?: "Could not change MCP access."
+                                        busy = false
+                                    }
+                                },
+                            )
+                        }
+                        if (current.mcpServers != null) {
+                            ActionRow(text = "Use all enabled servers", enabled = current.busy != true && !busy,
+                                onClick = {
+                                    scope.launch {
+                                        busy = true
+                                        val result = session.setBotMcpServers(liveBot(), null)
+                                        if (result == null) mcpError = session.actionError ?: "Could not reset MCP access."
+                                        busy = false
+                                    }
+                                })
+                        }
                     }
                 }
 

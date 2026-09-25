@@ -839,6 +839,28 @@ class CompanionClient(
         body = buildJsonObject { put("browser", allowed) },
     )).bot
 
+    /** Decode host MCP names only. The wire inventory requires a protected route and admin scope. */
+    suspend fun mcpServers(): List<McpServerSummary> {
+        // The host's inventory also carries URLs and command arguments. They may contain secrets,
+        // even though this Android model deliberately keeps only names and status.
+        requireProtectedMcpInventoryRoute()
+        return send<McpServerListResponse>(makeRequest("GET", "/api/mcp/servers")).servers
+    }
+
+    private fun requireProtectedMcpInventoryRoute() {
+        if (connection.activeEndpoint?.protectsCredentials == true) return
+        val host = connection.baseUrl?.host?.lowercase()
+        if (host == "localhost" || host == "127.0.0.1" || host == "::1") return
+        throw APIError.Transport("MCP server details require HTTPS or a Tailscale connection.")
+    }
+
+    suspend fun setBotMcpServers(botId: String, names: List<String>?): Bot = send<BotResponse>(makeRequest(
+        "PATCH", "/api/bots/${segment(botId)}",
+        body = buildJsonObject {
+            put("mcpServers", names?.let { JsonArray(it.map(::JsonPrimitive)) } ?: JsonNull)
+        },
+    )).bot
+
     suspend fun setBotPeerContactApproval(botId: String, askFirst: Boolean): Bot = send<BotResponse>(makeRequest(
         "PATCH", "/api/bots/${segment(botId)}",
         body = buildJsonObject { put("approvePeerComms", askFirst) },

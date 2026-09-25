@@ -39,6 +39,14 @@ class SessionP1Test {
     }
 
     @Test
+    fun clientScopeCannotReadOrChangeBotMcpServers() = runTest {
+        val session = session()
+        assertFailsWith<APIError.Transport> { session.botMcpServers() }
+        assertNull(session.setBotMcpServers(bot("b1", "t1", "t1"), listOf("notes")))
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
     fun capturedTaskPinsPlainMessagesStopReadGrantsEditsAndQueueCancellation() = runTest {
         val captured = bot("b1", "task-a", "task-a", "task-b")
         val elsewhere = captured.copy(threadId = "task-b")

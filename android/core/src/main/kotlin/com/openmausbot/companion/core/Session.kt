@@ -2173,6 +2173,31 @@ class Session(
         }
     }
 
+    suspend fun botMcpServers(): List<McpServerSummary> {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Viewing host MCP servers requires an admin pairing.")
+        }
+        return (client ?: throw APIError.Transport("This computer is offline.")).mcpServers()
+    }
+
+    suspend fun setBotMcpServers(forBot: Bot, names: List<String>?): Bot? {
+        val activeClient = client ?: return null
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            _actionError.value = "Changing a bot's MCP servers requires an admin pairing."
+            return null
+        }
+        return try {
+            val updated = activeClient.setBotMcpServers(forBot.id, names)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated.forTask(forBot.threadId)
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            _actionError.value = error.message
+            null
+        }
+    }
+
     suspend fun setBotPeerContactApproval(forBot: Bot, askFirst: Boolean): Bot? {
         val activeClient = client ?: return null
         if (_connection.value?.serverScopes?.contains("admin") != true) {
