@@ -14,6 +14,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
@@ -21,10 +22,12 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -1374,6 +1377,43 @@ class SessionTest {
         assertEquals(Session.Status.Unpaired, session.status.value)
         assertNull(connections.saved)
         assertTrue(tokens.saved.isEmpty())
+    }
+
+    @Test
+    fun acceptedSendAppearsWithoutLiveEvent() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        val scope = CoroutineScope(Dispatchers.Default + Job())
+        try {
+            val connection = requireNotNull(Connection.parse(server.url("/").toString()))
+            val session = Session(
+                scope = scope,
+                connectionStore = FakeConnectionStore(connection),
+                tokenStore = FakeTokenStore().apply { saved[connection.id] = "tok" },
+                onboardingStore = InMemoryOnboardingStore(),
+                deviceNameProvider = { "Pixel" },
+                eventsFn = { _, _, _ -> emptyFlow() },
+            )
+            session.awaitRestored()
+            server.enqueue(MockResponse().setResponseCode(202)
+                .setHeader("Content-Type", "application/json")
+                .setBody("""{"threadId":"t1"}"""))
+            server.enqueue(MockResponse().setResponseCode(200)
+                .setHeader("Content-Type", "application/json")
+                .setBody("""{"messages":[{"id":"m1","role":"user","kind":"text","at":1,"text":"hello"}]}"""))
+
+            session.send("hello", Chat.BotChat(sampleBot("b1", "t1")))
+            withTimeout(5_000) {
+                session.state.first { state -> state.transcript("t1").any { it.id == "m1" } }
+            }
+
+            assertEquals("/api/bots/b1/messages", server.takeRequest().path)
+            assertEquals("/api/threads/t1/messages?limit=50", server.takeRequest().path)
+            assertNull(session.actionError)
+        } finally {
+            scope.cancel()
+            server.shutdown()
+        }
     }
 
     @Test
