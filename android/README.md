@@ -178,6 +178,11 @@ phone create, rename and delete named profiles on the host. Whole-list saves
 compare the previous list so another device's edits cannot be erased silently;
 deleting a profile in use by a running bot is disabled.
 
+An admin-paired phone can edit the computer's room-turn timeout under Settings
+→ Room turns. The editor accepts the same 1–1,440 minute range as desktop
+General settings and refuses to overwrite a value changed on another device
+while the sheet was open.
+
 ## Build and test
 
 Requires **JDK 17** and an Android SDK. Gradle arrives through the wrapper, so
