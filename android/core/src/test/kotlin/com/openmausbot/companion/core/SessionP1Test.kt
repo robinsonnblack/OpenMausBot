@@ -46,9 +46,7 @@ class SessionP1Test {
         session.openNotification(target("b1", "task-b"))
         val chat = Chat.BotChat(captured)
         val message = Message("message-a", Message.Role.USER, Message.Kind.TEXT, 1.0, text = "original")
-        repeat(6) { server.enqueue(json("{}")) }
-        server.enqueue(json("""{"activeLeafId":"message-a"}"""))
-        server.enqueue(json("{}"))
+        repeat(10) { server.enqueue(json("""{"activeLeafId":"message-a","messages":[]}""")) }
 
         session.send("plain text", chat)
         session.send("/quick command", chat)
@@ -59,11 +57,14 @@ class SessionP1Test {
         session.switchVersion(message, captured)
         session.cancelQueued(QueuedSend("queue-a", "queued"), chat)
 
-        val requests = List(8) { server.takeRequest() }
+        val requests = List(10) { server.takeRequest() }
+        val writes = requests.filter { it.method != "GET" }
+        assertEquals(2, requests.count { it.method == "GET" &&
+            it.path == "/api/threads/task-a/messages?limit=50" })
         assertEquals(listOf("messages", "messages", "interrupt", "read", "always-allow",
             "messages/message-a/edit", "active-branch", "queue/queue-a"),
-            requests.map { it.path!!.removePrefix("/api/bots/b1/") })
-        assertEquals(List(8) { "task-a" }, requests.map { body(it)["threadId"] })
+            writes.map { it.path!!.removePrefix("/api/bots/b1/") })
+        assertEquals(List(8) { "task-a" }, writes.map { body(it)["threadId"] })
         assertEquals("task-b", session.state.value.bot("b1")?.threadId)
         assertNull(session.actionError)
     }

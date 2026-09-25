@@ -1111,11 +1111,36 @@ class Session(
 
     suspend fun send(text: String, to: Chat) {
         perform {
+            val connectionId = _connection.value?.id
             val receipt = when (to) {
                 is Chat.BotChat -> it.sendToBot(to.bot.id, text, to.threadId)
                 is Chat.RoomChat -> it.sendToRoom(to.room.id, text, to.threadId)
             }
             record(receipt, text, to.threadId)
+            reconcileAcceptedSend(receipt, to.threadId, it, connectionId)
+        }
+    }
+
+    /** A successful POST must become visible even when the live event is missed. */
+    private fun reconcileAcceptedSend(
+        receipt: SendReceipt,
+        fallbackThreadId: String,
+        activeClient: CompanionClient,
+        connectionId: String?,
+    ) {
+        val sent = receipt as? SendReceipt.Sent ?: return
+        val threadId = sent.threadId?.takeIf(String::isNotEmpty) ?: fallbackThreadId
+        scope.launch {
+            try {
+                val page = activeClient.messages(threadId, limit = 50)
+                if (client === activeClient && _connection.value?.id == connectionId) {
+                    _state.update { it.merge(page, threadId) }
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Throwable) {
+                // The send already succeeded. A refresh failure must not turn it into a failed send.
+            }
         }
     }
 
@@ -1233,6 +1258,7 @@ class Session(
             // held message is a person's own words waiting, not transport.
             // An attachment-only send has no words, so it falls back.
             record(receipt, text.trim().ifEmpty { message }, to.threadId)
+            reconcileAcceptedSend(receipt, to.threadId, activeClient, connectionId)
             attachmentSendIds.remove(key)
             _actionError.value = null
             true
