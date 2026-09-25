@@ -47,6 +47,7 @@ import com.openmausbot.companion.R
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Session
+import com.openmausbot.companion.core.ProviderConnection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -94,7 +95,7 @@ fun SettingsScreen(
     var managingTeams by remember { mutableStateOf(false) }
     var creatingBotForTeam by remember { mutableStateOf<String?>(null) }
     val teamDraft = remember { TeamManagementDraft() }
-    var configuringMistral by remember { mutableStateOf(false) }
+    var configuringProvider by remember { mutableStateOf<ProviderConnection?>(null) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
 
@@ -281,7 +282,9 @@ fun SettingsScreen(
                     SettingsButton("Manage teams") { managingTeams = true }
                 }
                 SettingsSection("Providers") {
-                    SettingsButton("Mistral API and models") { configuringMistral = true }
+                    ProviderConnection.entries.forEach { provider ->
+                        SettingsButton("${provider.label} API and models") { configuringProvider = provider }
+                    }
                 }
                 SettingsSection("Browser") {
                     SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
@@ -542,7 +545,7 @@ fun SettingsScreen(
             onDismiss = { creatingBotForTeam = null; managingTeams = true },
         )
     }
-    if (configuringMistral) MistralSetupSheet { configuringMistral = false }
+    configuringProvider?.let { provider -> ProviderSetupSheet(provider) { configuringProvider = null } }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }

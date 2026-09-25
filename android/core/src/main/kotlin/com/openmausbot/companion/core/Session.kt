@@ -2221,6 +2221,12 @@ class Session(
     suspend fun testMistralKey(key: String? = null): ProviderKeyVerdict =
         requireProviderAdmin().testMistralKey(key)
 
+    suspend fun setProviderConnection(provider: ProviderConnection, key: String, url: String? = null): ConfigStatus =
+        requireProviderAdmin().setProviderConnection(provider, key, url)
+
+    suspend fun testProviderConnection(provider: ProviderConnection, key: String? = null, url: String? = null): ProviderKeyVerdict =
+        requireProviderAdmin().testProviderConnection(provider, key, url)
+
     /**
      * Switch the workspace's voice engine. The sheet reloads the voice list
      * afterwards, because every engine names its own voices.
