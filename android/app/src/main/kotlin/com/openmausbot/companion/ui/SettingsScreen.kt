@@ -96,6 +96,7 @@ fun SettingsScreen(
     val teamDraft = remember { TeamManagementDraft() }
     var configuringMistral by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
+    var managingBrowserProfiles by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -281,6 +282,9 @@ fun SettingsScreen(
                 }
                 SettingsSection("Providers") {
                     SettingsButton("Mistral API and models") { configuringMistral = true }
+                }
+                SettingsSection("Browser") {
+                    SettingsButton("Manage browser profiles") { managingBrowserProfiles = true }
                 }
             }
 
@@ -540,6 +544,7 @@ fun SettingsScreen(
     }
     if (configuringMistral) MistralSetupSheet { configuringMistral = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
+    if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }
 
 @Composable

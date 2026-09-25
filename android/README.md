@@ -116,8 +116,10 @@ and Custom approval changes require the desktop app.
 Bot settings also show the browser session selected on the paired computer.
 An admin-paired phone can choose the bot's own browser, a temporary browser,
 or an existing named profile. The server rejects a switch during a busy turn
-or while browser control is held. Creating and deleting named profiles remain
-host settings.
+or while browser control is held. Settings → Browser lets an admin-paired
+phone create, rename and delete named profiles on the host. Whole-list saves
+compare the previous list so another device's edits cannot be erased silently;
+deleting a profile in use by a running bot is disabled.
 
 ## Build and test
 
