@@ -3,6 +3,7 @@
 // GroupView draws it; the action is typing "@Res", the mention menu opening
 // and Researcher being chosen; the resolution is Researcher lighting up in
 // the header and answering while the other two stay quiet.
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Hash, Send } from "lucide-react";
 import { MausAvatar } from "@/components/Avatar";
@@ -111,7 +112,7 @@ export function Channels({ playing, onCue, onEnded, label }: SceneProps) {
         <header className="flex items-center justify-between border-b border-hairline/40 px-3.5 py-2.5">
           <div className="flex items-center gap-2">
             <Hash size={14} className="text-ink-secondary" />
-            <span className="text-[13px] font-semibold text-ink">Work</span>
+            <span className="text-[13px] font-semibold text-ink">{t("hardcoded.components.onboarding.reel.scenes.Channels.073484e3")}</span>
           </div>
           <div className="flex -space-x-2">
             {MEMBERS.map((m, i) => {
@@ -149,7 +150,7 @@ export function Channels({ playing, onCue, onEnded, label }: SceneProps) {
                 <MausAvatar color="blue" state={replied ? "writing" : "working"} size={26} animated={!still} trackPointer={false} />
               </div>
               <div className="min-w-0">
-                <div className="mb-0.5 text-[10.5px] font-medium text-ink-secondary">Researcher</div>
+                <div className="mb-0.5 text-[10.5px] font-medium text-ink-secondary">{t("hardcoded.components.onboarding.reel.scenes.Channels.5ca65f63")}</div>
                 {thinking ? (
                   <div className="inline-flex items-center gap-1 rounded-2xl rounded-tl-md bg-card px-3 py-2.5">
                     {[0, 1, 2].map((i) => (
@@ -179,7 +180,7 @@ export function Channels({ playing, onCue, onEnded, label }: SceneProps) {
                 </div>
               ))}
               <div className="flex items-center gap-2 rounded-lg px-2 py-1 text-[11px] text-ink-secondary">
-                <span className="flex size-5 items-center justify-center rounded-full bg-raised text-[10px]">@</span> everyone
+                <span className="flex size-5 items-center justify-center rounded-full bg-raised text-[10px]">@</span> {t("hardcoded.components.onboarding.reel.scenes.Channels.2f6ad11b")}
               </div>
             </div>
           )}
@@ -189,7 +190,7 @@ export function Channels({ playing, onCue, onEnded, label }: SceneProps) {
         <div className="m-2.5 mt-0 flex items-center gap-2 rounded-xl border border-hairline/50 bg-inset px-3 py-2">
           <div className="flex min-h-[16px] flex-1 items-center text-[12px] text-ink">
             {sent ? (
-              <span className="text-ink-secondary">Message #Work</span>
+              <span className="text-ink-secondary">{t("hardcoded.components.onboarding.reel.scenes.Channels.232227d0")}</span>
             ) : (
               <>
                 {picked ? <span className="rounded bg-accent/20 px-1 font-medium text-accent-text">@Researcher</span> : <span>{typed}</span>}

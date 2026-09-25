@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -78,6 +79,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PairingScreen(onCancel: () -> Unit) {
     val environment = LocalCompanion.current
+    val l10n = LocalContext.current
     val session = environment.session
     val scope = rememberCoroutineScope()
     // `PairingView.swift` fires `Haptics.selection()` on every one of these:
@@ -190,7 +192,7 @@ fun PairingScreen(onCancel: () -> Unit) {
             onCancel = { showingScanner = false },
             validate = { payload ->
                 if (PairingInvite.parse(payload) == null) {
-                    "That isn't an OpenMausBot pairing QR code."
+                    l10n.getString(R.string.android_pairing_invalid_qr)
                 } else {
                     // Session decides whether this invite may be accepted at all
                     // (already paired, credential already burned) and publishes
@@ -328,8 +330,7 @@ fun PairingScreen(onCancel: () -> Unit) {
                         failure = null
                         val connection = service.toConnection()
                         if (connection == null) {
-                            failure = "That computer did not answer with an address. " +
-                                "Enter the address shown in Phone settings instead."
+                            failure = l10n.getString(R.string.android_pairing_missing_address)
                         } else {
                             openPending(connection, fromScan = false)
                         }

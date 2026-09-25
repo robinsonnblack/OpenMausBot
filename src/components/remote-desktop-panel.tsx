@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { cloudRunner } from "@/lib/remote-desktop";
 import { useEffect, useRef, useState } from "react";
 import { CalendarClock, CalendarDays, ImageOff, Loader2, Monitor, Plus, X } from "lucide-react";
@@ -207,7 +208,7 @@ export function RemoteDesktopPanel({ bot }: { bot: Bot }) {
           type="button"
           onClick={() => dispatch({ type: "toggleComputer", open: false })}
           className="rounded-md p-1 text-ink-secondary hover:bg-control hover:text-ink"
-          aria-label="Close computer panel"
+          aria-label={t("hardcoded.components.remotedesktoppanel.44edd961")}
         >
           <X size={18} />
         </button>
@@ -233,14 +234,14 @@ export function RemoteDesktopPanel({ bot }: { bot: Bot }) {
           )}
           {frame && (
             <span className="absolute inset-x-0 bottom-0 bg-black/65 py-2 text-[11px] font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
-              Open live desktop
+              {t("hardcoded.components.remotedesktoppanel.89937c3e")}
             </span>
           )}
         </button>
         <div>
-          <div className="text-[14px] font-medium text-ink">Open the live desktop</div>
+          <div className="text-[14px] font-medium text-ink">{t("hardcoded.components.remotedesktoppanel.ba1142f5")}</div>
           <p className="mt-2 text-[12px] leading-relaxed text-ink-secondary">
-            The host creates a temporary, encrypted viewer relay. VPS SSH and VNC credentials stay on the host computer.
+            {t("hardcoded.components.remotedesktoppanel.6098fdf2")}
           </p>
         </div>
         <button
@@ -258,14 +259,14 @@ export function RemoteDesktopPanel({ bot }: { bot: Bot }) {
           </div>
         )}
         <p className="text-[11px] leading-relaxed text-ink-tertiary">
-          The host must enable cloud desktop access for this paired device in Settings → Remote access.
+          {t("hardcoded.components.remotedesktoppanel.38c21375")}
         </p>
 
         <div className="w-full rounded-xl bg-card p-4 text-left">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-[15px] font-medium text-ink">
               <CalendarClock size={16} className="text-accent" />
-              Scheduled tasks
+              {t("hardcoded.components.remotedesktoppanel.f8bbaa2d")}
             </div>
             {botRoutines.length > 0 && (
               <span className="rounded-full bg-control px-2 py-0.5 text-[10px] font-medium text-ink-secondary">
@@ -313,16 +314,16 @@ export function RemoteDesktopPanel({ bot }: { bot: Bot }) {
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-[13px] font-medium text-white hover:brightness-110"
             >
               <Plus size={14} />
-              Create schedule
+              {t("hardcoded.components.remotedesktoppanel.6021f2cd")}
             </button>
             <button
               type="button"
               onClick={() => dispatch({ type: "showRoutines" })}
               className="flex items-center justify-center gap-1.5 rounded-lg bg-control px-3 py-2 text-[13px] text-ink hover:bg-raised-hover"
-              title="Open schedules"
+              title={t("hardcoded.components.remotedesktoppanel.8b6e964d")}
             >
               <CalendarDays size={14} />
-              Schedules
+              {t("hardcoded.components.remotedesktoppanel.0288c159")}
             </button>
           </div>
         </div>

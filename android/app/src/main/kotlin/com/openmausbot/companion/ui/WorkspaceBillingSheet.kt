@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +44,7 @@ private data class BillingRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var baseline by remember { mutableStateOf<WorkspaceBillingConfig?>(null) }
@@ -54,9 +56,9 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try {
-            val status = session.configStatus() ?: throw IllegalStateException("Could not load the computer's settings.")
+            val status = session.configStatus() ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_billing_sheet_c7692b73))
             if (status.edition?.features?.contains("billing") != true) {
-                throw IllegalStateException("This computer does not have model price settings.")
+                throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_billing_sheet_9bd9c9ab))
             }
             val current = status.billing ?: WorkspaceBillingConfig()
             baseline = current
@@ -65,7 +67,7 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
                 BillingRow(model, price.inputPerMillion.toString(), price.outputPerMillion.toString(),
                     price.cachedInputPerMillion?.toString().orEmpty())
             }.ifEmpty { listOf(BillingRow()) }
-        } catch (failure: Exception) { error = failure.message ?: "Could not load model prices." }
+        } catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_workspace_billing_sheet_8717a856) }
         finally { loading = false }
     }
 
@@ -77,7 +79,7 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
     fun save() {
         val normalizedCurrency = currency.trim().uppercase()
         if (!normalizedCurrency.matches(Regex("[A-Z]{3}"))) {
-            error = "Enter a three-letter currency code, such as USD."
+            error = l10n.getString(R.string.android_remaining_workspace_billing_sheet_f4c31832)
             return
         }
         val prices = linkedMapOf<String, ModelBillingPrice>()
@@ -85,7 +87,7 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
             if (row.model.isBlank() && row.input.isBlank() && row.output.isBlank() && row.cached.isBlank()) continue
             val model = row.model.trim()
             if (model.isEmpty() || model.length > 160 || model in prices) {
-                error = "Each price row needs a unique model name of at most 160 characters."
+                error = l10n.getString(R.string.android_billing_unique_model)
                 return
             }
             val input = row.input.toDoubleOrNull()
@@ -93,7 +95,7 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
             val cached = if (row.cached.isBlank()) null else row.cached.toDoubleOrNull()
             if (input == null || output == null || (row.cached.isNotBlank() && cached == null) ||
                 listOfNotNull(input, output, cached).any { !it.isFinite() || it !in 0.0..1_000_000.0 }) {
-                error = "Enter valid nonnegative input and output rates for $model; cached input is optional."
+                error = l10n.getString(R.string.android_billing_invalid_rates, model)
                 return
             }
             prices[model] = ModelBillingPrice(input, output, cached)
@@ -104,15 +106,15 @@ internal fun WorkspaceBillingSheet(onDismiss: () -> Unit) {
         error = null
         scope.launch {
             try {
-                val latest = session.configStatus() ?: throw IllegalStateException("Could not recheck the computer's prices.")
+                val latest = session.configStatus() ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_billing_sheet_b267df4e))
                 if (latest.edition?.features?.contains("billing") != true ||
                     (latest.billing ?: WorkspaceBillingConfig()) != expected) {
-                    throw IllegalStateException("Model prices changed on the computer. Reopen this screen before saving.")
+                    throw IllegalStateException(l10n.getString(R.string.android_billing_changed_elsewhere))
                 }
                 val saved = session.updateWorkspaceBilling(requested)
-                if (saved.billing != requested) throw IllegalStateException("The computer did not confirm the saved model prices.")
+                if (saved.billing != requested) throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_billing_sheet_e3ba335a))
                 onDismiss()
-            } catch (failure: Exception) { error = failure.message ?: "Could not save model prices." }
+            } catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_workspace_billing_sheet_45c8505c) }
             finally { busy = false }
         }
     }

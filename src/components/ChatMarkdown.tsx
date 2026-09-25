@@ -15,6 +15,7 @@
 // exception: fenced blocks and inline spans pin dir="ltr" and isolate
 // themselves, so a snippet never reorders and never scrambles the RTL
 // sentence holding it.
+import { t } from "@/lib/i18n";
 import { memo, useEffect, useRef, useState, type ReactNode } from "react";
 import Markdown, { defaultUrlTransform } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -330,11 +331,11 @@ export function CodeBlock({ code, lang, streaming }: CodeBlockProps) {
             type="button"
             onClick={download}
             className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-ink-secondary hover:bg-raised hover:text-ink transition-colors"
-            title="Download snippet as file"
-            aria-label="Download snippet as file"
+            title={t("hardcoded.components.ChatMarkdown.5a169957")}
+            aria-label={t("hardcoded.components.ChatMarkdown.5a169957")}
           >
             <Download size={12} aria-hidden="true" />
-            <span className="hidden sm:inline">Save</span>
+            <span className="hidden sm:inline">{t("hardcoded.components.ChatMarkdown.dd9d281d")}</span>
           </button>
           <button
             type="button"
@@ -346,12 +347,12 @@ export function CodeBlock({ code, lang, streaming }: CodeBlockProps) {
             {copied ? (
               <>
                 <Check size={12} className="text-success" aria-hidden="true" />
-                <span className="text-success font-medium hidden sm:inline">Copied!</span>
+                <span className="text-success font-medium hidden sm:inline">{t("hardcoded.components.ChatMarkdown.dfb33e8f")}</span>
               </>
             ) : (
               <>
                 <Copy size={12} aria-hidden="true" />
-                <span className="hidden sm:inline">Copy</span>
+                <span className="hidden sm:inline">{t("hardcoded.components.ChatMarkdown.5530472a")}</span>
               </>
             )}
           </button>
@@ -522,8 +523,8 @@ export function MermaidDiagram({ code, streaming }: MermaidDiagramProps) {
   return (
     <div ref={frame} dir="ltr" className="my-2 overflow-hidden rounded-lg border border-hairline/40 bg-inset">
       <div className="flex items-center justify-between gap-2 border-b border-hairline/30 bg-raised/30 px-3 py-1.5 text-xs">
-        <span title="Mermaid diagram" className="min-w-0 truncate rounded border border-hairline/40 bg-raised px-1.5 py-0.5 text-[11px] font-medium tracking-wide text-ink select-none">
-          Mermaid diagram
+        <span title={t("hardcoded.components.ChatMarkdown.a6a8d6ee")} className="min-w-0 truncate rounded border border-hairline/40 bg-raised px-1.5 py-0.5 text-[11px] font-medium tracking-wide text-ink select-none">
+          {t("hardcoded.components.ChatMarkdown.a6a8d6ee")}
         </span>
         <div className="flex shrink-0 items-center gap-1 whitespace-nowrap">
           <button
@@ -551,12 +552,12 @@ export function MermaidDiagram({ code, streaming }: MermaidDiagramProps) {
             {copied ? (
               <>
                 <Check size={12} className="text-success" aria-hidden="true" />
-                <span className="text-success font-medium hidden sm:inline">Copied!</span>
+                <span className="text-success font-medium hidden sm:inline">{t("hardcoded.components.ChatMarkdown.dfb33e8f")}</span>
               </>
             ) : (
               <>
                 <Copy size={12} aria-hidden="true" />
-                <span className="hidden sm:inline">Copy</span>
+                <span className="hidden sm:inline">{t("hardcoded.components.ChatMarkdown.5530472a")}</span>
               </>
             )}
           </button>
@@ -564,7 +565,7 @@ export function MermaidDiagram({ code, streaming }: MermaidDiagramProps) {
       </div>
       {error && (
         <p role="alert" className="px-3 pt-2 text-[12px] text-danger">
-          Diagram could not be rendered: {error}
+          {t("hardcoded.components.ChatMarkdown.9c8af992")} {error}
         </p>
       )}
       {svg && (
@@ -590,7 +591,7 @@ export function MermaidDiagram({ code, streaming }: MermaidDiagramProps) {
 function LocalFileLink({ filePath, children, message }: { filePath: string; children?: ReactNode; message?: MessageAttachmentContext }) {
   const save = useLocalFileSave(filePath, undefined, message);
   if (!message) {
-    return <span title="Unavailable legacy file reference" className="break-words text-ink-secondary">{children}</span>;
+    return <span title={t("hardcoded.components.ChatMarkdown.06e10ee3")} className="break-words text-ink-secondary">{children}</span>;
   }
   const label = save.state === "saving"
     ? "Saving…"
@@ -606,7 +607,7 @@ function LocalFileLink({ filePath, children, message }: { filePath: string; chil
         type="button"
         onClick={() => void save.save()}
         disabled={save.state === "saving"}
-        title="Save a copy"
+        title={t("hardcoded.components.ChatMarkdown.28558333")}
         className="inline-flex items-center gap-1 break-words text-start text-accent underline decoration-accent/40 hover:decoration-accent disabled:cursor-wait"
       >
         {children}
@@ -673,8 +674,8 @@ function Spoiler({ children }: { children?: ReactNode }) {
         </span>
         <button
           type="button"
-          aria-label="Reveal spoiler"
-          title="Reveal spoiler"
+          aria-label={t("hardcoded.components.ChatMarkdown.936ac888")}
+          title={t("hardcoded.components.ChatMarkdown.936ac888")}
           onClick={() => setRevealed(true)}
           className="absolute inset-0 rounded bg-raised/90"
         />
@@ -686,12 +687,12 @@ function Spoiler({ children }: { children?: ReactNode }) {
       {children}
       <button
         type="button"
-        aria-label="Hide spoiler"
-        title="Hide spoiler"
+        aria-label={t("hardcoded.components.ChatMarkdown.9b2a967f")}
+        title={t("hardcoded.components.ChatMarkdown.9b2a967f")}
         onClick={() => setRevealed(false)}
         className="ms-1 rounded px-0.5 text-[11px] text-ink-secondary hover:text-ink"
       >
-        Hide
+        {t("hardcoded.components.ChatMarkdown.1ea461c2")}
       </button>
     </span>
   );
@@ -796,7 +797,7 @@ function ChatMarkdownComponent({ text, streaming = false, message, mentionPeers 
           img(props) {
             const { src, alt } = props;
             if (!src) {
-              return <span className="text-[12px] text-danger" role="alert">Image unavailable</span>;
+              return <span className="text-[12px] text-danger" role="alert">{t("hardcoded.components.ChatMarkdown.d5596116")}</span>;
             }
             const filePath = localFilePath(src) ?? undefined;
             const sourceOffset = (props as { node?: { position?: { start?: { offset?: number } } } })

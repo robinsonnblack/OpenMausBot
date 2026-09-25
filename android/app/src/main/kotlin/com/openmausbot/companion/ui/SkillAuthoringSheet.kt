@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SkillAuthoringSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
@@ -40,8 +42,8 @@ internal fun SkillAuthoringSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try { config = session.configStatus() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load skill settings." }
-        if (config == null && error == null) error = "Could not load skill settings."
+        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_skill_authoring_sheet_993c6ee8) }
+        if (config == null && error == null) error = l10n.getString(R.string.android_remaining_skill_authoring_sheet_993c6ee8)
         loading = false
     }
 
@@ -51,14 +53,14 @@ internal fun SkillAuthoringSheet(onDismiss: () -> Unit) {
             error = null
             try {
                 val fresh = session.configStatus()
-                    ?: throw IllegalStateException("Could not refresh skill settings.")
+                    ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_skill_authoring_sheet_526be934))
                 if ((fresh.features?.skillAuthoring != false) != (config?.features?.skillAuthoring != false)) {
                     config = fresh
-                    throw IllegalStateException("This setting changed on the computer. Review it before saving.")
+                    throw IllegalStateException(l10n.getString(R.string.android_remaining_skill_authoring_sheet_a5393f78))
                 }
                 config = session.updateSkillAuthoringEnabled(next)
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not change skill authoring."
+                error = failure.message ?: l10n.getString(R.string.android_remaining_skill_authoring_sheet_35d6a8dc)
             } finally { busy = false }
         }
     }

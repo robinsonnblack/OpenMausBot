@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +58,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun NewSectionSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -133,7 +135,7 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
                 SectionNote(
                     text = stringResource(R.string.ui_dynamic_1_s_is_ready_7dd2ea0, section),
                     // Android files by checkbox, so there is nothing to swipe together.
-                    detail = "Choose more bots for another section, or tap Done.",
+                    detail = l10n.getString(R.string.android_remaining_new_section_sheet_fcd5e143),
                     container = MaterialTheme.colorScheme.secondaryContainer,
                     content = MaterialTheme.colorScheme.onSecondaryContainer,
                 )

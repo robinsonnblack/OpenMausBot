@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle } from "lucide-react";
@@ -137,7 +138,7 @@ export function ConfirmDialogCard({
           disabled={pending}
           className="rounded-xl px-4 py-2 text-[13px] text-ink-secondary hover:bg-raised hover:text-ink"
         >
-          Cancel
+          {t("hardcoded.components.ConfirmDialog.b004c2c0")}
         </button>
         <button
           type="button"

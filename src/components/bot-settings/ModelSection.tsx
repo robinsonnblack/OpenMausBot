@@ -4,6 +4,7 @@
 // picker's floating popover (absolute, ~480px tall) would open below the
 // fold and only become visible by scrolling; the in-flow menu pushes the
 // Effort card down instead and is fully visible where it opens.
+import { t } from "@/lib/i18n";
 import { EffortRow, ModelPicker } from "../ModelPicker";
 import { useStore, type Bot } from "@/state/store";
 import { useBotEditor } from "./BotEditorContext";
@@ -20,7 +21,7 @@ export function ModelSection({ bot }: { bot: Bot }) {
           contained
           label={
             <div>
-              <div className="text-[15px] font-medium text-ink">Default model</div>
+              <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.ModelSection.78185d78")}</div>
               <div className="mt-0.5 text-[13px] text-ink-secondary">
                 {draft ? "Starting model for the new bot and its threads." : "For groups and new threads. Also updates the selected idle thread; other existing threads keep their model."}
               </div>

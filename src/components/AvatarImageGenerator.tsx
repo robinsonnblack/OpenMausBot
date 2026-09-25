@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Check, Loader2, Sparkles } from "lucide-react";
 
@@ -152,30 +153,30 @@ export function AvatarImageGenerator({
       {provider === "custom" && (
         <>
           <label className="block text-[11.5px] text-ink-secondary">
-            Base URL
+            {t("hardcoded.components.AvatarImageGenerator.f9a6173b")}
             <input
               type="url"
               value={customUrl}
               disabled={busy}
               onChange={(event) => setUrlDraft(event.target.value)}
-              placeholder="http://127.0.0.1:4000/v1"
+              placeholder={t("hardcoded.components.AvatarImageGenerator.60777a27")}
               autoComplete="off"
               className={`${INPUT_CLASS} mt-1`}
             />
           </label>
           <label className="block text-[11.5px] text-ink-secondary">
-            Image model
+            {t("hardcoded.components.AvatarImageGenerator.150a98a6")}
             <input
               value={customModel}
               disabled={busy}
               onChange={(event) => setModelDraft(event.target.value)}
-              placeholder="Model ID from your image provider"
+              placeholder={t("hardcoded.components.AvatarImageGenerator.0f3320f1")}
               autoComplete="off"
               className={`${INPUT_CLASS} mt-1`}
             />
           </label>
           <p className="text-[11px] leading-relaxed text-ink-secondary">
-            OpenAI-compatible Images API. localhost refers to the OpenMausBot server, including when you open this page remotely.
+            {t("hardcoded.components.AvatarImageGenerator.668a95ba")}
           </p>
         </>
       )}
@@ -198,15 +199,15 @@ export function AvatarImageGenerator({
         />
       </label>
       {provider === "xai" && (
-        <p className="text-[11px] leading-relaxed text-ink-secondary">Shares the Grok API key in Settings. Changing or removing it also affects other Grok features.</p>
+        <p className="text-[11px] leading-relaxed text-ink-secondary">{t("hardcoded.components.AvatarImageGenerator.2456ece6")}</p>
       )}
       {provider === "custom" && keyConfigured && (
-        <p className="text-[11px] leading-relaxed text-ink-secondary">The saved custom key will be used. Remove it for a keyless connection.</p>
+        <p className="text-[11px] leading-relaxed text-ink-secondary">{t("hardcoded.components.AvatarImageGenerator.f6acbf5f")}</p>
       )}
       <div className="flex items-center justify-end gap-2">
         {keyConfigured && (
           <button type="button" onClick={() => void removeKey()} disabled={busy} className="mr-auto rounded-md py-1.5 text-[11.5px] text-ink-secondary hover:text-danger disabled:opacity-50">
-            Remove saved key
+            {t("hardcoded.components.AvatarImageGenerator.f88717ff")}
           </button>
         )}
         <button
@@ -225,10 +226,10 @@ export function AvatarImageGenerator({
   return (
     <div className="mt-5 border-t border-hairline/40 pt-4">
       <div className="flex items-center gap-2 text-[13px] font-medium text-ink">
-        <Sparkles size={14} className="text-accent" /> Generate with AI
+        <Sparkles size={14} className="text-accent" /> {t("hardcoded.components.AvatarImageGenerator.5ab7d49c")}
       </div>
       <label className="mt-3 block text-[11.5px] text-ink-secondary">
-        Image provider
+        {t("hardcoded.components.AvatarImageGenerator.378479dc")}
         <select value={provider} onChange={(event) => void chooseProvider(event.target.value as AvatarImageProvider)} disabled={busy || !state.config} className={`${INPUT_CLASS} mt-1`}>
           {Object.entries(PROVIDERS).map(([value, info]) => <option key={value} value={value}>{info.label}</option>)}
         </select>
@@ -237,12 +238,12 @@ export function AvatarImageGenerator({
         {provider === "openai" ? "GPT Image 2 · low-quality square draft. Billed to your OpenAI API account."
           : provider === "xai" ? "Grok Imagine · API billing is separate from your Grok subscription."
             : "Connect a local router or image provider."}
-        {" "}This connection is shared by all bot avatars.
+        {" "}{t("hardcoded.components.AvatarImageGenerator.e7fecb8c")}
       </p>
 
       {configured ? (
         <details key={provider} className="mt-3 rounded-lg border border-hairline/40 px-3 py-2">
-          <summary className="cursor-pointer text-[11.5px] text-ink-secondary">Connection settings</summary>
+          <summary className="cursor-pointer text-[11.5px] text-ink-secondary">{t("hardcoded.components.AvatarImageGenerator.ff4075e3")}</summary>
           <div className="mt-3">{connectionForm}</div>
         </details>
       ) : <div className="mt-3">{connectionForm}</div>}
@@ -253,7 +254,7 @@ export function AvatarImageGenerator({
         onChange={(event) => setDirection(event.target.value.slice(0, 400))}
         maxLength={400}
         placeholder={`Optional direction, e.g. “a calm navigator inspired by ${botLabel}”`}
-        aria-label="Avatar generation direction"
+        aria-label={t("hardcoded.components.AvatarImageGenerator.231cb63e")}
         className={`${INPUT_CLASS} mt-3 min-h-[72px] resize-none`}
       />
       <div className="mt-2 flex items-center justify-between gap-3">
@@ -273,7 +274,7 @@ export function AvatarImageGenerator({
           {generating ? "Generating…" : "Generate avatar"}
         </button>
       </div>
-      {unsaved && <p role="status" className="mt-2 text-[11px] text-ink-secondary">Save your connection changes before generating.</p>}
+      {unsaved && <p role="status" className="mt-2 text-[11px] text-ink-secondary">{t("hardcoded.components.AvatarImageGenerator.7012eb93")}</p>}
       {error && <div role="alert" className="mt-3 text-[12px] text-danger">{error}</div>}
     </div>
   );

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, EllipsisVertical, Globe, Hand, Loader2, Maximize2, Plus, RotateCw, UserRound, X } from "lucide-react";
 import { browserUnavailableReason } from "@/lib/feature-flags";
@@ -189,37 +190,37 @@ export function LiveBrowser({ bot }: { bot: Bot }) {
           <Globe size={13} className="ml-1.5 shrink-0 opacity-60" />
           <button className="truncate px-1 py-2 text-left disabled:cursor-default" disabled={!driving} onClick={() => void execute({ type: "tab-select", tabId: tab.tabId })} title={tab.title || tab.url}>{tab.title || "New tab"}</button>
           <button className={button} aria-label={`Close ${tab.title || "tab"}`} disabled={!driving} onClick={() => void execute({ type: "tab-close", tabId: tab.tabId })}><X size={13} /></button>
-        </div>) : <div className="flex items-center gap-2 rounded-xl bg-inset px-3 py-2 text-[12px] text-ink-secondary"><Globe size={13} />New tab</div>}
-        <button className={`${button} shrink-0`} disabled={!driving} aria-label="New tab" title="New tab" onClick={() => void execute({ type: "tab-new" })}><Plus size={17} /></button>
+        </div>) : <div className="flex items-center gap-2 rounded-xl bg-inset px-3 py-2 text-[12px] text-ink-secondary"><Globe size={13} />{t("hardcoded.components.BrowserPanel.1a8a07bd")}</div>}
+        <button className={`${button} shrink-0`} disabled={!driving} aria-label={t("hardcoded.components.BrowserPanel.1a8a07bd")} title={t("hardcoded.components.BrowserPanel.1a8a07bd")} onClick={() => void execute({ type: "tab-new" })}><Plus size={17} /></button>
       </div>
-      <button className={button} title="Full screen" aria-label="Full screen" onClick={() => { void panel.current?.requestFullscreen().catch(() => setError("Full screen is unavailable in this browser.")); }}><Maximize2 size={16} /></button>
-      <button className={`${button} rounded-xl bg-inset p-2`} title={`Browser profile: ${profileName}`} aria-label="Browser profiles" aria-expanded={showProfiles} onClick={() => setShowProfiles(true)}><UserRound size={16} /></button>
+      <button className={button} title={t("hardcoded.components.BrowserPanel.d0f23d37")} aria-label={t("hardcoded.components.BrowserPanel.d0f23d37")} onClick={() => { void panel.current?.requestFullscreen().catch(() => setError("Full screen is unavailable in this browser.")); }}><Maximize2 size={16} /></button>
+      <button className={`${button} rounded-xl bg-inset p-2`} title={`Browser profile: ${profileName}`} aria-label={t("hardcoded.components.BrowserPanel.6928b782")} aria-expanded={showProfiles} onClick={() => setShowProfiles(true)}><UserRound size={16} /></button>
     </div>
     <form className="flex h-12 items-center gap-1 border-b border-hairline/40 px-2" onSubmit={(e) => { e.preventDefault(); if (driving && address.trim()) void execute({ type: "navigate", url: /^https?:\/\//i.test(address.trim()) ? address.trim() : `https://${address.trim()}` }); }}>
       <div className="flex shrink-0 items-center">
-        <button type="button" className={button} disabled={!driving} aria-label="Back" onClick={() => void execute({ type: "back" })}><ArrowLeft size={17} /></button>
-        <button type="button" className={button} disabled={!driving} aria-label="Forward" onClick={() => void execute({ type: "forward" })}><ArrowRight size={17} /></button>
-        <button type="button" className={button} disabled={!driving} aria-label="Reload page" onClick={() => void execute({ type: "reload" })}><RotateCw size={17} /></button>
+        <button type="button" className={button} disabled={!driving} aria-label={t("hardcoded.components.BrowserPanel.8792bda1")} onClick={() => void execute({ type: "back" })}><ArrowLeft size={17} /></button>
+        <button type="button" className={button} disabled={!driving} aria-label={t("hardcoded.components.BrowserPanel.e57d33b7")} onClick={() => void execute({ type: "forward" })}><ArrowRight size={17} /></button>
+        <button type="button" className={button} disabled={!driving} aria-label={t("hardcoded.components.BrowserPanel.840dabc4")} onClick={() => void execute({ type: "reload" })}><RotateCw size={17} /></button>
       </div>
-      <input ref={addressInput} aria-label="Browser address" readOnly={!driving} value={address} onChange={(e) => setAddress(e.target.value)} onFocus={(e) => { urlEditing.current = true; if (driving) e.target.select(); }} onBlur={() => { urlEditing.current = false; }} placeholder={connected ? "about:blank" : "Connecting…"} spellCheck={false} className="mx-1 min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-center text-[12px] outline-none placeholder:text-ink-secondary focus:bg-inset focus:text-left" />
+      <input ref={addressInput} aria-label={t("hardcoded.components.BrowserPanel.761980a8")} readOnly={!driving} value={address} onChange={(e) => setAddress(e.target.value)} onFocus={(e) => { urlEditing.current = true; if (driving) e.target.select(); }} onBlur={() => { urlEditing.current = false; }} placeholder={connected ? "about:blank" : "Connecting…"} spellCheck={false} className="mx-1 min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-center text-[12px] outline-none placeholder:text-ink-secondary focus:bg-inset focus:text-left" />
       <button type="button" disabled={!connected || pending || (control.held && !control.owned)} onClick={() => void execute({ type: control.owned ? "release" : "take" })} title={control.owned ? "Return to bot — browser tools are paused while you control this profile" : control.held ? "This profile is controlled in another window" : "Take control to click, type, or sign in"} aria-label={control.owned ? "Return to bot" : "Take control"} aria-pressed={control.owned} className={`${button} flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] sm:text-[12px] ${control.owned ? "bg-accent/15 text-accent" : ""}`}>
         {pending ? <Loader2 size={16} className="animate-spin" /> : <Hand size={16} className="hidden sm:block" />}
         <span>{control.owned ? "Return to bot" : "Take control"}</span>
       </button>
       <details className="relative shrink-0">
-        <summary className={`${button} list-none cursor-pointer [&::-webkit-details-marker]:hidden`} aria-label="Browser menu" title="Browser menu"><EllipsisVertical size={17} /></summary>
+        <summary className={`${button} list-none cursor-pointer [&::-webkit-details-marker]:hidden`} aria-label={t("hardcoded.components.BrowserPanel.b396a9a6")} title={t("hardcoded.components.BrowserPanel.b396a9a6")}><EllipsisVertical size={17} /></summary>
         <div className="absolute right-0 top-full z-20 mt-2 flex w-44 flex-col rounded-xl border border-hairline/50 bg-card p-1.5 text-[12px] shadow-xl">
-          <button type="button" className="rounded-md px-3 py-2 text-left hover:bg-inset disabled:opacity-40" disabled={!driving} onClick={(e) => { e.currentTarget.closest("details")?.removeAttribute("open"); setShowTyping(true); }}>Type or paste text…</button>
-          <button type="button" className="rounded-md px-3 py-2 text-left hover:bg-inset" onClick={(e) => { e.currentTarget.closest("details")?.removeAttribute("open"); reconnect(); }}>Reconnect view</button>
+          <button type="button" className="rounded-md px-3 py-2 text-left hover:bg-inset disabled:opacity-40" disabled={!driving} onClick={(e) => { e.currentTarget.closest("details")?.removeAttribute("open"); setShowTyping(true); }}>{t("hardcoded.components.BrowserPanel.26b5bbb1")}</button>
+          <button type="button" className="rounded-md px-3 py-2 text-left hover:bg-inset" onClick={(e) => { e.currentTarget.closest("details")?.removeAttribute("open"); reconnect(); }}>{t("hardcoded.components.BrowserPanel.cb649c9b")}</button>
           <button type="button" className="rounded-md px-3 py-2 text-left hover:bg-inset disabled:opacity-40" disabled={!connected || pending} onClick={(e) => {
             e.currentTarget.closest("details")?.removeAttribute("open");
             if (!window.confirm("Restart this profile’s browser? Open tabs will close. Saved logins are kept. Stop any bots using it first.")) return;
             void execute({ type: "restart" });
-          }}>Restart browser…</button>
+          }}>{t("hardcoded.components.BrowserPanel.1e33d4d3")}</button>
         </div>
       </details>
     </form>
-    {error && <div role={reconnecting ? "status" : "alert"} className={`flex items-center justify-between gap-2 border-b border-hairline/30 px-3 py-2 text-[12px] ${reconnecting ? "text-ink-secondary" : "text-danger"}`}><span>{error}</span>{!connected && <button className="shrink-0 underline" onClick={reconnect}>Reconnect</button>}</div>}
+    {error && <div role={reconnecting ? "status" : "alert"} className={`flex items-center justify-between gap-2 border-b border-hairline/30 px-3 py-2 text-[12px] ${reconnecting ? "text-ink-secondary" : "text-danger"}`}><span>{error}</span>{!connected && <button className="shrink-0 underline" onClick={reconnect}>{t("hardcoded.components.BrowserPanel.3450d257")}</button>}</div>}
     <div className="min-h-0 flex-1 overflow-hidden bg-inset/40">
       {frame ? <BrowserViewport frame={frame} {...viewport} driving={driving} input={input}
         onReturnToToolbar={() => addressInput.current?.focus()}
@@ -228,15 +229,15 @@ export function LiveBrowser({ bot }: { bot: Bot }) {
         : <div className="flex min-h-64 flex-col items-center justify-center gap-3 p-6 text-center text-[13px] text-ink-secondary">{connected && control.held ? <Hand size={24} /> : error && !reconnecting ? <Globe size={24} /> : <Loader2 size={24} className="animate-spin" />}<span>{control.held ? "Live view paused for human control" : reconnecting ? "Reconnecting…" : error ? "Browser disconnected" : "Opening the live browser…"}</span></div>}
     </div>
     <dialog ref={profilesDialog} onClose={() => setShowProfiles(false)} onClick={(e) => { if (e.target === e.currentTarget) setShowProfiles(false); }} className="m-auto w-[min(420px,calc(100%-32px))] max-h-[80vh] overflow-auto rounded-2xl border border-hairline/50 bg-card p-5 text-ink shadow-2xl backdrop:bg-black/40">
-      <div className="mb-4 flex items-center justify-between"><h2 className="text-[15px] font-medium">Browser profiles</h2><button className={button} aria-label="Close browser profiles" onClick={() => setShowProfiles(false)}><X size={16} /></button></div>
+      <div className="mb-4 flex items-center justify-between"><h2 className="text-[15px] font-medium">{t("hardcoded.components.BrowserPanel.6928b782")}</h2><button className={button} aria-label={t("hardcoded.components.BrowserPanel.6c8c7cd1")} onClick={() => setShowProfiles(false)}><X size={16} /></button></div>
       <BrowserProfilesManager bot={bot} disabled={pending || control.held} onProfileChanged={() => { setShowProfiles(false); reconnect(); }} />
     </dialog>
     <dialog ref={typingDialog} onClose={() => setShowTyping(false)} className="m-auto w-[min(420px,calc(100%-32px))] rounded-2xl border border-hairline/50 bg-card p-5 text-ink shadow-2xl backdrop:bg-black/40">
-      <div className="mb-3 flex items-center justify-between"><h2 className="text-[14px] font-medium">Type into the selected page field</h2><button className={button} aria-label="Close typing" onClick={() => setShowTyping(false)}><X size={16} /></button></div>
+      <div className="mb-3 flex items-center justify-between"><h2 className="text-[14px] font-medium">{t("hardcoded.components.BrowserPanel.ce9673d8")}</h2><button className={button} aria-label={t("hardcoded.components.BrowserPanel.e2f8451c")} onClick={() => setShowTyping(false)}><X size={16} /></button></div>
       <form className="flex flex-col gap-3" onSubmit={(e) => {
       e.preventDefault(); const field = e.currentTarget.elements.namedItem("pageText") as HTMLInputElement;
       if (driving && field.value) { input({ type: "input_keyboard", eventType: "char", text: field.value }); field.value = ""; setShowTyping(false); }
-    }}><input name="pageText" aria-label="Text for the page" autoComplete="off" maxLength={4096} placeholder="Type or paste text" className="rounded-lg bg-inset px-3 py-2 text-[13px] outline-none focus:ring-1 focus:ring-accent" /><button disabled={!driving} className="self-end rounded-lg bg-accent px-4 py-2 text-[12px] text-accent-ink disabled:opacity-40">Type</button></form>
+    }}><input name="pageText" aria-label={t("hardcoded.components.BrowserPanel.60eeec2c")} autoComplete="off" maxLength={4096} placeholder={t("hardcoded.components.BrowserPanel.d540e995")} className="rounded-lg bg-inset px-3 py-2 text-[13px] outline-none focus:ring-1 focus:ring-accent" /><button disabled={!driving} className="self-end rounded-lg bg-accent px-4 py-2 text-[12px] text-accent-ink disabled:opacity-40">{t("hardcoded.components.BrowserPanel.d50cbb5c")}</button></form>
     </dialog>
   </div>;
 }
@@ -255,10 +256,10 @@ export function BrowserPanel({ bot }: { bot: Bot }) {
     catch (cause) { setError(cause instanceof Error ? cause.message : String(cause)); }
     finally { setRequested(false); }
   };
-  if (admin === false) return <div className="p-5 text-[13px] text-ink-secondary">Only admins of this installation can view or control saved browser sessions.</div>;
-  if (bot.browser === false) return <div className="p-5 text-[13px] text-ink-secondary">Enable the browser in this bot’s profile to use it.</div>;
+  if (admin === false) return <div className="p-5 text-[13px] text-ink-secondary">{t("hardcoded.components.BrowserPanel.c39e372e")}</div>;
+  if (bot.browser === false) return <div className="p-5 text-[13px] text-ink-secondary">{t("hardcoded.components.BrowserPanel.f03c5a32")}</div>;
   if (engine?.kind === "engine" && !installing && !engine.installError) return admin === null
-    ? <div className="p-5 text-[13px] text-ink-secondary">Loading browser…</div>
+    ? <div className="p-5 text-[13px] text-ink-secondary">{t("hardcoded.components.BrowserPanel.e116523b")}</div>
     : <LiveBrowser key={bot.id} bot={bot} />;
   return <div className="flex min-h-0 flex-1 flex-col items-start justify-center gap-3 rounded-xl bg-card p-5">
     <div className="text-[15px] font-medium text-ink">{engine?.kind === "engine" ? "Browser installation incomplete" : "Browser engine not installed"}</div>

@@ -17,6 +17,7 @@
 // every activity chip the harness narrates (`tool.spoken`) is read aloud as
 // it happens, which is why waiting feels like listening to someone work
 // rather than listening to nothing.
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Loader2, Phone, PhoneOff, X } from "lucide-react";
 
@@ -169,10 +170,10 @@ export function CallTargetButton({
         <div
           id={helpId}
           role="group"
-          aria-label="Call unavailable"
+          aria-label={t("hardcoded.components.CallView.64f0469f")}
           className="animate-pop-in absolute right-0 z-30 mt-1.5 w-[280px] rounded-xl border border-hairline bg-panel p-3 text-left shadow-2xl"
         >
-          <div className="text-[13px] font-medium text-ink">Call unavailable</div>
+          <div className="text-[13px] font-medium text-ink">{t("hardcoded.components.CallView.64f0469f")}</div>
           <div className="mt-1 text-[12px] leading-[1.45] text-ink-secondary">{reason}</div>
           {capabilityHelp?.action === "choose-local-workspace" && (
             <button
@@ -183,7 +184,7 @@ export function CallTargetButton({
               }}
               className="mt-2.5 rounded-lg bg-accent px-3 py-1.5 text-[12px] font-medium text-white hover:brightness-110"
             >
-              Choose This computer
+              {t("hardcoded.components.CallView.3bd6f384")}
             </button>
           )}
           {voiceSetupRequired && (
@@ -196,7 +197,7 @@ export function CallTargetButton({
               }}
               className="mt-2.5 rounded-lg bg-accent px-3 py-1.5 text-[12px] font-medium text-white hover:brightness-110"
             >
-              Open agent settings
+              {t("hardcoded.components.CallView.0518fb33")}
             </button>
           )}
         </div>
@@ -551,7 +552,7 @@ function Call({ bot }: { bot: Bot }) {
     <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-6 bg-app/95 backdrop-blur-sm">
       <button
         onClick={() => endCall(bot.id)}
-        aria-label="Hang up"
+        aria-label={t("hardcoded.components.CallView.a588aea4")}
         className="absolute right-5 top-5 rounded-md p-2 text-ink-secondary hover:bg-raised hover:text-ink"
       >
         <X size={18} />
@@ -587,7 +588,7 @@ function Call({ bot }: { bot: Bot }) {
             onClick={listen}
             className="rounded-full border border-warning/40 px-3 py-1.5 text-[12px] hover:bg-warning/10"
           >
-            Try microphone again
+            {t("hardcoded.components.CallView.968f43aa")}
           </button>
         </div>
       )}
@@ -603,19 +604,19 @@ function Call({ bot }: { bot: Bot }) {
             }}
             className="rounded-full border border-hairline/50 px-4 py-2 text-[13.5px] text-ink hover:bg-raised"
           >
-            Interrupt
+            {t("hardcoded.components.CallView.fa7a9794")}
           </button>
         )}
         <button
           onClick={() => endCall(bot.id)}
           className="flex items-center gap-2 rounded-full bg-danger px-5 py-2.5 text-[14px] font-medium text-white hover:brightness-110"
         >
-          <PhoneOff size={16} /> Hang up
+          <PhoneOff size={16} /> {t("hardcoded.components.CallView.a588aea4")}
         </button>
       </div>
 
       <div className="text-[11.5px] text-ink-secondary/70">
-        Hold Control + Option to talk · Space interrupts · Esc hangs up
+        {t("hardcoded.components.CallView.3c54d1ef")}
       </div>
     </div>
   );

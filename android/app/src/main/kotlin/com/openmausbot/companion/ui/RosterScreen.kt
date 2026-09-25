@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -103,6 +104,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RosterScreen(navigator: CompanionNavigator) {
     val environment = LocalCompanion.current
+    val l10n = LocalContext.current
     val session = environment.session
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
@@ -211,7 +213,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                     if (created != null) {
                                         navigator.open(Chat.BotChat(created))
                                     } else if (session.actionError == null) {
-                                        session.actionError = "Couldn't create a thread. Check the connection and try again."
+                                        session.actionError = l10n.getString(R.string.android_roster_create_thread_error)
                                     }
                                 } finally {
                                     creatingThreads = creatingThreads - bot.id
@@ -256,11 +258,11 @@ fun RosterScreen(navigator: CompanionNavigator) {
                     if (query.isEmpty()) !RosterLayout.listsAnyBot(summaries) else rows.isEmpty()
                 if (nothingToList && hits.isEmpty()) {
                     EmptyState(
-                        title = if (query.isEmpty()) "No bots yet" else "Nothing matches",
+                        title = if (query.isEmpty()) l10n.getString(R.string.android_remaining_roster_screen_efc070bf) else l10n.getString(R.string.android_remaining_roster_screen_17e7aebf),
                         description = if (query.isEmpty()) {
-                            "Bots you create on your computer show up here."
+                            stringResource(R.string.android_roster_bots_empty)
                         } else {
-                            "No thread matches “$query”."
+                            stringResource(R.string.android_roster_no_matching_thread, query)
                         },
                     )
                 }
@@ -272,7 +274,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                     if (RosterLayout.showsGroups(query)) {
                         if (attention.isNotEmpty()) {
                             item(key = "attention-label") {
-                                SectionLabel("Needs attention", Modifier.padding(top = 2.dp, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.android_roster_needs_attention), Modifier.padding(top = 2.dp, bottom = 4.dp))
                             }
                             items(attention, key = { "attention-${it.id}" }) { entry ->
                                 AttentionRow(entry = entry, onOpen = {
@@ -292,7 +294,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         val pinned = state.pinnedBots.mapNotNull { summariesById[it.id] }
                         if (pinned.isNotEmpty()) {
                             item(key = "pinned-label") {
-                                SectionLabel("Pinned", Modifier.padding(top = 2.dp, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.android_thread_pinned), Modifier.padding(top = 2.dp, bottom = 4.dp))
                             }
                             itemsIndexed(pinned, key = { _, summary -> "pinned-${summary.id}" }) { index, summary ->
                                 entry(summary, index == pinned.lastIndex)
@@ -324,7 +326,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         val unsectioned = state.unsectionedBots.mapNotNull { summariesById[it.id] }
                         if (unsectioned.isNotEmpty()) {
                             item(key = "bots-label") {
-                                SectionLabel("Bots", Modifier.padding(top = 18.dp, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.android_roster_bots), Modifier.padding(top = 18.dp, bottom = 4.dp))
                             }
                             itemsIndexed(unsectioned, key = { _, summary -> "bot-${summary.id}" }) { index, summary ->
                                 entry(summary, index == unsectioned.lastIndex)
@@ -379,7 +381,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                     .padding(top = 10.dp, bottom = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                SectionLabel("Messages")
+                                SectionLabel(stringResource(R.string.android_roster_messages))
                                 Spacer(Modifier.weight(1f))
                                 if (searching) {
                                     CircularProgressIndicator(
@@ -409,7 +411,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             )
                         }
                         item(key = "chats-label") {
-                            SectionLabel("Threads", Modifier.padding(top = 14.dp, bottom = 4.dp))
+                            SectionLabel(stringResource(R.string.android_roster_threads), Modifier.padding(top = 14.dp, bottom = 4.dp))
                         }
                     }
 
@@ -795,10 +797,9 @@ private fun ChatRow(
                             }
                         }
                         Text(
-                            text = RelativeStamp.list(
+                            text = RelativeStamp.localizedList(
                                 summary.lastActivity,
                                 now,
-                                locale = Locale.getDefault(),
                             ),
                             fontSize = 15.sp,
                             color = secondaryTint,
@@ -1032,7 +1033,7 @@ private fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
                 }
                 Spacer(Modifier.weight(1f))
                 Text(
-                    text = RelativeStamp.list(hit.at, now, locale = Locale.getDefault()),
+                    text = RelativeStamp.localizedList(hit.at, now),
                     fontSize = 12.sp,
                     color = secondaryTint,
                 )
@@ -1055,10 +1056,10 @@ fun StatusBanner() {
     val status by session.status.collectAsState()
     val banner: Pair<String, Color>? = when (val current = status) {
         Session.Status.Live, Session.Status.Unpaired -> null
-        Session.Status.Connecting -> "Connecting…" to secondaryTint
+        Session.Status.Connecting -> stringResource(R.string.android_roster_connecting) to secondaryTint
         is Session.Status.Offline -> current.message to Color(MausPalette.argb("orange"))
         Session.Status.Unauthorized ->
-            "This phone was unpaired on the computer." to MaterialTheme.colorScheme.error
+            stringResource(R.string.android_roster_unpaired) to MaterialTheme.colorScheme.error
     }
     val (text, tint) = banner ?: return
     Text(

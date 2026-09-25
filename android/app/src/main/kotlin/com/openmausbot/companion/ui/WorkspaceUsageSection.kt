@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -24,8 +25,9 @@ import java.util.Locale
 /** The paired computer's read-only usage ledger. Admin pairing scope is required. */
 @Composable
 internal fun WorkspaceUsageSection() {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
-    var period by remember { mutableStateOf("This month") }
+    var period by remember { mutableStateOf("this-month") }
     var grouping by remember { mutableStateOf("bot") }
     var report by remember { mutableStateOf<WorkspaceUsage?>(null) }
     var loading by remember { mutableStateOf(true) }
@@ -37,24 +39,29 @@ internal fun WorkspaceUsageSection() {
         try {
             val today = LocalDate.now(ZoneOffset.UTC)
             val from = when (period) {
-                "Last month" -> today.minusMonths(1).withDayOfMonth(1)
-                "Last 30 days" -> today.minusDays(29)
+                "last-month" -> today.minusMonths(1).withDayOfMonth(1)
+                "last-30-days" -> today.minusDays(29)
                 else -> today.withDayOfMonth(1)
             }
-            val to = if (period == "Last month") today.withDayOfMonth(1).minusDays(1) else today
+            val to = if (period == "last-month") today.withDayOfMonth(1).minusDays(1) else today
             report = session.workspaceUsage(from.toString(), to.toString(), grouping)
         } catch (failure: Exception) {
             report = null
-            error = failure.message ?: "Could not load usage. This view requires admin access to the paired computer."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_workspace_usage_section_36879644)
         } finally { loading = false }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.ui_usage_recorded_by_the_paired_computer_cost_c072280))
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            listOf("This month", "Last month", "Last 30 days").forEach { choice ->
+            listOf(
+                "this-month" to R.string.android_remaining_workspace_usage_section_1b478533,
+                "last-month" to R.string.android_remaining_workspace_usage_section_9cce45bf,
+                "last-30-days" to R.string.android_remaining_workspace_usage_section_6b329852,
+            ).forEach { (choice, labelId) ->
+                val label = stringResource(labelId)
                 TextButton(onClick = { period = choice }) {
-                    Text(if (period == choice) "✓ $choice" else choice)
+                    Text(if (period == choice) "✓ $label" else label)
                 }
             }
         }

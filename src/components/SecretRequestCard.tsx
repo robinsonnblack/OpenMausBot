@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useState, type FormEvent } from "react";
 import { Check, ExternalLink, KeyRound, Loader2, LockKeyhole, RefreshCw, X } from "lucide-react";
 
@@ -113,7 +114,7 @@ export function SecretRequestCard({
               <span className="truncate text-[14px] font-semibold text-ink">{secret.label}</span>
               {provided && (
                 <span className="flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-medium text-success">
-                  <Check size={11} /> Saved
+                  <Check size={11} /> {t("hardcoded.components.SecretRequestCard.515a968d")}
                 </span>
               )}
             </div>
@@ -122,7 +123,7 @@ export function SecretRequestCard({
             </p>
             {!provided && !declined && (
               <p className="mt-1 flex items-center gap-1 text-[11.5px] text-ink-secondary/80">
-                <LockKeyhole size={11} /> Stored securely by OpenMausBot and never added to chat.
+                <LockKeyhole size={11} /> {t("hardcoded.components.SecretRequestCard.9066c52e")}
               </p>
             )}
             {error && <p role="alert" className="mt-2 text-[12px] text-danger">{error}</p>}
@@ -130,8 +131,8 @@ export function SecretRequestCard({
           {!provided && !declined && (
             <button
               onClick={dismiss}
-              aria-label="Not now"
-              title="Not now"
+              aria-label={t("hardcoded.components.SecretRequestCard.aa47b4d1")}
+              title={t("hardcoded.components.SecretRequestCard.aa47b4d1")}
               className="rounded-md p-1 text-ink-secondary hover:bg-control hover:text-ink"
             >
               <X size={15} />
@@ -140,7 +141,7 @@ export function SecretRequestCard({
         </div>
         {remoteClient && !provided && !declined && (
           <div className="border-t border-hairline/40 bg-panel/40 px-4 py-3 text-[12.5px] leading-relaxed text-ink-secondary">
-            This key must be saved on the host computer. Open this conversation on the host to continue securely.
+            {t("hardcoded.components.SecretRequestCard.cffbfa4e")}
           </div>
         )}
         {!remoteClient && !provided && !declined && (
@@ -172,7 +173,7 @@ export function SecretRequestCard({
               rel="noopener noreferrer"
               className="mt-2 inline-flex items-center gap-1 text-[11.5px] text-accent hover:underline"
             >
-              Where to get this key <ExternalLink size={11} />
+              {t("hardcoded.components.SecretRequestCard.bae71ba3")} <ExternalLink size={11} />
             </a>
           </form>
         )}
@@ -191,7 +192,7 @@ export function SecretRequestCard({
                 disabled={saving}
                 className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
-                {saving ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />} Try again
+                {saving ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />} {t("hardcoded.components.SecretRequestCard.5f86cc80")}
               </button>
             )}
           </div>

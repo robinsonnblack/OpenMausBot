@@ -109,7 +109,7 @@ function ProfileFields() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         onBlur={save}
-        placeholder="you@example.com"
+        placeholder={t("hardcoded.components.SettingsModal.07c3534c")}
         className={inputClass}
       />
       <AboutMeSettings />

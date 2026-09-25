@@ -2,6 +2,7 @@
 // from the member mauses in the room header and pre-ticked with who is
 // already in. Membership is the only thing this touches — the transcript
 // keeps every message a departing bot already sent.
+import { t } from "@/lib/i18n";
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { track } from "@/lib/analytics";
 import { useStore, type Group } from "@/state/store";
@@ -111,10 +112,10 @@ export function ManageMembersPanel({
         aria-label={`Manage members of ${group.name}`}
         className="w-[340px] rounded-2xl border border-hairline/50 bg-card p-4 shadow-2xl"
       >
-        <div className="mb-1 text-[15px] font-semibold text-ink">Manage Members</div>
+        <div className="mb-1 text-[15px] font-semibold text-ink">{t("hardcoded.components.ManageMembersPanel.e77170ca")}</div>
         <div className="mb-3 truncate text-[13px] text-ink-secondary">{group.name}</div>
         <BotPickerList bots={bots} picked={picked} onToggle={toggle} emptyHint="Create a bot first — groups are made of bots." />
-        {!memberIds.length && <div className="mt-2 text-[12px] text-ink-secondary">A group needs at least one bot.</div>}
+        {!memberIds.length && <div className="mt-2 text-[12px] text-ink-secondary">{t("hardcoded.components.ManageMembersPanel.64e9f32c")}</div>}
         {saveError && (
           <div role="alert" className="mt-2 text-[12px] text-danger">
             {saveError}
@@ -125,14 +126,14 @@ export function ManageMembersPanel({
             onClick={onClose}
             className="flex-1 rounded-lg bg-raised py-2 text-[14px] font-medium text-ink hover:brightness-110"
           >
-            Cancel
+            {t("hardcoded.components.ManageMembersPanel.c3e697ae")}
           </button>
           <button
             onClick={save}
             disabled={!memberIds.length}
             className="flex-1 rounded-lg bg-accent py-2 text-[14px] font-medium text-white hover:brightness-110 disabled:opacity-40"
           >
-            Save{memberIds.length ? ` · ${memberIds.length} ${memberIds.length === 1 ? "bot" : "bots"}` : ""}
+            {t("hardcoded.components.ManageMembersPanel.1bce85b2")}{memberIds.length ? ` · ${memberIds.length} ${memberIds.length === 1 ? "bot" : "bots"}` : ""}
           </button>
         </div>
       </div>

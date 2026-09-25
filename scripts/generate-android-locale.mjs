@@ -14,7 +14,7 @@ const BATCH_SIZE = 18;
 
 function decode(value) {
   return value.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'").replace(/&amp;/g, "&").replace(/\\'/g, "'");
+    .replace(/&apos;/g, "'").replace(/&#x27;/g, "'").replace(/&amp;/g, "&").replace(/\\'/g, "'");
 }
 
 function encode(value) {

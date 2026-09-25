@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WorkspaceBudgetSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var baseline by remember { mutableStateOf<WorkspaceBudgetConfig?>(null) }
@@ -42,15 +44,15 @@ internal fun WorkspaceBudgetSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try {
-            val status = session.configStatus() ?: throw IllegalStateException("Could not load the computer's settings.")
+            val status = session.configStatus() ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_budget_sheet_c7692b73))
             if (status.edition?.features?.contains("budgets") != true) {
-                throw IllegalStateException("This computer does not have the workspace budget feature.")
+                throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_budget_sheet_666dc96e))
             }
             val current = status.budgets ?: WorkspaceBudgetConfig()
             baseline = current
             monthly = if (current.monthlyUsd == 0.0) "" else current.monthlyUsd.toString()
             warnAt = current.warnAtPercent.toString()
-        } catch (failure: Exception) { error = failure.message ?: "Could not load the spending limit." }
+        } catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_workspace_budget_sheet_723bcf49) }
         finally { loading = false }
     }
 
@@ -58,7 +60,7 @@ internal fun WorkspaceBudgetSheet(onDismiss: () -> Unit) {
         val amount = if (monthly.isBlank()) 0.0 else monthly.toDoubleOrNull()
         val percent = warnAt.toIntOrNull()
         if (amount == null || !amount.isFinite() || amount !in 0.0..1_000_000.0 || percent == null || percent !in 1..100) {
-            error = "Enter a monthly USD limit from 0 to 1,000,000 and a warning threshold from 1 to 100%."
+            error = l10n.getString(R.string.android_remaining_workspace_budget_sheet_9b238dbe)
             return
         }
         val expected = baseline ?: return
@@ -66,17 +68,17 @@ internal fun WorkspaceBudgetSheet(onDismiss: () -> Unit) {
         error = null
         scope.launch {
             try {
-                val latest = session.configStatus() ?: throw IllegalStateException("Could not recheck the computer's settings.")
+                val latest = session.configStatus() ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_budget_sheet_489bf11b))
                 if (latest.edition?.features?.contains("budgets") != true ||
                     (latest.budgets ?: WorkspaceBudgetConfig()) != expected) {
-                    throw IllegalStateException("The budget changed on the computer. Reopen this screen before saving.")
+                    throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_budget_sheet_cf2ed635))
                 }
                 val requested = WorkspaceBudgetConfig(amount, percent)
                 val saved = session.updateWorkspaceBudget(requested)
-                if (saved.budgets != requested) throw IllegalStateException("The computer did not confirm the saved limit.")
+                if (saved.budgets != requested) throw IllegalStateException(l10n.getString(R.string.android_remaining_workspace_budget_sheet_f7fdc59d))
                 baseline = requested
                 onDismiss()
-            } catch (failure: Exception) { error = failure.message ?: "Could not save the spending limit." }
+            } catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_workspace_budget_sheet_714c3342) }
             finally { busy = false }
         }
     }

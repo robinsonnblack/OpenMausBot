@@ -430,7 +430,7 @@ private fun ActionErrorDialog(session: Session) {
 private fun UnpairedScreen(onPairAgain: () -> Unit, onChooseAnother: (() -> Unit)? = null) {
     EmptyState(
         title = stringResource(R.string.ui_this_phone_was_unpaired_0927360),
-        description = "It was removed from the computer's Phone settings, or the pairing was reset.",
+        description = stringResource(R.string.android_unpaired_explanation),
     ) {
         Button(onClick = onPairAgain) { Text(stringResource(R.string.ui_pair_again_379e2bf)) }
         onChooseAnother?.let { choose ->

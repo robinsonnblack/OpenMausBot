@@ -143,7 +143,7 @@ export function CustomDomainSettings() {
           <>
             <form onSubmit={(event) => { event.preventDefault(); if (domain.trim() && !busy) void save(false); }} className="space-y-2">
               <label htmlFor="custom-domain" className="block text-[13px] font-medium text-ink">{t("settings.domain.label")}</label>
-              <input id="custom-domain" type="text" value={domain} disabled={busy !== null} onChange={(event) => { setDomain(event.target.value); setNotice(null); setError(null); }} placeholder="bots.yourcompany.com" autoCapitalize="none" autoCorrect="off" spellCheck={false} className="w-full rounded-lg border border-hairline/50 bg-inset px-3 py-2 text-[13px] text-ink placeholder:text-ink-secondary focus:border-accent focus:outline-none disabled:opacity-50" />
+              <input id="custom-domain" type="text" value={domain} disabled={busy !== null} onChange={(event) => { setDomain(event.target.value); setNotice(null); setError(null); }} placeholder={t("hardcoded.components.CustomDomainSettings.96a15c67")} autoCapitalize="none" autoCorrect="off" spellCheck={false} className="w-full rounded-lg border border-hairline/50 bg-inset px-3 py-2 text-[13px] text-ink placeholder:text-ink-secondary focus:border-accent focus:outline-none disabled:opacity-50" />
               <CustomDomainDnsRecord domain={domain} serverIpv4={status.serverIpv4} />
               <p className="text-[11.5px] leading-relaxed text-ink-secondary">{t("settings.domain.httpsNeeded")}</p>
               <div className="flex flex-wrap gap-2 pt-1">

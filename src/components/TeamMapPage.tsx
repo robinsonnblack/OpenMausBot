@@ -217,11 +217,11 @@ function SectionContextDialog({ section, label, onClose }: { section: string; la
               />
               <div className="mt-2 flex items-start justify-between gap-4 text-[11.5px] text-ink-secondary">
                 <span>
-                  Keep durable team facts here. Private notes stay in each bot's own Memory.
+                  {t("hardcoded.components.TeamMapPage.5d01c4e7")}
                   {updatedAt ? ` Last saved ${new Date(updatedAt).toLocaleString()}.` : ""}
                 </span>
                 <span className={cn("shrink-0 tabular-nums", bytes > maxBytes && "text-danger")}>
-                  {bytes.toLocaleString()} / {maxBytes.toLocaleString()} bytes
+                  {bytes.toLocaleString()} / {maxBytes.toLocaleString()} {t("hardcoded.components.TeamMapPage.9c08dd9a")}
                 </span>
               </div>
             </>
@@ -231,7 +231,7 @@ function SectionContextDialog({ section, label, onClose }: { section: string; la
 
         <footer className="flex items-center justify-end gap-2 border-t border-hairline/40 px-6 py-4 sm:px-8">
           <button onClick={requestClose} disabled={saving} className="rounded-lg px-3.5 py-2 text-[13px] text-ink-secondary hover:bg-raised hover:text-ink disabled:opacity-40">
-            Cancel
+            {t("hardcoded.components.TeamMapPage.ffabf467")}
           </button>
           <button
             onClick={() => void save()}
@@ -320,23 +320,23 @@ export function TeamMapPage() {
         <div>
           <div className="flex items-center gap-2.5">
             <Network size={18} className="text-ink-secondary" />
-            <h1 className="text-[17px] font-semibold">Team map</h1>
+            <h1 className="text-[17px] font-semibold">{t("hardcoded.components.TeamMapPage.fbda22e9")}</h1>
             <span className="ml-1 text-[11px] text-ink-secondary">{t("canvas.botCount", { count: bots.length })}</span>
           </div>
           <p className="mt-1 text-[12px] text-ink-secondary">{t("canvas.description")}</p>
         </div>
         {!remoteClient && <div className="flex items-center gap-2">
-          <button onClick={() => setComputersOpen((value) => !value)} aria-label="Computers" aria-expanded={computersOpen} className="rounded-lg p-2 text-ink-secondary hover:bg-control hover:text-ink"><Monitor size={17} /></button>
+          <button onClick={() => setComputersOpen((value) => !value)} aria-label={t("hardcoded.components.TeamMapPage.f38317b3")} aria-expanded={computersOpen} className="rounded-lg p-2 text-ink-secondary hover:bg-control hover:text-ink"><Monitor size={17} /></button>
           <details className="relative" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.removeAttribute("open"); }} onKeyDown={(event) => {
             if (event.key === "Escape") { event.currentTarget.removeAttribute("open"); event.currentTarget.querySelector("summary")?.focus(); }
           }}>
-            <summary aria-label="Add to team map" className="flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-hairline/60 bg-panel px-3 py-2 text-[12px] font-medium hover:bg-control [&::-webkit-details-marker]:hidden"><Plus size={14} /> Add</summary>
+            <summary aria-label={t("hardcoded.components.TeamMapPage.2eae6638")} className="flex cursor-pointer list-none items-center gap-1.5 rounded-lg border border-hairline/60 bg-panel px-3 py-2 text-[12px] font-medium hover:bg-control [&::-webkit-details-marker]:hidden"><Plus size={14} /> {t("hardcoded.components.TeamMapPage.493ed025")}</summary>
             <div className="absolute right-0 top-full z-40 mt-2 w-52 rounded-xl border border-hairline/60 bg-panel p-1.5 shadow-xl" onClick={(event) => {
               const details = event.currentTarget.closest("details"); details?.querySelector("summary")?.focus(); details?.removeAttribute("open");
             }}>
               <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[12px] hover:bg-control" onClick={() => setTeamEditor({})}><Users size={14} />{t("team.create")}</button>
-              <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[12px] hover:bg-control" onClick={() => { setComputersOpen(true); setCreateComputerRequest((value) => value + 1); }}><Box size={14} />Box computer</button>
-              <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[12px] hover:bg-control" onClick={() => dispatch({ type: "toggleAppSettings", section: "computer", open: true })}><Monitor size={14} />Local VM…</button>
+              <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[12px] hover:bg-control" onClick={() => { setComputersOpen(true); setCreateComputerRequest((value) => value + 1); }}><Box size={14} />{t("hardcoded.components.TeamMapPage.d97a43c0")}</button>
+              <button className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[12px] hover:bg-control" onClick={() => dispatch({ type: "toggleAppSettings", section: "computer", open: true })}><Monitor size={14} />{t("hardcoded.components.TeamMapPage.71a38df7")}</button>
             </div>
           </details>
         </div>}
@@ -373,7 +373,7 @@ export function TeamMapPage() {
       {teamEditor && <TeamDialog {...teamEditor} onClose={() => setTeamEditor(null)} />}
       <ConfirmDialog open={pendingMove !== null} tone="neutral" title={`Move ${pendingMove?.bot.name ?? "bot"} to ${pendingMove?.destination || "General"}?`}
         body="This changes the bot's home team and shared instructions, not just its position. Its conversations and model stay with it. To arrange visually, drag within the same team."
-        confirmLabel="Move bot" onCancel={cancelMove} onConfirm={() => {
+        confirmLabel={t("hardcoded.components.TeamMapPage.27fa427c")} onCancel={cancelMove} onConfirm={() => {
           const move = pendingMoveRef.current;
           if (!move) return;
           setPendingMove(null);

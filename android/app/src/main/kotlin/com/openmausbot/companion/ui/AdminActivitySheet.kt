@@ -62,6 +62,7 @@ internal fun validActivityDates(from: String, to: String): Boolean {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AdminActivitySheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -143,7 +144,7 @@ internal fun AdminActivitySheet(onDismiss: () -> Unit) {
                             pendingCsv = session.adminActivityCsv(requireNotNull(appliedFilter))
                             export.launch("activity-${LocalDate.now()}.csv")
                         } catch (failure: Exception) {
-                            error = failure.message ?: "Could not export activity."
+                            error = failure.message ?: l10n.getString(R.string.android_remaining_admin_activity_sheet_2156db06)
                         } finally { exporting = false }
                     }
                 }) { Text(stringResource(if (exporting) R.string.ui_exporting else R.string.ui_export_csv)) }

@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ private data class PendingLocalVmAction(val action: String, val botId: String? =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var status by remember { mutableStateOf<LocalVmStatus?>(null) }
@@ -58,7 +60,7 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
     }
     LaunchedEffect(Unit) {
         try { refresh() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load Local VM status." }
+        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_local_vm_management_sheet_54cb2ca4) }
         finally { loading = false }
     }
     fun act(target: PendingLocalVmAction) {
@@ -70,7 +72,7 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
                 else session.localVmAction(target.action)
                 refresh()
             }
-            catch (failure: Exception) { error = failure.message ?: "Local VM action failed." }
+            catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_local_vm_action_error) }
             finally { busy = false }
         }
     }
@@ -117,13 +119,13 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
                         try {
                             val latest = session.localVmStatus()
                             if (latest.mode != current.mode || latest.maxInstances != current.maxInstances) {
-                                throw IllegalStateException("The computer's VM policy changed. Refresh before saving.")
+                                throw IllegalStateException(l10n.getString(R.string.android_remaining_local_vm_management_sheet_eeb784a8))
                             }
                             val requested = LocalVmConfig(mode, maximum)
                             val saved = session.updateLocalVmConfig(requested).localVm
-                            if (saved != requested) throw IllegalStateException("The computer did not confirm the saved policy.")
+                            if (saved != requested) throw IllegalStateException(l10n.getString(R.string.android_remaining_local_vm_management_sheet_b0338c59))
                             refresh()
-                        } catch (failure: Exception) { error = failure.message ?: "Could not save VM policy." }
+                        } catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_local_vm_management_sheet_adc16026) }
                         finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.ui_save_vm_policy_a09a1e6)) }
@@ -167,7 +169,7 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
                     error = null
                     scope.launch {
                         try { refresh() }
-                        catch (failure: Exception) { error = failure.message ?: "Could not refresh VM status." }
+                        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_local_vm_management_sheet_7fa7e0f5) }
                         finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.ui_refresh_56e3bad)) }

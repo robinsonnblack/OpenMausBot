@@ -183,7 +183,7 @@ export function ErrorRow({
         {isProviderSafetyBlock(message) ? (
           <p className="mt-2 text-[12.5px] leading-relaxed text-ink-secondary">
             {PROVIDER_SAFETY_GUIDANCE}{" "}
-            <a href={PROVIDER_SAFETY_HELP_URL} target="_blank" rel="noreferrer" className="underline">About provider safety checks</a>
+            <a href={PROVIDER_SAFETY_HELP_URL} target="_blank" rel="noreferrer" className="underline">{t("hardcoded.components.ChatView.00eacb4c")}</a>
           </p>
         ) : setupInstance &&
         !(setupInstance.snapshot.state === "available" && setupInstance.snapshot.authenticated !== false) ? (
@@ -1243,7 +1243,7 @@ export function ChatView({ bot: profile }: { bot: Bot }) {
             </span>
           )}
           {bot.busy && <WorkingDots className="text-ink-secondary" />}
-          {!bot.busy && bot.waitingForTeammates && <span className="truncate text-[12px] text-ink-secondary" role="status">Teammates working</span>}
+          {!bot.busy && bot.waitingForTeammates && <span className="truncate text-[12px] text-ink-secondary" role="status">{t("hardcoded.components.ChatView.7b465392")}</span>}
         </div>
         <div
           className="flex shrink-0 items-center gap-2"

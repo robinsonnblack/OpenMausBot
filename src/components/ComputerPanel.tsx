@@ -1247,7 +1247,7 @@ export function ComputerPanel({
           <Settings size={18} />
         </button>
         {(
-          <div className="mx-2 flex min-w-0 flex-wrap overflow-hidden rounded-lg border border-hairline/40" data-tour="computer-tabs" aria-label="Bot panel view">
+          <div className="mx-2 flex min-w-0 flex-wrap overflow-hidden rounded-lg border border-hairline/40" data-tour="computer-tabs" aria-label={t("hardcoded.components.ComputerPanel.7a303b79")}>
             <button
               onClick={() => selectPanelView("computer")}
               aria-pressed={panelView === "computer"}
@@ -1326,7 +1326,7 @@ export function ComputerPanel({
           {/* Screen preview */}
           <div className="mb-1.5 mt-2 flex items-center justify-between text-[13px] text-ink-secondary">
             <span>{t("computer.screenOf", { name: bot.name })}</span>
-            {currentTeamComputer && <span className="text-[11px]">Team default</span>}
+            {currentTeamComputer && <span className="text-[11px]">{t("hardcoded.components.ComputerPanel.a8b8acd2")}</span>}
             {phase === "local" && <span className="text-[11px]">{t("computer.badge.local")}</span>}
             {phase === "vm" && <span className="text-[11px]">{t("vm.dest.vm")}</span>}
             {(phase === "show-ready-box" || phase === "show-sleeping-box" || phase === "show-pending-box") && (
@@ -1408,11 +1408,11 @@ export function ComputerPanel({
                     : emptyState[phase]}
               </span>
               {currentTeamComputer && <>
-                <p className="text-[12px]">Shared files and signed-in accounts. Auto uses this Box, not a private computer.</p>
+                <p className="text-[12px]">{t("hardcoded.components.ComputerPanel.94bab5e6")}</p>
                 <button type="button" onClick={() => dispatch({ type: "showTeamMap" })}
-                  className="mt-1 rounded-lg bg-control px-3 py-1.5 text-[12px] text-ink hover:bg-raised-hover">Open Team map</button>
+                  className="mt-1 rounded-lg bg-control px-3 py-1.5 text-[12px] text-ink hover:bg-raised-hover">{t("hardcoded.components.ComputerPanel.d5a31123")}</button>
                 <button type="button" onClick={() => setRetry(n => n + 1)}
-                  className="text-[11px] text-ink-secondary hover:text-ink">Refresh shared computer status</button>
+                  className="text-[11px] text-ink-secondary hover:text-ink">{t("hardcoded.components.ComputerPanel.5172f702")}</button>
               </>}
               {phase === "local" && !isLinux && localMisses >= 3 && (
                 <button

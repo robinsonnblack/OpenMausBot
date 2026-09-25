@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 export interface BrowserFrame {
@@ -105,7 +106,7 @@ export function BrowserViewport({ frame, width, height, driving, input: sendInpu
     return () => image.removeEventListener("wheel", wheel);
   }, [driving, input, frameWidth, frameHeight, src]);
   return <>
-    <img ref={screen} src={src} alt="Live bot browser" draggable={false} tabIndex={driving ? 0 : -1}
+    <img ref={screen} src={src} alt={t("hardcoded.components.BrowserViewport.69680dd8")} draggable={false} tabIndex={driving ? 0 : -1}
       title={driving ? "Shift+Escape returns to the browser address bar." : undefined}
       aria-description={driving ? "Keyboard input goes to the remote page. Press Shift+Escape to return to the browser address bar." : undefined}
       aria-keyshortcuts={driving ? "Shift+Escape" : undefined}

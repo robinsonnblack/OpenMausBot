@@ -4,6 +4,7 @@
 // makes it OpenMausBot is the tool chip in the reply: the bot ran a real
 // command on this machine before answering, which is the promise the
 // guided first conversation then keeps.
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Check, TerminalSquare } from "lucide-react";
 import { MausAvatar } from "@/components/Avatar";
@@ -83,7 +84,7 @@ export function AgentChat({ playing, onCue, onEnded, label }: SceneProps) {
             {ASK}
           </div>
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-raised text-[11px] font-semibold text-ink">
-            You
+            {t("hardcoded.components.onboarding.reel.scenes.AgentChat.fe7790ee")}
           </div>
         </div>
 

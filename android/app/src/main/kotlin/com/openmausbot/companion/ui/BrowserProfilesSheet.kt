@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -50,7 +52,7 @@ internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try { profiles = session.configStatus()?.browserProfiles.orEmpty() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load browser profiles." }
+        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_browser_profiles_sheet_0090d07d) }
         finally { loading = false }
     }
 
@@ -62,11 +64,11 @@ internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
                 profiles = session.updateBrowserProfiles(profiles, next).browserProfiles
                 onSaved()
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not save browser profiles."
+                error = failure.message ?: l10n.getString(R.string.android_remaining_browser_profiles_sheet_30cfb0dd)
                 // A whole-list PATCH cannot safely merge another window's edits.
                 // Refresh the baseline, retain typed drafts, and require a new tap.
                 try { profiles = session.configStatus()?.browserProfiles.orEmpty() }
-                catch (_: Exception) { error = "Could not refresh browser profiles. Reopen this screen before retrying." }
+                catch (_: Exception) { error = l10n.getString(R.string.android_remaining_browser_profiles_sheet_6303e02a) }
             } finally { busy = false }
         }
     }
@@ -120,7 +122,7 @@ internal fun BrowserProfilesSheet(onDismiss: () -> Unit) {
                     Row {
                         TextButton(enabled = !busy && editName.isNotBlank(), onClick = {
                             if (profiles.none { it.id == profile.id }) {
-                                error = "This profile was removed on the computer. Review the list before saving."
+                                error = l10n.getString(R.string.android_remaining_browser_profiles_sheet_867a30f2)
                             } else save(profiles.map { if (it.id == profile.id) it.copy(name = editName.trim()) else it }) {
                                 editing = null
                             }

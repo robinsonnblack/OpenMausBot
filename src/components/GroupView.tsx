@@ -332,7 +332,7 @@ const Transcript = memo(function Transcript({
                       {attachments && <AttachmentGallery images={attachments.images} files={attachments.files} message={{ threadId: group.threadId, messageId: m.id }} eager={m.id === newestMessageId || m.id === newestUserMessageId} className={!attachments.display ? "mb-0" : undefined} />}
                       <ThreadRefText text={attachments?.display ?? m.text ?? ""} peers={members} everyone={!group.dm} />
                       {m.via === "api" && (
-                        <div className="mt-1 text-[11px] text-ink-secondary">Sent through the API, not typed here</div>
+                        <div className="mt-1 text-[11px] text-ink-secondary">{t("hardcoded.components.GroupView.8075decf")}</div>
                       )}
                     </>
                   ) : (
@@ -710,7 +710,7 @@ function RoomSetup({ group, members }: { group: Group; members: Bot[] }) {
                 disabled={saving}
                 className="flex shrink-0 items-center gap-1.5 rounded-xl border border-hairline/50 bg-raised px-3 py-2 text-[13px] font-medium text-ink hover:bg-raised-hover disabled:opacity-50"
               >
-                <FolderOpen size={14} /> Choose
+                <FolderOpen size={14} /> {t("hardcoded.components.GroupView.8768d94e")}
               </button>
             )}
           </div>

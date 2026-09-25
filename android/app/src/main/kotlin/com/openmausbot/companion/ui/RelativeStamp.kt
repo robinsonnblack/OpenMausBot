@@ -1,5 +1,9 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.openmausbot.companion.R
+
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -15,6 +19,26 @@ import java.util.Locale
  * which is the actual spec — is unit-testable without a fake clock.
  */
 object RelativeStamp {
+
+    @Composable
+    fun localizedList(atMillis: Double, nowMillis: Long): String {
+        if (atMillis <= 0) return ""
+        val at = zoned(atMillis, ZoneId.systemDefault())
+        val now = zoned(nowMillis.toDouble(), ZoneId.systemDefault())
+        return if (at.toLocalDate() == now.toLocalDate().minusDays(1))
+            stringResource(R.string.android_date_yesterday) else list(atMillis, nowMillis)
+    }
+
+    @Composable
+    fun localizedSeparator(atMillis: Double, nowMillis: Long): String {
+        val at = zoned(atMillis, ZoneId.systemDefault())
+        val now = zoned(nowMillis.toDouble(), ZoneId.systemDefault())
+        return when (at.toLocalDate()) {
+            now.toLocalDate() -> stringResource(R.string.android_date_today_time, time(atMillis))
+            now.toLocalDate().minusDays(1) -> stringResource(R.string.android_date_yesterday_time, time(atMillis))
+            else -> separator(atMillis, nowMillis)
+        }
+    }
 
     /** Roster: time today, "Yesterday", weekday within the week, date beyond that. */
     fun list(

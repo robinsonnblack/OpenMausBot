@@ -1076,11 +1076,11 @@ export function Composer({
             {recording ? <Square size={12} className="fill-current" /> : <Mic size={18} />}
           </button>
         )}
-        {recording && <div role="status" aria-label="Recording microphone audio" className="flex items-center gap-2 text-xs tabular-nums text-ink-secondary">
+        {recording && <div role="status" aria-label={t("hardcoded.components.Composer.0570b080")} className="flex items-center gap-2 text-xs tabular-nums text-ink-secondary">
           <span>{Math.floor(transcription.seconds / 60)}:{String(transcription.seconds % 60).padStart(2, "0")}</span>
           <span aria-hidden="true" className="flex h-5 items-center gap-0.5">{transcription.levels.map((level, i) => <span key={i} className="w-0.5 rounded-full bg-current" style={{ height: 3 + level * 17 }} />)}</span>
         </div>}
-        {transcription.phase === "processing" && <span role="status" className="text-xs text-ink-secondary">Transcribing…</span>}
+        {transcription.phase === "processing" && <span role="status" className="text-xs text-ink-secondary">{t("hardcoded.components.Composer.4859f518")}</span>}
         {!locked && capabilities.transcription?.available && <TranscriptionSettings disabled={transcribing} />}
         {hasContent && !locked && (
           <button

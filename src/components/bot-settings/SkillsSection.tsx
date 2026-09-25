@@ -205,7 +205,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
       <div className="rounded-xl bg-card p-4">
         <div className="flex items-center gap-2">
           <BookOpen size={16} className="text-ink-secondary" />
-          <div className="text-[15px] font-medium text-ink">Learned skills</div>
+          <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.SkillsSection.e9804df5")}</div>
         </div>
         <div className="mt-1 text-[12px] leading-relaxed text-ink-secondary">
           {featureEnabled ? t("skills.learned.hintOn") : t("skills.learned.hintOff")}
@@ -220,8 +220,8 @@ export function SkillsSection({ bot }: { bot: Bot }) {
         >
           <input
             className={inputCls}
-            placeholder="owner/repo or https://github.com/…/SKILL.md"
-            aria-label="Import a skill from GitHub"
+            placeholder={t("hardcoded.components.botsettings.SkillsSection.44da3123")}
+            aria-label={t("hardcoded.components.botsettings.SkillsSection.31df8018")}
             value={source}
             onChange={(e) => setSource(e.target.value)}
           />
@@ -236,9 +236,9 @@ export function SkillsSection({ bot }: { bot: Bot }) {
         {importMessage && <div className="mt-1 text-[12px] text-ink-secondary">{importMessage}</div>}
 
         {loading ? (
-          <div className="mt-3 text-[12px] text-ink-secondary">Loading…</div>
+          <div className="mt-3 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.SkillsSection.16605cdb")}</div>
         ) : skills.length === 0 ? (
-          <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">No installed skills yet.</div>
+          <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.SkillsSection.e807247f")}</div>
         ) : (
           <div className="mt-3 divide-y divide-hairline/40 overflow-hidden rounded-lg border border-hairline/40">
             {skills.map((skill) => (
@@ -251,7 +251,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
                   >
                     <div className="truncate font-mono text-[12.5px] text-ink">{skill.name}</div>
                     <div className="mt-0.5 line-clamp-2 text-[11.5px] text-ink-secondary">{skill.description}</div>
-                    <div className="mt-0.5 text-[10.5px] text-ink-secondary">Used when the bot decides it's relevant</div>
+                    <div className="mt-0.5 text-[10.5px] text-ink-secondary">{t("hardcoded.components.botsettings.SkillsSection.aa2d735a")}</div>
                   </button>
                   <Switch
                     checked={skill.enabled}
@@ -261,7 +261,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
                   />
                   <button
                     aria-label={`Remove ${skill.name}`}
-                    title="Remove skill"
+                    title={t("hardcoded.components.botsettings.SkillsSection.c58681ef")}
                     disabled={working === skill.name}
                     onClick={() => void remove(skill)}
                     className="flex size-8 shrink-0 items-center justify-center rounded-md text-ink-secondary hover:bg-danger/10 hover:text-danger disabled:opacity-40"
@@ -269,7 +269,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
                     <Trash2 size={15} />
                   </button>
                 </div>
-                <div className="mt-1 truncate text-[10.5px] text-ink-secondary" title={skill.source}>Source: {skill.source}</div>
+                <div className="mt-1 truncate text-[10.5px] text-ink-secondary" title={skill.source}>{t("hardcoded.components.botsettings.SkillsSection.345f744e")} {skill.source}</div>
                 {skill.warnings.length > 0 && (
                   <div className="mt-1 text-[10.5px] text-warning">{skill.warnings.join(" · ")}</div>
                 )}
@@ -279,7 +279,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
         )}
         {staged.length > 0 && (
           <div className="mt-2 text-[11.5px] text-warning">
-            {staged.length} proposal{staged.length === 1 ? " is" : "s are"} waiting for a decision in chat.
+            {staged.length} {t("hardcoded.components.botsettings.SkillsSection.0d8ddc32")}{staged.length === 1 ? " is" : "s are"} {t("hardcoded.components.botsettings.SkillsSection.f6db0576")}
           </div>
         )}
         {error && <div role="alert" className="mt-2 text-[12px] text-danger">{error}</div>}
@@ -298,10 +298,10 @@ export function SkillsSection({ bot }: { bot: Bot }) {
         >
           <div className="flex max-h-[min(760px,90vh)] w-full max-w-2xl flex-col rounded-2xl bg-card p-5 shadow-2xl">
             <div id="skill-review-title" className="text-[16px] font-semibold text-ink">
-              Review {reviewing.skill.name} before enabling
+              {t("hardcoded.components.botsettings.SkillsSection.6d05250d")} {reviewing.skill.name} {t("hardcoded.components.botsettings.SkillsSection.2cb94cea")}
             </div>
             <div className="mt-1 break-all text-[11.5px] text-ink-secondary">
-              Source: {reviewing.skill.source}
+              {t("hardcoded.components.botsettings.SkillsSection.345f744e")} {reviewing.skill.source}
             </div>
             {reviewing.skill.warnings.length > 0 && (
               <div className="mt-2 rounded-lg bg-warning/10 px-3 py-2 text-[11.5px] text-warning">
@@ -323,7 +323,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
                 onClick={() => setReviewing(null)}
                 className="rounded-lg px-4 py-2 text-[13px] font-medium text-ink-secondary hover:bg-raised disabled:opacity-40"
               >
-                Cancel
+                {t("hardcoded.components.botsettings.SkillsSection.0455d26d")}
               </button>
               <button
                 type="button"
@@ -331,7 +331,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
                 onClick={() => void enableReviewed()}
                 className="rounded-lg bg-accent px-4 py-2 text-[13px] font-semibold text-white disabled:opacity-40"
               >
-                Enable reviewed skill
+                {t("hardcoded.components.botsettings.SkillsSection.253298b6")}
               </button>
             </div>
           </div>
@@ -355,7 +355,7 @@ export function SkillsSection({ bot }: { bot: Bot }) {
                 onClick={() => setViewing(null)}
                 className="rounded-md px-2 py-1 text-[13px] text-ink-secondary hover:bg-control hover:text-ink"
               >
-                Close
+                {t("hardcoded.components.botsettings.SkillsSection.c57c3c0b")}
               </button>
             </div>
             <pre

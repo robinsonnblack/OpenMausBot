@@ -10,6 +10,7 @@
 // re-reads, so notes the bot wrote mid-session show up on the next look.
 // The dialog keeps this mounted while hidden so an unsaved draft survives
 // a visit to another section.
+import { t } from "@/lib/i18n";
 import { FileText, FolderOpen, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -198,10 +199,9 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Memory</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.MemorySection.0b57081a")}</div>
         <p className="mt-1 text-[13px] leading-relaxed text-ink-secondary">
-          Notes this bot keeps between tasks. They are plain markdown files in a folder on this computer — open them in any
-          editor, or in Obsidian.
+          {t("hardcoded.components.botsettings.MemorySection.73fc146f")}
         </p>
         {overview && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -209,7 +209,7 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
               {shortPath(overview.workspacePath, home)}
             </span>
             <button type="button" className={buttonCls} onClick={() => void openLocation("obsidian")}>
-              Open in Obsidian
+              {t("hardcoded.components.botsettings.MemorySection.872f3479")}
             </button>
             <button type="button" className={cn(buttonCls, "inline-flex items-center gap-1.5")} onClick={() => void openLocation("folder")}>
               <FolderOpen size={14} />
@@ -227,7 +227,7 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
             <span className="truncate font-mono text-[12.5px] text-ink">{editing.path}</span>
             {editing.path !== MEMORY_INDEX && (
               <button type="button" className={quietButtonCls} onClick={() => void open(MEMORY_INDEX)}>
-                Back to MEMORY.md
+                {t("hardcoded.components.botsettings.MemorySection.5cfefbc7")}
               </button>
             )}
           </div>
@@ -252,7 +252,7 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
             onChange={(e) => setEditing({ ...editing, text: e.target.value, dirty: true })}
           />
           {editing.readOnly ? (
-            <p className="mt-2 text-[12px] text-ink-secondary">Daily logs are the bot's own record of what it did; they are not loaded into conversations and are read-only here.</p>
+            <p className="mt-2 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.MemorySection.c329effe")}</p>
           ) : (
             <div className="mt-2 flex items-center gap-3">
               <button type="button" onClick={() => void save(editing.hash)} disabled={saving || !editing.dirty} className={buttonCls}>
@@ -260,19 +260,19 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
               </button>
               {editing.dirty && (
                 <button type="button" className={quietButtonCls} disabled={saving} onClick={() => void open(editing.path)}>
-                  Discard changes
+                  {t("hardcoded.components.botsettings.MemorySection.7f974b5c")}
                 </button>
               )}
             </div>
           )}
           {savedDraft !== null && (
             <div className="mt-3">
-              <div className="mb-1 text-[12px] text-ink-secondary">Your unsaved draft, kept so nothing is lost:</div>
+              <div className="mb-1 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.MemorySection.52a3125d")}</div>
               <pre className="max-h-[160px] overflow-auto whitespace-pre-wrap rounded-lg border border-hairline/40 bg-inset p-3 font-mono text-[12px] leading-relaxed text-ink">
                 {savedDraft}
               </pre>
               <button type="button" className={cn(quietButtonCls, "mt-1")} onClick={() => setSavedDraft(null)}>
-                Dismiss draft
+                {t("hardcoded.components.botsettings.MemorySection.f7db97c9")}
               </button>
             </div>
           )}
@@ -282,8 +282,8 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
       {overview && (
         <div className="rounded-xl bg-card p-4">
           <MemoryFileRows
-            title="Topic files"
-            hint="Longer notes the bot reads on demand. Click one to edit it."
+            title={t("hardcoded.components.botsettings.MemorySection.1b68445e")}
+            hint={t("hardcoded.components.botsettings.MemorySection.43a0487b")}
             files={overview.topics}
             selected={editing?.path}
             onOpen={(file) => void open(file.path)}
@@ -293,22 +293,22 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
             <input
               className={cn(inputCls, "py-1.5 text-[13px]")}
               value={newTopic}
-              placeholder="New topic name, e.g. clients"
-              aria-label="New topic name"
+              placeholder={t("hardcoded.components.botsettings.MemorySection.34b860bf")}
+              aria-label={t("hardcoded.components.botsettings.MemorySection.3afa4033")}
               onChange={(e) => setNewTopic(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") void createTopic();
               }}
             />
             <button type="button" className={buttonCls} disabled={!newTopic.trim()} onClick={() => void createTopic()}>
-              New topic
+              {t("hardcoded.components.botsettings.MemorySection.db3ea601")}
             </button>
           </div>
           {overview.logs.length > 0 && (
             <div className="mt-4">
               <MemoryFileRows
-                title="Daily logs"
-                hint="What the bot did each day, in its own words. Not loaded into conversations."
+                title={t("hardcoded.components.botsettings.MemorySection.2be8257b")}
+                hint={t("hardcoded.components.botsettings.MemorySection.a458f05c")}
                 files={overview.logs}
                 selected={editing?.path}
                 onOpen={(file) => void open(file.path)}
@@ -320,9 +320,9 @@ export function MemorySection({ bot, active = true }: { bot: Bot; active?: boole
       )}
 
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Changes</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.MemorySection.62ed3e49")}</div>
         <p className="mt-1 text-[13px] leading-relaxed text-ink-secondary">
-          Every change to these files, whoever made it. Undo puts a file back the way it was before that change.
+          {t("hardcoded.components.botsettings.MemorySection.47e3bc9b")}
         </p>
         <div className="mt-3">
           <MemoryJournalList rows={journal} botName={bot.name} reverting={reverting} onRevert={(row) => void revert(row)} />
@@ -343,13 +343,13 @@ export function MemoryGauge({ index }: { index: MemoryCapacity }) {
   return (
     <div className={cn("rounded-xl p-4", status.level === "over" ? "border border-danger/30 bg-danger/10" : "bg-card")}>
       <div className="flex items-center justify-between gap-3 text-[13px]">
-        <span className="font-medium text-ink">How much of MEMORY.md loads</span>
+        <span className="font-medium text-ink">{t("hardcoded.components.botsettings.MemorySection.721ed3a6")}</span>
         <span className={cn("text-[12px]", status.level === "over" ? "text-danger" : "text-ink-secondary")}>
-          {index.lines} / {index.maxLines} lines · {formatBytes(index.bytes)} / {formatBytes(index.maxBytes)}
+          {index.lines} / {index.maxLines} {t("hardcoded.components.botsettings.MemorySection.0e5dc506")} {formatBytes(index.bytes)} / {formatBytes(index.maxBytes)}
         </span>
       </div>
-      <GaugeBar label="Lines" share={status.lineShare} fill={fill} />
-      <GaugeBar label="Size" share={status.byteShare} fill={fill} />
+      <GaugeBar label={t("hardcoded.components.botsettings.MemorySection.393d953e")} share={status.lineShare} fill={fill} />
+      <GaugeBar label={t("hardcoded.components.botsettings.MemorySection.315a0f8a")} share={status.byteShare} fill={fill} />
       <p className={cn("mt-2 text-[12.5px] leading-relaxed", status.level === "over" ? "text-danger" : "text-ink-secondary")}>
         {status.warning ?? status.sentence}
       </p>
@@ -390,16 +390,16 @@ export function ConflictNotice({
 }) {
   return (
     <div className="mt-2 rounded-lg border border-warning/25 bg-warning/10 p-3 text-[12.5px] leading-relaxed text-ink">
-      <div className="font-medium">{botName} changed this file while you were editing.</div>
+      <div className="font-medium">{t("hardcoded.components.botsettings.MemorySection.f509c10b", { name: botName })}</div>
       <div className="mt-0.5 text-ink-secondary">
-        Nothing has been saved. Reload to see {botName}'s version (your draft is kept below), or overwrite it with yours.
+        {t("hardcoded.components.botsettings.MemorySection.c75f4f3b", { name: botName })}
       </div>
       <div className="mt-2 flex gap-2">
         <button type="button" className={buttonCls} disabled={busy} onClick={onReload}>
-          Reload
+          {t("hardcoded.components.botsettings.MemorySection.de9b8f53")}
         </button>
         <button type="button" className={buttonCls} disabled={busy} onClick={onOverwrite}>
-          Overwrite with mine
+          {t("hardcoded.components.botsettings.MemorySection.621fd93b")}
         </button>
       </div>
     </div>
@@ -426,7 +426,7 @@ export function MemoryFileRows({
       <div className="text-[12px] font-medium uppercase tracking-[0.08em] text-ink-secondary">{title}</div>
       <div className="mt-0.5 text-[12px] text-ink-secondary">{hint}</div>
       {files.length === 0 ? (
-        <div className="mt-2 text-[12.5px] text-ink-secondary">None yet.</div>
+        <div className="mt-2 text-[12.5px] text-ink-secondary">{t("hardcoded.components.botsettings.MemorySection.3c0dbd34")}</div>
       ) : (
         <div className="mt-2 overflow-hidden rounded-lg border border-hairline/40">
           {files.map((file) => (
@@ -448,7 +448,7 @@ export function MemoryFileRows({
                 type="button"
                 onClick={() => onDelete(file)}
                 aria-label={`Delete ${file.name}`}
-                title="Delete"
+                title={t("hardcoded.components.botsettings.MemorySection.07d3231a")}
                 className="shrink-0 rounded-md p-1 text-ink-secondary hover:bg-control hover:text-danger"
               >
                 <Trash2 size={14} />
@@ -474,8 +474,8 @@ export function MemoryJournalList({
   onRevert: (row: MemoryJournalRow) => void;
   now?: number;
 }) {
-  if (!rows) return <div className="text-[13px] text-ink-secondary">Loading…</div>;
-  if (rows.length === 0) return <div className="text-[13px] text-ink-secondary">No changes recorded yet.</div>;
+  if (!rows) return <div className="text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.MemorySection.f4c227fc")}</div>;
+  if (rows.length === 0) return <div className="text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.MemorySection.7c8e98af")}</div>;
   return (
     <div className="flex flex-col gap-2">
       {rows.map((row) => {
@@ -506,7 +506,7 @@ export function MemoryJournalList({
                 </button>
               ) : (
                 <span className="shrink-0 text-[11.5px] text-ink-secondary" title={row.revertUnavailableReason}>
-                  Can't undo
+                  {t("hardcoded.components.botsettings.MemorySection.c234c21e")}
                 </span>
               )}
             </div>

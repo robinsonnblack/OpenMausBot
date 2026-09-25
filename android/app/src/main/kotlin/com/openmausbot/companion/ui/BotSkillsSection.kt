@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.rememberScrollState
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 /** Manage skills on the paired computer. A disabled skill must be read before enabling. */
 @Composable
 internal fun BotSkillsSection(botId: String) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var skills by remember(botId) { mutableStateOf<List<ManagedSkill>>(emptyList()) }
@@ -61,7 +63,7 @@ internal fun BotSkillsSection(botId: String) {
     LaunchedEffect(botId) {
         loading = true
         try { refresh() } catch (failure: Exception) {
-            error = failure.message ?: "Could not load skills."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_44e0fc77)
         } finally { loading = false }
         runCatching { refreshOrganization() }
     }
@@ -87,11 +89,11 @@ internal fun BotSkillsSection(botId: String) {
                         scope.launch {
                             try {
                                 val text = session.managedSkillText(botId, skill.name)
-                                if (text.isBlank()) throw IllegalStateException("Skill contents are unavailable.")
+                                if (text.isBlank()) throw IllegalStateException(l10n.getString(R.string.android_skill_contents_unavailable))
                                 preview = skill to text
                                 error = null
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not read skill."
+                                error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_2fdc8d3c)
                             } finally { busy = false }
                         }
                     }) { Text(stringResource(if (skill.enabled) R.string.ui_read_skill else R.string.ui_review_enable_skill)) }
@@ -102,7 +104,7 @@ internal fun BotSkillsSection(botId: String) {
                                 session.setManagedSkillEnabled(botId, skill.name, false)
                                 refresh()
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not disable skill."
+                                error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_66756d57)
                             } finally { busy = false }
                         }
                     }) { Text(stringResource(R.string.ui_disable_9a7d4e0)) }
@@ -128,7 +130,7 @@ internal fun BotSkillsSection(botId: String) {
                     source = ""
                     refresh()
                 } catch (failure: Exception) {
-                    error = failure.message ?: "Could not import skills."
+                    error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_cf74f155)
                 } finally { busy = false }
             }
         }) { Text(stringResource(R.string.ui_import_d6fbc9d)) }
@@ -167,7 +169,7 @@ internal fun BotSkillsSection(botId: String) {
                             preview = null
                             refresh()
                         } catch (failure: Exception) {
-                            error = failure.message ?: "Could not enable skill."
+                            error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_b761e8f9)
                         } finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.ui_enable_this_skill_399b34a)) }
@@ -188,7 +190,7 @@ internal fun BotSkillsSection(botId: String) {
                         session.removeManagedSkill(botId, skill.name)
                         refresh()
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not remove skill."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_37a68834)
                     } finally { busy = false }
                 }
             }) { Text(stringResource(R.string.ui_remove_e963907)) } },
@@ -209,7 +211,7 @@ internal fun BotSkillsSection(botId: String) {
                         refresh()
                         refreshOrganization()
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not add organization skill."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_bot_skills_section_7e0d11b1)
                     } finally { busy = false }
                 }
             }) { Text(stringResource(R.string.ui_add_and_enable_cd1bbf5)) } },

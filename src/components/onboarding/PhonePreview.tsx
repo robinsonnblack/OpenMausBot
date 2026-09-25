@@ -2,6 +2,7 @@
 // screen, with an approval card you can answer from the sofa. Used by the
 // welcome tour's phone beat in place of three identical value cards. Purely
 // illustrative: nothing here is interactive.
+import { t } from "@/lib/i18n";
 import { Check, X } from "lucide-react";
 import { MausAvatar } from "@/components/Avatar";
 import { cn } from "@/lib/cn";
@@ -24,33 +25,33 @@ export function PhonePreview({ className }: { className?: string }) {
           {/* chat header */}
           <div className="flex items-center gap-1.5 border-b border-hairline/40 px-3 py-1.5">
             <MausAvatar color="green" state="happy" size={16} animated={false} trackPointer={false} />
-            <span className="text-[9.5px] font-semibold text-ink">Maus</span>
+            <span className="text-[9.5px] font-semibold text-ink">{t("hardcoded.components.onboarding.PhonePreview.a7f59eb6")}</span>
             <span className="ml-auto size-1.5 rounded-full bg-success" />
           </div>
           {/* transcript */}
           <div className="flex flex-col gap-1.5 px-2.5 py-2.5">
             <div className="max-w-[112px] self-end rounded-xl rounded-br-sm bg-bubble-user px-2 py-1.5 text-[8.5px] leading-snug text-ink">
-              Book the 3 pm slot
+              {t("hardcoded.components.onboarding.PhonePreview.748ca3c8")}
             </div>
             <div className="max-w-[124px] rounded-xl rounded-tl-sm bg-card px-2 py-1.5 text-[8.5px] leading-snug text-ink">
-              Found it. Confirm the booking?
+              {t("hardcoded.components.onboarding.PhonePreview.8682e6e7")}
             </div>
             <div className="rounded-lg border border-hairline/50 bg-card p-2">
-              <div className="text-[8px] font-medium text-ink">Run: book-slot</div>
-              <div className="mt-0.5 text-[7.5px] text-ink-secondary">clinic.example · 3:00 pm</div>
+              <div className="text-[8px] font-medium text-ink">{t("hardcoded.components.onboarding.PhonePreview.a76cd613")}</div>
+              <div className="mt-0.5 text-[7.5px] text-ink-secondary">{t("hardcoded.components.onboarding.PhonePreview.106c606b")}</div>
               <div className="mt-1.5 flex gap-1">
                 <span className="flex flex-1 items-center justify-center gap-0.5 rounded-md bg-accent py-1 text-[8px] font-semibold text-white">
-                  <Check size={8} strokeWidth={3} /> Allow
+                  <Check size={8} strokeWidth={3} /> {t("hardcoded.components.onboarding.PhonePreview.0c4b1314")}
                 </span>
                 <span className="flex flex-1 items-center justify-center gap-0.5 rounded-md bg-raised py-1 text-[8px] font-medium text-ink">
-                  <X size={8} strokeWidth={3} /> Deny
+                  <X size={8} strokeWidth={3} /> {t("hardcoded.components.onboarding.PhonePreview.b9388921")}
                 </span>
               </div>
             </div>
           </div>
           {/* composer */}
           <div className="mx-2.5 mb-2.5 rounded-full border border-hairline/40 bg-inset px-2.5 py-1.5 text-[8px] text-ink-secondary">
-            Message {brand().name === "OpenMausBot" ? "Maus" : brand().name}
+            {t("hardcoded.components.onboarding.PhonePreview.4430cfdb")} {brand().name === "OpenMausBot" ? "Maus" : brand().name}
           </div>
         </div>
       </div>

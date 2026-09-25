@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var configured by remember { mutableStateOf(false) }
@@ -57,7 +59,7 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
             configured = configuredIn(status)
             url = if (provider == ProviderConnection.OPENAI_COMPAT) status?.openaiCompat?.url.orEmpty() else ""
         }
-        catch (failure: Exception) { error = failure.message ?: "Could not read provider status." }
+        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_mistral_setup_sheet_2366f64f) }
     }
 
     ModalBottomSheet(onDismissRequest = { if (!busy) onDismiss() }) {
@@ -89,9 +91,9 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                         configured = configuredIn(session.setProviderConnection(provider, draft.trim(),
                             if (provider == ProviderConnection.MISTRAL) null else url.trim()))
                         draft = ""
-                        verdict = if (configured) "Saved on this computer." else "The computer did not confirm the key."
+                        verdict = if (configured) l10n.getString(R.string.android_remaining_mistral_setup_sheet_3a91d94e) else l10n.getString(R.string.android_remaining_mistral_setup_sheet_22356ceb)
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not save the key."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_mistral_setup_sheet_fa674564)
                     } finally { busy = false }
                 }
             }) { Text(stringResource(R.string.ui_save_key_f5216b3)) }
@@ -102,17 +104,17 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                         val check = session.testProviderConnection(provider, draft.trim().ifEmpty { null },
                             if (provider == ProviderConnection.MISTRAL) null else url.trim().ifEmpty { null })
                         verdict = if (check.ok) {
-                            if (check.models.isEmpty()) "The key reached ${provider.label}; no models were listed."
-                            else "Available models: " + check.models.joinToString(", ")
+                            if (check.models.isEmpty()) l10n.getString(R.string.android_provider_no_models, provider.label)
+                            else l10n.getString(R.string.android_provider_available_models, check.models.joinToString(", "))
                         } else {
                             when (check.reason) {
-                                "rejected" -> "${provider.label} rejected the key."
-                                "unreachable" -> "The computer could not reach ${provider.label}."
-                                else -> "${provider.label} returned an unexpected response."
+                                "rejected" -> l10n.getString(R.string.android_provider_key_rejected, provider.label)
+                                "unreachable" -> l10n.getString(R.string.android_provider_unreachable, provider.label)
+                                else -> l10n.getString(R.string.android_provider_unexpected, provider.label)
                             }
                         }
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not test the key."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_mistral_setup_sheet_111e307b)
                     } finally { busy = false }
                 }
             }) { Text(stringResource(R.string.ui_test_and_discover_models_726e489)) }
@@ -140,7 +142,7 @@ internal fun ProviderSetupSheet(provider: ProviderConnection, onDismiss: () -> U
                         draft = ""
                         verdict = "${provider.label} key removed from this computer."
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not remove the key."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_mistral_setup_sheet_494601c7)
                     } finally { busy = false }
                 }
             }) { Text(stringResource(R.string.ui_remove_e963907)) }

@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
@@ -71,6 +72,7 @@ fun TaskSheet(
     onDeletedCurrent: () -> Unit = {},
     nowMillis: () -> Long = System::currentTimeMillis,
 ) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     val state by session.state.collectAsState()
@@ -102,7 +104,7 @@ fun TaskSheet(
     var error by remember { mutableStateOf<String?>(null) }
 
     fun failed() {
-        error = session.actionError ?: "Couldn't update this thread. Try again."
+        error = session.actionError ?: l10n.getString(R.string.android_task_update_error)
         session.actionError = null
     }
 
@@ -278,7 +280,7 @@ fun TaskSheet(
                     if (archived.isNotEmpty()) {
                         item(key = "archived") {
                             Text(
-                                "Archived",
+                                stringResource(R.string.android_thread_archived),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = secondaryTint,
@@ -336,7 +338,7 @@ fun TaskSheet(
             label = stringResource(R.string.ui_title_768e0c1),
             title = title,
             onTitleChange = { title = it },
-            confirmText = "Save",
+            confirmText = l10n.getString(R.string.android_remaining_task_sheet_efc007a3),
             // An empty rename is allowed: the server labels it the untitled task,
             // and iOS submits the field as typed.
             confirmEnabled = !saving && TaskDialogRules.renameEnabled(current, title),
@@ -418,7 +420,11 @@ fun TaskSheet(
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                            ) { Text(preset.label) }
+                            ) { Text(stringResource(when (preset) {
+                                SnoozeRules.Preset.NEW_ACTIVITY -> R.string.android_snooze_new_activity
+                                SnoozeRules.Preset.SIX_PM -> R.string.android_snooze_six_pm
+                                SnoozeRules.Preset.NINE_AM_TOMORROW -> R.string.android_snooze_nine_am
+                            })) }
                         }
                         if (task.isSnoozed(now)) {
                             TextButton(
@@ -436,7 +442,7 @@ fun TaskSheet(
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                            ) { Text(SnoozeRules.STOP_SNOOZING) }
+                            ) { Text(stringResource(R.string.android_snooze_stop)) }
                         }
                     }
                 }

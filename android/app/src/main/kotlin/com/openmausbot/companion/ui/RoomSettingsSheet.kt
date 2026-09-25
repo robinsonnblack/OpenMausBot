@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ internal fun RoomSettingsSheet(
     onDismiss: () -> Unit,
     onDeleted: () -> Unit,
 ) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val connection by session.connection.collectAsState()
     val scope = rememberCoroutineScope()
@@ -145,7 +147,7 @@ internal fun RoomSettingsSheet(
                                 )
                                 onDismiss()
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not save group settings."
+                                error = failure.message ?: l10n.getString(R.string.android_remaining_room_settings_sheet_7edb5b32)
                             } finally {
                                 saving = false
                             }
@@ -177,7 +179,7 @@ internal fun RoomSettingsSheet(
                         onDeleted()
                     } catch (failure: Exception) {
                         if (failure is CancellationException) throw failure
-                        error = failure.message ?: "Could not delete the group."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_room_settings_sheet_31f2c0f2)
                         confirmDelete = false
                     } finally { saving = false }
                 }

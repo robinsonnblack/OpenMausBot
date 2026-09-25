@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import android.content.Context
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -68,9 +69,9 @@ internal fun PromptInspectorSheet(threadId: String, onDismiss: () -> Unit) {
                 val data = prettyJson.encodeToString(records)
                 withContext(Dispatchers.IO) {
                     context.contentResolver.openOutputStream(uri)?.use { it.write(data.toByteArray(Charsets.UTF_8)) }
-                        ?: kotlin.error("Could not open the selected file.")
+                        ?: kotlin.error(context.getString(R.string.android_remaining_prompt_inspector_sheet_d412e6e8))
                 }
-            } catch (failure: Exception) { error = failure.message ?: "Could not save the capture." }
+            } catch (failure: Exception) { error = failure.message ?: context.getString(R.string.android_remaining_prompt_inspector_sheet_73a812c4) }
         }
     }
     suspend fun load() {
@@ -80,7 +81,7 @@ internal fun PromptInspectorSheet(threadId: String, onDismiss: () -> Unit) {
             selected = 0
             error = null
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load captured requests."
+            error = failure.message ?: context.getString(R.string.android_remaining_prompt_inspector_sheet_67871712)
         } finally { loading = false }
     }
     LaunchedEffect(threadId) { load() }
@@ -89,19 +90,19 @@ internal fun PromptInspectorSheet(threadId: String, onDismiss: () -> Unit) {
         records.drop(selected + 1).firstOrNull { it.kind == current.kind && it.provider == current.provider }
     }
     val value = when {
-        row == null -> "No captured request yet."
-        row.omitted && view != "diagnostics" -> "Request body exceeded the capture limit."
+        row == null -> context.getString(R.string.android_remaining_prompt_inspector_sheet_60de3406)
+        row.omitted && view != "diagnostics" -> context.getString(R.string.android_remaining_prompt_inspector_sheet_189bd6ee)
         view == "input" -> pretty(modelInput(row))
         view == "full" -> pretty(row.body)
-        view == "changes" -> previous?.let { changedLines(pretty(modelInput(it)), pretty(modelInput(row))) }
-            ?: "No previous capture of the same kind and provider."
-        else -> diagnostics(row)
+        view == "changes" -> previous?.let { changedLines(context, pretty(modelInput(it)), pretty(modelInput(row))) }
+            ?: context.getString(R.string.android_remaining_prompt_inspector_sheet_ffa4bc1e)
+        else -> diagnostics(context, row)
     }
     val preview = value.take(PREVIEW_LIMIT)
     val display = if (search.isBlank()) preview else {
         val index = preview.indexOf(search, ignoreCase = true)
-        if (index < 0) "No match in preview.\n\n$preview"
-        else "Match at character ${index + 1}:\n\n" + preview.drop((index - 300).coerceAtLeast(0))
+        if (index < 0) context.getString(R.string.android_inspector_no_match, preview)
+        else context.getString(R.string.android_inspector_match_at, index + 1, preview.drop((index - 300).coerceAtLeast(0)))
     }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -160,28 +161,28 @@ private fun modelInput(record: PromptCapture): JsonElement {
     return JsonObject(body.filterKeys { it in fields })
 }
 
-private fun diagnostics(record: PromptCapture): String = buildString {
-    appendLine("Provider: ${record.provider}")
-    appendLine("Kind: ${record.kind}")
-    appendLine("Sent: ${record.sentAt}")
-    appendLine("Status: ${record.status}")
-    appendLine("Endpoint: ${record.endpoint ?: "—"}")
-    appendLine("HTTP status: ${record.httpStatus ?: "—"}")
-    appendLine("Duration: ${record.durationMs ?: "—"} ms")
-    appendLine("Response headers: ${record.responseHeaders ?: emptyMap<String, String>()}")
-    record.error?.let { appendLine("Error: $it") }
+private fun diagnostics(context: Context, record: PromptCapture): String = buildString {
+    appendLine(context.getString(R.string.android_inspector_provider, record.provider))
+    appendLine(context.getString(R.string.android_inspector_kind, record.kind))
+    appendLine(context.getString(R.string.android_inspector_sent, record.sentAt))
+    appendLine(context.getString(R.string.android_inspector_status, record.status))
+    appendLine(context.getString(R.string.android_inspector_endpoint, record.endpoint ?: "—"))
+    appendLine(context.getString(R.string.android_inspector_http_status, record.httpStatus ?: "—"))
+    appendLine(context.getString(R.string.android_inspector_duration, record.durationMs ?: "—"))
+    appendLine(context.getString(R.string.android_inspector_response_headers, record.responseHeaders ?: emptyMap<String, String>()))
+    record.error?.let { appendLine(context.getString(R.string.android_inspector_error, it)) }
 }
 
-private fun changedLines(before: String, after: String): String {
-    if (before == after) return "No changes in this view."
+private fun changedLines(context: Context, before: String, after: String): String {
+    if (before == after) return context.getString(R.string.android_inspector_no_changes)
     val left = before.lines()
     val right = after.lines()
     var start = 0
     while (start < left.size && start < right.size && left[start] == right[start]) start++
     return buildString {
-        appendLine("First changed line: ${start + 1}")
+        appendLine(context.getString(R.string.android_inspector_first_changed, start + 1))
         left.drop(start).take(500).forEach { appendLine("- $it") }
         right.drop(start).take(500).forEach { appendLine("+ $it") }
-        if (left.size - start > 500 || right.size - start > 500) appendLine("Diff preview limited to 500 lines per side.")
+        if (left.size - start > 500 || right.size - start > 500) appendLine(context.getString(R.string.android_inspector_diff_limit))
     }
 }

@@ -181,10 +181,11 @@ fun DiffCard(card: TranscriptCard.Diff, modifier: Modifier = Modifier) {
 
                 if (card.isTruncated) {
                     val label = if (showingAll) {
-                        "Show first ${TranscriptCard.Diff.PREVIEW_LINES} lines"
+                        stringResource(R.string.android_diff_show_first, TranscriptCard.Diff.PREVIEW_LINES)
                     } else {
-                        "Show all ${card.lines.size} lines"
+                        stringResource(R.string.android_diff_show_all, card.lines.size)
                     }
+                    val copyNote = stringResource(R.string.android_diff_copy_all_note)
                     TextButton(
                         onClick = {
                             haptics.play(HapticCue.SELECT)
@@ -195,7 +196,7 @@ fun DiffCard(card: TranscriptCard.Diff, modifier: Modifier = Modifier) {
                         // be left thinking Copy Diff copies the preview.
                         modifier = Modifier.semantics {
                             contentDescription =
-                                "$label. The copied diff always includes every line"
+                                "$label. $copyNote"
                         },
                     ) {
                         Text(label, fontSize = 13.sp)

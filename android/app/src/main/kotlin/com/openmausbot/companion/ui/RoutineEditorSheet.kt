@@ -73,10 +73,13 @@ import com.openmausbot.companion.core.RoutineRunAvailability
 import com.openmausbot.companion.core.RoutineRunLocation
 import com.openmausbot.companion.core.RoutineSchedule
 import java.time.Instant
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
@@ -102,6 +105,7 @@ internal fun RoutineEditorSheet(
     onDismiss: () -> Unit,
 ) {
     val session = LocalCompanion.current.session
+    val l10n = LocalContext.current
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
 
@@ -222,7 +226,7 @@ internal fun RoutineEditorSheet(
                     onClick = {
                         scope.launch {
                             if (kind == RoutineSchedule.Kind.UNKNOWN) {
-                                session.actionError = RoutineRules.UNSUPPORTED_SCHEDULE_ERROR
+                                session.actionError = l10n.getString(R.string.android_routine_unsupported_schedule_error)
                                 return@launch
                             }
                             saving = true
@@ -293,17 +297,21 @@ internal fun RoutineEditorSheet(
 
             FormSection(
                 header = stringResource(R.string.ui_where_does_it_run_6e4a529),
-                footer = RoutineRules.locationFooter(runOn, availability),
+                footer = stringResource(when {
+                    runOn == RoutineRunLocation.MAUS -> R.string.android_routine_maus_footer
+                    availability?.cloudReady == true -> R.string.android_routine_cloud_ready_footer
+                    else -> R.string.android_routine_cloud_blocked_footer
+                }),
             ) {
                 RadioRow(
-                    label = RoutineRules.locationLabel(RoutineRunLocation.MAUS),
+                    label = stringResource(R.string.android_routine_this_computer),
                     painter = R.drawable.ic_display,
                     selected = runOn == RoutineRunLocation.MAUS,
                     enabled = true,
                     onSelect = { runOn = RoutineRunLocation.MAUS },
                 )
                 RadioRow(
-                    label = RoutineRules.locationLabel(RoutineRunLocation.CLOUD),
+                    label = stringResource(R.string.android_routine_cloud_vm),
                     painter = R.drawable.ic_cloud,
                     selected = runOn == RoutineRunLocation.CLOUD,
                     enabled = cloudSelectable,
@@ -318,11 +326,11 @@ internal fun RoutineEditorSheet(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp,
                         )
-                        Text(RoutineRules.CHECKING_CLOUD, fontSize = 13.sp, color = secondaryTint)
+                        Text(stringResource(R.string.android_routine_checking_cloud), fontSize = 13.sp, color = secondaryTint)
                     }
                 } else if (availability == null) {
                     IconNote(
-                        text = RoutineRules.CLOUD_STATUS_UNAVAILABLE,
+                        text = stringResource(R.string.android_routine_cloud_unavailable),
                         icon = Icons.Filled.Warning,
                     )
                 }
@@ -331,9 +339,9 @@ internal fun RoutineEditorSheet(
             FormSection(
                 header = stringResource(R.string.ui_schedule_0a8adac),
                 footer = if (kind == RoutineSchedule.Kind.INTERVAL) {
-                    RoutineRules.INTERVAL_SCHEDULE_FOOTER
+                    stringResource(R.string.android_routine_interval_schedule_footer)
                 } else {
-                    RoutineRules.SCHEDULE_FOOTER
+                    stringResource(R.string.android_routine_schedule_footer)
                 },
             ) {
                 if (kind == RoutineSchedule.Kind.UNKNOWN) {
@@ -389,10 +397,11 @@ internal fun RoutineEditorSheet(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            RoutineRules.DAY_LETTERS.forEachIndexed { day, letter ->
+                            (0..6).forEach { day ->
+                                val weekday = DayOfWeek.of(if (day == 0) 7 else day)
                                 DayToggle(
-                                    letter = letter,
-                                    name = RoutineRules.DAY_NAMES[day],
+                                    letter = weekday.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
+                                    name = weekday.getDisplayName(TextStyle.FULL, Locale.getDefault()),
                                     on = day in weekdays,
                                     onToggle = { on ->
                                         weekdays = if (on) weekdays + day else weekdays - day
@@ -496,7 +505,7 @@ internal fun RoutineEditorSheet(
                         }
                     }
                     RoutineSchedule.Kind.UNKNOWN -> IconNote(
-                        text = RoutineRules.UNKNOWN_SCHEDULE_NOTE,
+                        text = stringResource(R.string.android_routine_unknown_schedule_note),
                         icon = Icons.Filled.Warning,
                     )
                 }

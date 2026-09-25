@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
@@ -42,7 +44,7 @@ internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         config = session.configStatus()
-        if (config == null) error = "Could not load the computer's browser settings."
+        if (config == null) error = l10n.getString(R.string.android_remaining_host_browser_feature_sheet_6baa7fa8)
         loading = false
     }
 
@@ -52,14 +54,14 @@ internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
             error = null
             try {
                 val fresh = session.configStatus()
-                    ?: throw IllegalStateException("Could not refresh the computer's browser settings.")
+                    ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_host_browser_feature_sheet_f92357fa))
                 if ((fresh.features?.browser == true) != (config?.features?.browser == true)) {
                     config = fresh
-                    throw IllegalStateException("The browser setting changed on the computer. Review it before saving.")
+                    throw IllegalStateException(l10n.getString(R.string.android_remaining_host_browser_feature_sheet_a7d0ad5d))
                 }
                 config = session.updateHostBrowserEnabled(next)
             } catch (failure: Exception) {
-                error = failure.message ?: "Could not change browser access."
+                error = failure.message ?: l10n.getString(R.string.android_remaining_host_browser_feature_sheet_231d27b1)
             } finally { busy = false }
         }
     }
@@ -73,11 +75,11 @@ internal fun HostBrowserFeatureSheet(onDismiss: () -> Unit) {
                 val engine = status.browserEngine
                 val available = engine?.kind == "engine"
                 Text(when {
-                    available && active -> "Bots with browser permission can use the computer's built-in browser."
-                    available -> "The browser engine is ready, but host-wide access is off."
-                    engine?.installing == true -> "The browser engine is installing on the computer."
-                    active -> "Host-wide access is on, but the browser engine is not ready."
-                    else -> engine?.reason ?: "The browser engine is not ready on the computer."
+                    available && active -> stringResource(R.string.android_browser_ready)
+                    available -> l10n.getString(R.string.android_remaining_host_browser_feature_sheet_4a1bf053)
+                    engine?.installing == true -> l10n.getString(R.string.android_remaining_host_browser_feature_sheet_6795ff26)
+                    active -> stringResource(R.string.android_browser_not_ready)
+                    else -> engine?.reason ?: l10n.getString(R.string.android_remaining_host_browser_feature_sheet_12fd0085)
                 })
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.ui_enable_built_in_browser_c489a56), modifier = Modifier.weight(1f))

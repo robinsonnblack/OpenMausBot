@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CircleHelp, Timer, X } from "lucide-react";
@@ -35,7 +36,7 @@ function Help({ label, text }: { label: string; text: string }) {
 export function MeetingLimitsButton({ group }: { group: Group }) {
   const [open, setOpen] = useState(false);
   return <>
-    <button type="button" aria-label="Meeting limits" title="Meeting limits" onClick={() => setOpen(true)}
+    <button type="button" aria-label={t("hardcoded.components.MeetingLimits.209c6fde")} title={t("hardcoded.components.MeetingLimits.209c6fde")} onClick={() => setOpen(true)}
       className="rounded-full p-2 text-ink-secondary hover:bg-raised hover:text-ink"><Timer size={17} /></button>
     {open && <MeetingLimitsDialog key={group.id} group={group} onClose={() => setOpen(false)} />}
   </>;
@@ -84,12 +85,12 @@ export function MeetingLimitsDialog({ group, onClose }: { group: Group; onClose:
         if (event.shiftKey && (document.activeElement === first || document.activeElement === root.current)) { event.preventDefault(); last?.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }}>
-      <div className="mb-7 flex items-center gap-2"><h2 id={title} className="text-lg font-semibold">Meeting limits</h2>
-        <Help label="meeting limits" text="The first reached limit stops the meeting. A new user message starts a fresh allowance. Wrap-up reminders leave time to finish open work; the conversation may end earlier." />
-        <button type="button" aria-label="Close meeting limits" disabled={saving} onClick={onClose} className="ml-auto rounded-md p-2 text-ink-secondary hover:bg-raised"><X size={18} /></button>
+      <div className="mb-7 flex items-center gap-2"><h2 id={title} className="text-lg font-semibold">{t("hardcoded.components.MeetingLimits.209c6fde")}</h2>
+        <Help label={t("hardcoded.components.MeetingLimits.b93e8e27")} text="The first reached limit stops the meeting. A new user message starts a fresh allowance. Wrap-up reminders leave time to finish open work; the conversation may end earlier." />
+        <button type="button" aria-label={t("hardcoded.components.MeetingLimits.a77e65d1")} disabled={saving} onClick={onClose} className="ml-auto rounded-md p-2 text-ink-secondary hover:bg-raised"><X size={18} /></button>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="mb-2 grid grid-cols-[1.5fr_1fr_1fr] gap-3 text-xs text-ink-secondary"><span /><span>Wrap up after</span><span>Hard stop</span></div>
+        <div className="mb-2 grid grid-cols-[1.5fr_1fr_1fr] gap-3 text-xs text-ink-secondary"><span /><span>{t("hardcoded.components.MeetingLimits.2bf42d98")}</span><span>{t("hardcoded.components.MeetingLimits.150c29e3")}</span></div>
         {rows.map(row => <div key={row.key} className="grid grid-cols-[1.5fr_1fr_1fr] items-center gap-3 py-3">
           <span className="flex items-center gap-1"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={enabled.has(row.key)} disabled={saving}
             onChange={event => setEnabled(current => { const next = new Set(current); if (event.target.checked) next.add(row.key); else next.delete(row.key); return next; })} />{row.label}</label><Help label={row.label} text={row.help} /></span>

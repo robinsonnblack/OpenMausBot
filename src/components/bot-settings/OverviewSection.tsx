@@ -31,7 +31,7 @@ export function OverviewSection({
   const [promptOpen, setPromptOpen] = useState(false);
 
   if (!overview) {
-    return <div className="text-[13px] text-ink-secondary">Loading…</div>;
+    return <div className="text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.OverviewSection.abce4421")}</div>;
   }
 
   const setup = overview.setup ?? [];
@@ -41,7 +41,7 @@ export function OverviewSection({
     <div className="flex flex-col gap-4">
       {refreshError && (
         <div className="rounded-lg bg-inset px-3 py-2 text-[12.5px] text-ink-secondary">
-          Couldn’t refresh — showing the last loaded overview.
+          {t("hardcoded.components.botsettings.OverviewSection.906d3bf4")}
         </div>
       )}
 
@@ -98,16 +98,16 @@ export function OverviewSection({
               onClick={() => onOpen("soul")}
               className="mt-1.5 rounded-md text-[12px] font-medium text-accent-text hover:underline"
             >
-              Read all
+              {t("hardcoded.components.botsettings.OverviewSection.d3a8bacb")}
             </button>
           </div>
         )}
       </div>
 
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Does</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.OverviewSection.c334f3ca")}</div>
         {overview.does.length === 0 ? (
-          <p className="mt-2 text-[13px] text-ink-secondary">Nothing scheduled or learned yet.</p>
+          <p className="mt-2 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.OverviewSection.5ed7ee3e")}</p>
         ) : (
           <ul className="mt-2 flex flex-col gap-1.5 text-[13px] leading-relaxed text-ink">
             {overview.does.map((line, i) => (
@@ -118,9 +118,9 @@ export function OverviewSection({
       </div>
 
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Can reach</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.OverviewSection.cf2a7279")}</div>
         {overview.reaches.length === 0 ? (
-          <p className="mt-2 text-[13px] text-ink-secondary">Nothing yet.</p>
+          <p className="mt-2 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.OverviewSection.1926fc88")}</p>
         ) : (
           <ul className="mt-2 flex flex-col gap-1.5 text-[13px] leading-relaxed text-ink">
             {overview.reaches.map((line, i) => (
@@ -131,7 +131,7 @@ export function OverviewSection({
       </div>
 
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Won&rsquo;t</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.OverviewSection.4dd9d9c4")}</div>
         <ul className="mt-2 flex flex-col gap-1.5 text-[13px] leading-relaxed text-ink">
           {overview.wont.map((line, i) => (
             <li key={i}>{line}</li>
@@ -148,17 +148,17 @@ export function OverviewSection({
 
       <div className="rounded-xl bg-card p-4">
         <div className="flex items-baseline justify-between gap-3">
-          <div className="text-[15px] font-medium text-ink">Recent changes</div>
+          <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.OverviewSection.dbb1b41b")}</div>
           <button
             type="button"
             onClick={() => onOpen("history")}
             className="shrink-0 text-[12px] text-ink-secondary hover:text-ink"
           >
-            View all →
+            {t("hardcoded.components.botsettings.OverviewSection.f43c2465")}
           </button>
         </div>
         {overview.recent.length === 0 ? (
-          <p className="mt-2 text-[13px] text-ink-secondary">Nothing changed recently.</p>
+          <p className="mt-2 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.OverviewSection.ed64f195")}</p>
         ) : (
           <ul className="mt-2 flex flex-col gap-1.5 text-[13px] text-ink">
             {overview.recent.map((entry, i) => (

@@ -384,7 +384,7 @@ export function VpsConnection() {
           value={alias}
           onChange={(e) => setAlias(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && save()}
-          placeholder="my-vps"
+          placeholder={t("hardcoded.components.ApiKeys.3f3ffa3e")}
           aria-label={t("keys.vps.aria")}
           autoComplete="off"
           className="w-full rounded-lg border border-hairline/40 bg-inset px-3 py-2 text-[13px] text-ink placeholder:text-ink-secondary focus:border-hairline focus:outline-none"
@@ -437,7 +437,7 @@ export function OpenAiCompatUrl() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && save()}
-          placeholder="https://openrouter.ai/api/v1"
+          placeholder={t("hardcoded.components.ApiKeys.7ab793dd")}
           aria-label={t("keys.openaiCompat.url")}
           spellCheck={false}
           className="w-full rounded-lg border border-hairline/40 bg-inset px-3 py-2 font-mono text-[12px] text-ink placeholder:text-ink-secondary focus:border-hairline focus:outline-none"

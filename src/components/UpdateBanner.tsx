@@ -2,6 +2,7 @@
 // preload's updater bridge. Renders nothing in the browser/dev (no bridge)
 // and while idle/checking; appears only when actionable: an update to
 // download, a download in progress, a restart to apply, or an error.
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { ArrowDownToLine, Loader2, PackageOpen, RefreshCw, Sparkles, X } from "lucide-react";
 import { useUpdaterState } from "@/lib/updater";
@@ -111,7 +112,7 @@ export function UpdateBanner() {
           <button
             onClick={() => setDismissed(key)}
             className="shrink-0 rounded-md p-1 text-ink-secondary hover:bg-control hover:text-ink"
-            title="Dismiss"
+            title={t("hardcoded.components.UpdateBanner.4ecf7ecb")}
           >
             <X size={14} />
           </button>
@@ -162,11 +163,11 @@ export function UpdateBanner() {
             >
               {pending === "download" ? (
                 <>
-                  <Loader2 size={13} className="animate-spin" /> Starting…
+                  <Loader2 size={13} className="animate-spin" /> {t("hardcoded.components.UpdateBanner.9417e639")}
                 </>
               ) : (
                 <>
-                  <ArrowDownToLine size={13} /> Download
+                  <ArrowDownToLine size={13} /> {t("hardcoded.components.UpdateBanner.ffe33ddf")}
                 </>
               )}
             </button>
@@ -186,11 +187,11 @@ export function UpdateBanner() {
                 </>
               ) : handoff ? (
                 <>
-                  <PackageOpen size={13} /> Install
+                  <PackageOpen size={13} /> {t("hardcoded.components.UpdateBanner.b9873896")}
                 </>
               ) : (
                 <>
-                  <RefreshCw size={13} /> Restart to update
+                  <RefreshCw size={13} /> {t("hardcoded.components.UpdateBanner.28f99988")}
                 </>
               )}
             </button>
@@ -206,7 +207,7 @@ export function UpdateBanner() {
             >
               {pending === "check" ? (
                 <>
-                  <Loader2 size={13} className="animate-spin" /> Checking…
+                  <Loader2 size={13} className="animate-spin" /> {t("hardcoded.components.UpdateBanner.6f33dbd9")}
                 </>
               ) : (
                 "Try again"

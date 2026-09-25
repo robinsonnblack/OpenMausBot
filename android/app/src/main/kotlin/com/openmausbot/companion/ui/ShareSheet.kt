@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.BackHandler
@@ -82,6 +83,7 @@ private fun ShareSheetContent(
     onDismiss: () -> Unit,
 ) {
     val environment = LocalCompanion.current
+    val l10n = LocalContext.current
     val session = environment.session
     val connections by session.connections.collectAsState()
     val active by session.connection.collectAsState()
@@ -388,11 +390,11 @@ private fun ShareSheetContent(
                         ) {
                             Text(stringResource(R.string.ui_sharing_f789760), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = secondaryTint)
                             SharePolicy.previewChip(preview).forEach { label ->
-                                Text(label, fontSize = 15.sp)
+                                Text(shareUiText(l10n, label), fontSize = 15.sp)
                             }
                             if (preview.ignoredCount > 0) {
                                 Text(
-                                    SharePolicy.ignoredCaption(preview.ignoredCount),
+                                    shareUiText(l10n, SharePolicy.ignoredCaption(preview.ignoredCount)),
                                     color = MaterialTheme.colorScheme.tertiary,
                                     fontSize = 13.sp,
                                 )
@@ -409,8 +411,8 @@ private fun ShareSheetContent(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(modifier = Modifier.fillMaxWidth()) {
-                            Text(selectedComputer?.name ?: "Choose a computer", fontWeight = FontWeight.SemiBold)
-                            selectedComputer?.routeLabel?.let { Text(it, color = secondaryTint, fontSize = 13.sp) }
+                            Text(selectedComputer?.name ?: l10n.getString(R.string.android_remaining_share_sheet_f361ffc3), fontWeight = FontWeight.SemiBold)
+                            selectedComputer?.routeLabel?.let { Text(shareUiText(l10n, it), color = secondaryTint, fontSize = 13.sp) }
                         }
                     }
                 }
@@ -425,7 +427,7 @@ private fun ShareSheetContent(
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(
-                                    selectedDestination?.name ?: "Choose a bot or channel",
+                                    selectedDestination?.name ?: l10n.getString(R.string.android_remaining_share_sheet_da2a8cc1),
                                     fontWeight = FontWeight.SemiBold,
                                 )
                                 if (selectedDestinationId != null && selectedDestinationId == rememberedDestinationId) {
@@ -433,7 +435,7 @@ private fun ShareSheetContent(
                                 }
                             }
                             selectedDestination?.subtitle?.let {
-                                Text(it, color = secondaryTint, fontSize = 13.sp)
+                                Text(shareUiText(l10n, it), color = secondaryTint, fontSize = 13.sp)
                             }
                         }
                     }
@@ -454,12 +456,12 @@ private fun ShareSheetContent(
                     )
                 }
 
-                errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
+                errorMessage?.let { Text(shareUiText(l10n, it), color = MaterialTheme.colorScheme.error, fontSize = 14.sp) }
                 if (imageWarning != null && imageWarning != errorMessage) {
-                    Text(imageWarning, color = MaterialTheme.colorScheme.tertiary, fontSize = 14.sp)
+                    Text(shareUiText(l10n, imageWarning), color = MaterialTheme.colorScheme.tertiary, fontSize = 14.sp)
                 }
                 if (instructionWarning != null && instructionWarning != errorMessage) {
-                    Text(instructionWarning, color = MaterialTheme.colorScheme.tertiary, fontSize = 14.sp)
+                    Text(shareUiText(l10n, instructionWarning), color = MaterialTheme.colorScheme.tertiary, fontSize = 14.sp)
                 }
 
                 if (phase == ShareSheetPhase.LOADING && preview.isEmpty) {
@@ -515,7 +517,7 @@ private fun ShareSheetContent(
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(computer.name)
-                                Text(computer.routeLabel, fontSize = 12.sp, color = secondaryTint)
+                                Text(shareUiText(l10n, computer.routeLabel), fontSize = 12.sp, color = secondaryTint)
                             }
                         }
                     }
@@ -543,7 +545,7 @@ private fun ShareSheetContent(
                         ) {
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(destination.name)
-                                Text(destination.subtitle, fontSize = 12.sp, color = secondaryTint)
+                                Text(shareUiText(l10n, destination.subtitle), fontSize = 12.sp, color = secondaryTint)
                             }
                         }
                     }
@@ -555,10 +557,11 @@ private fun ShareSheetContent(
     }
 }
 
-private fun headerSubtitle(phase: ShareSheetPhase): String = when (phase) {
-    ShareSheetPhase.LOADING -> "Preparing your share…"
-    ShareSheetPhase.READY -> "Choose where this should go"
-    ShareSheetPhase.SENDING -> "Sending securely…"
-    ShareSheetPhase.SENT -> "Sent"
-    ShareSheetPhase.FAILED -> "Needs your attention"
-}
+@Composable
+private fun headerSubtitle(phase: ShareSheetPhase): String = stringResource(when (phase) {
+    ShareSheetPhase.LOADING -> R.string.android_share_preparing
+    ShareSheetPhase.READY -> R.string.android_share_choose_destination
+    ShareSheetPhase.SENDING -> R.string.android_share_sending
+    ShareSheetPhase.SENT -> R.string.android_share_sent
+    ShareSheetPhase.FAILED -> R.string.android_share_needs_attention
+})

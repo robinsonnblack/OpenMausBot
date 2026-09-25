@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotTask
 import com.openmausbot.companion.core.CompanionState
@@ -115,7 +117,12 @@ internal fun AttentionRow(entry: AttentionEntry, onOpen: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = "${entry.botName} · ${entry.statusLine()}",
+                text = "${entry.botName} · ${stringResource(when (entry.statusLine()) {
+                    "Waiting on you" -> R.string.android_thread_waiting_you
+                    "Working" -> R.string.android_thread_working
+                    "Queued" -> R.string.android_thread_queued
+                    else -> R.string.android_thread_unread
+                })}",
                 fontSize = 12.sp,
                 color = secondaryTint,
                 maxLines = 1,

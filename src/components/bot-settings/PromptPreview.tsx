@@ -2,6 +2,7 @@
 // GET /api/bots/:id/system-prompt (server/system-prompt.ts's
 // previewSystemPrompt, the same builder a real turn uses). Pure
 // presentational: the dialog owns the fetch and the open/closed state.
+import { t } from "@/lib/i18n";
 import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/cn";
@@ -41,10 +42,10 @@ export function PromptPreview({
       </button>
 
       {open && !data && error && (
-        <div className="mt-3 text-[13px] text-ink-secondary">Couldn’t load the prompt preview.</div>
+        <div className="mt-3 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.PromptPreview.f142f5a7")}</div>
       )}
 
-      {open && !data && !error && <div className="mt-3 text-[13px] text-ink-secondary">Loading…</div>}
+      {open && !data && !error && <div className="mt-3 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.PromptPreview.b63273a8")}</div>}
 
       {open && data && (
         <div className="mt-3 flex flex-col gap-2">
@@ -52,7 +53,7 @@ export function PromptPreview({
             <details key={section.id} className="rounded-lg border border-hairline/40 bg-inset px-3 py-2">
               <summary className="flex cursor-pointer items-center justify-between gap-3 text-[13px] text-ink">
                 <span>{section.label}</span>
-                <span className="shrink-0 tabular-nums text-ink-secondary">{section.bytes.toLocaleString()} bytes</span>
+                <span className="shrink-0 tabular-nums text-ink-secondary">{section.bytes.toLocaleString()} {t("hardcoded.components.botsettings.PromptPreview.981c5316")}</span>
               </summary>
               <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono text-[12px] leading-relaxed text-ink">
                 {section.text}

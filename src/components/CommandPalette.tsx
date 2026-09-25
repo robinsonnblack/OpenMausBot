@@ -1,6 +1,7 @@
 // ⌘K switcher: bots and rooms from local state, transcript hits from
 // /api/search. Self-contained — owns its open state and its global chord,
 // so App.tsx only mounts it.
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Bot as BotIcon, MessageSquare, Search, Users } from "lucide-react";
 import { api, useStore, type Bot, type Group } from "@/state/store";
@@ -156,7 +157,7 @@ export function CommandPalette({ onOpenChange }: { onOpenChange?: (open: boolean
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Command palette"
+        aria-label={t("hardcoded.components.CommandPalette.230af4bc")}
         className="flex max-h-[min(480px,70vh)] w-full max-w-[560px] flex-col overflow-hidden rounded-xl border border-hairline/50 bg-card shadow-2xl shadow-black/60"
       >
         <div className="flex items-center gap-3 border-b border-hairline/40 px-4 py-3">
@@ -165,11 +166,11 @@ export function CommandPalette({ onOpenChange }: { onOpenChange?: (open: boolean
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search bots, channels, messages…"
+            placeholder={t("hardcoded.components.CommandPalette.9d2661da")}
             className="w-full bg-transparent text-[14px] text-ink placeholder:text-ink-secondary focus:outline-none"
           />
           <kbd className="shrink-0 rounded-md border border-hairline/40 px-1.5 py-0.5 text-[11px] text-ink-secondary">
-            esc
+            {t("hardcoded.components.CommandPalette.a96458b6")}
           </kbd>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-2">
@@ -180,7 +181,7 @@ export function CommandPalette({ onOpenChange }: { onOpenChange?: (open: boolean
           )}
           {bots.length > 0 && (
             <div className="px-3 pb-1 pt-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-secondary">
-              Bots
+              {t("hardcoded.components.CommandPalette.79051942")}
             </div>
           )}
           {bots.map((bot, i) =>
@@ -199,7 +200,7 @@ export function CommandPalette({ onOpenChange }: { onOpenChange?: (open: boolean
           )}
           {rooms.length > 0 && (
             <div className="px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-secondary">
-              Groups
+              {t("hardcoded.components.CommandPalette.d2da87ea")}
             </div>
           )}
           {rooms.map((group, i) =>
@@ -215,7 +216,7 @@ export function CommandPalette({ onOpenChange }: { onOpenChange?: (open: boolean
           )}
           {q && messageHits.length > 0 && (
             <div className="px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-secondary">
-              Messages
+              {t("hardcoded.components.CommandPalette.42d73298")}
             </div>
           )}
           {q &&

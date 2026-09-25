@@ -159,7 +159,7 @@ export function RemoteComputerSection() {
                 <input
                   value={serverLink}
                   onChange={(event) => setServerLink(event.target.value)}
-                  placeholder="https://bots.example.com/pair#code=XXXX-XXXX-XXXX"
+                  placeholder={t("hardcoded.components.RemoteComputerSection.95a95281")}
                   disabled={busy}
                   autoCapitalize="none"
                   autoCorrect="off"
@@ -182,7 +182,7 @@ export function RemoteComputerSection() {
                 <input
                   value={endpoint}
                   onChange={(event) => setEndpoint(event.target.value)}
-                  placeholder="https://…openmausbot.com or computer.tailnet.ts.net"
+                  placeholder={t("hardcoded.components.RemoteComputerSection.95c2041c")}
                   disabled={busy}
                   autoCapitalize="none"
                   autoCorrect="off"

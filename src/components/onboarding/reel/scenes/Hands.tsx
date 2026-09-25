@@ -4,6 +4,7 @@
 // the right, drawn as ComputerPanel draws it (the view tabs, the preview
 // status, Open live desktop and Take control). Resolution is the click
 // landing, the tool chip in the chat, and the reply.
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Check, ExternalLink, Hand, Loader2, MousePointer2, Settings2, X } from "lucide-react";
 import { MausAvatar } from "@/components/Avatar";
@@ -79,7 +80,7 @@ export function Hands({ playing, onCue, onEnded, label }: SceneProps) {
           <div className="flex items-center justify-between border-b border-hairline/40 px-3 py-2">
             <div className="flex items-center gap-2">
               <MausAvatar color="green" state={busy ? "working" : replied ? "proud" : "happy"} size={18} animated={!still} trackPointer={false} />
-              <span className="text-[12px] font-semibold text-ink">Maus</span>
+              <span className="text-[12px] font-semibold text-ink">{t("hardcoded.components.onboarding.reel.scenes.Hands.4edff23d")}</span>
             </div>
             <span className={cn("flex size-6 items-center justify-center rounded-md transition-colors duration-300", panel ? "bg-raised text-accent" : "text-ink-secondary")}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>
@@ -105,7 +106,7 @@ export function Hands({ playing, onCue, onEnded, label }: SceneProps) {
                 </div>
               </div>
             )}
-            <div className="mt-1 h-7 rounded-lg border border-hairline/40 bg-inset px-2.5 text-[10.5px] leading-7 text-ink-secondary">Message Maus</div>
+            <div className="mt-1 h-7 rounded-lg border border-hairline/40 bg-inset px-2.5 text-[10.5px] leading-7 text-ink-secondary">{t("hardcoded.components.onboarding.reel.scenes.Hands.d737b523")}</div>
           </div>
         </div>
 
@@ -134,7 +135,7 @@ export function Hands({ playing, onCue, onEnded, label }: SceneProps) {
             <div className={cn("absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]", awake ? "opacity-100" : "opacity-0")}>
               <div className="absolute inset-0 bg-[linear-gradient(135deg,#1f3a5f_0%,#2a5d8c_45%,#6b3fa0_100%)]" />
               <div className="absolute inset-x-0 top-0 flex h-3 items-center justify-between bg-black/30 px-1.5 text-[6px] text-white/80">
-                <span>Ubuntu</span>
+                <span>{t("hardcoded.components.onboarding.reel.scenes.Hands.59dbaadc")}</span>
                 <span className="tabular-nums">14:58</span>
               </div>
               {/* the browser window with the booking form */}
@@ -143,10 +144,10 @@ export function Hands({ playing, onCue, onEnded, label }: SceneProps) {
                   <span className="size-1.5 rounded-full bg-[#ff5f57]" />
                   <span className="size-1.5 rounded-full bg-[#febc2e]" />
                   <span className="size-1.5 rounded-full bg-[#28c840]" />
-                  <span className="ml-1 flex-1 rounded-sm bg-white px-1 text-[5.5px] leading-[9px] text-[#5f6368]">clinic.example/book</span>
+                  <span className="ml-1 flex-1 rounded-sm bg-white px-1 text-[5.5px] leading-[9px] text-[#5f6368]">{t("hardcoded.components.onboarding.reel.scenes.Hands.7a2a283a")}</span>
                 </div>
                 <div className="p-2">
-                  <div className="text-[7px] font-semibold text-[#202124]">Book an appointment</div>
+                  <div className="text-[7px] font-semibold text-[#202124]">{t("hardcoded.components.onboarding.reel.scenes.Hands.360cbb3f")}</div>
                   <div className="mt-1 grid grid-cols-3 gap-1">
                     {["2:30 pm", "3:00 pm", "3:30 pm"].map((slot, i) => (
                       <div key={slot} className={cn("rounded-sm border px-1 py-0.5 text-center text-[6px] tabular-nums", i === 1 ? "border-[#1a73e8] bg-[#e8f0fe] text-[#1a73e8]" : "border-[#dadce0] text-[#5f6368]")}>
@@ -200,10 +201,10 @@ export function Hands({ playing, onCue, onEnded, label }: SceneProps) {
             </div>
             <div className="flex items-center gap-1">
               <span className="flex items-center gap-1 rounded-md bg-raised px-1.5 py-0.5 text-[9px] text-ink">
-                <ExternalLink size={9} /> Open live desktop
+                <ExternalLink size={9} /> {t("hardcoded.components.onboarding.reel.scenes.Hands.0e877d21")}
               </span>
               <span className="flex items-center gap-1 rounded-md bg-raised px-1.5 py-0.5 text-[9px] text-ink">
-                <Hand size={9} /> Take control
+                <Hand size={9} /> {t("hardcoded.components.onboarding.reel.scenes.Hands.c964f3ff")}
               </span>
             </div>
           </div>

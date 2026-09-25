@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import {
   AlertTriangle,
   Hand,
@@ -426,7 +427,7 @@ function LocalVmPane({
       <div className="flex min-h-[68px] items-center gap-3 border-b border-hairline/40 px-3 py-2.5">
         <div className="min-w-0 flex-1">
           <label className="sr-only" htmlFor={`local-vm-slot-${index}`}>
-            Local VM for pane {index + 1}
+            {t("hardcoded.components.LocalVmWorkspace.31319574")} {index + 1}
           </label>
           <select
             id={`local-vm-slot-${index}`}
@@ -435,7 +436,7 @@ function LocalVmPane({
             disabled={controlPending}
             className="w-full truncate rounded-lg border border-hairline/50 bg-card px-2.5 py-1.5 text-[13px] font-medium text-ink outline-none focus:border-accent/70"
           >
-            <option value="">Choose a Local VM bot</option>
+            <option value="">{t("hardcoded.components.LocalVmWorkspace.4b33b702")}</option>
             {bots.map((candidate) => (
               <option key={candidate.id} value={candidate.id} disabled={candidate.id === otherBotId}>
                 {candidate.name}
@@ -466,7 +467,7 @@ function LocalVmPane({
             className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-2.5 py-2 text-[12px] font-medium text-white hover:brightness-110 disabled:opacity-50"
           >
             {controlPending ? <Loader2 size={13} className="animate-spin" /> : <Hand size={13} />}
-            Hand back
+            {t("hardcoded.components.LocalVmWorkspace.f2e790ad")}
           </button>
         ) : bot ? (
           <button
@@ -474,7 +475,7 @@ function LocalVmPane({
             onClick={() => onTake(bot.id)}
             disabled={!canDrive || controlPending || heldElsewhere}
             className="flex shrink-0 items-center gap-1.5 rounded-lg bg-raised px-2.5 py-2 text-[12px] text-ink hover:bg-raised-hover disabled:opacity-45"
-            title="Pause only this bot and enable keyboard and pointer input in this pane"
+            title={t("hardcoded.components.LocalVmWorkspace.be0e882a")}
           >
             {controlPending ? <Loader2 size={13} className="animate-spin" /> : <Hand size={13} />}
             {heldElsewhere ? "Held elsewhere" : "Take control"}
@@ -491,15 +492,15 @@ function LocalVmPane({
           {!bot ? (
             <div className="flex max-w-[260px] flex-col items-center gap-2 text-ink-secondary">
               <Monitor size={22} />
-              <span className="text-[12px]">Choose another bot configured for a Local VM.</span>
+              <span className="text-[12px]">{t("hardcoded.components.LocalVmWorkspace.eec04806")}</span>
             </div>
           ) : !status && !error ? (
             <div className="flex items-center gap-2 text-[12px] text-ink-secondary">
-              <Loader2 size={15} className="animate-spin" /> Checking {bot.name}'s VM…
+              <Loader2 size={15} className="animate-spin" /> {t("hardcoded.components.LocalVmWorkspace.98db8bb6")} {bot.name}'s VM…
             </div>
           ) : status?.ready && nativeState.status !== "error" && !error ? (
             <div className="flex items-center gap-2 text-[12px] text-ink-secondary">
-              <Loader2 size={15} className="animate-spin" /> Connecting live view…
+              <Loader2 size={15} className="animate-spin" /> {t("hardcoded.components.LocalVmWorkspace.fa42932c")}
             </div>
           ) : (
             <div className="flex max-w-[300px] flex-col items-center gap-3 text-ink-secondary">
@@ -518,14 +519,14 @@ function LocalVmPane({
                   onClick={() => setRetry((value) => value + 1)}
                   className="flex items-center gap-1.5 rounded-lg bg-raised px-3 py-2 text-[12px] text-ink hover:bg-raised-hover"
                 >
-                  <RefreshCw size={13} /> Retry status
+                  <RefreshCw size={13} /> {t("hardcoded.components.LocalVmWorkspace.d17bf6ef")}
                 </button>
                 <button
                   type="button"
                   onClick={() => onOpenComputer(bot.id)}
                   className="rounded-lg bg-raised px-3 py-2 text-[12px] text-ink hover:bg-raised-hover"
                 >
-                  Open Computer
+                  {t("hardcoded.components.LocalVmWorkspace.7adb0acd")}
                 </button>
               </div>
             </div>
@@ -772,9 +773,9 @@ export function LocalVmWorkspace({
           <Monitor size={18} />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-[14px] font-semibold text-ink">Local VM view</h1>
+          <h1 className="truncate text-[14px] font-semibold text-ink">{t("hardcoded.components.LocalVmWorkspace.9bc3fc5e")}</h1>
           <p className="truncate text-[11.5px] text-ink-secondary">
-            Two live desktops · one active controller · watch-only by default
+            {t("hardcoded.components.LocalVmWorkspace.6b8e9134")}
           </p>
         </div>
         <button
@@ -782,7 +783,7 @@ export function LocalVmWorkspace({
           onClick={() => void closeWorkspace()}
           disabled={controlPending}
           className="rounded-md p-1.5 text-ink-secondary hover:bg-raised hover:text-ink disabled:opacity-50"
-          aria-label="Close Local VM view"
+          aria-label={t("hardcoded.components.LocalVmWorkspace.c2c64ec0")}
         >
           <X size={18} />
         </button>

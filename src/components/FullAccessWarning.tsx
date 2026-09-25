@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useRef } from "react";
 import { ShieldAlert } from "lucide-react";
 
@@ -70,7 +71,7 @@ export function FullAccessWarning({
           <ShieldAlert size={19} className="mt-0.5 shrink-0 text-danger" />
           <div>
             <h2 id="full-access-warning-title" className="text-[15px] font-semibold text-ink">
-              Enable Full access?
+              {t("hardcoded.components.FullAccessWarning.53e12cab")}
             </h2>
             <p id="full-access-warning-body" className="mt-1.5 text-[13px] leading-relaxed text-ink-secondary">
               {scope === "thread"
@@ -82,8 +83,8 @@ export function FullAccessWarning({
         {scope === "bot" && onAllThreadsChange && <label className="mt-4 flex items-start gap-2 text-[13px] text-ink">
           <input type="checkbox" className="mt-0.5 accent-accent" checked={Boolean(allThreads)}
             onChange={event => onAllThreadsChange(event.target.checked)} />
-          <span>Apply to all existing and future threads
-            <span className="mt-1 block text-ink-secondary">Includes archived threads. Other bots keep their settings.</span>
+          <span>{t("hardcoded.components.FullAccessWarning.e9a9e7d8")}
+            <span className="mt-1 block text-ink-secondary">{t("hardcoded.components.FullAccessWarning.b0930cdd")}</span>
           </span>
         </label>}
         <div className="mt-5 flex justify-end gap-2">
@@ -93,14 +94,14 @@ export function FullAccessWarning({
             onClick={onCancel}
             className="rounded-xl px-4 py-2 text-[13px] text-ink-secondary hover:bg-raised hover:text-ink"
           >
-            Cancel
+            {t("hardcoded.components.FullAccessWarning.36fb2990")}
           </button>
           <button
             type="button"
             onClick={onConfirm}
             className="rounded-xl bg-danger px-4 py-2 text-[13px] font-medium text-white hover:brightness-110"
           >
-            Enable full access
+            {t("hardcoded.components.FullAccessWarning.acfedc28")}
           </button>
         </div>
       </div>

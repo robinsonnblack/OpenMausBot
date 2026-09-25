@@ -61,6 +61,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConnectedAppsScreen(onBack: () -> Unit) {
     val environment = LocalCompanion.current
+    val l10n = LocalContext.current
     val session = environment.session
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -97,9 +98,9 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
                 // browser instead of placing them in our process.
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url.toASCIIString())))
             } catch (_: ActivityNotFoundException) {
-                session.actionError = "This phone has no browser available to open the authorization page."
+                session.actionError = l10n.getString(R.string.android_remaining_connected_apps_screen_dcfd99ce)
             } catch (_: SecurityException) {
-                session.actionError = "The authorization page could not be opened. Check your browser restrictions and try again."
+                session.actionError = l10n.getString(R.string.android_remaining_connected_apps_screen_4a61b62f)
             }
         }
     }
@@ -177,7 +178,7 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
                         ) {
                             Text(stringResource(R.string.ui_connected_apps_need_setup_2cdb536), fontWeight = FontWeight.SemiBold)
                             Text(
-                                "Configure Composio on your computer first. Provider credentials are never returned to this phone.",
+                                stringResource(R.string.android_connected_apps_configure_composio),
                                 color = secondaryTint,
                                 fontSize = 13.sp,
                             )
@@ -267,9 +268,9 @@ private fun CredentialStoreWarning(hasLastKnownInventory: Boolean) {
             Text(stringResource(R.string.ui_accounts_could_not_be_re_checked_6727be8), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.tertiary)
             Text(
                 if (hasLastKnownInventory) {
-                    "Showing what was connected last time. Your computer could not open its credential store just now, so these accounts could not be re-checked. Nothing has been disconnected — restarting OpenMausBot on your computer usually clears this."
+                    stringResource(R.string.android_apps_credentials_cached)
                 } else {
-                    "Your computer could not open its credential store, so it cannot say which accounts are connected. Nothing has been disconnected — restarting OpenMausBot on your computer usually clears this."
+                    stringResource(R.string.android_apps_credentials_unavailable)
                 },
                 color = secondaryTint,
                 fontSize = 13.sp,
@@ -309,7 +310,7 @@ private fun ConnectorCardView(
                 accounts.isEmpty() -> {
                     Text(stringResource(if (pending) R.string.ui_connecting else R.string.ui_connected))
                     Text(
-                        "Account details are unavailable from this provider. Refresh after authorization finishes.",
+                        stringResource(R.string.android_connected_apps_details_unavailable),
                         color = secondaryTint,
                         fontSize = 13.sp,
                     )

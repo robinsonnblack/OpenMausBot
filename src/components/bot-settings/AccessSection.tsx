@@ -66,19 +66,19 @@ function WorkingFolder({ bot }: { bot: Bot }) {
 
   return (
     <div className="rounded-xl bg-card p-4">
-      <div className="text-[15px] font-medium text-ink">Working folder</div>
-      <div className="mt-0.5 text-[13px] text-ink-secondary">Where this bot runs its shell and file tools.</div>
+      <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.dd278904")}</div>
+      <div className="mt-0.5 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.e6cd6669")}</div>
       {canPick ? (
         <div className="mt-3 flex items-center gap-2">
           <div className="min-w-0 flex-1 truncate rounded-lg border border-hairline/40 bg-inset px-3 py-2 font-mono text-[12.5px] text-ink" title={bot.cwd}>
-            {bot.cwd ? shortPath(bot.cwd, home) : <span className="text-ink-secondary">Private bot folder</span>}
+            {bot.cwd ? shortPath(bot.cwd, home) : <span className="text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.f4601949")}</span>}
           </div>
           <button onClick={() => void pick()} disabled={saving} className="flex shrink-0 items-center gap-1.5 rounded-lg bg-control px-3 py-2 text-[13px] text-ink hover:bg-raised-hover disabled:opacity-50">
-            <FolderOpen size={14} /> Choose…
+            <FolderOpen size={14} /> {t("hardcoded.components.botsettings.AccessSection.554ac467")}
           </button>
           {bot.cwd && (
             <button onClick={() => void save(null)} disabled={saving} className="shrink-0 rounded-lg px-2 py-2 text-[13px] text-ink-secondary hover:text-ink disabled:opacity-50">
-              Clear
+              {t("hardcoded.components.botsettings.AccessSection.afa749c1")}
             </button>
           )}
         </div>
@@ -93,19 +93,19 @@ function WorkingFolder({ bot }: { bot: Bot }) {
         >
           <input
             className={cn(inputCls, "font-mono text-[12.5px]")}
-            placeholder="Private bot folder — or an absolute path"
+            placeholder={t("hardcoded.components.botsettings.AccessSection.1e7ff3c9")}
             value={draft ?? bot.cwd ?? ""}
             onChange={(e) => setDraft(e.target.value)}
           />
           <button type="submit" disabled={saving || draft === null} className="shrink-0 rounded-lg bg-control px-3 py-2 text-[13px] text-ink hover:bg-raised-hover disabled:opacity-50">
-            Save
+            {t("hardcoded.components.botsettings.AccessSection.77544979")}
           </button>
         </form>
       )}
       {error && <div className="mt-2 text-[12px] text-danger">{error}</div>}
       {pinnedElsewhere && (
         <div className="mt-2 text-[12px] text-ink-secondary">
-          New tasks start here. This task is pinned to {pinned ? <span className="font-mono">{shortPath(pinned, home)}</span> : "the home folder"} — start a new task to use the new folder.
+          {t("hardcoded.components.botsettings.AccessSection.71f50fd8")} {pinned ? <span className="font-mono">{shortPath(pinned, home)}</span> : "the home folder"} — start a new task to use the new folder.
         </div>
       )}
     </div>
@@ -554,9 +554,9 @@ export function AccessSection({
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Works on</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.1f5b5e8c")}</div>
         <div className="mt-0.5 text-[13px] text-ink-secondary">
-          Where this bot works{bot.computer ? "" : " (currently: auto)"}. Browser is the built-in browser tab only; no desktop.
+          {t("hardcoded.components.botsettings.AccessSection.ddb566ff")}{bot.computer ? "" : " (currently: auto)"}. Browser is the built-in browser tab only; no desktop.
         </div>
         <div className="mt-3 flex overflow-hidden rounded-lg border border-hairline/40">
           {([
@@ -602,17 +602,16 @@ export function AccessSection({
         </div>
         {bot.computer === "off" && (
           <div className="mt-3 rounded-lg bg-inset px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-secondary">
-            <span className="font-medium text-ink">Off means no screen.</span>{" "}
-            This bot gets no computer and no built-in browser, so it cannot open a web page, click, or type
-            anywhere. Its connected apps, MCP servers, files and chat all still work.
+            <span className="font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.f7173377")}</span>{" "}
+            {t("hardcoded.components.botsettings.AccessSection.2054799b")}
           </div>
         )}
         {(!bot.computer || bot.computer === "cloud") && (
           <>
             {!bot.computer && (
               <div className="mt-3 rounded-lg bg-inset px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-secondary">
-                <span className="font-medium text-ink">Auto cloud preference.</span>{" "}
-                This chooses what Auto may reuse during a task; viewing settings does not create or wake a computer.
+                <span className="font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.9214d011")}</span>{" "}
+                {t("hardcoded.components.botsettings.AccessSection.77bab49e")}
               </div>
             )}
             <CloudBackendPicker
@@ -623,14 +622,14 @@ export function AccessSection({
             {!bot.computer && bot.cloudBackend === "vps" && (
               <div className="mt-3 flex items-center justify-between gap-4 rounded-lg bg-inset px-3 py-2.5">
                 <div className="min-w-0">
-                  <div className="text-[13px] text-ink">Start VPS automatically</div>
+                  <div className="text-[13px] text-ink">{t("hardcoded.components.botsettings.AccessSection.88fbb869")}</div>
                   <div className="mt-0.5 text-[11.5px] text-ink-secondary">
-                    Allow Auto to create or wake this bot's managed container when needed.
+                    {t("hardcoded.components.botsettings.AccessSection.da913005")}
                   </div>
                 </div>
                 <Switch
                   checked={Boolean(bot.autoStartVps)}
-                  aria-label="Start VPS automatically"
+                  aria-label={t("hardcoded.components.botsettings.AccessSection.88fbb869")}
                   onClick={() => patch({ autoStartVps: !bot.autoStartVps })}
                 />
               </div>
@@ -644,7 +643,7 @@ export function AccessSection({
       <div className="rounded-xl bg-card p-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="text-[15px] font-medium text-ink">Connected apps</div>
+            <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.7f0797b5")}</div>
             <div className="mt-0.5 text-[13px] text-ink-secondary">
               {!connectedAppsConfigured
                 ? "Connect apps in App Settings before giving this bot access."
@@ -661,7 +660,7 @@ export function AccessSection({
           </div>
           <Switch
             checked={connectedAppsEnabled}
-            aria-label="Allow this bot to use connected apps"
+            aria-label={t("hardcoded.components.botsettings.AccessSection.db8d869a")}
             disabled={
               !connectedAppsEnabled && (!connectedAppsConfigured || !canUseConnectedApps)
             }
@@ -697,7 +696,7 @@ export function AccessSection({
 
       <div className="flex items-center justify-between gap-4 rounded-xl bg-card p-4">
         <div>
-          <div className="text-[15px] font-medium text-ink">Browser</div>
+          <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.338df28e")}</div>
           <div className="mt-0.5 text-[13px] text-ink-secondary">
             {!desktopBrowser
               ? browserBlockedOnWindows && !browserInstallable
@@ -716,7 +715,7 @@ export function AccessSection({
         </div>
         <Switch
           checked={browserEnabled && bot.computer !== "off"}
-          aria-label="Give this bot a built-in browser"
+          aria-label={t("hardcoded.components.botsettings.AccessSection.6e1e4fd8")}
           disabled={
             bot.computer === "off" ||
             (!browserEnabled && ((!desktopBrowser && !browserInstallable) || !browserFeature || !canUseBrowser))
@@ -728,10 +727,10 @@ export function AccessSection({
       </div>
 
       {!draft && <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Webhooks</div>
-        <div className="mt-0.5 text-[13px] text-ink-secondary">Inbound triggers wired to this bot.</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.1dee5e56")}</div>
+        <div className="mt-0.5 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.4c5ea104")}</div>
         {webhooks.length === 0 ? (
-          <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">No webhooks for this bot.</div>
+          <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.895d9ba7")}</div>
         ) : (
           <div className="mt-3 divide-y divide-hairline/40 overflow-hidden rounded-lg border border-hairline/40">
             {webhooks.map((webhook) => (
@@ -746,7 +745,7 @@ export function AccessSection({
                   {webhook.enabled ? "Active" : "Paused"}
                 </span>
                 <span className="shrink-0 text-[11.5px] tabular-nums text-ink-secondary">
-                  {webhook.deliveryCount} deliveries
+                  {webhook.deliveryCount} {t("hardcoded.components.botsettings.AccessSection.2a661576")}
                 </span>
               </div>
             ))}
@@ -755,10 +754,10 @@ export function AccessSection({
       </div>}
 
       {!draft && <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Always allowed</div>
-        <div className="mt-0.5 text-[13px] text-ink-secondary">Tools this bot no longer asks about.</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.63150564")}</div>
+        <div className="mt-0.5 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.1bacfcc6")}</div>
         {alwaysAllow.length === 0 ? (
-          <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">Nothing standing yet.</div>
+          <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.8f3be29a")}</div>
         ) : (
           <div className="mt-3 divide-y divide-hairline/40 overflow-hidden rounded-lg border border-hairline/40">
             {alwaysAllow.map((entry) => (
@@ -770,7 +769,7 @@ export function AccessSection({
                   onClick={() => patch({ alwaysAllow: alwaysAllow.filter((key) => key !== entry) })}
                   className="shrink-0 rounded-md px-2 py-1 text-[12px] text-ink-secondary hover:bg-danger/10 hover:text-danger"
                 >
-                  Remove
+                  {t("hardcoded.components.botsettings.AccessSection.9ea019d9")}
                 </button>
               </div>
             ))}

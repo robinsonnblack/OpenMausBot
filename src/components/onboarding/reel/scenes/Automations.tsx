@@ -8,6 +8,7 @@
 //
 // Drawn to match the real Automations page and the real run receipt card,
 // so a user recognises both when they meet them for real.
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { CheckCircle2, Loader2, MousePointer2, Zap } from "lucide-react";
 import { MausAvatar } from "@/components/Avatar";
@@ -155,7 +156,7 @@ export function Automations({ playing, onCue, onEnded, label }: SceneProps) {
                   >
                     <MausAvatar color="green" state={busy ? "working" : "idle"} size={16} animated={!still} trackPointer={false} />
                     <div className="min-w-0">
-                      <div className="truncate text-[9.5px] font-semibold leading-tight text-ink">Weekly report</div>
+                      <div className="truncate text-[9.5px] font-semibold leading-tight text-ink">{t("hardcoded.components.onboarding.reel.scenes.Automations.aaed5204")}</div>
                       <div className="text-[8px] leading-tight tabular-nums text-ink-secondary">9:00 · weekly</div>
                     </div>
                   </div>

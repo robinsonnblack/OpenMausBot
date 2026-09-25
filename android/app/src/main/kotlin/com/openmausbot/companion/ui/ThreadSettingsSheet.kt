@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ThreadSettingsSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var original by remember { mutableStateOf<ThreadSettings?>(null) }
@@ -47,13 +49,13 @@ internal fun ThreadSettingsSheet(onDismiss: () -> Unit) {
     LaunchedEffect(Unit) {
         try {
             val current = session.configStatus()?.threads
-                ?: throw IllegalStateException("Could not load the computer's thread settings.")
+                ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_thread_settings_sheet_0f645f53))
             original = current
             concurrent = current.maxConcurrentPerBot.toString()
             capKiB = current.eventLogMaxBytes?.div(1024)?.toString().orEmpty()
             retentionDays = current.eventLogRetentionDays?.toString().orEmpty()
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load thread settings."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_thread_settings_sheet_8bf0fe90)
         } finally { loading = false }
     }
 
@@ -105,14 +107,14 @@ internal fun ThreadSettingsSheet(onDismiss: () -> Unit) {
                     error = null
                     try {
                         val current = session.configStatus()?.threads
-                            ?: throw IllegalStateException("Could not verify the current thread settings.")
-                        if (current != original) throw IllegalStateException("The computer's settings changed. Reopen this screen to review them.")
+                            ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_thread_settings_sheet_e940023b))
+                        if (current != original) throw IllegalStateException(l10n.getString(R.string.android_remaining_thread_settings_sheet_1a4d7e5d))
                         val requested = ThreadSettings(concurrentValue!!, capValue?.times(1024), daysValue)
                         val saved = session.updateThreadSettings(requested).threads
-                        if (saved != requested) throw IllegalStateException("The computer did not confirm the saved settings.")
+                        if (saved != requested) throw IllegalStateException(l10n.getString(R.string.android_remaining_thread_settings_sheet_c15f72bd))
                         onDismiss()
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not save thread settings."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_thread_settings_sheet_6f0e4e94)
                     } finally { saving = false }
                 }
             }) { Text(stringResource(if (saving) R.string.ui_saving else R.string.ui_save_action)) }

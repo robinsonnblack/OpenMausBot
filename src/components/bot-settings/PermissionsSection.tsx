@@ -75,12 +75,12 @@ export function PermissionsSection({
             <Crown size={17} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-[15px] font-medium text-ink">Chief of Staff</div>
-            <div className="text-[11.5px] text-ink-secondary">One for {sectionName}</div>
+            <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.PermissionsSection.07beaa1f")}</div>
+            <div className="text-[11.5px] text-ink-secondary">{t("hardcoded.components.botsettings.PermissionsSection.aa6d7202")} {sectionName}</div>
           </div>
           <Switch
             checked={Boolean(bot.chiefOfStaff)}
-            aria-label="Chief of Staff"
+            aria-label={t("hardcoded.components.botsettings.PermissionsSection.07beaa1f")}
             disabled={!bot.chiefOfStaff && !canCoordinate}
             onClick={() => patch({ chiefOfStaff: !bot.chiefOfStaff })}
             title={!bot.chiefOfStaff && !canCoordinate ? "This engine cannot contact other bots" : undefined}
@@ -109,7 +109,7 @@ export function PermissionsSection({
 
       <div className="flex items-center justify-between gap-4 rounded-xl bg-card p-4">
         <div>
-          <div className="text-[15px] font-medium text-ink">Ask me before contacting other bots</div>
+          <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.PermissionsSection.8c217b07")}</div>
           <div className="mt-0.5 text-[13px] text-ink-secondary">
             {bot.approvePeerComms
               ? "This bot will stop and ask before it reaches out to another bot."
@@ -118,7 +118,7 @@ export function PermissionsSection({
         </div>
         <Switch
           checked={Boolean(bot.approvePeerComms)}
-          aria-label="Ask me before contacting other bots"
+          aria-label={t("hardcoded.components.botsettings.PermissionsSection.8c217b07")}
           disabled={!bot.approvePeerComms && !canCoordinate}
           onClick={() => patch({ approvePeerComms: !bot.approvePeerComms })}
           title={!bot.approvePeerComms && !canCoordinate ? "This engine cannot contact other bots" : undefined}
@@ -127,7 +127,7 @@ export function PermissionsSection({
       </div>
 
       <div className="rounded-xl bg-card p-4">
-        <div className="text-[15px] font-medium text-ink">Approval level</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.PermissionsSection.8ffe680a")}</div>
         <div className="mt-0.5 text-[13px] text-ink-secondary">
           {draft ? "Default for the new bot's threads, routines and delegated work." : "Default for new threads, routines and delegated work. When enabling Full access, you can also apply it to every existing thread."}
         </div>
@@ -149,7 +149,7 @@ export function PermissionsSection({
           type="button" disabled={Boolean(bot.busy)}
           className="mt-3 text-[13px] text-accent hover:underline disabled:opacity-40"
           onClick={() => { setAllThreads(true); setFullAccessTarget(bot.id); }}
-        >Apply Full access to all threads</button>}
+        >{t("hardcoded.components.botsettings.PermissionsSection.8a1c76dd")}</button>}
         {!draft && ownerOrAdmin === true && <button
           type="button"
           className="mt-3 block text-[13px] text-accent hover:underline"

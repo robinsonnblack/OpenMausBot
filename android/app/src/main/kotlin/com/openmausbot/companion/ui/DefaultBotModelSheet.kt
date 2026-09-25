@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var original by remember { mutableStateOf<ModelSelection?>(null) }
@@ -54,7 +56,7 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
             selected = original
             instances = loaded.second
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load bot defaults."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_default_bot_model_sheet_fa6d1868)
         } finally { loading = false }
     }
 
@@ -97,7 +99,7 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
                 val efforts = ModelRules.effortLevels(instance)
                 if (efforts.isNotEmpty()) ChoicePicker(
                     label = stringResource(R.string.ui_reasoning_effort_cd32c0f),
-                    choices = listOf(VoiceChoice("", "Default", null, true)) +
+                    choices = listOf(VoiceChoice("", l10n.getString(R.string.android_remaining_default_bot_model_sheet_808d7dca), null, true)) +
                         efforts.map { VoiceChoice(it, ModelRules.effortLabel(it), null, true) },
                     selected = current?.effort.orEmpty(),
                     onSelect = { effort -> current?.let { selected = it.copy(effort = effort.ifEmpty { null }) } },
@@ -112,10 +114,10 @@ internal fun DefaultBotModelSheet(onDismiss: () -> Unit) {
                             saving = true
                             try {
                                 val confirmed = session.setDefaultBotModel(choice).modelSelection
-                                if (confirmed != choice) error = "The computer did not confirm the selected model."
+                                if (confirmed != choice) error = l10n.getString(R.string.android_remaining_default_bot_model_sheet_9e74089d)
                                 else onDismiss()
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not save the default model."
+                                error = failure.message ?: l10n.getString(R.string.android_remaining_default_bot_model_sheet_e4b9bf51)
                             } finally { saving = false }
                         }
                     },

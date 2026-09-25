@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RoomTurnTimeoutSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var original by remember { mutableStateOf<Int?>(null) }
@@ -41,11 +43,11 @@ internal fun RoomTurnTimeoutSheet(onDismiss: () -> Unit) {
     LaunchedEffect(Unit) {
         try {
             val current = session.configStatus()?.rooms?.turnTimeoutMinutes
-                ?: throw IllegalStateException("Could not load the computer's room timeout.")
+                ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_room_turn_timeout_sheet_e1c3373f))
             original = current
             minutes = current.toString()
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load the room timeout."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_room_turn_timeout_sheet_8f4388ab)
         } finally {
             loading = false
         }
@@ -77,13 +79,13 @@ internal fun RoomTurnTimeoutSheet(onDismiss: () -> Unit) {
                     error = null
                     try {
                         val current = session.configStatus()?.rooms?.turnTimeoutMinutes
-                            ?: throw IllegalStateException("Could not verify the current room timeout.")
-                        if (current != original) throw IllegalStateException("The computer's setting changed. Reopen this screen to review it.")
+                            ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_room_turn_timeout_sheet_33ec7c78))
+                        if (current != original) throw IllegalStateException(l10n.getString(R.string.android_remaining_room_turn_timeout_sheet_198f7645))
                         val saved = session.updateRoomTurnTimeout(requireNotNull(parsed)).rooms?.turnTimeoutMinutes
-                        if (saved != parsed) throw IllegalStateException("The computer did not confirm the saved timeout.")
+                        if (saved != parsed) throw IllegalStateException(l10n.getString(R.string.android_remaining_room_turn_timeout_sheet_9f2ea9b8))
                         onDismiss()
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not save the room timeout."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_room_turn_timeout_sheet_1e577f82)
                     } finally {
                         saving = false
                     }

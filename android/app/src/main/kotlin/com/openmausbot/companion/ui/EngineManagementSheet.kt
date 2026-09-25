@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun EngineManagementSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var engines by remember { mutableStateOf<List<Instance>>(emptyList()) }
@@ -43,7 +45,7 @@ internal fun EngineManagementSheet(onDismiss: () -> Unit) {
 
     LaunchedEffect(Unit) {
         try { engines = session.modelInstances() }
-        catch (failure: Exception) { error = failure.message ?: "Could not load engines." }
+        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_engine_management_sheet_b160b470) }
         finally { loading = false }
     }
 
@@ -52,7 +54,7 @@ internal fun EngineManagementSheet(onDismiss: () -> Unit) {
         error = null
         scope.launch {
             try { engines = session.manageEngine(id, action) }
-            catch (failure: Exception) { error = failure.message ?: "The computer could not manage this engine." }
+            catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_engine_management_sheet_85d78627) }
             finally { busy = null }
         }
     }

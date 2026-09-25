@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 /** Exact host command permissions, scoped to one bot and its current provider. */
 @Composable
 internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var status by remember(botId, connectionId) { mutableStateOf<CommandAllowlistStatus?>(null) }
@@ -47,7 +49,7 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
             status = next
             cwd = next.context.cwd.orEmpty()
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load command permissions."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_bot_command_allowlist_section_48148c53)
         } finally {
             loading = false
         }
@@ -68,7 +70,7 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
                             status = session.removeBotCommandRule(botId, rule.id)
                             removing = null
                         } catch (failure: Exception) {
-                            error = failure.message ?: "Could not remove this permission."
+                            error = failure.message ?: l10n.getString(R.string.android_remaining_bot_command_allowlist_section_293a7f0c)
                         } finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.ui_remove_e963907)) }
@@ -115,7 +117,7 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
                                 val fresh = session.botCommandAllowlist(botId)
                                 if (fresh.context != current.context || !fresh.supported) {
                                     status = fresh
-                                    error = "The bot's provider or working folder changed. Review the new context before adding a rule."
+                                    error = l10n.getString(R.string.android_remaining_bot_command_allowlist_section_105f056a)
                                 } else {
                                     status = session.addBotCommandRule(
                                         botId, command, cwd.trim(), current.context.providerInstanceId,
@@ -123,7 +125,7 @@ internal fun BotCommandAllowlistSection(botId: String, connectionId: String?) {
                                     command = ""
                                 }
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not add this permission."
+                                error = failure.message ?: l10n.getString(R.string.android_remaining_bot_command_allowlist_section_5d05d469)
                             } finally { busy = false }
                         }
                     }) { Text(stringResource(if (busy) R.string.ui_saving else R.string.ui_always_allow_exact_command)) }

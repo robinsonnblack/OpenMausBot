@@ -141,7 +141,13 @@ private fun CommandCard(command: SlashCommand, onSelect: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = command.description,
+                text = stringResource(when (command.id) {
+                    SlashCommandId.COMPUTER -> R.string.android_command_computer
+                    SlashCommandId.TASKS -> R.string.android_command_threads
+                    SlashCommandId.DIFF -> R.string.android_command_diff
+                    SlashCommandId.RETRY -> R.string.android_command_retry
+                    SlashCommandId.STEER -> R.string.android_command_steer
+                }),
                 fontSize = 11.sp,
                 color = secondaryTint,
                 maxLines = 2,

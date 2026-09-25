@@ -474,7 +474,7 @@ export function McpServersPanel() {
                   value={draft.name}
                   maxLength={32}
                   onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value.toLowerCase() }))}
-                  placeholder="github"
+                  placeholder={t("hardcoded.components.McpServersPanel.77ceec06")}
                   className="mt-1.5 w-full rounded-lg border border-hairline/60 bg-raised px-3 py-2.5 text-[13px] text-ink outline-none focus:border-accent disabled:opacity-60"
                 />
               </label>
@@ -486,7 +486,7 @@ export function McpServersPanel() {
                       autoFocus={editing !== "new"}
                       value={draft.url}
                       onChange={(event) => setDraft((current) => ({ ...current, url: event.target.value }))}
-                      placeholder="https://mcp.example.com/mcp"
+                      placeholder={t("hardcoded.components.McpServersPanel.5c98615a")}
                       className="mt-1.5 w-full rounded-lg border border-hairline/60 bg-raised px-3 py-2.5 text-[13px] text-ink outline-none focus:border-accent"
                     />
                   </label>
@@ -506,7 +506,7 @@ export function McpServersPanel() {
                     <textarea
                       value={draft.headers}
                       onChange={(event) => setDraft((current) => ({ ...current, headers: event.target.value }))}
-                      placeholder="Authorization: Bearer …"
+                      placeholder={t("hardcoded.components.McpServersPanel.1dac8879")}
                       rows={4}
                       className="mt-1.5 w-full resize-y rounded-lg border border-hairline/60 bg-raised px-3 py-2.5 font-mono text-[12px] text-ink outline-none focus:border-accent"
                     />
@@ -521,7 +521,7 @@ export function McpServersPanel() {
                   autoFocus={editing !== "new"}
                   value={draft.command}
                   onChange={(event) => setDraft((current) => ({ ...current, command: event.target.value }))}
-                  placeholder="npx"
+                  placeholder={t("hardcoded.components.McpServersPanel.6509fa01")}
                   className="mt-1.5 w-full rounded-lg border border-hairline/60 bg-raised px-3 py-2.5 text-[13px] text-ink outline-none focus:border-accent"
                 />
               </label>

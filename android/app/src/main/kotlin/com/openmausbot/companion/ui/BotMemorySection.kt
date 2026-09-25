@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 /** Files remain on the paired computer; every save checks the hash that was read. */
 @Composable
 internal fun BotMemorySection(botId: String) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -219,7 +220,7 @@ internal fun BotMemorySection(botId: String) {
                         if (path == reverted.path) { doc = reverted.doc(); draft = reverted.text }
                         error = null
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not revert this change."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_bot_memory_section_4d5b235a)
                     } finally { saving = false }
                 }
             }) { Text(stringResource(R.string.ui_revert_272607a)) } },

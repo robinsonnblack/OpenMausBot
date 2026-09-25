@@ -859,10 +859,9 @@ private fun LoadedChat(
                             // message is just noise.
                             if (TranscriptLayout.startsNewRowStretch(transcript, index)) {
                                 Text(
-                                    text = RelativeStamp.separator(
+                                    text = RelativeStamp.localizedSeparator(
                                         message.at,
                                         System.currentTimeMillis(),
-                                        locale = Locale.getDefault(),
                                     ),
                                     fontSize = 13.sp,
                                     color = secondaryTint,
@@ -1589,7 +1588,7 @@ private fun Composer(
                     tint = Color(0xFFFF9800),
                     modifier = Modifier.size(18.dp),
                 )
-                Text(text = attachmentError, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                Text(text = shareUiText(androidx.compose.ui.platform.LocalContext.current, attachmentError), fontSize = 13.sp, modifier = Modifier.weight(1f))
                 Text(
                     text = stringResource(R.string.ui_dismiss_70afe9e),
                     fontSize = 13.sp,

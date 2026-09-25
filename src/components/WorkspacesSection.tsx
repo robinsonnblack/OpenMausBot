@@ -114,7 +114,7 @@ function NewWorkspaceForm({ domain, onCreated, disabled }: { domain: string; onC
         <label className="flex flex-col gap-1 text-[12px] text-ink-secondary">
           {t("workspaces.name")}
           <div className="flex items-center gap-1">
-            <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="acme" pattern="[a-z][a-z0-9-]{1,30}" required disabled={disabled || saving} aria-label={t("workspaces.name")} className={field} />
+            <input value={slug} onChange={(e) => setSlug(e.target.value)} placeholder={t("hardcoded.components.WorkspacesSection.825423cd")} pattern="[a-z][a-z0-9-]{1,30}" required disabled={disabled || saving} aria-label={t("workspaces.name")} className={field} />
             <span className="whitespace-nowrap text-[12px] text-ink-secondary">.{domain}</span>
           </div>
         </label>
@@ -124,7 +124,7 @@ function NewWorkspaceForm({ domain, onCreated, disabled }: { domain: string; onC
         </label>
         <label className="flex flex-col gap-1 text-[12px] text-ink-secondary">
           {t("workspaces.members")}
-          <input value={members} onChange={(e) => setMembers(e.target.value)} placeholder="bob@acme.test, @acme.test" disabled={disabled || saving} aria-label={t("workspaces.members")} className={field} />
+          <input value={members} onChange={(e) => setMembers(e.target.value)} placeholder={t("hardcoded.components.WorkspacesSection.ecafa90f")} disabled={disabled || saving} aria-label={t("workspaces.members")} className={field} />
         </label>
         <label className="flex flex-col gap-1 text-[12px] text-ink-secondary">
           {t("workspaces.cap")}
@@ -132,7 +132,7 @@ function NewWorkspaceForm({ domain, onCreated, disabled }: { domain: string; onC
         </label>
         <label className="flex flex-col gap-1 text-[12px] text-ink-secondary sm:col-span-2">
           {t("workspaces.anthropicKey")}
-          <input value={anthropicKey} onChange={(e) => setAnthropicKey(e.target.value)} type="password" autoComplete="off" placeholder="sk-ant-…" disabled={disabled || saving} aria-label={t("workspaces.anthropicKey")} className={field} />
+          <input value={anthropicKey} onChange={(e) => setAnthropicKey(e.target.value)} type="password" autoComplete="off" placeholder={t("hardcoded.components.WorkspacesSection.7c5d5d9e")} disabled={disabled || saving} aria-label={t("workspaces.anthropicKey")} className={field} />
         </label>
       </div>
       <p className="text-[11.5px] leading-relaxed text-ink-secondary">{t("workspaces.createHint")}</p>
@@ -169,7 +169,7 @@ function UsersForm({ slug, onDone }: { slug: string; onDone: (log: string[]) => 
     <div className="mt-2 rounded-lg border border-hairline/40 p-3">
       <div className="mb-2 text-[12.5px] font-medium text-ink">{t("workspaces.usersTitle", { slug })}</div>
       <div className="flex flex-wrap items-center gap-2">
-        <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder="person@example.com or @example.com" aria-label={t("workspaces.email")} disabled={busy !== null} className="min-w-[16rem] flex-1 rounded-lg border border-hairline/40 bg-inset px-3 py-2 text-[13px] text-ink placeholder:text-ink-secondary focus:border-hairline focus:outline-none disabled:opacity-50" />
+        <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" placeholder={t("hardcoded.components.WorkspacesSection.22829dea")} aria-label={t("workspaces.email")} disabled={busy !== null} className="min-w-[16rem] flex-1 rounded-lg border border-hairline/40 bg-inset px-3 py-2 text-[13px] text-ink placeholder:text-ink-secondary focus:border-hairline focus:outline-none disabled:opacity-50" />
         <label className="flex items-center gap-1.5 text-[12px] text-ink-secondary"><input type="checkbox" checked={chatOnly} onChange={(e) => setChatOnly(e.target.checked)} disabled={busy !== null} />{t("workspaces.chatOnly")}</label>
         <button type="button" disabled={busy !== null || !email.trim()} onClick={() => void run("add")} className="rounded-lg bg-raised px-3 py-1.5 text-[12px] text-ink hover:bg-raised-hover disabled:opacity-50">{busy === "add" ? t("workspaces.working") : t("workspaces.addUser")}</button>
         <button type="button" disabled={busy !== null || !email.trim()} onClick={() => void run("remove")} className="rounded-lg px-3 py-1.5 text-[12px] text-danger hover:underline disabled:opacity-50">{busy === "remove" ? t("workspaces.working") : t("workspaces.removeUser")}</button>

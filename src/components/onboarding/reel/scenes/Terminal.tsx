@@ -3,6 +3,7 @@
 // promise: same app, text wizard first. The wizard's lines are the real
 // ones from server/cli-setup.ts, typed at a human pace, with the picker
 // drawn the way Clack draws it.
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { MausAvatar } from "@/components/Avatar";
 import { cn } from "@/lib/cn";
@@ -80,7 +81,7 @@ export function Terminal({ playing, onCue, onEnded, label }: SceneProps) {
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-2 text-[10px] text-white/40">zsh</span>
+          <span className="ml-2 text-[10px] text-white/40">{t("hardcoded.components.onboarding.reel.scenes.Terminal.b1b121d6")}</span>
         </div>
         <div className="px-3.5 py-2.5">
           {lines.map(({ at, line }, i) => {
@@ -145,7 +146,7 @@ export function Terminal({ playing, onCue, onEnded, label }: SceneProps) {
             </div>
             <div className="ml-2 flex h-6 max-w-[150px] items-center gap-1.5 rounded-t-lg bg-[#35363a] px-2.5 text-[9.5px] text-[#e8eaed]">
               <MausAvatar color="green" state="idle" size={10} animated={false} trackPointer={false} />
-              <span className="truncate">OpenMausBot</span>
+              <span className="truncate">{t("hardcoded.components.onboarding.reel.scenes.Terminal.765810ee")}</span>
               <span className="ml-1 text-[#9aa0a6]">×</span>
             </div>
             <span className="mb-1 text-[12px] leading-none text-[#9aa0a6]">+</span>
@@ -168,7 +169,7 @@ export function Terminal({ playing, onCue, onEnded, label }: SceneProps) {
         <div className="relative flex min-h-0 flex-1 bg-app">
           <div className="flex w-[104px] shrink-0 flex-col border-r border-hairline/40 bg-panel/70 p-2">
             <div className="h-5 rounded-md bg-inset" />
-            <div className="mt-2 text-[7.5px] font-semibold uppercase tracking-[0.12em] text-ink-secondary/70">Bots</div>
+            <div className="mt-2 text-[7.5px] font-semibold uppercase tracking-[0.12em] text-ink-secondary/70">{t("hardcoded.components.onboarding.reel.scenes.Terminal.b166d24f")}</div>
             <div className="mt-1 flex items-center gap-1.5 rounded-md bg-raised/70 px-1.5 py-1">
               <MausAvatar color="green" state="happy" size={14} animated={false} trackPointer={false} />
               <div className="min-w-0">
@@ -191,11 +192,11 @@ export function Terminal({ playing, onCue, onEnded, label }: SceneProps) {
             <div className="absolute left-1/2 top-[6px] w-[196px] -translate-x-1/2 rounded-xl border border-hairline/50 bg-panel px-4 py-2.5 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.7)]">
               <div className="flex flex-col items-center">
                 <MausAvatar color="green" state="happy" size={24} animated={!still} trackPointer={false} />
-                <div className="mt-1 text-[10px] font-semibold text-ink">Welcome to OpenMausBot</div>
+                <div className="mt-1 text-[10px] font-semibold text-ink">{t("hardcoded.components.onboarding.reel.scenes.Terminal.a21d61ef")}</div>
                 <div className="mt-0.5 h-1 w-24 rounded bg-ink-secondary/40" />
-                <div className="mt-2 flex h-[18px] w-full items-center rounded-md border border-hairline/40 bg-inset px-2 text-[8px] text-ink-secondary">Your name</div>
-                <div className="mt-1 flex h-[18px] w-full items-center rounded-md border border-hairline/40 bg-inset px-2 text-[8px] text-ink-secondary">you@example.com</div>
-                <div className="mt-1 flex h-[18px] w-full items-center justify-center rounded-md bg-accent text-[8.5px] font-medium text-white">Continue</div>
+                <div className="mt-2 flex h-[18px] w-full items-center rounded-md border border-hairline/40 bg-inset px-2 text-[8px] text-ink-secondary">{t("hardcoded.components.onboarding.reel.scenes.Terminal.adc018ac")}</div>
+                <div className="mt-1 flex h-[18px] w-full items-center rounded-md border border-hairline/40 bg-inset px-2 text-[8px] text-ink-secondary">{t("hardcoded.components.onboarding.reel.scenes.Terminal.d7b2bb92")}</div>
+                <div className="mt-1 flex h-[18px] w-full items-center justify-center rounded-md bg-accent text-[8.5px] font-medium text-white">{t("hardcoded.components.onboarding.reel.scenes.Terminal.03fb16d7")}</div>
               </div>
             </div>
           </div>

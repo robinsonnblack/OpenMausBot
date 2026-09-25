@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import android.graphics.BitmapFactory
@@ -58,6 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ComputerScreen(botId: String, onBack: () -> Unit) {
     val environment = LocalCompanion.current
+    val l10n = LocalContext.current
     val session = environment.session
     val scope = rememberCoroutineScope()
     val state by session.state.collectAsState()
@@ -101,8 +103,8 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
             )
         } else {
             Waiting(
-                headline = ComputerPolicy.waitingHeadline(bot),
-                explanation = ComputerPolicy.IDLE_EXPLANATION.takeIf {
+                headline = stringResource(if (bot.busy == true) R.string.android_computer_waiting_frame else R.string.android_computer_nothing_yet),
+                explanation = stringResource(R.string.android_computer_idle_explanation).takeIf {
                     ComputerPolicy.explainsIdle(bot)
                 },
             )
@@ -133,7 +135,7 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
                 modifier = Modifier.weight(1f),
             )
             Text(
-                text = ComputerPolicy.statusLabel(bot),
+                text = stringResource(if (bot.busy == true) R.string.android_computer_preview else R.string.android_computer_idle),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = if (bot.busy == true) {
@@ -173,11 +175,11 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
                             strokeWidth = 2.dp,
                         )
                     } else {
-                        Text(ComputerPolicy.OPEN_DESKTOP)
+                        Text(stringResource(R.string.android_computer_open_desktop))
                     }
                 }
                 Text(
-                    text = ComputerPolicy.VNC_NOTE,
+                    text = stringResource(R.string.android_computer_vnc_note),
                     fontSize = 12.sp,
                     color = Color.White.copy(alpha = 0.6f),
                     textAlign = TextAlign.Center,
@@ -189,8 +191,8 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
     if (confirming) {
         AlertDialog(
             onDismissRequest = { confirming = false },
-            title = { Text(ComputerPolicy.CONFIRM_TITLE) },
-            text = { Text(ComputerPolicy.CONFIRM_MESSAGE) },
+            title = { Text(stringResource(R.string.android_computer_confirm_title)) },
+            text = { Text(stringResource(R.string.android_computer_confirm_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -205,7 +207,7 @@ fun ComputerScreen(botId: String, onBack: () -> Unit) {
                                 failure = environment.openCloudDesktop(session.cloudDesktop(bot))
                             } catch (error: Throwable) {
                                 if (error is kotlinx.coroutines.CancellationException) throw error
-                                failure = error.message ?: "Could not open the cloud desktop."
+                                failure = error.message ?: l10n.getString(R.string.android_remaining_computer_screen_cad96a50)
                             } finally {
                                 opening = false
                             }

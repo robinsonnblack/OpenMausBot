@@ -41,13 +41,35 @@ internal fun taskUsageLines(usage: TaskUsage, locale: Locale = Locale.getDefault
 }
 
 @Composable
+private fun localizedTaskUsageLines(usage: TaskUsage): List<String> {
+    val number = NumberFormat.getIntegerInstance(Locale.getDefault())
+    val cached = usage.cachedInput?.takeIf { it >= 0 && it <= usage.input }
+    val lines = mutableListOf<String>()
+    if (cached == null) lines += stringResource(R.string.android_usage_input_unknown, number.format(usage.input))
+    else {
+        lines += stringResource(R.string.android_usage_uncached_input, number.format(usage.input - cached))
+        lines += stringResource(R.string.android_usage_cached_input, number.format(cached))
+    }
+    lines += stringResource(R.string.android_usage_output, number.format(usage.output))
+    usage.costUsd?.takeIf { it.isFinite() && it >= 0 }?.let {
+        lines += stringResource(R.string.android_usage_reported_cost, String.format(Locale.US, "$%.4f", it))
+    }
+    usage.context?.let { context ->
+        val window = context.window
+        if (window != null && window > 0) lines += stringResource(R.string.android_usage_context,
+            number.format(context.tokens), number.format(window))
+    }
+    return lines
+}
+
+@Composable
 internal fun TaskUsagePanel(usage: TaskUsage) {
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(stringResource(R.string.ui_this_thread_s_usage_9245e98), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-        taskUsageLines(usage).forEach { line ->
+        localizedTaskUsageLines(usage).forEach { line ->
             Text(line, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

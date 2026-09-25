@@ -1,54 +1,59 @@
 # Localization
 
-OpenMausBot ships its translations inside the app. It does not contact a
-translation service at runtime, and contributors do not need an API key.
-English in `src/locales/en.json` is the source catalog; the other JSON files
-are partial overlays that fall back to English for missing keys.
+OpenMausBot ships translations inside its desktop and Android apps. Neither app
+contacts a translation service at runtime. English is the source language.
+Every supported locale must cover every source key; the validation commands
+fail on missing keys or changed placeholders.
 
-## Add or update a language
+## Desktop
 
-1. Use a lowercase BCP-47 filename such as `de.json` or `pt-br.json`.
-2. Keep every key identical to an English key and preserve placeholders such
-   as `{name}` exactly, including repeated placeholders.
-3. Register a new pack in `src/locales/index.ts`.
-4. Run `pnpm i18n:check` and test the language from **Settings → General**.
-
-`pnpm i18n:check` is deterministic. It validates JSON structure, unknown or
-empty entries, locale filename casing, placeholder parity, and the English
-source hash attached to every translated value. If English copy changes, the
-old translation fails the check instead of silently looking current. Missing
-translations remain allowed because the runtime has an English fallback.
-
-## Optional model-assisted draft
-
-The repository includes a maintainer tool that sends missing or stale English
-strings to an installed, authenticated Claude CLI. The CLI usually sends the
-strings to its configured cloud model and may consume subscription or API
-quota; “local” describes the CLI, not where inference runs.
+Add new user-facing text to `src/locales/en.json` and call `t(key)` in the
+component. For simple existing JSX text and attributes, the extractor can add
+keys and replace literals automatically:
 
 ```sh
-# Safe, no-tools Claude mode
-node scripts/generate-locale.mjs it "Italian"
+pnpm i18n:desktop:extract
 ```
 
-Existing packs refresh only keys that are missing or whose English source has
-changed, preserving reviewed translations for every other key. Use `--force`
-only when intentionally re-drafting the whole pack. The tool rejects prose,
-code fences, missing or invented keys, empty values, and changed placeholders
-before it installs either file.
+The extractor handles simple JSX text and attributes. Review its diff: a
+sentence assembled from multiple expressions needs a whole, contextual key
+with placeholders such as `{name}`. Do not translate sentence fragments.
 
-For a human-written or edited pack, review it and record which English source
-each present value translates:
+Draft missing or stale translations using the authenticated GPT-6 Luna Codex
+CLI. The generator supplies nearby source code and related translations so the
+model knows where each phrase appears, preserves placeholders, and leaves
+reviewed translations intact. Run it once per supported locale:
 
 ```sh
-node scripts/generate-locale.mjs pt-br --accept
+node scripts/generate-locale-luna.mjs de German
+node scripts/generate-locale-luna.mjs fr French
 pnpm i18n:check
 ```
 
-Commit `src/locales/source-hashes.json` with the catalog. The hash contains no
-translation content or credential; it only lets CI detect stale copy.
+`pnpm i18n:check` validates complete coverage, catalog keys, placeholders,
+and the English source hashes. Commit `src/locales/source-hashes.json` with
+the catalogs. A changed English source invalidates its translations until they
+are refreshed.
 
-Model output is a draft, not an authority. Review tone, terminology, grammar,
-product names, and safety-sensitive copy before committing it. AI translation
-does not run in GitHub Actions: normal CI stays deterministic, secret-free,
-and safe for forks.
+## Android
+
+Put source text in `android/app/src/main/res/values/strings.xml` and read it
+with `stringResource` or `Context.getString`. Keep format arguments positional
+(`%1$s`, `%2$d`) so languages can reorder them. Generate all missing values
+with the same contextual Luna workflow:
+
+```sh
+node scripts/generate-android-locale.mjs de German
+node scripts/generate-android-locale.mjs fr French
+pnpm i18n:android:check
+```
+
+The Android checker requires complete coverage and matching format arguments.
+Build the personal APK after translating to catch Android resource syntax
+errors as well.
+
+Model output is a draft. Review ambiguous words in the actual screen and
+check actions, errors, accessibility labels, and text assembled at runtime.
+For German, the bot feature *Memory* is **Erinnerung** in the singular; device
+storage is **Speicher**. These checks and model calls run during development,
+not in the released app or GitHub Actions.

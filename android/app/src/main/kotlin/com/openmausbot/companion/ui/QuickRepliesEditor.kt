@@ -61,9 +61,9 @@ fun QuickRepliesEditor(
             ) {
                 Text(
                     if (replies.isEmpty()) {
-                        "The chip row is hidden while this list is empty."
+                        stringResource(R.string.android_remaining_quick_replies_editor_209bd34b)
                     } else {
-                        "Edit, reorder, or remove the prompts shown above an empty composer."
+                        stringResource(R.string.android_remaining_quick_replies_editor_1044e38d)
                     },
                     fontSize = 13.sp,
                     color = secondaryTint,

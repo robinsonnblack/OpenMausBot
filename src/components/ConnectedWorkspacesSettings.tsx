@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Check, Cloud, Laptop, Loader2, Trash2 } from "lucide-react";
 import { Card } from "./SettingsPrimitives";
@@ -56,11 +57,11 @@ export function ConnectedWorkspacesSettings() {
       if (generation.current === current) setBusy(false);
     }
   };
-  if (!bridge) return <p className="text-[13px] text-ink-secondary">Manage server connections in the desktop app.</p>;
+  if (!bridge) return <p className="text-[13px] text-ink-secondary">{t("hardcoded.components.ConnectedWorkspacesSettings.c7e176e5")}</p>;
   const computerWorkspace = saved?.environments.find(entry => entry.id === computerId);
   return <>
-    <p className="text-[13px] leading-relaxed text-ink-secondary">One desktop app, wherever your bots live. Switching servers does not move or replace your bots, conversations, or provider accounts.</p>
-    <Card title="Your servers" subtitle="Saved on this computer. Your hosted bots keep running when you switch away.">
+    <p className="text-[13px] leading-relaxed text-ink-secondary">{t("hardcoded.components.ConnectedWorkspacesSettings.295ddcb8")}</p>
+    <Card title={t("hardcoded.components.ConnectedWorkspacesSettings.0dc19486")} subtitle={t("hardcoded.components.ConnectedWorkspacesSettings.8ed539ea")}>
       {!saved ? <p role="status" className="text-[13px] text-ink-secondary">{error ? "Saved servers could not be loaded." : "Loading servers…"}</p> :
         <ul className="divide-y divide-hairline/40">
           {[{ id: "local", name: "This computer", origin: "" }, ...saved.environments].map((entry) => {
@@ -70,10 +71,10 @@ export function ConnectedWorkspacesSettings() {
               <Icon size={18} className="shrink-0 text-ink-secondary" />
               <div className="min-w-0 flex-1"><div className="truncate text-[13px] font-medium text-ink">{entry.name}</div>
                 <div className="break-all text-[12px] text-ink-secondary">{entry.origin || "Local bots and conversations"}</div></div>
-              {active ? <span className="flex shrink-0 items-center gap-1 text-[12px] text-ink-secondary"><Check size={13} />Current</span> :
+              {active ? <span className="flex shrink-0 items-center gap-1 text-[12px] text-ink-secondary"><Check size={13} />{t("hardcoded.components.ConnectedWorkspacesSettings.0c271c1c")}</span> :
                 <button type="button" disabled={busy} aria-label={`Switch to ${entry.name}`} onClick={() => void perform(async () => { await bridge.switch(entry.id); return true; })}
-                  className="rounded-md px-2 py-1.5 text-[12px] text-ink hover:bg-control disabled:opacity-50">Switch</button>}
-              {entry.id !== "local" && sharingOffered && <button type="button" disabled={busy} aria-label={`Computer access for ${entry.name}`} onClick={() => setComputerId(entry.id)} className="rounded-md px-2 py-1.5 text-[12px] text-ink hover:bg-control">Computer access</button>}
+                  className="rounded-md px-2 py-1.5 text-[12px] text-ink hover:bg-control disabled:opacity-50">{t("hardcoded.components.ConnectedWorkspacesSettings.423f8504")}</button>}
+              {entry.id !== "local" && sharingOffered && <button type="button" disabled={busy} aria-label={`Computer access for ${entry.name}`} onClick={() => setComputerId(entry.id)} className="rounded-md px-2 py-1.5 text-[12px] text-ink hover:bg-control">{t("hardcoded.components.ConnectedWorkspacesSettings.6f695763")}</button>}
               {entry.id !== "local" && <button type="button" disabled={busy} aria-label={`Forget ${entry.name}`} title={`Forget ${entry.name}`}
                 onClick={() => void perform(() => bridge.forget(entry.id))} className="rounded-md p-1.5 text-ink-secondary hover:bg-control hover:text-danger disabled:opacity-50"><Trash2 size={14} /></button>}
             </li>;
@@ -81,28 +82,28 @@ export function ConnectedWorkspacesSettings() {
         </ul>}
     </Card>
     {sharingOffered && computerWorkspace && <ComputerSharingSettings key={computerWorkspace.id} workspace={computerWorkspace} onClose={() => setComputerId(null)} />}
-    <Card title="Connect to a server" subtitle="Already running OpenMausBot on a VPS, server, or another computer? Connect it here.">
+    <Card title={t("hardcoded.components.ConnectedWorkspacesSettings.c9ccce76")} subtitle={t("hardcoded.components.ConnectedWorkspacesSettings.e65b7afb")}>
       <form className="flex flex-col gap-3" onSubmit={(event) => {
         event.preventDefault();
         if (address.trim()) void perform(() => bridge.addFromLink(address.trim(), name.trim()));
       }}>
-        <label className="flex flex-col gap-1.5 text-[12px] text-ink-secondary">Server address or pairing link
+        <label className="flex flex-col gap-1.5 text-[12px] text-ink-secondary">{t("hardcoded.components.ConnectedWorkspacesSettings.c49fb955")}
           <input required value={address} disabled={busy} onChange={(event) => setAddress(event.target.value)}
-            placeholder="https://bots.yourcompany.com" autoCapitalize="none" autoCorrect="off" autoComplete="off" spellCheck={false}
+            placeholder={t("hardcoded.components.ConnectedWorkspacesSettings.1a7cf540")} autoCapitalize="none" autoCorrect="off" autoComplete="off" spellCheck={false}
             className="w-full rounded-lg border border-hairline/40 bg-inset px-3 py-2 text-[14px] text-ink outline-none focus:border-accent/50" />
         </label>
-        <label className="flex flex-col gap-1.5 text-[12px] text-ink-secondary">Name (optional)
-          <input value={name} disabled={busy} maxLength={60} onChange={(event) => setName(event.target.value)} placeholder="My server"
+        <label className="flex flex-col gap-1.5 text-[12px] text-ink-secondary">{t("hardcoded.components.ConnectedWorkspacesSettings.cdf1f137")}
+          <input value={name} disabled={busy} maxLength={60} onChange={(event) => setName(event.target.value)} placeholder={t("hardcoded.components.ConnectedWorkspacesSettings.888ef53e")}
             className="w-full rounded-lg border border-hairline/40 bg-inset px-3 py-2 text-[14px] text-ink outline-none focus:border-accent/50" />
         </label>
-        <p className="text-[12px] leading-relaxed text-ink-secondary">Paste a pairing link from your server’s Settings → Remote access, or enter its address and sign in there. Your desktop stays connected afterward.</p>
-        <details className="text-[12px] text-ink-secondary"><summary className="cursor-pointer">Need a pairing code?</summary>
-          <p className="mt-2">Run this on the server and copy the link it prints:</p>
+        <p className="text-[12px] leading-relaxed text-ink-secondary">{t("hardcoded.components.ConnectedWorkspacesSettings.a35c17dc")}</p>
+        <details className="text-[12px] text-ink-secondary"><summary className="cursor-pointer">{t("hardcoded.components.ConnectedWorkspacesSettings.2631061a")}</summary>
+          <p className="mt-2">{t("hardcoded.components.ConnectedWorkspacesSettings.2e4f9d08")}</p>
           <code className="mt-1 block select-all break-words rounded-md bg-inset px-2 py-2 text-ink">npx openmausbot pair --label "My desktop"</code>
         </details>
         {error && <p role="alert" className="text-[12px] text-danger">{error}</p>}
         <button type="submit" disabled={busy || !address.trim()} className="flex w-fit items-center gap-2 rounded-lg bg-accent px-3 py-2 text-[13px] font-medium text-accent-ink disabled:opacity-50">
-          {busy && <Loader2 size={14} className="animate-spin" />}Connect
+          {busy && <Loader2 size={14} className="animate-spin" />}{t("hardcoded.components.ConnectedWorkspacesSettings.7a5636c1")}
         </button>
       </form>
     </Card>

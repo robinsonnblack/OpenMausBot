@@ -1,5 +1,5 @@
 // Language registry — a language is one JSON file plus one line here.
-// Catalogs are plain JSON so the optional Claude helper and human translators can
+// Catalogs are plain JSON so the contextual Luna generator and human translators can
 // read/write the same reviewable files without a runtime service.
 // Packs are PARTIAL: any key a pack omits falls back to English, so a
 // half-translated language is a usable language, not a broken one.

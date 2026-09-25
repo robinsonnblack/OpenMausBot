@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { DesktopWorkspaceSwitcher } from "../components/DesktopWorkspaceSwitcher";
 
@@ -104,15 +105,15 @@ export function PairPage({ initialCode, initialEmail = null, reason }: { initial
         {reasonWorthShowing(reason) && !connected ? <p className="mt-3 text-[13px] text-ink-secondary">{reasonWorthShowing(reason)}</p> : null}
         {connected ? (
           <p className="mt-4 text-[13.5px]">
-            This browser is already connected.{" "}
+            {t("hardcoded.pair.PairPage.8423cb8d")}{" "}
             <a href="/" className="text-accent underline">
-              Open the app
+              {t("hardcoded.pair.PairPage.1e04ccfe")}
             </a>
           </p>
         ) : mode === "email" ? (
           <form onSubmit={submitEmail}>
             <label className={fieldLabel} htmlFor="signin-email">
-              Email
+              {t("hardcoded.pair.PairPage.158db477")}
             </label>
             <input
               id="signin-email"
@@ -131,7 +132,7 @@ export function PairPage({ initialCode, initialEmail = null, reason }: { initial
             {sent ? (
               <>
                 <label className={fieldLabel} htmlFor="signin-code">
-                  Code from the email
+                  {t("hardcoded.pair.PairPage.71b9f4ad")}
                 </label>
                 <input
                   id="signin-code"
@@ -144,7 +145,7 @@ export function PairPage({ initialCode, initialEmail = null, reason }: { initial
                   className={`${input} font-mono text-[15px] tracking-[0.12em]`}
                 />
                 <label className={fieldLabel} htmlFor="signin-label">
-                  This device
+                  {t("hardcoded.pair.PairPage.d9750de5")}
                 </label>
                 <input id="signin-label" value={label} onChange={(e) => setLabel(e.target.value)} maxLength={80} className={input} />
               </>
@@ -155,17 +156,17 @@ export function PairPage({ initialCode, initialEmail = null, reason }: { initial
             </button>
             {sent ? (
               <button type="button" onClick={() => setSent(false)} className="mt-3 w-full text-[13px] text-ink-secondary underline">
-                Send a new code
+                {t("hardcoded.pair.PairPage.f1a6c689")}
               </button>
             ) : null}
             <button type="button" onClick={() => switchMode("code")} className="mt-3 w-full text-[13px] text-ink-secondary underline">
-              Have a pairing code instead?
+              {t("hardcoded.pair.PairPage.473ba093")}
             </button>
           </form>
         ) : (
           <form onSubmit={submitCode}>
             <label className={fieldLabel} htmlFor="pair-code">
-              Pairing code
+              {t("hardcoded.pair.PairPage.0cdff649")}
             </label>
             <input
               id="pair-code"
@@ -181,7 +182,7 @@ export function PairPage({ initialCode, initialEmail = null, reason }: { initial
               className={`${input} font-mono text-[15px] tracking-[0.12em]`}
             />
             <label className={fieldLabel} htmlFor="pair-label">
-              This device
+              {t("hardcoded.pair.PairPage.d9750de5")}
             </label>
             <input id="pair-label" value={label} onChange={(e) => setLabel(e.target.value)} maxLength={80} className={input} />
             {error ? <p className="mt-3 text-[13px] text-danger">{error}</p> : null}
@@ -190,7 +191,7 @@ export function PairPage({ initialCode, initialEmail = null, reason }: { initial
             </button>
             {emailOffered ? (
               <button type="button" onClick={() => switchMode("email")} className="mt-3 w-full text-[13px] text-ink-secondary underline">
-                Sign in with your email instead
+                {t("hardcoded.pair.PairPage.edd708e3")}
               </button>
             ) : null}
           </form>

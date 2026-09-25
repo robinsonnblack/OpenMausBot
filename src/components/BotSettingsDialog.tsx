@@ -239,7 +239,7 @@ export function BotSettingsDialog({ bot }: { bot: Bot }) {
     switch (id) {
       case "overview":
         return overview === null && overviewError ? (
-          <div className="rounded-xl bg-card p-4 text-[13px] text-ink-secondary">Couldn’t load the overview.</div>
+          <div className="rounded-xl bg-card p-4 text-[13px] text-ink-secondary">{t("hardcoded.components.BotSettingsDialog.43855331")}</div>
         ) : (
           // Data wins over a transient refetch failure: once an overview has
           // loaded once, a later failed refetch (routines/webhooks/bot-record
@@ -293,7 +293,7 @@ export function BotSettingsDialog({ bot }: { bot: Bot }) {
         return <VisibilitySection bot={bot} />;
       case "history":
         return historyRows === null && historyError ? (
-          <div className="rounded-xl bg-card p-4 text-[13px] text-ink-secondary">Couldn’t load history.</div>
+          <div className="rounded-xl bg-card p-4 text-[13px] text-ink-secondary">{t("hardcoded.components.BotSettingsDialog.53a03ba4")}</div>
         ) : (
           // Same precedence as the Overview: rows already on screen
           // survive a failed reload (after an undo, say) with a quiet
@@ -331,7 +331,7 @@ export function BotSettingsDialog({ bot }: { bot: Bot }) {
           <button
             type="button"
             onClick={() => dispatch({ type: "toggleSettings", open: false })}
-            aria-label="Close settings"
+            aria-label={t("hardcoded.components.BotSettingsDialog.032de0ea")}
             className="rounded-md p-1 text-ink-secondary hover:bg-control hover:text-ink"
           >
             <X size={18} className="pointer-events-none" />
@@ -352,8 +352,8 @@ export function BotSettingsDialog({ bot }: { bot: Bot }) {
               if (query) setQuery("");
               else dispatch({ type: "toggleSettings", open: false });
             }}
-            placeholder="Search"
-            aria-label="Search settings"
+            placeholder={t("hardcoded.components.BotSettingsDialog.dbf75829")}
+            aria-label={t("hardcoded.components.BotSettingsDialog.35a27d41")}
             className="w-full bg-transparent text-[13px] text-ink placeholder:text-ink-secondary focus:outline-none"
           />
         </div>
@@ -361,7 +361,7 @@ export function BotSettingsDialog({ bot }: { bot: Bot }) {
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
           {visibleSections.length === 0 && (
             <div className="px-4 py-4 text-[12.5px] leading-relaxed text-ink-secondary">
-              Nothing matches “{query.trim()}”
+              {t("hardcoded.components.BotSettingsDialog.28354fc1")}{query.trim()}”
             </div>
           )}
           {/* Walk all sections so Memory keeps a stable mount (draft survival)
@@ -421,9 +421,9 @@ export function BotSettingsDialog({ bot }: { bot: Bot }) {
       </aside>
       <ConfirmDialog
         open={rollbackTarget !== null}
-        title="Restore previous instructions?"
+        title={t("hardcoded.components.BotSettingsDialog.7d607cde")}
         body="Replaces current SOUL with the version before this change. Current version stays in History."
-        confirmLabel="Restore instructions"
+        confirmLabel={t("hardcoded.components.BotSettingsDialog.f2b60649")}
         tone="neutral"
         returnFocusRef={dialogRef}
         onCancel={() => setRollbackTarget(null)}

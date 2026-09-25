@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun NewBotEffortSheet(onDismiss: () -> Unit) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var original by remember { mutableStateOf<String?>(null) }
@@ -37,11 +39,11 @@ internal fun NewBotEffortSheet(onDismiss: () -> Unit) {
     LaunchedEffect(Unit) {
         try {
             val config = session.configStatus()
-                ?: throw IllegalStateException("Could not load the computer's new-bot defaults.")
+                ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_new_bot_effort_sheet_bb7e0ec2))
             original = config.newBots?.effort
             selected = original
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load the default effort."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_new_bot_effort_sheet_664af4f9)
         } finally {
             loading = false
         }
@@ -69,15 +71,15 @@ internal fun NewBotEffortSheet(onDismiss: () -> Unit) {
                     saving = true
                     try {
                         val current = session.configStatus()
-                            ?: throw IllegalStateException("Could not verify the computer's current settings.")
+                            ?: throw IllegalStateException(l10n.getString(R.string.android_remaining_new_bot_effort_sheet_36273367))
                         if (current.newBots?.effort != original) {
-                            throw IllegalStateException("The computer's setting changed. Reopen this screen to review it.")
+                            throw IllegalStateException(l10n.getString(R.string.android_remaining_new_bot_effort_sheet_198f7645))
                         }
                         val saved = session.updateNewBotEffort(selected).newBots?.effort
-                        if (saved != selected) throw IllegalStateException("The computer did not confirm the saved effort.")
+                        if (saved != selected) throw IllegalStateException(l10n.getString(R.string.android_remaining_new_bot_effort_sheet_f2150495))
                         onDismiss()
                     } catch (failure: Exception) {
-                        error = failure.message ?: "Could not save the default effort."
+                        error = failure.message ?: l10n.getString(R.string.android_remaining_new_bot_effort_sheet_02f35a21)
                     } finally {
                         saving = false
                     }

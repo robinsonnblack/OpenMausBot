@@ -4,6 +4,7 @@
 // `[data-skin]` rather than `:root[data-skin]` — any element can open a skin
 // context for its own subtree, so the miniature styles itself and can never
 // drift from what picking it actually does.
+import { t } from "@/lib/i18n";
 import { useState, type CSSProperties } from "react";
 import { Check } from "lucide-react";
 import { COLOR_ROLES, SKINS, applySkin, colorsFromSkin, readCustomTheme, readSkin, saveCustomTheme, type CustomTheme, type SkinId } from "@/lib/skins";
@@ -128,8 +129,8 @@ export function SkinPicker() {
       {editing ? "Close custom theme editor" : "Edit custom theme"}
     </button>
     {editing && <div className="mt-3 rounded-xl border border-hairline bg-card p-4 text-ink">
-      <p className="mb-3 text-sm text-ink-secondary">Choose every color. Start from any preset, then save your own version.</p>
-      <label className="mb-3 block text-sm">Start from{" "}
+      <p className="mb-3 text-sm text-ink-secondary">{t("hardcoded.components.SkinPicker.37df9afc")}</p>
+      <label className="mb-3 block text-sm">{t("hardcoded.components.SkinPicker.e17d1d58")}{" "}
         <select className="rounded-md border border-hairline bg-inset px-2 py-1 text-ink" value={base}
           onChange={(event) => {
             const id = event.target.value as Exclude<SkinId, "custom">;
@@ -139,12 +140,12 @@ export function SkinPicker() {
           {SKINS.filter((skin) => skin.id !== "custom").map((skin) => <option key={skin.id} value={skin.id}>{skin.name}</option>)}
         </select>
       </label>
-      <label className="mb-3 block text-sm">Chat layout{" "}
+      <label className="mb-3 block text-sm">{t("hardcoded.components.SkinPicker.9519f0b4")}{" "}
         <select className="rounded-md border border-hairline bg-inset px-2 py-1 text-ink"
           value={draft.layout ?? "standard"}
           onChange={(event) => setDraft({ ...draft, layout: event.target.value as "standard" | "chatgpt" })}>
-          <option value="standard">Standard bubbles</option>
-          <option value="chatgpt">ChatGPT-style assistant text</option>
+          <option value="standard">{t("hardcoded.components.SkinPicker.3f34fe89")}</option>
+          <option value="chatgpt">{t("hardcoded.components.SkinPicker.e0c8751f")}</option>
         </select>
       </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -160,7 +161,7 @@ export function SkinPicker() {
       <button type="button" className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
         disabled={!COLOR_ROLES.every((role) => draft[role] === "transparent" || /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(draft[role]))}
         onClick={() => { saveCustomTheme(draft); setActive("custom"); }}>
-        Save and use custom theme
+        {t("hardcoded.components.SkinPicker.2491f00e")}
       </button>
     </div>}
     </div>

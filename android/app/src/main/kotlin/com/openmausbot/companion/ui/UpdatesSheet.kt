@@ -2,6 +2,7 @@ package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -61,13 +62,14 @@ import kotlinx.coroutines.launch
 /** The floating pill: who is doing what right now, at a glance. */
 @Composable
 internal fun UpdatesBar(updates: List<ChatUpdate>, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     val first = updates.firstOrNull()
     val stack = remember(updates) { updates.take(UpdatesSummary.MASCOTS).map { it.chat.color } }
     Row(
         modifier = modifier
             .chromeCapsule()
             .clip(CircleShape)
-            .clickable(onClickLabel = "Open updates", role = Role.Button, onClick = onOpen)
+            .clickable(onClickLabel = stringResource(R.string.android_remaining_updates_sheet_2c80d633), role = Role.Button, onClick = onOpen)
             .heightIn(min = 52.dp)
             .padding(start = if (first == null) 16.dp else 7.dp, end = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -94,7 +96,7 @@ internal fun UpdatesBar(updates: List<ChatUpdate>, onOpen: () -> Unit, modifier:
                     )
                 }
                 Text(
-                    text = UpdatesSummary.headline(updates),
+                    text = updateHeadline(context, updates),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = if (first == null) secondaryTint else MaterialTheme.colorScheme.onSurface,
@@ -103,7 +105,7 @@ internal fun UpdatesBar(updates: List<ChatUpdate>, onOpen: () -> Unit, modifier:
                 )
             }
             Text(
-                text = UpdatesSummary.subline(updates),
+                text = updateSubline(context, updates),
                 fontSize = 12.sp,
                 color = secondaryTint,
                 maxLines = 1,
@@ -140,6 +142,7 @@ internal fun MascotStack(colors: List<String>, size: Dp = 28.dp, overlap: Dp = 1
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
+    val context = LocalContext.current
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
 
@@ -167,15 +170,15 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
                 ) {
                     Text(stringResource(R.string.ui_updates_c76d180), fontSize = 22.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.weight(1f))
-                    Text(UpdatesSummary.count(updates), fontSize = 13.sp, color = secondaryTint)
+                    Text(updateCount(context, updates), fontSize = 13.sp, color = secondaryTint)
                 }
             }
 
             if (sections.isEmpty()) {
                 item(key = "empty") {
                     EmptyState(
-                        title = UpdatesSummary.EMPTY_TITLE,
-                        description = UpdatesSummary.EMPTY_DESCRIPTION,
+                        title = stringResource(R.string.android_updates_empty_title),
+                        description = stringResource(R.string.android_updates_empty_description),
                         modifier = Modifier.padding(top = 24.dp),
                     )
                 }
@@ -184,7 +187,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
             sections.forEach { (kind, items) ->
                 item(key = "section-$kind") {
                     Text(
-                        text = UpdatesSummary.sectionLabel(kind),
+                        text = updateSection(context, kind),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
@@ -212,6 +215,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
 
 @Composable
 private fun UpdateRow(update: ChatUpdate, face: MausState, onOpen: () -> Unit) {
+    val context = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
@@ -242,7 +246,7 @@ private fun UpdateRow(update: ChatUpdate, face: MausState, onOpen: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = update.line.ifEmpty { " " },
+                text = updateLine(context, update.line).ifEmpty { " " },
                 fontSize = 14.sp,
                 color = secondaryTint,
                 maxLines = if (update.kind == UpdateKind.NEEDS_YOU) 3 else 1,
@@ -252,7 +256,7 @@ private fun UpdateRow(update: ChatUpdate, face: MausState, onOpen: () -> Unit) {
             if (update.kind == UpdateKind.NEEDS_YOU && card != null && card.isPending) {
                 if (card.skillRequest != null) {
                     Text(
-                        "Open the chat to review SKILL.md",
+                        stringResource(R.string.android_remaining_updates_sheet_6225775b),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = secondaryTint,

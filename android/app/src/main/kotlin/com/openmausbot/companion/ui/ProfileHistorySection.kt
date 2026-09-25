@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 /** Server-authored profile history; full standing-instruction bodies stay on the computer. */
 @Composable
 internal fun ProfileHistorySection(botId: String) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var history by remember(botId) { mutableStateOf<ProfileHistory?>(null) }
@@ -46,7 +48,7 @@ internal fun ProfileHistorySection(botId: String) {
             history = session.profileHistory(botId)
             error = null
         } catch (failure: Exception) {
-            error = failure.message ?: "Could not load history."
+            error = failure.message ?: l10n.getString(R.string.android_remaining_profile_history_section_b1c9fdb1)
         } finally {
             loading = false
         }
@@ -71,7 +73,7 @@ internal fun ProfileHistorySection(botId: String) {
                             Text(stringResource(R.string.ui_undo_this_instruction_change_373a0dc))
                         }
                     } else {
-                        Text(row.restoreUnavailableReason ?: "Exact previous instructions unavailable.")
+                        Text(row.restoreUnavailableReason ?: stringResource(R.string.android_profile_history_unavailable))
                     }
                 }
             }
@@ -98,7 +100,7 @@ internal fun ProfileHistorySection(botId: String) {
                                 pendingUndo = null
                                 revision++
                             } catch (failure: Exception) {
-                                error = failure.message ?: "Could not undo the change. Refresh history and try again."
+                                error = failure.message ?: l10n.getString(R.string.android_remaining_profile_history_section_d193b206)
                                 pendingUndo = null
                             } finally {
                                 undoing = false

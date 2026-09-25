@@ -144,14 +144,14 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
                 item(key = "explainer") {
-                    FormSection(header = null, footer = RoutineRules.HEADER_FOOTER) {
+                    FormSection(header = null, footer = stringResource(R.string.android_routine_header_footer)) {
                         IconNote(
-                            text = RoutineRules.HEADER_TASK,
+                            text = stringResource(R.string.android_routine_header_task),
                             painter = R.drawable.ic_chat_bubbles,
                             tint = MaterialTheme.colorScheme.onSurface,
                         )
                         IconNote(
-                            text = RoutineRules.HEADER_ROUTINE,
+                            text = stringResource(R.string.android_routine_header_routine),
                             painter = R.drawable.ic_schedule,
                             tint = MaterialTheme.colorScheme.onSurface,
                         )
@@ -159,14 +159,14 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                 }
 
                 item(key = "routines-header") {
-                    SectionHeading("Routines")
+                    SectionHeading(stringResource(R.string.android_tasks_routines))
                 }
 
                 if (routines.isEmpty() && !loading) {
                     item(key = "routines-empty") {
                         SectionNote(
-                            title = RoutineRules.NO_ROUTINES_TITLE,
-                            description = RoutineRules.NO_ROUTINES_DESCRIPTION,
+                            title = stringResource(R.string.android_routine_no_routines_title),
+                            description = stringResource(R.string.android_routine_no_routines_description),
                         )
                     }
                 }
@@ -194,13 +194,13 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                 }
 
                 item(key = "receipts-header") {
-                    SectionHeading("Run receipts")
+                    SectionHeading(stringResource(R.string.android_tasks_run_receipts))
                 }
 
                 if (receipts.isEmpty() && !loading) {
                     item(key = "receipts-empty") {
                         Text(
-                            text = RoutineRules.NO_RECEIPTS,
+                            text = stringResource(R.string.android_routine_no_receipts),
                             fontSize = 14.sp,
                             color = secondaryTint,
                             modifier = Modifier.padding(horizontal = 20.dp),
@@ -224,8 +224,8 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                 }
 
                 item(key = "webhooks") {
-                    FormSection(header = stringResource(R.string.ui_webhooks_fdfe2da), footer = RoutineRules.WEBHOOKS_FOOTER) {
-                        IconNote(text = RoutineRules.WEBHOOKS_LABEL, icon = Icons.Filled.Lock)
+                    FormSection(header = stringResource(R.string.ui_webhooks_fdfe2da), footer = stringResource(R.string.android_routine_webhooks_footer)) {
+                        IconNote(text = stringResource(R.string.android_routine_webhooks_label), icon = Icons.Filled.Lock)
                     }
                 }
             }
@@ -249,7 +249,7 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
         AlertDialog(
             onDismissRequest = { deleting = null },
             title = { Text(stringResource(R.string.ui_dynamic_delete_1_s_cd24016, routine.name)) },
-            text = { Text(RoutineRules.DELETE_MESSAGE) },
+            text = { Text(stringResource(R.string.android_routine_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -373,7 +373,7 @@ private fun RoutineRow(
         ) {
             Text(routine.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Text(
-                text = RoutineRules.routineSubtitle(routine, bot?.name),
+                text = localizedRoutineSubtitle(routine, bot?.name),
                 fontSize = 12.sp,
                 color = secondaryTint,
                 maxLines = 2,
@@ -386,7 +386,7 @@ private fun RoutineRow(
             if (paused) {
                 Icon(
                     painter = painterResource(R.drawable.ic_pause_circle),
-                    contentDescription = it.label,
+                    contentDescription = stringResource(if (paused) R.string.android_routine_paused else R.string.android_routine_completed),
                     tint = attentionTint,
                     modifier = Modifier.size(20.dp),
                 )
@@ -472,13 +472,13 @@ private fun RoutineRunRow(
             ) {
                 Text(run.routineName, fontSize = 15.sp)
                 Text(
-                    text = RoutineRules.runSubtitle(run, bot?.name),
+                    text = localizedRunSubtitle(run, bot?.name),
                     fontSize = 12.sp,
                     color = secondaryTint,
                 )
             }
             Text(
-                text = RoutineRules.runStatusLabel(run.status),
+                text = localizedRunStatus(run.status),
                 fontSize = 12.sp,
                 color = tint,
             )
@@ -514,7 +514,7 @@ private fun RoutineRunRow(
                 }
                 if (run.status == "waiting") {
                     Text(
-                        text = RoutineRules.WAITING_ON_YOU,
+                        text = stringResource(R.string.android_routine_waiting_on_you),
                         fontSize = 14.sp,
                         color = attentionTint,
                     )

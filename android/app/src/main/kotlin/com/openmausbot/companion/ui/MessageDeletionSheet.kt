@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.platform.LocalContext
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ internal fun MessageDeletionSheet(
     messages: List<Message>,
     onDismiss: () -> Unit,
 ) {
+    val l10n = LocalContext.current
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     var selection by remember(threadId) { mutableStateOf<MessageDeletionSelection?>(null) }
@@ -49,7 +51,7 @@ internal fun MessageDeletionSheet(
 
     LaunchedEffect(threadId) {
         try { selection = session.messageDeletionSelection(threadId) }
-        catch (failure: Exception) { error = failure.message ?: "Could not load messages." }
+        catch (failure: Exception) { error = failure.message ?: l10n.getString(R.string.android_remaining_message_deletion_sheet_f00aec8c) }
     }
     val labels = remember(messages) { messages.associateBy(Message::id) }
 
@@ -74,8 +76,9 @@ internal fun MessageDeletionSheet(
             LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 380.dp)) {
                 items(selection?.allIds.orEmpty(), key = { it }) { id ->
                     val message = labels[id]
-                    val label = if (message == null) "Older version · $id" else {
-                        "${if (message.role == Message.Role.USER) "You" else "Bot"}: ${message.text?.take(100) ?: message.kind.name.lowercase()}"
+                    val label = if (message == null) l10n.getString(R.string.android_deletion_older_version, id) else {
+                        val sender = l10n.getString(if (message.role == Message.Role.USER) R.string.android_deletion_you else R.string.android_deletion_bot)
+                        "$sender: ${message.text?.take(100) ?: message.kind.name.lowercase()}"
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Checkbox(
@@ -115,7 +118,7 @@ internal fun MessageDeletionSheet(
                     selected = emptySet()
                     error = null
                 } catch (failure: Exception) {
-                    error = failure.message ?: "Could not delete messages."
+                    error = failure.message ?: l10n.getString(R.string.android_remaining_message_deletion_sheet_66ac29ab)
                 } finally { deleting = false }
             }
         }) { Text(stringResource(R.string.ui_delete_messages_93f3675), color = MaterialTheme.colorScheme.error) } },

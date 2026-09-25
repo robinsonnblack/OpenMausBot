@@ -78,7 +78,7 @@ export function EffortRow({
       {label}
       {/* wraps rather than dividing a fixed width: pi offers Default plus six
           levels, which a segmented control would squeeze in the popover */}
-      <div className="mt-2 flex flex-wrap gap-1" role="group" aria-label="Reasoning effort">
+      <div className="mt-2 flex flex-wrap gap-1" role="group" aria-label={t("hardcoded.components.ModelPicker.bf5aa95c")}>
         {[undefined, ...levels].map((level) => (
           <button
             key={level ?? "default"}
@@ -145,13 +145,13 @@ export function ModelVariantRow({ bot, threadId, updateBotDefault, className, la
       )}
       {selection.variant !== undefined && (
         <button type="button" disabled={bot.busy} onClick={() => choose()}
-          title="Send no variant selection; OpenCode keeps its session or configured setting"
+          title={t("hardcoded.components.ModelPicker.3a258d68")}
           className="mt-2 block text-[12px] text-ink-secondary underline underline-offset-2 hover:text-ink disabled:opacity-50">
-          Clear variant selection
+          {t("hardcoded.components.ModelPicker.e263c4bf")}
         </button>
       )}
       {options.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1" role="group" aria-label="Reasoning variant">
+        <div className="mt-2 flex flex-wrap gap-1" role="group" aria-label={t("hardcoded.components.ModelPicker.c7d98dba")}>
           {options.map((option) => (
             <button
               key={option.id}
@@ -216,10 +216,10 @@ function ModelRow({
           </span>
         )}
         {option.id === defaultId && (
-          <span className="shrink-0 rounded bg-inset px-1.5 py-px text-[10px] text-ink-secondary">Default</span>
+          <span className="shrink-0 rounded bg-inset px-1.5 py-px text-[10px] text-ink-secondary">{t("hardcoded.components.ModelPicker.09def476")}</span>
         )}
         {option.loaded && (
-          <span className="shrink-0 rounded bg-accent/10 px-1.5 py-px text-[10px] text-accent">Loaded</span>
+          <span className="shrink-0 rounded bg-accent/10 px-1.5 py-px text-[10px] text-accent">{t("hardcoded.components.ModelPicker.0fc02fd7")}</span>
         )}
       </span>
       {current && <Check size={14} className="shrink-0 text-accent" />}
@@ -293,9 +293,9 @@ export function ModelEngineRail({ instances, selectedInstance, claudeInstance, o
   };
   return (
     <div className="flex w-14 shrink-0 flex-col gap-1 overflow-y-auto border-r border-hairline/40 bg-panel p-2">
-      {subscription.length > 0 && <EngineGroupLabel className="px-0 pb-0.5 pt-0.5 text-center text-[9px]">Cloud</EngineGroupLabel>}
+      {subscription.length > 0 && <EngineGroupLabel className="px-0 pb-0.5 pt-0.5 text-center text-[9px]">{t("hardcoded.components.ModelPicker.cd30589b")}</EngineGroupLabel>}
       {subscription.map(railButton)}
-      {local.length > 0 && <EngineGroupLabel className="px-0 pb-0.5 pt-2 text-center text-[9px]">Local</EngineGroupLabel>}
+      {local.length > 0 && <EngineGroupLabel className="px-0 pb-0.5 pt-2 text-center text-[9px]">{t("hardcoded.components.ModelPicker.d00121d8")}</EngineGroupLabel>}
       {local.map(railButton)}
     </div>
   );
@@ -612,7 +612,7 @@ export function ModelPicker({
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             {threadId && (
               <div className="shrink-0 border-b border-hairline/40 px-3 py-2">
-                <div role="group" aria-label="Apply model changes to" className="flex gap-1">
+                <div role="group" aria-label={t("hardcoded.components.ModelPicker.c6050397")} className="flex gap-1">
                   {(["thread", "bot"] as const).map((value) => (
                     <button key={value} type="button" aria-pressed={scope === value} onClick={() => setScope(value)}
                       className={cn("rounded-lg px-2 py-1 text-[12px]", scope === value ? "bg-control text-ink" : "text-ink-secondary hover:bg-control/60")}>

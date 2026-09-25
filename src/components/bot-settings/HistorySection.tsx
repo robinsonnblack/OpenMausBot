@@ -9,6 +9,7 @@
 // component (the dialog shows "Couldn't load history." instead); a failed
 // reload with rows already on screen arrives as refreshError, the same
 // data-wins precedence OverviewSection gets one level up.
+import { t } from "@/lib/i18n";
 import { whenLabel } from "@/lib/schedule-label";
 
 export interface HistoryRow {
@@ -38,10 +39,10 @@ export function HistorySection({
   rollingBack?: boolean;
 }) {
   if (!rows) {
-    return <div className="text-[13px] text-ink-secondary">Loading…</div>;
+    return <div className="text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.HistorySection.5ae9a9ec")}</div>;
   }
   if (rows.length === 0) {
-    return <div className="text-[13px] text-ink-secondary">No changes recorded yet.</div>;
+    return <div className="text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.HistorySection.df3ff0f0")}</div>;
   }
 
   const sorted = [...rows].sort((a, b) => b.at - a.at);
@@ -49,7 +50,7 @@ export function HistorySection({
   return (
     <div className="flex flex-col gap-2">
       {refreshError && (
-        <div className="rounded-lg bg-inset px-3 py-2 text-[12.5px] text-ink-secondary">Couldn’t refresh history.</div>
+        <div className="rounded-lg bg-inset px-3 py-2 text-[12.5px] text-ink-secondary">{t("hardcoded.components.botsettings.HistorySection.99627f96")}</div>
       )}
       {sorted.map((row) => (
         <div key={`${bot.id}-${row.id}`} className="rounded-xl bg-card p-4">
@@ -58,7 +59,7 @@ export function HistorySection({
               <span className="text-ink-secondary">{whenLabel(row.at)}</span>
               {" · "}
               <span>
-                {row.actor} via {row.via}
+                {row.actor} {t("hardcoded.components.botsettings.HistorySection.3fe25c82")} {row.via}
               </span>
               {" · "}
               <span>{row.summary}</span>
@@ -70,7 +71,7 @@ export function HistorySection({
                 onClick={() => onRollback(row.id)}
                 className="shrink-0 rounded-md px-2 py-1 text-[12px] font-medium text-accent-text hover:bg-accent/10 disabled:opacity-50"
               >
-                Undo this change
+                {t("hardcoded.components.botsettings.HistorySection.a56f90df")}
               </button>
             )}
           </div>

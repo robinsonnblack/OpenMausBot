@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import {
   CheckCircle2,
   CircleAlert,
@@ -89,7 +90,7 @@ export function GoalRunCard({ message }: { message: Message }) {
           </div>
           {detail && <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-ink-secondary">{detail}</p>}
           <p className="mt-1 text-[11.5px] text-ink-secondary/80">
-            {run.coordinatorName} coordinating · {turns}
+            {run.coordinatorName} {t("hardcoded.components.GoalRunCard.b29ddca8")} {turns}
           </p>
         </div>
       </div>

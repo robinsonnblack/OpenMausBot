@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Download, Share } from "lucide-react";
 
@@ -106,7 +107,7 @@ export function ExportTranscriptMenu({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        aria-label="Export conversation"
+        aria-label={t("hardcoded.components.ExportTranscriptMenu.cf1f7e8e")}
         aria-haspopup="menu"
         aria-expanded={open}
         className={cn(
@@ -114,7 +115,7 @@ export function ExportTranscriptMenu({
           open ? "text-accent" : "text-ink-secondary hover:text-ink",
           className,
         )}
-        title="Export conversation as Markdown"
+        title={t("hardcoded.components.ExportTranscriptMenu.aa353259")}
       >
         <Share size={18} />
       </button>
@@ -122,16 +123,16 @@ export function ExportTranscriptMenu({
       {open && (
         <div
           role="menu"
-          aria-label="Export options"
+          aria-label={t("hardcoded.components.ExportTranscriptMenu.90391044")}
           className="absolute right-0 top-full z-40 mt-1 w-[220px] overflow-hidden rounded-xl border border-hairline/50 bg-card py-1.5 shadow-2xl shadow-black/50"
         >
           <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-secondary/70">
-            Export Conversation
+            {t("hardcoded.components.ExportTranscriptMenu.2604995a")}
           </div>
 
           {!hasMessages ? (
             <div className="px-3 py-2 text-[12px] text-ink-secondary">
-              No messages to export yet.
+              {t("hardcoded.components.ExportTranscriptMenu.aad85c56")}
             </div>
           ) : (
             <>
@@ -153,7 +154,7 @@ export function ExportTranscriptMenu({
 
               {copyFailed && (
                 <div role="status" className="px-3 py-2 text-[12px] text-ink-secondary">
-                  Clipboard unavailable. Download the Markdown file instead.
+                  {t("hardcoded.components.ExportTranscriptMenu.7aed55d2")}
                 </div>
               )}
 
@@ -164,7 +165,7 @@ export function ExportTranscriptMenu({
                 className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-ink hover:bg-raised/70"
               >
                 <Download size={14} className="shrink-0 text-ink-secondary" />
-                <span className="flex-1 truncate">Download as .md</span>
+                <span className="flex-1 truncate">{t("hardcoded.components.ExportTranscriptMenu.f6284f4b")}</span>
               </button>
             </>
           )}

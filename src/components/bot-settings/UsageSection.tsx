@@ -7,6 +7,7 @@
 // which was fine buried among a dozen other cards in the old aside; as this
 // section's entire content it would otherwise leave the panel blank, so a
 // short placeholder line is added for that case.
+import { t } from "@/lib/i18n";
 import { useStore, type Bot } from "@/state/store";
 import { botUsage, costCaption, formatTokens, formatUsd, hasFiniteCost, headlineTokens, usageDetail } from "@/lib/usage";
 
@@ -18,7 +19,7 @@ export function UsageSection({ bot }: { bot: Bot }) {
   if (usage.turns === 0) {
     return (
       <div className="rounded-xl bg-card p-4 text-[13px] text-ink-secondary">
-        No usage recorded yet for this bot.
+        {t("hardcoded.components.botsettings.UsageSection.aa6e7af7")}
       </div>
     );
   }
@@ -26,21 +27,21 @@ export function UsageSection({ bot }: { bot: Bot }) {
   return (
     <div className="rounded-xl bg-card p-4">
       <div className="flex items-baseline justify-between">
-        <div className="text-[15px] font-medium text-ink">Usage</div>
+        <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.UsageSection.7268e332")}</div>
         <button
           onClick={() => dispatch({ type: "toggleAppSettings", open: true, section: "usage" })}
           className="text-[12px] text-ink-secondary hover:text-ink"
         >
-          All bots →
+          {t("hardcoded.components.botsettings.UsageSection.1059716f")}
         </button>
       </div>
       <div className="mt-3 grid grid-cols-3 gap-3 text-[13px]">
         <div>
-          <div className="text-[11.5px] uppercase tracking-wide text-ink-secondary">Turns</div>
+          <div className="text-[11.5px] uppercase tracking-wide text-ink-secondary">{t("hardcoded.components.botsettings.UsageSection.c1421186")}</div>
           <div className="mt-0.5 tabular-nums text-ink">{usage.turns}</div>
         </div>
         <div>
-          <div className="text-[11.5px] uppercase tracking-wide text-ink-secondary">Tokens</div>
+          <div className="text-[11.5px] uppercase tracking-wide text-ink-secondary">{t("hardcoded.components.botsettings.UsageSection.784c710b")}</div>
           <div
             className="mt-0.5 tabular-nums text-ink"
             title={usageDetail(usage)}
@@ -49,7 +50,7 @@ export function UsageSection({ bot }: { bot: Bot }) {
           </div>
         </div>
         <div>
-          <div className="text-[11.5px] uppercase tracking-wide text-ink-secondary">Cost</div>
+          <div className="text-[11.5px] uppercase tracking-wide text-ink-secondary">{t("hardcoded.components.botsettings.UsageSection.b76a3052")}</div>
           <div className="mt-0.5 tabular-nums text-ink">
             {hasFiniteCost(usage.costUsd) ? formatUsd(usage.costUsd) : "—"}
           </div>

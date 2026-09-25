@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Menu } from "lucide-react";
 import { StoreProvider, useStore } from "@/state/store";
@@ -239,7 +240,7 @@ function Shell() {
       {!calendarFocus && <button
         type="button"
         ref={menuButtonRef}
-        aria-label="Open bot list"
+        aria-label={t("hardcoded.App.12813136")}
         aria-expanded={drawerOpen}
         onClick={() => setDrawerOpen(true)}
         className="absolute left-3 top-3 z-30 rounded-md p-1.5 text-ink-secondary hover:bg-raised hover:text-ink md:hidden"
@@ -285,7 +286,7 @@ function Shell() {
           </div>
           {!state.connected && (
             <div className="text-[12px]">
-              Start it with <code className="rounded bg-raised px-1.5 py-0.5">pnpm dev:server</code>
+              {t("hardcoded.App.4edb736f")} <code className="rounded bg-raised px-1.5 py-0.5">pnpm dev:server</code>
             </div>
           )}
         </main>

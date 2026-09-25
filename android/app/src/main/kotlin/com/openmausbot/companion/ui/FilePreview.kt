@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontFamily
@@ -389,7 +390,7 @@ class FilePreviews(private val context: Context) {
         val intent = Intent(Intent.ACTION_VIEW)
             .setDataAndType(contentUri(item), item.contentType)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        return launchChooser(intent, item.filename, FilePreviewRules.noViewer(item.filename))
+        return launchChooser(intent, item.filename, context.getString(R.string.android_file_no_viewer, item.filename))
     }
 
     /** Share only the private content URI; neither the computer path nor its bearer token leaves the app. */
@@ -399,7 +400,8 @@ class FilePreviews(private val context: Context) {
             .putExtra(Intent.EXTRA_STREAM, contentUri(item))
             .putExtra(Intent.EXTRA_TITLE, item.filename)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        return launchChooser(intent, "Share ${item.filename}", "No app on this phone can share ${item.filename}.")
+        return launchChooser(intent, context.getString(R.string.android_file_share_title, item.filename),
+            context.getString(R.string.android_file_no_share, item.filename))
     }
 
     private fun contentUri(item: FilePreviewItem) =
@@ -445,6 +447,7 @@ internal fun FilePreviewSheet(
 ) {
     var actionError by remember(item.file.absolutePath) { mutableStateOf<String?>(null) }
     val uriHandler = LocalUriHandler.current
+    val l10n = LocalContext.current
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
@@ -487,10 +490,10 @@ internal fun FilePreviewSheet(
                                 openLink = { raw ->
                                     val web = LocalMessageLink.resolve(raw) as? LocalMessageLink.Web
                                     if (web == null) {
-                                        actionError = "Open links to other computer files from the original message."
+                                        actionError = l10n.getString(R.string.android_file_open_original)
                                     } else {
                                         runCatching { uriHandler.openUri(web.url) }
-                                            .onFailure { actionError = "That link couldn't be opened on this phone." }
+                                            .onFailure { actionError = l10n.getString(R.string.android_file_link_unavailable) }
                                     }
                                 },
                                 modifier = Modifier

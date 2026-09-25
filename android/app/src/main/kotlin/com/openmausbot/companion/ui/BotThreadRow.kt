@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.openmausbot.companion.R
 import com.openmausbot.companion.core.BotTask
 import com.openmausbot.companion.core.bylineLabel
 import com.openmausbot.companion.core.displayTitle
@@ -57,9 +59,9 @@ internal fun BotThreadRow(
     val snoozed = task.isSnoozed(now)
     val dimmed = (task.isClosed || task.isArchived || snoozed) && runtime == null && task.unread != true
     val foldedState = when {
-        task.isClosed -> "Closed"
-        task.isArchived -> "Archived"
-        snoozed -> "Snoozed"
+        task.isClosed -> stringResource(R.string.android_thread_closed)
+        task.isArchived -> stringResource(R.string.android_thread_archived)
+        snoozed -> stringResource(R.string.android_thread_snoozed)
         else -> null
     }
     Row(
@@ -86,7 +88,12 @@ internal fun BotThreadRow(
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (runtime != null) {
                         Text(
-                            text = runtime,
+                            text = stringResource(when (runtime) {
+                                "Waiting on you" -> R.string.android_thread_waiting_you
+                                "Waiting on teammate" -> R.string.android_thread_waiting_teammate
+                                "Working" -> R.string.android_thread_working
+                                else -> R.string.android_thread_queued
+                            }),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = when (runtime) {
@@ -99,7 +106,7 @@ internal fun BotThreadRow(
                     }
                     if (task.unread == true) {
                         Text(
-                            "Unread",
+                            stringResource(R.string.android_thread_unread),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary,
@@ -109,7 +116,7 @@ internal fun BotThreadRow(
             }
             val byline = listOfNotNull(
                 RelativeStamp.updated(task.listStamp).takeIf { it.isNotEmpty() },
-                "Pinned".takeIf { task.pinned == true },
+                stringResource(R.string.android_thread_pinned).takeIf { task.pinned == true },
                 task.bylineLabel(now),
             ).joinToString(" · ")
             if (byline.isNotEmpty()) {
