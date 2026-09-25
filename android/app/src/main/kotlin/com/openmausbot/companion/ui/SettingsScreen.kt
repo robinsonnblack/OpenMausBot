@@ -147,6 +147,8 @@ fun SettingsScreen(
                 }
                 SettingsRow("Connection", SettingsPolicy.statusText(status))
                 if (bound != null) {
+                    SettingsRow("Pairing access", SettingsPolicy.pairingAccessText(bound))
+                    Footnote("This is the access granted to this phone for the selected computer. Bots may still ask before using the computer.")
                     SettingsButton("Connect another computer") {
                         haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
                         session.beginPairing()
