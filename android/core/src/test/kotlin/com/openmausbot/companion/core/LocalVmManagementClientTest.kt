@@ -36,6 +36,13 @@ class LocalVmManagementClientTest {
             assertEquals("POST", action.method)
             assertEquals("/api/local-computer/stop", action.path)
             assertEquals("application/json; charset=utf-8", action.getHeader("Content-Type"))
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"runtime":"docker","daemonUp":true,"image":true,"container":"missing","ready":false,"mode":"per-bot","max_instances":2}"""))
+            assertEquals("missing", client.botLocalVmAction("bot-1", "remove").container)
+            val botAction = server.takeRequest()
+            assertEquals("POST", botAction.method)
+            assertEquals("/api/bots/bot-1/local-computer/remove", botAction.path)
+            assertEquals("Bearer token", botAction.getHeader("Authorization"))
         } finally { server.shutdown() }
     }
 
@@ -43,6 +50,8 @@ class LocalVmManagementClientTest {
     fun requiresAValidExplicitLifecycleAction() = runBlocking {
         val client = CompanionClient(requireNotNull(Connection.parse("http://127.0.0.1:1")), "token")
         assertFailsWith<IllegalArgumentException> { client.localVmAction("recreate") }
+        assertFailsWith<IllegalArgumentException> { client.botLocalVmAction("../another", "remove") }
+        assertFailsWith<IllegalArgumentException> { client.botLocalVmAction("bot-1", "pull") }
         assertFailsWith<IllegalArgumentException> { client.updateLocalVmConfig(LocalVmConfig("per-bot", 5)) }
     }
 }

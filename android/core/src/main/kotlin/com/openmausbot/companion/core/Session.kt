@@ -2233,6 +2233,8 @@ class Session(
     suspend fun localVmStatus(): LocalVmStatus = requireLocalVmAdmin().localVmStatus()
     suspend fun localVmInventory(): LocalVmInventory = requireLocalVmAdmin().localVmInventory()
     suspend fun localVmAction(action: String): LocalVmStatus = requireLocalVmAdmin().localVmAction(action)
+    suspend fun botLocalVmAction(botId: String, action: String): LocalVmStatus =
+        requireLocalVmAdmin().botLocalVmAction(botId, action)
     suspend fun updateLocalVmConfig(config: LocalVmConfig): ConfigStatus =
         requireLocalVmAdmin().updateLocalVmConfig(config)
 

@@ -30,6 +30,8 @@ import com.openmausbot.companion.core.LocalVmInventory
 import com.openmausbot.companion.core.LocalVmStatus
 import kotlinx.coroutines.launch
 
+private data class PendingLocalVmAction(val action: String, val botId: String? = null, val botName: String? = null)
+
 /** Every action targets the paired computer. Merely opening this screen changes nothing. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +45,7 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
     var loading by remember { mutableStateOf(true) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    var confirmation by remember { mutableStateOf<String?>(null) }
+    var confirmation by remember { mutableStateOf<PendingLocalVmAction?>(null) }
 
     suspend fun refresh() {
         val current = session.localVmStatus()
@@ -57,11 +59,15 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
         catch (failure: Exception) { error = failure.message ?: "Could not load Local VM status." }
         finally { loading = false }
     }
-    fun act(action: String) {
+    fun act(target: PendingLocalVmAction) {
         busy = true
         error = null
         scope.launch {
-            try { session.localVmAction(action); refresh() }
+            try {
+                if (target.botId != null) session.botLocalVmAction(target.botId, target.action)
+                else session.localVmAction(target.action)
+                refresh()
+            }
             catch (failure: Exception) { error = failure.message ?: "Local VM action failed." }
             finally { busy = false }
         }
@@ -118,11 +124,11 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
                 if (current.mode == "shared") {
                     Text("Shared VM", style = MaterialTheme.typography.titleMedium)
                     if (current.runtime != null && current.daemonUp) {
-                        if (!current.image) TextButton(enabled = !busy, onClick = { confirmation = "pull" }) { Text("Download image") }
-                        if (current.image && current.container == "missing") TextButton(enabled = !busy, onClick = { confirmation = "run" }) { Text("Create desktop") }
-                        if (current.container == "stopped") TextButton(enabled = !busy, onClick = { confirmation = "start" }) { Text("Start desktop") }
-                        if (current.container == "running") TextButton(enabled = !busy, onClick = { confirmation = "stop" }) { Text("Stop desktop") }
-                        if (current.container != "missing") TextButton(enabled = !busy, onClick = { confirmation = "remove" }) { Text("Remove desktop", color = MaterialTheme.colorScheme.error) }
+                        if (!current.image) TextButton(enabled = !busy, onClick = { confirmation = PendingLocalVmAction("pull") }) { Text("Download image") }
+                        if (current.image && current.container == "missing") TextButton(enabled = !busy, onClick = { confirmation = PendingLocalVmAction("run") }) { Text("Create desktop") }
+                        if (current.container == "stopped") TextButton(enabled = !busy, onClick = { confirmation = PendingLocalVmAction("start") }) { Text("Start desktop") }
+                        if (current.container == "running") TextButton(enabled = !busy, onClick = { confirmation = PendingLocalVmAction("stop") }) { Text("Stop desktop") }
+                        if (current.container != "missing") TextButton(enabled = !busy, onClick = { confirmation = PendingLocalVmAction("remove") }) { Text("Remove desktop", color = MaterialTheme.colorScheme.error) }
                     }
                 } else {
                     Text("Per-bot desktops", style = MaterialTheme.typography.titleMedium)
@@ -130,7 +136,17 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
                         if (!list.available) Text(list.problem ?: "Runtime unavailable")
                         if (list.instances.isEmpty()) Text("No per-bot desktop is currently installed.")
                         list.instances.forEach { instance ->
-                            Text("${instance.name}: ${instance.container} · ${if (instance.ready) "ready" else instance.problem ?: "not ready"}${if (instance.inUse) " · in use" else ""}")
+                            Column {
+                                Text("${instance.name}: ${instance.container} · ${if (instance.ready) "ready" else instance.problem ?: "not ready"}${if (instance.inUse) " · in use" else ""}")
+                                if (instance.managed) Row {
+                                    if (instance.container == "running") TextButton(enabled = !busy && !instance.inUse,
+                                        onClick = { confirmation = PendingLocalVmAction("stop", instance.botId, instance.name) }) { Text("Stop") }
+                                    TextButton(enabled = !busy && !instance.inUse,
+                                        onClick = { confirmation = PendingLocalVmAction("remove", instance.botId, instance.name) }) {
+                                        Text("Remove", color = MaterialTheme.colorScheme.error)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -149,16 +165,20 @@ internal fun LocalVmManagementSheet(onDismiss: () -> Unit) {
         }
     }
 
-    confirmation?.let { action ->
+    confirmation?.let { target ->
         AlertDialog(
             onDismissRequest = { confirmation = null },
-            title = { Text("${action.replaceFirstChar(Char::uppercase)} the Local VM on this computer?") },
-            text = { Text(when (action) {
+            title = { Text(if (target.botId != null) "${target.action.replaceFirstChar(Char::uppercase)} ${target.botName}'s Local VM?"
+                else "${target.action.replaceFirstChar(Char::uppercase)} the Local VM on this computer?") },
+            text = { Text(if (target.botId != null) when (target.action) {
+                "remove" -> "This deletes ${target.botName}'s VM container from the paired computer. Files inside it may be lost. The bot and its conversations stay."
+                else -> "This stops ${target.botName}'s VM on the paired computer. The bot and its conversations stay."
+            } else when (target.action) {
                 "pull" -> "This downloads the VM image to the paired computer."
                 "remove" -> "This deletes the shared VM container on the paired computer. Files stored inside it may be lost."
                 else -> "This changes the shared VM on the paired computer."
             }) },
-            confirmButton = { TextButton(onClick = { confirmation = null; act(action) }) { Text("Continue") } },
+            confirmButton = { TextButton(onClick = { confirmation = null; act(target) }) { Text("Continue") } },
             dismissButton = { TextButton(onClick = { confirmation = null }) { Text("Cancel") } },
         )
     }
