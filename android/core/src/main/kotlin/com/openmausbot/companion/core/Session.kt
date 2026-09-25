@@ -1487,10 +1487,14 @@ class Session(
         description: String,
         selection: ModelSelection,
         section: String? = null,
+        preferences: BotCreationPreferences? = null,
+        acknowledgeLocalAuto: Boolean = false,
     ): Bot? {
         val activeClient = client ?: return null
         return try {
-            val bot = activeClient.createBot(name, title, description, selection, section)
+            val bot = activeClient.createBot(
+                name, title, description, selection, section, preferences, acknowledgeLocalAuto,
+            )
             _state.update { it.apply(Frame.Bot(bot)) }
             bot
         } catch (error: Throwable) {

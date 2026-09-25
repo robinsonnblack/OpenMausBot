@@ -16,6 +16,13 @@ The Android New bot sheet loads the paired computer's suggested defaults and
 available model catalog before creation. The person can choose provider,
 model, reasoning effort and team before the first turn; the server validates
 that the selected model is available.
+The optional Bot settings section inherits the computer's saved creation
+defaults and lets an admin set standing instructions, notifications, spoken
+replies, color, computer destination, Ask/Auto approval, working folder and
+voice before creating the bot. Android requires separate confirmation before
+combining This computer with Auto approval. Full and Custom desktop grants
+still require the computer's permission flow. Saved skills, memories and
+routines remain inherited from the computer's default template.
 
 An admin-scoped pairing can select and permanently delete individual messages
 from a conversation, including older edited versions. The phone requires a

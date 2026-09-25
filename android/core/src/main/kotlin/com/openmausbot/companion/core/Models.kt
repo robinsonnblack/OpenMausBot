@@ -1413,6 +1413,19 @@ data class TeamSectionsResponse(val sections: List<String>)
 data class BotCreationOptions(
     val modelSelection: ModelSelection,
     val suggestedName: String,
+    val defaults: JsonObject = JsonObject(emptyMap()),
+)
+
+/** Safe settings chosen before bot creation; elevated desktop grants are excluded. */
+data class BotCreationPreferences(
+    val soul: String = "",
+    val notifications: Boolean = true,
+    val speakReplies: Boolean = false,
+    val computer: String? = null,
+    val approvalMode: String = "ask",
+    val cwd: String? = null,
+    val voice: String = "",
+    val color: String = "green",
 )
 
 @Serializable

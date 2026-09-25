@@ -9,6 +9,35 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class BotCreationModelClientTest {
+    @Test fun createsBotWithExplicitPreferencesAndLocalAutoConsent() = runBlocking {
+        val server = MockWebServer()
+        server.start()
+        try {
+            val client = CompanionClient(requireNotNull(Connection.parse(server.url("/").toString())), "token")
+            val bot = """{"id":"bot-2","threadId":"thread-2","name":"Ops","title":"Assistant",
+                "description":"","notifications":false,"color":"teal","unread":false,
+                "modelSelection":{"instanceId":"codex","model":"luna"},"createdAt":1}"""
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"bot":$bot}"""))
+            client.createBot("Ops", "Assistant", "", ModelSelection("codex", "luna"), null,
+                BotCreationPreferences(
+                    soul = "Keep records.", notifications = false, speakReplies = true,
+                    computer = "local", approvalMode = "auto", cwd = "C:/work", voice = "voice-1", color = "teal",
+                ), acknowledgeLocalAuto = true)
+            val body = CompanionJson.parseToJsonElement(server.takeRequest().body.readUtf8()).jsonObject
+            val settings = body.getValue("settings").jsonObject
+            assertEquals("Keep records.", settings.getValue("soul").jsonPrimitive.content)
+            assertEquals("false", settings.getValue("notifications").jsonPrimitive.content)
+            assertEquals("true", settings.getValue("speakReplies").jsonPrimitive.content)
+            assertEquals("local", settings.getValue("computer").jsonPrimitive.content)
+            assertEquals("auto", settings.getValue("approvalMode").jsonPrimitive.content)
+            assertEquals("C:/work", settings.getValue("cwd").jsonPrimitive.content)
+            assertEquals("voice-1", settings.getValue("voice").jsonPrimitive.content)
+            assertEquals("teal", settings.getValue("color").jsonPrimitive.content)
+            assertEquals("true", body.getValue("acknowledgeLocalAuto").jsonPrimitive.content)
+        } finally { server.shutdown() }
+    }
+
     @Test fun createsBotWithAnExplicitAvailableModelAndTeam() = runBlocking {
         val server = MockWebServer()
         server.start()
