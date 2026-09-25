@@ -89,6 +89,8 @@ fun SettingsScreen(
     var showingUsage by remember { mutableStateOf(false) }
     var budgetEntitled by remember { mutableStateOf(false) }
     var editingBudget by remember { mutableStateOf(false) }
+    var billingEntitled by remember { mutableStateOf(false) }
+    var editingBilling by remember { mutableStateOf(false) }
     var editingAboutMe by remember { mutableStateOf(false) }
     var aboutMeText by remember { mutableStateOf("") }
     var aboutMeOriginal by remember { mutableStateOf("") }
@@ -114,8 +116,11 @@ fun SettingsScreen(
 
     LaunchedEffect(connection) {
         budgetEntitled = false
+        billingEntitled = false
         if (connection?.serverScopes?.contains("admin") == true) {
-            budgetEntitled = session.configStatus()?.edition?.features?.contains("budgets") == true
+            val features = session.configStatus()?.edition?.features.orEmpty()
+            budgetEntitled = "budgets" in features
+            billingEntitled = "billing" in features
         }
     }
 
@@ -297,6 +302,7 @@ fun SettingsScreen(
                 }
                 if (showingUsage) WorkspaceUsageSection()
                 if (budgetEntitled) SettingsButton("Monthly spending limit") { editingBudget = true }
+                if (billingEntitled) SettingsButton("Model prices") { editingBilling = true }
             }
 
             if (connection?.serverScopes?.contains("admin") == true) {
@@ -601,6 +607,7 @@ fun SettingsScreen(
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }
     if (restoringBackup) WorkspaceBackupRestoreSheet { restoringBackup = false }
     if (editingBudget) WorkspaceBudgetSheet { editingBudget = false }
+    if (editingBilling) WorkspaceBillingSheet { editingBilling = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
     if (managingBrowserProfiles) BrowserProfilesSheet { managingBrowserProfiles = false }
 }
