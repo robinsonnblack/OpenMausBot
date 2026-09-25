@@ -273,6 +273,26 @@ class CompanionClient(
 
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
+    suspend fun localVmStatus(): LocalVmStatus = send(makeRequest("GET", "/api/local-computer"))
+
+    suspend fun localVmInventory(): LocalVmInventory = send(makeRequest("GET", "/api/local-computer/instances"))
+
+    suspend fun updateLocalVmConfig(config: LocalVmConfig): ConfigStatus {
+        require(config.mode == "shared" || config.mode == "per-bot")
+        require(config.maxInstances in 1..4)
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("localVm", buildJsonObject {
+                put("mode", config.mode)
+                put("maxInstances", config.maxInstances)
+            })
+        }))
+    }
+
+    suspend fun localVmAction(action: String): LocalVmStatus {
+        require(action in setOf("pull", "run", "start", "stop", "remove"))
+        return send(makeRequest("POST", "/api/local-computer/$action", body = buildJsonObject { }))
+    }
+
     suspend fun adminActivity(filter: AdminActivityFilter): AdminActivityPage =
         send(makeRequest("GET", "/api/admin-activity", filter.query()))
 

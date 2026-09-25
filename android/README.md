@@ -104,6 +104,12 @@ history with who, category and date filters. An admin pairing can inspect
 changed values and export the same filtered range as CSV through Android's
 document picker. Activity remains on the host; a client-only pairing cannot
 read it.
+Settings → Computer → Local VM shows the paired computer's container runtime,
+shared desktop and per-bot inventory. An admin pairing can change shared vs.
+per-bot isolation and the 1–4 instance limit. The shared VM's image download,
+creation, start, stop and removal are explicit, confirmed actions on the PC;
+opening the screen never starts a container. Runtime installation and per-bot
+container deletion still use the desktop's setup flow.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
