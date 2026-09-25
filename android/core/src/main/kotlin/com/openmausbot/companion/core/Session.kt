@@ -2203,6 +2203,19 @@ class Session(
         null
     }
 
+    private fun requireAdminActivityClient(): CompanionClient {
+        if (_connection.value?.serverScopes?.contains("admin") != true) {
+            throw APIError.Transport("Activity history requires an admin pairing.")
+        }
+        return client ?: throw APIError.Transport("This computer is offline.")
+    }
+
+    suspend fun adminActivity(filter: AdminActivityFilter): AdminActivityPage =
+        requireAdminActivityClient().adminActivity(filter)
+
+    suspend fun adminActivityCsv(filter: AdminActivityFilter): ByteArray =
+        requireAdminActivityClient().adminActivityCsv(filter)
+
     suspend fun updateThreadSettings(settings: ThreadSettings): ConfigStatus {
         if (_connection.value?.serverScopes?.contains("admin") != true) {
             throw APIError.Transport("Thread settings require an admin pairing.")

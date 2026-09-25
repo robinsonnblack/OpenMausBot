@@ -99,6 +99,11 @@ tasks per bot and the optional size and age limits for thread event logs on the
 paired computer. Empty optional limits keep the host's unbounded defaults.
 The editor rechecks the current host values before saving so an intervening
 desktop edit is not silently overwritten.
+Settings → Activity shows the paired computer's admin changes and approval
+history with who, category and date filters. An admin pairing can inspect
+changed values and export the same filtered range as CSV through Android's
+document picker. Activity remains on the host; a client-only pairing cannot
+read it.
 
 Settings → Teams also offers “Create bot in this team”. It opens the regular
 model-first bot form with that team preselected; the new member appears on the
