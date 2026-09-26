@@ -3466,7 +3466,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "es": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -6933,7 +6935,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "fr": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -10400,7 +10404,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "hi": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -13867,7 +13873,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "ja": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -17334,7 +17342,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "pt-br": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -20801,7 +20811,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "zh": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -24268,7 +24280,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "zh-tw": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -27735,7 +27749,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     },
     "uk": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -31202,7 +31218,9 @@
       "hardcoded.components.CanvasComputers.19e39c3d": "eedb0255aeec9ab295efa534f01a335493eb698aa5039f21d24f290573798b5f",
       "hardcoded.components.ManageMembersPanel.64e9f32c": "eed8b6c56d4e4ba33a388d4adf6d2362a1449c7faeb613deeedd9591efa1eade",
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
-      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e"
+      "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
+      "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
     }
   }
 }
