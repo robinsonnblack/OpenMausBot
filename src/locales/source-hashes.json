@@ -3477,7 +3477,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "es": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -6955,7 +6956,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "fr": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -10433,7 +10435,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "hi": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -13911,7 +13914,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "ja": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -17389,7 +17393,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "pt-br": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -20867,7 +20872,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "zh": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -24345,7 +24351,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "zh-tw": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -27823,7 +27830,8 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     },
     "uk": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -31301,7 +31309,9 @@
       "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
       "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
       "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
-      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d",
+      "settings.promptInspector.title": "29ee8d835d043d029b2ca7b951ab2a5a68ef078e6a871205942312e7344eda99"
     }
-  }
+  },
+  "settings.promptInspector.title": "Show prompt inspector"
 }

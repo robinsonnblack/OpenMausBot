@@ -49,6 +49,19 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class OnboardingRoutingTest {
+    @Test fun `slow cold start never shows connect computer for a saved pairing`() {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val scene = OnboardingScene(savedConnection = OnboardingScene.MAC, savedToken = "device-token", welcomeSeen = true, restoreSuspendsUntil = gate)
+        compose.setContent { CompositionLocalProvider(LocalCompanion provides scene.environment) {
+            CompanionRoot(pendingNotification = null, onPendingTargetConsumed = {})
+        } }
+        compose.onNodeWithText("Restoring connection…").assertIsDisplayed()
+        compose.onNodeWithText(OnboardingCopy.UNPAIRED_HOME_CONNECT).assertDoesNotExist()
+        compose.runOnIdle { gate.complete(Unit) }
+        compose.waitUntil(5_000) { scene.session.restoreState.value !is Session.RestoreState.Pending }
+        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText(OnboardingCopy.UNPAIRED_HOME_CONNECT).assertDoesNotExist()
+    }
 
     @get:Rule
     val compose = createAndroidComposeRule<ComponentActivity>()

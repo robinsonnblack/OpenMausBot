@@ -3474,5 +3474,6 @@
   "pairingAccess.saving": "Verbindungsrechte werden gespeichert …",
   "pairingAccess.updateDesktop": "Desktop-App aktualisieren und neu starten, um die Rechte dieser Verbindung abzurufen und zu verwalten.",
   "pairingAccess.failed": "Rechte wurden nicht geändert: {error}",
-  "pairingAccess.saved": "Verbindungsrechte gespeichert"
+  "pairingAccess.saved": "Verbindungsrechte gespeichert",
+  "settings.promptInspector.title": "Prompt-Inspektor anzeigen"
 }

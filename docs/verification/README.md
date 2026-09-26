@@ -54,6 +54,7 @@ Use only mapped, tested commands:
 - [Android chat controls and configurable image limits](mobile-chat-polish.md)
 - [Android speech input and desktop credential import](android-stt.md)
 - [Welcome flow and guided tour](onboarding.md)
+- [Saved connection startup and optional prompt inspector](startup-inspector.md)
 - [Channels](channels.md)
 - [In-chat team coordination](room-coordination.md)
 - [Dynamic group conversations](dynamic-conversations.md)

@@ -20,6 +20,7 @@ enum class OnboardingPairingState {
 }
 
 enum class OnboardingRoute {
+    RESTORING,
     WELCOME,
     PAIRING,
     UNPAIRED_HOME,
@@ -108,6 +109,7 @@ object NotificationOnboardingPolicy {
 
 data class OnboardingContext(
     val pairingState: OnboardingPairingState,
+    val restoringConnection: Boolean = false,
     val hasSeenWelcome: Boolean,
     val pairingRequested: Boolean = false,
     val hasPendingPairingInvite: Boolean = false,
@@ -122,7 +124,11 @@ data class OnboardingContext(
 )
 
 object OnboardingRouter {
-    fun route(context: OnboardingContext): OnboardingRoute = when (context.pairingState) {
+    fun route(context: OnboardingContext): OnboardingRoute {
+        if (context.restoringConnection && context.pairingState == OnboardingPairingState.UNPAIRED) {
+            return OnboardingRoute.RESTORING
+        }
+        return when (context.pairingState) {
         // First, and unconditionally. A revoked token with a pending invite and
         // a requested pairing is still a revoked token: recovery outranks every
         // other reason this screen could be shown.
@@ -150,5 +156,6 @@ object OnboardingRouter {
             } else {
                 OnboardingRoute.WELCOME
             }
+    }
     }
 }

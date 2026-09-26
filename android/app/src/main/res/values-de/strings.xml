@@ -1333,4 +1333,7 @@
     <string name="chat_activity_full_help">Alle Arbeitsschritte des Bots anzeigen.</string>
     <string name="chat_activity_reduced_help">Arbeitsschritte werden in einer Zeile zusammengefasst. Fehler bleiben sichtbar.</string>
     <string name="chat_activity_hidden_help">Nur Nachrichten anzeigen, keine Arbeitsschritte.</string>
+    <string name="android_restoring_connection">Verbindung wird geladen…</string>
+    <string name="android_advanced_settings">Erweitert</string>
+    <string name="android_prompt_inspector_help">Zeigt die an das Modell gesendeten Anfragen über das Symbol { } im Chat an.</string>
 </resources>

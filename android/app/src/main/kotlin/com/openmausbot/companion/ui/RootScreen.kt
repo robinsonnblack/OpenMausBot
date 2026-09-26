@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -91,6 +92,7 @@ fun CompanionRoot(
     val route = OnboardingRouter.route(
         OnboardingContext(
             pairingState = onboardingPairingState(status, connection),
+            restoringConnection = restoreState == Session.RestoreState.Pending,
             hasSeenWelcome = welcomeSeen,
             pairingRequested = pairingRequested,
             hasPendingPairingInvite = invite != null,
@@ -207,6 +209,26 @@ fun CompanionRoot(
             Surface(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     when (route) {
+                        OnboardingRoute.RESTORING -> {
+                            val failure = (status as? Session.Status.Offline)?.message
+                            Column(Modifier.fillMaxSize().padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
+                                if (failure == null) {
+                                    CircularProgressIndicator()
+                                    Text(stringResource(R.string.android_restoring_connection))
+                                } else {
+                                    var retrying by remember { mutableStateOf(false) }
+                                    Text(failure)
+                                    Button(enabled = !retrying, onClick = {
+                                        retrying = true
+                                        scope.launch { try { session.refresh() } finally { retrying = false } }
+                                    }) {
+                                        Text(stringResource(if (retrying) R.string.ui_connecting_fd3e796 else R.string.ui_retry_9f5cd8a))
+                                    }
+                                }
+                            }
+                        }
                         OnboardingRoute.WELCOME -> WelcomeScreen(
                             onConnect = ::startPairing,
                             onSkip = {

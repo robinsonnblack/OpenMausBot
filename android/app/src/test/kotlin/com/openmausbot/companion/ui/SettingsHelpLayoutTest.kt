@@ -21,6 +21,27 @@ import java.io.File
 @Config(sdk = [34], qualifiers = "de-w360dp-h640dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class SettingsHelpLayoutTest {
+    @Test fun longLabelsAndChangingValuesKeepReadableWidth() {
+        val value = androidx.compose.runtime.mutableStateOf("Wird überprüft")
+        compose.setContent { CompanionTheme(darkTheme = false) { Surface { Column(Modifier.width(320.dp).padding(20.dp)) {
+            SettingsRow("Kopplungszugriff auf diesem Computer", value.value, "Rechte-Hilfe")
+            SettingsRow("Hintergrundverbindung", "Nur bei geöffneter App", "Hintergrund-Hilfe")
+        } } } }
+        val bounds = compose.onNodeWithText("Wird überprüft").fetchSemanticsNode().boundsInRoot
+        assertTrue(bounds.width > 75, "Value collapsed to a narrow vertical strip")
+        compose.runOnIdle { value.value = "Vollzugriff" }
+        compose.onNodeWithText("Vollzugriff").assertIsDisplayed()
+        assertTrue(compose.onNodeWithText("Vollzugriff").fetchSemanticsNode().boundsInRoot.width > 75)
+    }
+
+    @Test fun inspectorSwitchHasImmediateVisibleFeedbackAndHelpStaysOnItsRow() {
+        val enabled = androidx.compose.runtime.mutableStateOf(false)
+        compose.setContent { CompanionTheme(darkTheme = false) { Surface { Column(Modifier.padding(20.dp)) {
+            PromptInspectorSetting(enabled.value) { enabled.value = it }
+        } } } }
+        compose.onNodeWithContentDescription("Prompt-Inspektor").assertIsOff().performClick().assertIsOn()
+        compose.onNodeWithContentDescription("Erklärung: Prompt-Inspektor").assertIsDisplayed()
+    }
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
     @Test fun helpIsAlignedWithItsSettingAndExplanationOpensOnlyOnTap() {
         compose.setContent { CompanionTheme(darkTheme = false) { Surface { Column(Modifier.padding(20.dp)) {

@@ -60,6 +60,13 @@ class ChatPreferences(
     }
     private val _showThreads = MutableStateFlow(prefs.getBoolean(SHOW_THREADS, true))
     val showThreads: StateFlow<Boolean> = _showThreads.asStateFlow()
+    private val _showPromptInspector = MutableStateFlow(prefs.getBoolean(SHOW_PROMPT_INSPECTOR, false))
+    val showPromptInspector: StateFlow<Boolean> = _showPromptInspector.asStateFlow()
+
+    fun setShowPromptInspector(enabled: Boolean) {
+        prefs.edit().putBoolean(SHOW_PROMPT_INSPECTOR, enabled).commit()
+        _showPromptInspector.value = enabled
+    }
 
     fun setActivityDetail(detail: ActivityDetail) {
         if (_activityDetail.value == detail && prefs.contains(ACTIVITY_DETAIL)) return
@@ -119,6 +126,7 @@ class ChatPreferences(
         private const val THEME_ID = "companion.prefs.themeId"
         private const val CUSTOM_COLORS = "companion.prefs.customColors"
         private const val SHOW_THREADS = "companion.prefs.showThreads"
+        private const val SHOW_PROMPT_INSPECTOR = "companion.prefs.showPromptInspector"
 
         private fun threadKey(connectionId: String, botId: String): String =
             "thread.last-opened.${connectionId.length}:$connectionId$botId"

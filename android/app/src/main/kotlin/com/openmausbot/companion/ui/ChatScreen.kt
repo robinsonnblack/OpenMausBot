@@ -48,7 +48,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -532,7 +531,8 @@ private fun LoadedChat(
     val connection by session.connection.collectAsState()
     val permissionAccess by session.pairingAccess.collectAsState()
     val canDeleteMessages = permissionAccess.allows("messageDelete")
-    val canInspectPrompt = permissionAccess.allows("promptInspector")
+    val showPromptInspector by environment.chatPreferences.showPromptInspector.collectAsState()
+    val canInspectPrompt = showPromptInspector && permissionAccess.allows("promptInspector")
     LaunchedEffect(chatId, threadId, connection?.id) {
         environment.chatPreferences.rememberThread(chat, connection?.id)
     }
@@ -1217,7 +1217,7 @@ private fun ChatHeader(
                 onClick = onDeleteMessages,
             )
             if (onInspectPrompt != null) ChromeButton(
-                icon = Icons.Filled.Info,
+                painter = painterResource(R.drawable.ic_braces),
                 contentDescription = stringResource(R.string.ui_prompt_inspector_0885254),
                 onClick = onInspectPrompt,
             )

@@ -27,6 +27,14 @@ import kotlinx.coroutines.test.runTest
  * durability can actually be observed.
  */
 class OnboardingTest {
+    @Test fun savedConnectionIsNotTreatedAsMissingWhileStorageIsLoading() {
+        val pending = OnboardingContext(OnboardingPairingState.UNPAIRED, restoringConnection = true, hasSeenWelcome = true)
+        assertEquals(OnboardingRoute.RESTORING, OnboardingRouter.route(pending))
+        assertEquals(OnboardingRoute.CHATS, OnboardingRouter.route(pending.copy(pairingState = OnboardingPairingState.PAIRED)))
+        assertEquals(OnboardingRoute.UNPAIRED_HOME, OnboardingRouter.route(pending.copy(restoringConnection = false)))
+        assertEquals(OnboardingRoute.WELCOME, OnboardingRouter.route(pending.copy(restoringConnection = false, hasSeenWelcome = false)))
+        assertEquals(OnboardingRoute.REVOKED, OnboardingRouter.route(pending.copy(pairingState = OnboardingPairingState.REVOKED)))
+    }
 
     private fun route(
         pairingState: OnboardingPairingState,

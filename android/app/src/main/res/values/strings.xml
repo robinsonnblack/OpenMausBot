@@ -1334,4 +1334,7 @@
     <string name="chat_activity_full_help">Every step a bot takes.</string>
     <string name="chat_activity_reduced_help">Steps fold into one line. Failures always show.</string>
     <string name="chat_activity_hidden_help">No activity, only messages.</string>
+    <string name="android_restoring_connection">Restoring connection…</string>
+    <string name="android_advanced_settings">Advanced</string>
+    <string name="android_prompt_inspector_help">Shows the requests sent to the model through the { } icon in chat.</string>
 </resources>

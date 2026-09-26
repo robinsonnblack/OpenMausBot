@@ -63,6 +63,7 @@ class OnboardingScene(
     hasAskedNotificationsBefore: Boolean = false,
     savedConnection: Connection? = null,
     savedToken: String? = null,
+    restoreSuspendsUntil: kotlinx.coroutines.CompletableDeferred<Unit>? = null,
     /** The computer answers 401: the token was revoked on the other side. */
     private val revoked: Boolean = false,
     /** When set, a redemption suspends here — an attempt held in flight. */
@@ -105,7 +106,7 @@ class OnboardingScene(
 
     val session = Session(
         scope = scope,
-        connectionStore = FakeConnectionStore(savedConnection),
+        connectionStore = FakeConnectionStore(savedConnection, restoreSuspendsUntil),
         tokenStore = FakeTokenStore(savedConnection?.id, savedToken),
         onboardingStore = onboarding,
         deviceNameProvider = { "Pixel" },
@@ -219,8 +220,8 @@ class OnboardingScene(
         }
     }
 
-    private class FakeConnectionStore(private var saved: Connection?) : ConnectionStore {
-        override suspend fun load(): Connection? = saved
+    private class FakeConnectionStore(private var saved: Connection?, private val restoreGate: kotlinx.coroutines.CompletableDeferred<Unit>?) : ConnectionStore {
+        override suspend fun load(): Connection? { restoreGate?.await(); return saved }
         override suspend fun save(connection: Connection) {
             saved = connection
         }

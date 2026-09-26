@@ -25,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Switch
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.key
 import androidx.compose.ui.window.Dialog
@@ -350,6 +351,11 @@ fun SettingsScreen(
                 SettingsButton(stringResource(if (showThreads) R.string.android_settings_hide_thread_lists else R.string.android_settings_show_thread_lists)) {
                     environment.chatPreferences.setShowThreads(!showThreads)
                 }
+            }
+
+            SettingsSection(stringResource(R.string.android_advanced_settings)) {
+                val inspectorEnabled by environment.chatPreferences.showPromptInspector.collectAsState()
+                PromptInspectorSetting(inspectorEnabled, environment.chatPreferences::setShowPromptInspector)
             }
 
             if (connection != null && (pairingAccess.allows("usage") || budgetEntitled || billingEntitled)) SettingsSection(stringResource(R.string.android_settings_usage_0bb186)) {
@@ -791,7 +797,7 @@ internal fun PermissionHelp(explanation: String, title: String? = null) {
 @Composable
 internal fun SettingsRow(label: String, value: String, help: String? = null) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(label, fontSize = 15.sp, color = secondaryTint)
+        Text(label, modifier = Modifier.weight(1f), fontSize = 15.sp, color = secondaryTint)
         Text(
             text = value,
             fontSize = 15.sp,
@@ -801,6 +807,17 @@ internal fun SettingsRow(label: String, value: String, help: String? = null) {
                 .padding(start = 12.dp),
         )
         if (help != null) PermissionHelp(help, label)
+    }
+}
+
+@Composable
+internal fun PromptInspectorSetting(enabled: Boolean, onChange: (Boolean) -> Unit) {
+    val label = stringResource(R.string.ui_prompt_inspector_0885254)
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.ui_prompt_inspector_0885254), Modifier.weight(1f), fontSize = 15.sp)
+        Switch(checked = enabled, onCheckedChange = onChange,
+            modifier = Modifier.semantics { contentDescription = label })
+        PermissionHelp(stringResource(R.string.android_prompt_inspector_help), stringResource(R.string.ui_prompt_inspector_0885254))
     }
 }
 

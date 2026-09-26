@@ -3474,5 +3474,6 @@
   "pairingAccess.saving": "Saving connection rights…",
   "pairingAccess.updateDesktop": "Update and restart the desktop app to load and manage this connection’s rights.",
   "pairingAccess.failed": "Rights were not changed: {error}",
-  "pairingAccess.saved": "Connection rights saved"
+  "pairingAccess.saved": "Connection rights saved",
+  "settings.promptInspector.title": "Show prompt inspector"
 }

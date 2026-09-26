@@ -4,11 +4,14 @@ import { createPortal } from "react-dom";
 import { Braces, X } from "lucide-react";
 import type { PromptCapture } from "../../shared/prompt-inspector";
 import { promptDifference, promptInput } from "@/lib/prompt-inspector";
+import { useShowPromptInspector } from "@/lib/prompt-inspector-preference";
 
 export function PromptInspectorButton({ threadId }: { threadId: string }) {
+  const enabled = useShowPromptInspector();
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
-  useEffect(() => setOpen(false), [threadId]);
+  useEffect(() => setOpen(false), [threadId, enabled]);
+  if (!enabled) return null;
   return <><button type="button" aria-label={t("promptInspector.title")} title={t("promptInspector.title")} onClick={() => setOpen(true)} className="rounded-md p-1.5 text-ink-secondary hover:bg-raised hover:text-ink"><Braces size={18} /></button>
     {open && <PromptInspector key={threadId} threadId={threadId} onClose={close} />}</>;
 }

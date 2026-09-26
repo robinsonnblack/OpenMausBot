@@ -20,6 +20,15 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class ChatPreferencesTest {
+    @Test fun `prompt inspector stays hidden until enabled and choice survives relaunch`() {
+        val name = "chat-prompt-inspector"
+        context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit()
+        assertEquals(false, store(name).showPromptInspector.value)
+        store(name).setShowPromptInspector(true)
+        assertEquals(true, store(name).showPromptInspector.value)
+        store(name).setShowPromptInspector(false)
+        assertEquals(false, store(name).showPromptInspector.value)
+    }
     private val context: Context = RuntimeEnvironment.getApplication()
 
     private fun store(name: String): ChatPreferences = ChatPreferences(

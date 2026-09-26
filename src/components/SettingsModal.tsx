@@ -8,6 +8,7 @@ import { Archive, Coins, FlaskConical, KeyRound, Monitor, Palette, ScrollText, S
 import { api, useStore, type AppSettingsSection, type ConfigStatus } from "@/state/store";
 import { analyticsEnabled, setAnalyticsEnabled } from "@/lib/analytics";
 import { browserAvailable, browserUnavailableReason, builtInBrowserEnabled, showToolCallsEnabled, skillAuthoringEnabled } from "@/lib/feature-flags";
+import { setShowPromptInspector, useShowPromptInspector } from "@/lib/prompt-inspector-preference";
 import { localeChoices, type LocaleKey } from "@/locales";
 import { t } from "@/lib/i18n";
 import { withTourReset } from "@/lib/guided-tour";
@@ -376,6 +377,14 @@ function ShowThreadsRow() {
       />
     </SettingRow>
   );
+}
+
+export function PromptInspectorSetting() {
+  const enabled = useShowPromptInspector();
+  return <SettingRow title={t("settings.promptInspector.title")}>
+    <Switch checked={enabled} aria-label={t("settings.promptInspector.title")}
+      onClick={() => setShowPromptInspector(!enabled)} />
+  </SettingRow>;
 }
 
 function ToolCallsRow() {
@@ -752,6 +761,7 @@ export function SettingsModal() {
             {section === "experimental" && (
               <>
                 <ExperimentalFeaturesRow />
+                <PromptInspectorSetting />
                 <BrowserProfilesRow />
               </>
             )}
