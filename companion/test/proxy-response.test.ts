@@ -25,6 +25,7 @@ let harness: Server;
 let sidecar: Server;
 let sidecarPort = 0;
 let cloudDesktopAccess = true;
+let deviceAccess: "client" | "admin" = "client";
 let companionMarker = "";
 let companionDevice = "";
 let endpointCandidates: CompanionEndpoint[] = [];
@@ -65,7 +66,7 @@ beforeAll(async () => {
   sidecar = createServer(
     createProxyHandler({
       harnessPort,
-      authenticate: (t) => (t === TOKEN ? { id: "phone-1", cloudDesktopAccess } : null),
+      authenticate: (t) => (t === TOKEN ? { id: "phone-1", cloudDesktopAccess, access: deviceAccess } : null),
       redeem: () => ({ error: "not used here" }),
       serverName: () => "Test computer",
       endpoints: () => endpointCandidates,
@@ -83,7 +84,28 @@ describe("preparing a harness response for a device", () => {
   it("gives only transactional phone credential saves the longer deadline", () => {
     expect(proxyHeadersTimeoutMs("/api/bots/b1/secret-cards/m1/provide")).toBe(105_000);
     expect(proxyHeadersTimeoutMs("/api/bots/b1/messages")).toBe(30_000);
+    expect(proxyHeadersTimeoutMs("/api/transcription/import")).toBe(105_000);
     expect(proxyHeadersTimeoutMs("/api/bots/b1/secret-cards/m1/provide", 17)).toBe(17);
+  });
+
+  it("delivers an encrypted STT import only while the device still has provider access", async () => {
+    const encrypted = { requestId: "r1", wrappedKey: "wrapped", iv: "nonce", ciphertext: "encrypted-only" };
+    deviceAccess = "admin";
+    try {
+      respond = res => { res.writeHead(200, { "content-type": "application/json" }); res.end(JSON.stringify(encrypted)); };
+      const allowed = await device("/api/transcription/import", "POST", "{}");
+      expect(allowed.status).toBe(200);
+      expect(JSON.parse(allowed.text)).toEqual(encrypted);
+      expect(companionDevice).toBe("phone-1");
+      respond = res => {
+        deviceAccess = "client";
+        res.writeHead(200, { "content-type": "application/json" }); res.end(JSON.stringify(encrypted));
+      };
+      const revoked = await device("/api/transcription/import", "POST", "{}");
+      expect(revoked.status).toBe(403);
+      expect(revoked.text).toContain("access was revoked");
+      expect(revoked.text).not.toContain(encrypted.ciphertext);
+    } finally { deviceAccess = "client"; }
   });
 
   it("drops an endpoint whose runtime URL is not a string", async () => {

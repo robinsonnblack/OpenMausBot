@@ -52,6 +52,7 @@ Use only mapped, tested commands:
 - [Custom theme save feedback and reference colors](custom-theme.md)
 - [Existing phone connection rights](pairing-access.md)
 - [Android chat controls and configurable image limits](mobile-chat-polish.md)
+- [Android speech input and desktop credential import](android-stt.md)
 - [Welcome flow and guided tour](onboarding.md)
 - [Channels](channels.md)
 - [In-chat team coordination](room-coordination.md)

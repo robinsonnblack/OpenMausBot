@@ -1299,4 +1299,23 @@
     <string name="image_attachment_settings_save">Save limits</string>
     <string name="image_attachment_count_error">Attach up to %1$s images at a time.</string>
     <string name="image_attachment_size_error">Those images are larger than %1$s MB together.</string>
+    <string name="stt_settings_title">Speech input</string>
+    <string name="stt_settings_edit">Choose STT provider</string>
+    <string name="stt_settings_help">Tap the microphone to start and again to finish. Cloud providers are called directly from this phone and may charge fees. Language: auto or e.g. de-DE; Azure requires a language. Import copies saved STT keys, models and endpoints. Confirm on the desktop. Keys are stored encrypted on the phone.</string>
+    <string name="stt_key">API key</string>
+    <string name="stt_endpoint">Endpoint</string>
+    <string name="stt_model">Model</string>
+    <string name="stt_language">Language</string>
+    <string name="stt_save">Save</string>
+    <string name="stt_saving">Saving…</string>
+    <string name="stt_saved">✓ Saved</string>
+    <string name="stt_import">Import from desktop</string>
+    <string name="stt_importing">Importing… Confirm on desktop</string>
+    <string name="stt_imported">✓ Imported from desktop</string>
+    <string name="stt_read_failed">Could not read STT settings.</string>
+    <string name="stt_save_failed">Save failed.</string>
+    <string name="stt_import_failed">Import failed.</string>
+    <string name="stt_starting">Starting microphone…</string>
+    <string name="stt_recording">Recording · Tap to finish</string>
+    <string name="stt_processing">Transcribing… · Tap to cancel</string>
 </resources>

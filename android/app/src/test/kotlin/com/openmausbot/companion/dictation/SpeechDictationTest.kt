@@ -138,7 +138,8 @@ class SpeechDictationTest {
             focus = focus,
             preferredLanguages = { listOf("en-US") },
             currentLocale = { Locale.US },
-            postMain = { it() },
+            scheduleTimeout = { _, _ -> },
+        postMain = { it() },
         )
         dictation.toggle(capturing = "interrupt")
         assertTrue(dictation.isListening.value)
@@ -159,6 +160,7 @@ class SpeechDictationTest {
             focus = focus,
             preferredLanguages = { listOf("en-US") },
             currentLocale = { Locale.US },
+            scheduleTimeout = { _, _ -> },
             postMain = { block -> deferred += block },
         )
         dictation.toggle(capturing = "A")
@@ -210,7 +212,8 @@ class SpeechDictationTest {
             focus = FakeFocus(grant = true),
             preferredLanguages = { listOf("en-US") },
             currentLocale = { Locale.US },
-            postMain = { it() },
+            scheduleTimeout = { _, _ -> },
+        postMain = { it() },
         )
         dictation.toggle(capturing = "hello")
         assertTrue(asked)
@@ -239,7 +242,8 @@ class SpeechDictationTest {
             focus = FakeFocus(grant = true),
             preferredLanguages = { listOf("en-US") },
             currentLocale = { Locale.US },
-            postMain = { it() },
+            scheduleTimeout = { _, _ -> },
+        postMain = { it() },
         )
         dictation.toggle(capturing = "hello")
         assertEquals(SpeechDictation.NO_RECOGNIZER_MESSAGE, dictation.error.value)
@@ -257,7 +261,8 @@ class SpeechDictationTest {
             focus = FakeFocus(grant = true),
             preferredLanguages = { listOf("en-US") },
             currentLocale = { Locale.US },
-            postMain = { it() },
+            scheduleTimeout = { _, _ -> },
+        postMain = { it() },
         )
         dictation.toggle(capturing = "race")
         assertTrue(dictation.isStarting.value)
@@ -281,7 +286,8 @@ class SpeechDictationTest {
             focus = FakeFocus(grant = true),
             preferredLanguages = { listOf("en-US") },
             currentLocale = { Locale.US },
-            postMain = { it() },
+            scheduleTimeout = { _, _ -> },
+        postMain = { it() },
         )
         dictation.toggle(capturing = "lock")
         assertTrue(dictation.isStarting.value)
@@ -366,7 +372,8 @@ class SpeechDictationTest {
             focus = FakeFocus(grant = true),
             preferredLanguages = { listOf("pt-BR", "es-ES") },
             currentLocale = { Locale.FRANCE },
-            postMain = { it() },
+            scheduleTimeout = { _, _ -> },
+        postMain = { it() },
         )
         dictation.toggle(capturing = "locales")
         assertEquals("pt-BR", fake.engine!!.lastRequest!!.languageTag)
@@ -430,6 +437,46 @@ class SpeechDictationTest {
         assertNull(dictation.error.value)
     }
 
+    @Test fun finishingByTappingKeepsTheFinalTranscript() {
+        val fake = FakeEngineFactory(); val dictation = newDictation(fake, true)
+        dictation.toggle("typed")
+        val engine = fake.engine!!; val listener = engine.listener!!
+        dictation.toggle("typed")
+        assertTrue(dictation.isProcessing.value); assertEquals(1, engine.finishes); assertEquals(0, engine.cancels)
+        listener.onFinal("spoken")
+        assertEquals("spoken", dictation.transcript.value); assertFalse(dictation.locksComposer())
+    }
+    @Test fun recognizerFailureRemainsVisibleWithItsCode() {
+        val fake = FakeEngineFactory(); val dictation = newDictation(fake, true)
+        dictation.toggle(""); fake.engine!!.listener!!.onFailure("Android speech recognition failed (code 5).")
+        assertFalse(dictation.locksComposer()); assertEquals("Android speech recognition failed (code 5).", dictation.error.value)
+    }
+
+    @Test fun listeningWaitsForReadinessAndTimesOutWithAnExplanation() {
+        var ready: SpeechEngine.Listener? = null
+        var deadline: (() -> Unit)? = null
+        val delayed = object : SpeechEngineFactory {
+            override fun openers() = listOf(EngineOpener(false) { object : SpeechEngine {
+                override val isOnDevice = false
+                override fun start(request: RecognitionRequest, listener: SpeechEngine.Listener) { ready = listener }
+                override fun cancel() = Unit
+                override fun destroy() = Unit
+            } })
+        }
+        val dictation = SpeechDictation(delayed, { true }, { it(true) }, FakeFocus(true), { listOf("en-US") }, { Locale.US },
+            scheduleTimeout = { _, block -> deadline = block }, postMain = { it() })
+        dictation.toggle("")
+        assertTrue(dictation.isStarting.value); assertFalse(dictation.isListening.value)
+        ready!!.onReady()
+        assertTrue(dictation.isListening.value); assertFalse(dictation.isStarting.value)
+        deadline!!.invoke()
+        assertTrue(dictation.isListening.value)
+        dictation.stop(); dictation.toggle("")
+        deadline!!.invoke()
+        assertFalse(dictation.locksComposer())
+        assertEquals("The microphone did not become ready. Try again.", dictation.error.value)
+    }
+
     private fun newDictation(
         fake: FakeEngineFactory,
         granted: Boolean,
@@ -440,6 +487,7 @@ class SpeechDictationTest {
         focus = FakeFocus(grant = true),
         preferredLanguages = { listOf("en-US") },
         currentLocale = { Locale.US },
+        scheduleTimeout = { _, _ -> },
         postMain = { it() },
     )
 
@@ -484,6 +532,8 @@ class SpeechDictationTest {
             private set
         var lastRequest: RecognitionRequest? = null
             private set
+        var finishes = 0
+        override fun finish() { finishes += 1; listener?.onProcessing() }
         var cancels = 0
             private set
         var destroys = 0
@@ -493,6 +543,7 @@ class SpeechDictationTest {
             if (failStart) error("start failed")
             lastRequest = request
             this.listener = listener
+            listener.onReady()
         }
 
         override fun cancel() {

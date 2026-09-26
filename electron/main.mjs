@@ -1,3 +1,4 @@
+import { prepareSttImport } from "./stt-import.mjs";
 import { app, autoUpdater as nativeAutoUpdater, BrowserWindow, Tray, WebContentsView, clipboard, desktopCapturer, dialog, ipcMain, Menu, nativeImage, powerMonitor, powerSaveBlocker, safeStorage, screen, session, shell, systemPreferences, utilityProcess } from "electron";
 import { createRequire } from "node:module";
 import { randomBytes, randomUUID } from "node:crypto";
@@ -1289,6 +1290,14 @@ async function startServerOn(port) {
       if (managedDesktopRelay.receive(proc, message)) return;
       if (orgLibrary?.receive(message)) return;
       if (receivePhoneSecretSave(proc, message)) return;
+      if (message?.type === "openmausbot:stt-import") {
+        void prepareSttImport(message, { load: desktopStt.load, approve: async () => {
+          const choice = await dialog.showMessageBox(mainWindow, { type: "question", buttons: ["Abbrechen", "Übertragen"], defaultId: 0, cancelId: 0,
+            title: "STT-Schlüssel übernehmen", message: "STT-Schlüssel an dein gekoppeltes Handy übertragen?" });
+          return choice.response === 1 && serverSupervisor.isCurrent(proc);
+        } }).then(result => { if (result && serverSupervisor.isCurrent(proc)) proc.postMessage(result); }).catch(() => { /* A stopped utility process has no pending phone request. */ });
+        return;
+      }
     } catch (error) {
       slog(`desktop private sync rejected: ${error?.message ?? error}`);
     }
@@ -2453,7 +2462,7 @@ ipcMain.handle("perm:open-settings", localOnly("perm:open-settings", (_event, pa
   return shell.openExternal(`x-apple.systempreferences:com.apple.preference.security?${anchor}`);
 }));
 
-registerStt({ ipcMain, localOnly });
+const desktopStt = registerStt({ ipcMain, localOnly });
 ipcMain.handle("stt:voice-typing", localOnly("stt:voice-typing", async (event) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (!win) throw new Error("The dictation window is unavailable.");

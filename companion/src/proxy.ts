@@ -84,7 +84,7 @@ const PHONE_SECRET_PROVIDE_PATH = /^\/api\/bots\/[\w-]+\/secret-cards\/[\w-]+\/p
 
 export function proxyHeadersTimeoutMs(url: string, override?: number): number {
   return override
-    ?? (PHONE_SECRET_PROVIDE_PATH.test(url) ? PHONE_SECRET_HEADERS_TIMEOUT_MS : HEADERS_TIMEOUT_MS);
+    ?? (PHONE_SECRET_PROVIDE_PATH.test(url) || url.split("?")[0] === "/api/transcription/import" ? PHONE_SECRET_HEADERS_TIMEOUT_MS : HEADERS_TIMEOUT_MS);
 }
 
 /** A JSON response has to be buffered whole before it can be scrubbed, so the
@@ -557,6 +557,15 @@ export function createProxyHandler(options: ProxyOptions) {
         harness.on("error", () => res.destroy());
         harness.on("end", () => {
           const body = Buffer.concat(chunks).toString("utf8");
+
+          // A credential import waits for desktop approval. Recheck the live
+          // grant before returning its encrypted result after that wait.
+          if (path === "/api/transcription/import") {
+            const current = options.authenticate(token);
+            if (!current || current.id !== device?.id || !effectivePermissions(current.access ?? "client", current.permissions, current.cloudDesktopAccess).providers) {
+              return sendJson(res, 403, { error: "STT import access was revoked." });
+            }
+          }
 
           // Two failures live here and they are not the same failure.
           //

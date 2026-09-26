@@ -2399,6 +2399,9 @@ class Session(
         null
     }
 
+    suspend fun importSttSettings(publicKey: String): kotlinx.serialization.json.JsonObject =
+        (client ?: throw APIError.Transport("This computer is offline.")).importSttSettings(publicKey)
+
     suspend fun imageAttachmentSettings(): ImageAttachmentSettings =
         (client ?: throw APIError.Transport("This computer is offline.")).config().imageAttachments
 

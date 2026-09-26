@@ -51,6 +51,7 @@ class SpeechDictation internal constructor(
     private val focus: DictationAudioFocus,
     private val preferredLanguages: () -> List<String>,
     private val currentLocale: () -> Locale,
+    private val scheduleTimeout: (Long, () -> Unit) -> Unit = { delay, block -> Handler(Looper.getMainLooper()).postDelayed({ block() }, delay) },
     private val postMain: (() -> Unit) -> Unit = { block ->
         Handler(Looper.getMainLooper()).post(block)
     },
@@ -63,7 +64,7 @@ class SpeechDictation internal constructor(
         preferredLanguages: () -> List<String>,
         currentLocale: () -> Locale = { Locale.getDefault() },
     ) : this(
-        engineFactory = AndroidSpeechEngineFactory(context.applicationContext),
+        engineFactory = ConfiguredSpeechEngineFactory(context.applicationContext),
         hasRecordAudio = hasRecordAudio,
         requestRecordAudio = requestRecordAudio,
         focus = DictationAudioFocusGate(context.applicationContext),
@@ -81,6 +82,9 @@ class SpeechDictation internal constructor(
 
     private val _isListening = MutableStateFlow(false)
     private val _isStarting = MutableStateFlow(false)
+    private val _isProcessing = MutableStateFlow(false)
+    val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
+    private var failureDetail: String? = null
     private val _transcript = MutableStateFlow("")
     private val _error = MutableStateFlow<String?>(null)
 
@@ -97,7 +101,13 @@ class SpeechDictation internal constructor(
 
     fun toggle(capturing: String) {
         synchronized(lock) {
-            if (_isListening.value || _isStarting.value) {
+            if (_isListening.value) {
+                _isListening.value = false
+                _isProcessing.value = true
+                try { engine?.finish() } catch (_: Exception) { _error.value = TRANSCRIBE_FAILED_MESSAGE; stopLocked() }
+                val gen = generation
+                scheduleTimeout(95000) { synchronized(lock) { if (gen == generation && _isProcessing.value) { _error.value = "Transcription timed out. Try again."; stopLocked() } } }
+            } else if (_isStarting.value || _isProcessing.value) {
                 stopLocked()
             } else {
                 startLocked(capturing)
@@ -110,7 +120,7 @@ class SpeechDictation internal constructor(
     }
 
     /** True while starting or listening — the composer must not accept edits. */
-    fun locksComposer(): Boolean = _isListening.value || _isStarting.value
+    fun locksComposer(): Boolean = _isListening.value || _isStarting.value || _isProcessing.value
 
     fun bind(owner: LifecycleOwner) {
         val next = owner.lifecycle
@@ -163,8 +173,9 @@ class SpeechDictation internal constructor(
     }
 
     private fun startLocked(capturing: String) {
-        if (_isListening.value || _isStarting.value) return
+        if (locksComposer()) return
         _error.value = null
+        failureDetail = null
         base = capturing.trim()
         _transcript.value = ""
         _isStarting.value = true
@@ -197,7 +208,9 @@ class SpeechDictation internal constructor(
             _isStarting.value = false
             return
         }
-        val openers = engineFactory.openers()
+        val openers = try { engineFactory.openers() } catch (_: Exception) {
+            _isStarting.value = false; _error.value = "STT settings could not be read. Open STT settings and try again."; return
+        }
         if (openers.isEmpty()) {
             _isStarting.value = false
             _error.value = NO_RECOGNIZER_MESSAGE
@@ -278,8 +291,9 @@ class SpeechDictation internal constructor(
                 _isStarting.value = false
                 return
             }
-            _isStarting.value = false
-            _isListening.value = true
+            scheduleTimeout(15000) { synchronized(lock) {
+                if (gen == generation && attemptId == attempt && _isStarting.value) { _error.value = "The microphone did not become ready. Try again."; stopLocked() }
+            } }
         } catch (_: Exception) {
             teardownLocked(abandonFocus = true)
             // startListening threw — try the next locale, then the next engine.
@@ -292,6 +306,7 @@ class SpeechDictation internal constructor(
         attempt += 1
         _isStarting.value = false
         stopping = true
+        _isProcessing.value = false
         _isListening.value = false
         teardownLocked(abandonFocus = true)
     }
@@ -329,6 +344,12 @@ class SpeechDictation internal constructor(
         private fun live(): Boolean =
             gen == generation && attemptId == attempt && !stopping
 
+        override fun onReady() { synchronized(lock) { if (live() && _isStarting.value) { _isStarting.value = false; _isListening.value = true } } }
+        override fun onProcessing() { synchronized(lock) { if (live()) {
+            _isStarting.value = false; _isListening.value = false; _isProcessing.value = true
+            scheduleTimeout(95000) { synchronized(lock) { if (live() && _isProcessing.value) { _error.value = "Transcription timed out. Try again."; stopLocked() } } }
+        } } }
+        override fun onFailure(message: String) { synchronized(lock) { if (live()) { failureDetail = message; onError(SpeechEngine.ErrorKind.FAILED) } } }
         override fun onPartial(text: String) {
             synchronized(lock) {
                 if (!live() || !_isListening.value) return
@@ -338,8 +359,9 @@ class SpeechDictation internal constructor(
 
         override fun onFinal(text: String) {
             synchronized(lock) {
-                if (!live() || !_isListening.value) return
+                if (!live()) return
                 if (text.isNotEmpty()) _transcript.value = Dictation.updateTranscript(_transcript.value, text)
+                else if (_transcript.value.isBlank()) _error.value = "No speech recognized. Try again."
                 // Composer dictation does not wait for a later final beyond
                 // this — matching iOS stopping when the recognizer finalizes.
                 stopLocked()
@@ -377,7 +399,7 @@ class SpeechDictation internal constructor(
                                 gen = gen,
                             )
                         } else {
-                            _error.value = TRANSCRIBE_FAILED_MESSAGE
+                            _error.value = failureDetail ?: TRANSCRIBE_FAILED_MESSAGE
                             stopLocked()
                         }
                     }
@@ -419,10 +441,14 @@ fun interface SpeechEngineFactory {
 interface SpeechEngine {
     val isOnDevice: Boolean
     fun start(request: RecognitionRequest, listener: Listener)
+    fun finish() { cancel() }
     fun cancel()
     fun destroy()
 
     interface Listener {
+        fun onReady() {}
+        fun onProcessing() {}
+        fun onFailure(message: String) { onError(ErrorKind.FAILED) }
         fun onPartial(text: String)
         fun onFinal(text: String)
         fun onError(kind: ErrorKind)
@@ -480,6 +506,8 @@ internal class PlatformSpeechEngine(
         recognizer.startListening(buildIntent(request))
     }
 
+    override fun finish() { recognizer.stopListening() }
+
     override fun cancel() {
         try {
             recognizer.cancel()
@@ -518,11 +546,11 @@ internal class PlatformSpeechEngine(
         }
 
     private inner class PlatformListener : RecognitionListener {
-        override fun onReadyForSpeech(params: Bundle?) = Unit
+        override fun onReadyForSpeech(params: Bundle?) { listener?.onReady() }
         override fun onBeginningOfSpeech() = Unit
         override fun onRmsChanged(rmsdB: Float) = Unit
         override fun onBufferReceived(buffer: ByteArray?) = Unit
-        override fun onEndOfSpeech() = Unit
+        override fun onEndOfSpeech() { listener?.onProcessing() }
         override fun onEvent(eventType: Int, params: Bundle?) = Unit
 
         override fun onPartialResults(partialResults: Bundle?) {
@@ -537,14 +565,14 @@ internal class PlatformSpeechEngine(
 
         override fun onError(error: Int) {
             val kind = when (error) {
-                SpeechRecognizer.ERROR_CLIENT -> SpeechEngine.ErrorKind.CANCELLED
+                SpeechRecognizer.ERROR_CLIENT -> SpeechEngine.ErrorKind.FAILED
                 SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> SpeechEngine.ErrorKind.PERMISSION
                 SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED,
                 SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE,
                 -> SpeechEngine.ErrorKind.LANGUAGE
                 else -> SpeechEngine.ErrorKind.FAILED
             }
-            listener?.onError(kind)
+            if (kind == SpeechEngine.ErrorKind.FAILED) listener?.onFailure("Android speech recognition failed (code $error).") else listener?.onError(kind)
         }
 
         private fun firstResult(bundle: Bundle?): String? {

@@ -60,6 +60,7 @@ export function permissionFor(method: string, path: string): PermissionId | "con
   if (/^\/api\/auth\/(?:session|stream-ticket|logout)$/.test(path)) return "connection";
   if (/^\/api\/(?:auth|devices)(?:\/|$)/.test(path)) return "hostOnly";
   if (/^\/api\/(?:health|edition|brand|companion\/access|companion\/endpoints)$/.test(path)) return "connection";
+  if (path === "/api/transcription/import") return "providers";
   if (path === "/api/events") return "chatRead";
   if (/\/(?:computer)\//.test(path)) return "cloudDesktop";
   if (/\/message-selection$|\/messages\/delete$/.test(path)) return "messageDelete";

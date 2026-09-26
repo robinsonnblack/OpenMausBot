@@ -1,3 +1,4 @@
+import { SttImportBridge, createSttImportRoutes } from "./routes/stt-import.ts";
 import { validPermissions, configPermissionDenial, effectivePermissions, type PermissionMap } from "../companion/src/permissions.ts";
 import { pairingAccess } from "../companion/src/access.ts";
 import { configurePromptInspector, forgetPromptCaptures } from "./prompt-inspector.ts";
@@ -1340,6 +1341,8 @@ const browserCleanup: BrowserCleanupCoordinator = new BrowserCleanupCoordinator(
     return true;
   },
 });
+const sttImports = new SttImportBridge(message => Boolean(utilityParentPort) && (utilityParentPort!.postMessage(message), true));
+ROUTES.push(createSttImportRoutes(sttImports));
 const phoneSecrets = new PhoneSecretBridge(postDesktopPrivateMessage);
 utilityParentPort?.on("message", (event) => {
   const message = event?.data;
@@ -1348,6 +1351,7 @@ utilityParentPort?.on("message", (event) => {
     if (handleDesktopTrustedApprovalMessage(message)) return;
     if (browserCleanup.receive(message)) return;
     if (phoneSecrets.receive(message)) return;
+    if (sttImports.receive(message)) return;
     composio.applyManagedBrokerMessage(message);
   } catch (error) {
     console.error(`[desktop-sync] rejected private parent message: ${error instanceof Error ? error.message : String(error)}`);

@@ -432,7 +432,10 @@ private fun LoadedChat(
     val dictationListening by dictation.isListening.collectAsState()
     val dictationStarting by dictation.isStarting.collectAsState()
     val dictationError by dictation.error.collectAsState()
-    val dictationLocked = dictationListening || dictationStarting
+    val dictationProcessing by dictation.isProcessing.collectAsState()
+    var showingSttSettings by remember { mutableStateOf(false) }
+    val dictationStatus = when { dictationProcessing -> stringResource(R.string.stt_processing); dictationStarting -> stringResource(R.string.stt_starting); dictationListening -> stringResource(R.string.stt_recording); else -> null }
+    val dictationLocked = dictationListening || dictationStarting || dictationProcessing
 
     val rawTranscript = remember(state, threadId) { state.visibleTranscript(threadId) }
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
@@ -534,6 +537,7 @@ private fun LoadedChat(
             publishFrom(composer)
         }
     }
+    if (showingSttSettings) SttSettingsSheet { showingSttSettings = false }
     LaunchedEffect(dictationListening) {
         if (dictationListening) focusManager.clearFocus()
     }
@@ -1004,6 +1008,8 @@ private fun LoadedChat(
                 dictationListening = dictationListening,
                 dictationLocked = dictationLocked,
                 dictationError = dictationError,
+                dictationStatus = dictationStatus,
+                onSttSettings = { dictation.stop(); showingSttSettings = true },
                 attachments = attachments,
                 sending = sendingMessage,
                 preparing = preparingAttachments,
@@ -1515,6 +1521,8 @@ internal fun Composer(
     dictationListening: Boolean,
     dictationLocked: Boolean,
     dictationError: String?,
+    dictationStatus: String? = null,
+    onSttSettings: (() -> Unit)? = null,
     onTogglePlus: () -> Unit,
     onDraftChange: (String) -> Unit,
     onToggleDictation: () -> Unit,
@@ -1555,9 +1563,10 @@ internal fun Composer(
             .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
+        if (dictationStatus != null) Text(dictationStatus, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 4.dp))
         if (dictationError != null) {
             Text(
-                text = dictationError,
+                text = com.openmausbot.companion.dictation.sttErrorText(LocalContext.current, dictationError),
                 fontSize = 13.sp,
                 color = Color(0xFFFF9800),
                 modifier = Modifier.padding(horizontal = 4.dp),
@@ -1771,6 +1780,8 @@ internal fun Composer(
                     }
                 }
 
+                if (onSttSettings != null) TouchTarget(onClick = onSttSettings, enabled = !dictationLocked,
+                    contentDescription = stringResource(R.string.stt_settings_title)) { Text("⌄", fontSize = 20.sp) }
                 TouchTarget(onClick = onSend, enabled = canSend) {
                     Box(
                         modifier = Modifier

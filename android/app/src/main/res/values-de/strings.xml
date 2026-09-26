@@ -1298,4 +1298,23 @@
     <string name="image_attachment_settings_save">Grenzen speichern</string>
     <string name="image_attachment_count_error">Maximal %1$s Bilder pro Nachricht.</string>
     <string name="image_attachment_size_error">Die Bilder überschreiten zusammen %1$s MB.</string>
+    <string name="stt_settings_title">Spracheingabe</string>
+    <string name="stt_settings_edit">STT-Anbieter einstellen</string>
+    <string name="stt_settings_help">Tippe das Mikrofon zum Starten und erneut zum Beenden. Cloud-Anbieter werden direkt vom Handy aufgerufen und können Kosten verursachen. Sprache: auto oder z. B. de-DE; Azure benötigt eine feste Sprache. „Vom Desktop übernehmen“ kopiert gespeicherte STT-Schlüssel, Modelle und Adressen. Bestätige die Übertragung am Desktop. Die Schlüssel bleiben verschlüsselt auf dem Handy gespeichert.</string>
+    <string name="stt_key">API-Schlüssel</string>
+    <string name="stt_endpoint">Adresse</string>
+    <string name="stt_model">Modell</string>
+    <string name="stt_language">Sprache</string>
+    <string name="stt_save">Speichern</string>
+    <string name="stt_saving">Speichern…</string>
+    <string name="stt_saved">✓ Gespeichert</string>
+    <string name="stt_import">Vom Desktop übernehmen</string>
+    <string name="stt_importing">Übernehmen… Am Desktop bestätigen</string>
+    <string name="stt_imported">✓ Vom Desktop übernommen</string>
+    <string name="stt_read_failed">STT-Einstellungen konnten nicht gelesen werden.</string>
+    <string name="stt_save_failed">Speichern fehlgeschlagen.</string>
+    <string name="stt_import_failed">Übernahme fehlgeschlagen.</string>
+    <string name="stt_starting">Mikrofon startet…</string>
+    <string name="stt_recording">Aufnahme läuft · Tippen zum Beenden</string>
+    <string name="stt_processing">Transkribiere… · Tippen zum Abbrechen</string>
 </resources>

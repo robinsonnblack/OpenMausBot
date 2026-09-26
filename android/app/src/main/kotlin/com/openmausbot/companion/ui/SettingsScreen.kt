@@ -144,6 +144,7 @@ fun SettingsScreen(
     var restoringBackup by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var editingNewBotEffort by remember { mutableStateOf(false) }
+    var editingStt by remember { mutableStateOf(false) }
     var editingImageAttachments by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
     var editingHostBrowser by remember { mutableStateOf(false) }
@@ -292,6 +293,8 @@ fun SettingsScreen(
                 )
                 Footnote(stringResource(R.string.android_onboarding_notifications_body))
             }
+
+            SettingsSection(stringResource(R.string.stt_settings_title)) { SettingsButton(stringResource(R.string.stt_settings_edit)) { editingStt = true } }
 
             if (pairingAccess.allows("workspace")) SettingsSection(stringResource(R.string.image_attachment_settings_title)) {
                 SettingsButton(stringResource(R.string.image_attachment_settings_edit)) { editingImageAttachments = true }
@@ -685,6 +688,7 @@ fun SettingsScreen(
     if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }
     if (restoringBackup) WorkspaceBackupRestoreSheet { restoringBackup = false }
+    if (editingStt) SttSettingsSheet { editingStt = false }
     if (editingImageAttachments) ImageAttachmentSettingsSheet { editingImageAttachments = false }
     if (editingBudget) WorkspaceBudgetSheet { editingBudget = false }
     if (editingBilling) WorkspaceBillingSheet { editingBilling = false }
