@@ -1,0 +1,37 @@
+name: Personal voice and settings test
+on:
+  workflow_dispatch:
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - name: Use the existing personal app signing identity
+        env:
+          PERSONAL_KEYSTORE: ${{ secrets.PERSONAL_ANDROID_DEBUG_KEYSTORE }}
+        run: |
+          test -n "$PERSONAL_KEYSTORE"
+          mkdir -p ~/.android
+          printf '%s' "$PERSONAL_KEYSTORE" | base64 -d > ~/.android/debug.keystore
+      - name: Kotlin tests and personal APK
+        working-directory: android
+        run: ./gradlew --no-daemon :core:test :app:testDebugUnitTest :app:assemblePersonal
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: personal-voice-android
+          path: android/app/build/outputs/apk/personal/app-personal.apk
+          if-no-files-found: error
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: failure()
+        with:
+          name: personal-voice-android-errors
+          path: |
+            android/app/build/reports/tests
+            android/app/build/test-results
+            android/core/build/reports/tests

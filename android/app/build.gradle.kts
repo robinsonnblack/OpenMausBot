@@ -138,7 +138,7 @@ android {
         create("personal") {
             initWith(getByName("debug"))
             applicationIdSuffix = ".personal"
-            versionNameSuffix = "-personal.14"
+            versionNameSuffix = "-personal.16"
             matchingFallbacks += "debug"
             // Stable on this development machine, independent from the official
             // app. Later personal APKs can update this one without erasing it.
