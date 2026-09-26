@@ -238,6 +238,35 @@ object PresetThemes {
         ),
         "chatgpt" to mapOf(
             "app" to "#ffffff",
+            "panel" to "#fdfaf7",
+            "raised" to "#efeeeb",
+            "raised-hover" to "#e9e6e2",
+            "composer" to "#ffffff",
+            "composer-ring" to "#e7e7e7",
+            "card" to "#ffffff",
+            "menu" to "#ffffff",
+            "inset" to "#f7f5f2",
+            "control" to "#efeeeb",
+            "hairline" to "#d1ccc5",
+            "ink" to "#424242",
+            "ink-secondary" to "#666666",
+            "accent" to "#191a1b",
+            "accent-border" to "#191a1b",
+            "accent-text" to "#191a1b",
+            "accent-ink" to "#ffffff",
+            "focus" to "#191a1b",
+            "bubble-user" to "#000000",
+            "bubble-user-ink" to "#ffffff",
+            "success" to "#16845a",
+            "success-ink" to "#ffffff",
+            "danger" to "#bd3342",
+            "danger-ink" to "#ffffff",
+            "warning" to "#986400",
+            "scrollbar" to "#d1ccc5",
+            "maus-line" to "#424242",
+        ),
+        "cyan-gpt" to mapOf(
+            "app" to "#ffffff",
             "panel" to "#e7f8f9",
             "raised" to "#e2f3f6",
             "raised-hover" to "#dceff2",
@@ -266,5 +295,5 @@ object PresetThemes {
             "maus-line" to "#34383e",
         ),
     )
-    val lightThemes: Set<String> = setOf("atelier", "lagoon", "linen", "daylight", "chatgpt")
+    val lightThemes: Set<String> = setOf("atelier", "lagoon", "linen", "daylight", "chatgpt", "cyan-gpt")
 }

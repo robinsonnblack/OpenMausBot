@@ -198,7 +198,7 @@ fun CompanionRoot(
 
     CompanionTheme(
         palette = if (themeId == "custom") customColors else PresetThemes.colors[themeId],
-        themeId = if (themeId == "custom" && customColors["chat-layout"] == "chatgpt") "chatgpt" else themeId,
+        themeId = if (themeId == "cyan-gpt") "chatgpt" else if (themeId == "custom" && customColors["chat-layout"] == "chatgpt") "chatgpt" else themeId,
     ) {
         // One place for system insets: the app draws edge to edge, and every
         // screen wants the same answer — keep content clear of the status bar,

@@ -583,9 +583,43 @@
   --radius-xl: 14px;
 }
 
+/* The original cyan palette, retained as an independent preset. */
+[data-skin="cyan-gpt"] {
+  --code-color-scheme: light;
+  --color-app: #ffffff;
+  --color-panel: #e7f8f9;
+  --color-raised: #e2f3f6;
+  --color-raised-hover: #dceff2;
+  --color-composer: #ffffff;
+  --color-composer-ring: #e5e7eb;
+  --color-card: #ffffff;
+  --color-menu: #ffffff;
+  --color-inset: #f5f7f8;
+  --color-control: #d8e9ec;
+  --color-hairline: #c6ced2;
+  --color-ink: #292c32;
+  --color-ink-secondary: #62676e;
+  --color-accent: #2563eb;
+  --color-accent-border: #3b82f6;
+  --color-accent-text: #1d4ed8;
+  --color-accent-ink: #ffffff;
+  --color-focus: #2563eb;
+  --color-bubble-user: #000000;
+  --color-bubble-user-ink: #ffffff;
+  --color-success: #16845a;
+  --color-success-ink: #ffffff;
+  --color-danger: #bd3342;
+  --color-danger-ink: #ffffff;
+  --color-warning: #986400;
+  --color-scrollbar: #bfc7ca;
+  --color-maus-line: #34383e;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+}
+
 /* Saved custom colors are applied as inline variables before the first paint.
-   These two values keep native window chrome coherent if the saved data is
-   missing or corrupt; all other roles fall back to the base theme. */
+   This reference palette is the fallback for missing or corrupt saved data. */
 [data-skin="custom"] {
   --code-color-scheme: light;
   --color-app: #ffffff;

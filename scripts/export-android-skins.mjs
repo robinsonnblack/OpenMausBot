@@ -33,7 +33,7 @@ const kotlin = `// Generated from src/styles.css by scripts/export-android-skins
     roles.map((role) => `            "${role}" to "${maps[id][role]}",`).join("\n") +
     `\n        ),`).join("\n") +
   `\n    )\n` +
-  `    val lightThemes: Set<String> = setOf("atelier", "lagoon", "linen", "daylight", "chatgpt")\n` +
+  `    val lightThemes: Set<String> = setOf("atelier", "lagoon", "linen", "daylight", "chatgpt", "cyan-gpt")\n` +
   `}\n`;
 const target = join(root, "android/app/src/main/kotlin/com/openmausbot/companion/ui/PresetThemes.kt");
 if (process.argv.includes("--check")) {

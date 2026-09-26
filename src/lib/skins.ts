@@ -14,6 +14,7 @@ export const SKIN_IDS = [
   "dusk",
   "daylight",
   "chatgpt",
+  "cyan-gpt",
   "custom",
 ] as const;
 export type SkinId = (typeof SKIN_IDS)[number];
@@ -35,6 +36,7 @@ export const SKINS: readonly Skin[] = [
   { id: "dusk", name: "Dusk", tagline: "Muted plum after dark, calm and low-key." },
   { id: "daylight", name: "Daylight", tagline: "Midnight in reverse. Near-white, ink-black bubbles." },
   { id: "chatgpt", name: "ChatGPT", tagline: "White conversation, warm off-white sidebar, black controls." },
+  { id: "cyan-gpt", name: "Cyan GPT", tagline: "White conversation, pale cyan sidebar, blue accents." },
   { id: "custom", name: "Custom", tagline: "Your own colors for every part of the app." },
 ];
 
@@ -101,7 +103,7 @@ export function colorsFromSkin(id: Exclude<SkinId, "custom">): CustomTheme {
   // Server rendering and static settings tests have no DOM. The editor is
   // interactive only in a browser; this placeholder is never saved there.
   if (typeof document === "undefined" || typeof document.createElement !== "function") {
-    return { ...Object.fromEntries(COLOR_ROLES.map((role) => [role, "#000000"])), layout: id === "chatgpt" ? "chatgpt" : "standard" } as CustomTheme;
+    return { ...Object.fromEntries(COLOR_ROLES.map((role) => [role, "#000000"])), layout: (id === "chatgpt" || id === "cyan-gpt") ? "chatgpt" : "standard" } as CustomTheme;
   }
   const probe = document.createElement("div");
   probe.dataset.skin = id;
@@ -114,7 +116,7 @@ export function colorsFromSkin(id: Exclude<SkinId, "custom">): CustomTheme {
       ...Object.fromEntries(COLOR_ROLES.map((role) =>
         [role, normalizeColor(computed.getPropertyValue(`--color-${role}`).trim())]
       )),
-      layout: id === "chatgpt" ? "chatgpt" : "standard",
+      layout: (id === "chatgpt" || id === "cyan-gpt") ? "chatgpt" : "standard",
       fontSans: computed.getPropertyValue("--font-sans").trim(),
       radiusLg: computed.getPropertyValue("--radius-lg").trim(),
       radiusXl: computed.getPropertyValue("--radius-xl").trim(),
@@ -178,8 +180,8 @@ export function applySkin(id: SkinId, providedCustom?: CustomTheme): void {
   document.documentElement.style.removeProperty("--radius-xl");
   document.documentElement.dataset.skin = id;
   const custom = id === "custom" ? providedCustom ?? readCustomTheme() : null;
-  document.documentElement.dataset.chatLayout = id === "chatgpt" || custom?.layout === "chatgpt" ? "chatgpt" : "standard";
-  const palette = id === "custom" ? custom : id === "daylight" || id === "chatgpt" ? colorsFromSkin(id) : null;
+  document.documentElement.dataset.chatLayout = id === "chatgpt" || id === "cyan-gpt" || custom?.layout === "chatgpt" ? "chatgpt" : "standard";
+  const palette = id === "custom" ? custom : id === "daylight" || id === "chatgpt" || id === "cyan-gpt" ? colorsFromSkin(id) : null;
   const brightness = (value: string) => value.startsWith("#") ? Number.parseInt(value.slice(1, 3), 16) * 0.2126 + Number.parseInt(value.slice(3, 5), 16) * 0.7152 + Number.parseInt(value.slice(5, 7), 16) * 0.0722 : 0;
   document.documentElement.dataset.invertedUserBubble = palette && brightness(palette.ink) < 128 && brightness(palette["bubble-user"]) < 128 && brightness(palette["bubble-user-ink"]) > 128 ? "true" : "false";
   if (id === "custom") {

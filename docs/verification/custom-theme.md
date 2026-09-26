@@ -19,6 +19,10 @@ text and animated checkmark, success persisting without a timer, resetting on
 color/preset/layout edits, reload persistence, invalid color values, and a
 simulated storage failure that must show an error instead of success.
 
+The same workflow selects Cyan GPT, checks its original cyan panel and ChatGPT
+layout, reloads the selection, switches back to the warm ChatGPT preset, and
+copies Cyan GPT into a custom theme. It also writes `cyan-gpt.png`.
+
 The fixture writes `theme-saved.png` and `workflow.json`. It closes its own
 browser, HTTP listener and fake-engine server on completion.
 

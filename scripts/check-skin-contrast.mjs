@@ -154,7 +154,7 @@ for (const [id, tokens] of skins) {
   for (const [fg, bg, min] of PAIRS) {
     // The screenshot-inspired ChatGPT theme intentionally makes the bot's
     // message surface identical to the white page: assistant text is unboxed.
-    if ((id === "chatgpt" || id === "custom") && fg === "--color-card" && bg === "--color-app") continue;
+    if ((id === "chatgpt" || id === "cyan-gpt" || id === "custom") && fg === "--color-card" && bg === "--color-app") continue;
     // A pair we cannot measure is reported, never silently skipped: an
     // unmeasured pair used to be counted as a passing one.
     if (!tokens[fg] || !tokens[bg]) {
@@ -198,7 +198,7 @@ for (const [id, tokens] of skins) {
 // quotes and attachments. Check each preset that activates that context.
 const invertedBubble = declarations(css.match(/@scope \(\[data-inverted-user-bubble="true"\]\) to \(\[data-skin\]\)\s*\{\s*\.bg-bubble-user\s*\{([^}]*)\}/)?.[1] ?? "");
 let bubbleFailed = false;
-for (const id of ["daylight", "chatgpt", "custom"]) {
+for (const id of ["daylight", "chatgpt", "cyan-gpt", "custom"]) {
   const palette = { ...skins.get(id), ...invertedBubble };
   for (const [fg, bg] of [
     ["--color-ink", "--color-bubble-user"],

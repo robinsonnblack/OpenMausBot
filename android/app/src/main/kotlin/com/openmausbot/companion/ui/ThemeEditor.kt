@@ -34,7 +34,7 @@ private val names = mapOf(
     "system" to "System default", "midnight" to "Midnight", "atelier" to "Atelier",
     "foundry" to "Foundry", "lagoon" to "Lagoon", "graphite" to "Graphite",
     "linen" to "Linen", "dusk" to "Dusk", "daylight" to "Daylight",
-    "chatgpt" to "ChatGPT", "custom" to "Custom",
+    "chatgpt" to "ChatGPT", "cyan-gpt" to "Cyan GPT", "custom" to "Custom",
 )
 
 /** Every color role from the desktop stylesheet is editable on the phone too. */
@@ -77,7 +77,7 @@ fun ThemeEditor(preferences: ChatPreferences, onDismiss: () -> Unit) {
                 } else {
                     Text(stringResource(R.string.ui_start_from_a_preset_then_change_any_color_b788e2a))
                     PresetThemes.colors.keys.forEach { id ->
-                        TextButton(onClick = { draft = PresetThemes.colors.getValue(id) + ("chat-layout" to if (id == "chatgpt") "chatgpt" else "standard") }) {
+                        TextButton(onClick = { draft = PresetThemes.colors.getValue(id) + ("chat-layout" to if (id == "chatgpt" || id == "cyan-gpt") "chatgpt" else "standard") }) {
                             Text(stringResource(R.string.ui_dynamic_copy_1_s_colors_825c9ef, names[id] ?: id))
                         }
                     }

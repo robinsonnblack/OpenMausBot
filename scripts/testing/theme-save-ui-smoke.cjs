@@ -42,6 +42,17 @@ async function until(fn) {
   try {
     await win.loadURL(url);
     await until(() => evaluate(`!![...document.querySelectorAll('button')].find(b => b.textContent.includes('Edit custom theme'))`));
+    const choosePreset = (name) => page.getByRole('button').filter({ has: page.getByText(name, { exact: true }) }).click();
+    await choosePreset('Cyan GPT');
+    const cyan = await evaluate(`({skin: document.documentElement.dataset.skin, layout: document.documentElement.dataset.chatLayout, bubble: document.documentElement.dataset.invertedUserBubble, panel: getComputedStyle(document.querySelector('[data-fixture-sidebar]')).backgroundColor, custom: localStorage.getItem('omb-custom-theme')})`);
+    assert.equal(cyan.skin, 'cyan-gpt');
+    assert.equal(cyan.layout, 'chatgpt');
+    assert.equal(cyan.bubble, 'true');
+    assert.equal(cyan.panel, 'rgb(231, 248, 249)');
+    assert.equal(cyan.custom, null, 'choosing Cyan GPT must not overwrite the custom palette');
+    await win.loadURL(url);
+    await until(() => evaluate(`document.documentElement.dataset.skin === 'cyan-gpt'`));
+    await choosePreset('ChatGPT');
     await evaluate(`[...document.querySelectorAll('button')].find(b => b.textContent.includes('Edit custom theme')).click()`);
     const initial = await until(state);
     assert.equal(initial.panel, "rgb(253, 250, 247)");
@@ -88,6 +99,15 @@ async function until(fn) {
     await edit('[aria-label="panel hex"]', '#fdfaf7');
     await save();
     await until(async () => (await state())?.saved === 'true');
+    await edit('select:nth-of-type(1)', 'cyan-gpt');
+    await until(async () => (await state())?.saved === 'false');
+    await save();
+    await until(async () => (await state())?.stored?.panel === '#e7f8f9');
+    assert.equal((await state()).stored.layout, 'chatgpt');
+    await choosePreset('Cyan GPT');
+    await win.loadURL(url);
+    await until(() => evaluate(`document.documentElement.dataset.skin === 'cyan-gpt'`));
+    writeFileSync(join(evidence, "cyan-gpt.png"), await page.screenshot());
     writeFileSync(join(evidence, "workflow.json"), JSON.stringify({ initial, saved, edited, result: "passed", checks: ["reference palette", "save animation and check", "persistent success", "edit resets", "reload persistence", "preset/layout reset", "storage failure", "invalid input"] }, null, 2));
     console.log("Theme save UI workflow passed: " + evidence);
     await browser.close();
