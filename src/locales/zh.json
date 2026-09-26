@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "例如：工程团队的桌面电脑",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "群组至少需要一个机器人。",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "由一位负责人协调团队，直到目标确定。",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "日历事件至少需要一个机器人。"
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "日历事件至少需要一个机器人。",
+  "theme.customSaved": "自定义主题已保存",
+  "theme.customSaveFailed": "无法保存主题，请重试。"
 }

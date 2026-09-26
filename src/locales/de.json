@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "z. B. Entwicklungsrechner",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "Eine Gruppe benötigt mindestens einen Bot.",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "Eine Leitung koordiniert die Gruppe, bis das Ziel erreicht ist.",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "Ein Kalendereintrag benötigt mindestens einen Bot."
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "Ein Kalendereintrag benötigt mindestens einen Bot.",
+  "theme.customSaved": "Eigenes Design gespeichert",
+  "theme.customSaveFailed": "Das Design konnte nicht gespeichert werden. Bitte versuche es erneut."
 }

@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "p. ex. ordinateur de développement",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "Un groupe doit contenir au moins un bot.",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "Un responsable coordonne le groupe jusqu’à ce que l’objectif soit atteint.",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "Un événement de calendrier nécessite au moins un bot."
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "Un événement de calendrier nécessite au moins un bot.",
+  "theme.customSaved": "Thème personnalisé enregistré",
+  "theme.customSaveFailed": "Impossible d’enregistrer le thème. Réessayez."
 }

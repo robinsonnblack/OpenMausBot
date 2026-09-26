@@ -547,28 +547,28 @@
   --radius-xl: 14px;
 }
 
-/* Based on the user's Codex light screenshot: a pale cyan navigation area,
-   white conversation canvas, unobtrusive assistant text and black user pills. */
+/* Sampled from the user's reference: warm off-white navigation (#fdfaf7),
+   white conversation canvas, neutral controls and charcoal text. */
 [data-skin="chatgpt"] {
   --code-color-scheme: light;
   --color-app: #ffffff;
-  --color-panel: #e7f8f9;
-  --color-raised: #e2f3f6;
-  --color-raised-hover: #dceff2;
+  --color-panel: #fdfaf7;
+  --color-raised: #efeeeb;
+  --color-raised-hover: #e9e6e2;
   --color-composer: #ffffff;
-  --color-composer-ring: #e5e7eb;
+  --color-composer-ring: #e7e7e7;
   --color-card: #ffffff;
   --color-menu: #ffffff;
-  --color-inset: #f5f7f8;
-  --color-control: #d8e9ec;
-  --color-hairline: #c6ced2;
-  --color-ink: #292c32;
-  --color-ink-secondary: #62676e;
-  --color-accent: #2563eb;
-  --color-accent-border: #3b82f6;
-  --color-accent-text: #1d4ed8;
+  --color-inset: #f7f5f2;
+  --color-control: #efeeeb;
+  --color-hairline: #d1ccc5;
+  --color-ink: #424242;
+  --color-ink-secondary: #666666;
+  --color-accent: #191a1b;
+  --color-accent-border: #191a1b;
+  --color-accent-text: #191a1b;
   --color-accent-ink: #ffffff;
-  --color-focus: #2563eb;
+  --color-focus: #191a1b;
   --color-bubble-user: #000000;
   --color-bubble-user-ink: #ffffff;
   --color-success: #16845a;
@@ -576,8 +576,8 @@
   --color-danger: #bd3342;
   --color-danger-ink: #ffffff;
   --color-warning: #986400;
-  --color-scrollbar: #bfc7ca;
-  --color-maus-line: #34383e;
+  --color-scrollbar: #d1ccc5;
+  --color-maus-line: #424242;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --radius-lg: 8px;
   --radius-xl: 14px;
@@ -589,23 +589,23 @@
 [data-skin="custom"] {
   --code-color-scheme: light;
   --color-app: #ffffff;
-  --color-panel: #e7f8f9;
-  --color-raised: #e2f3f6;
-  --color-raised-hover: #dceff2;
+  --color-panel: #fdfaf7;
+  --color-raised: #efeeeb;
+  --color-raised-hover: #e9e6e2;
   --color-composer: #ffffff;
-  --color-composer-ring: #e5e7eb;
+  --color-composer-ring: #e7e7e7;
   --color-card: #ffffff;
   --color-menu: #ffffff;
-  --color-inset: #f5f7f8;
-  --color-control: #d8e9ec;
-  --color-hairline: #c6ced2;
-  --color-ink: #292c32;
-  --color-ink-secondary: #62676e;
-  --color-accent: #2563eb;
-  --color-accent-border: #3b82f6;
-  --color-accent-text: #1d4ed8;
+  --color-inset: #f7f5f2;
+  --color-control: #efeeeb;
+  --color-hairline: #d1ccc5;
+  --color-ink: #424242;
+  --color-ink-secondary: #666666;
+  --color-accent: #191a1b;
+  --color-accent-border: #191a1b;
+  --color-accent-text: #191a1b;
   --color-accent-ink: #ffffff;
-  --color-focus: #2563eb;
+  --color-focus: #191a1b;
   --color-bubble-user: #000000;
   --color-bubble-user-ink: #ffffff;
   --color-success: #16845a;
@@ -613,8 +613,8 @@
   --color-danger: #bd3342;
   --color-danger-ink: #ffffff;
   --color-warning: #986400;
-  --color-scrollbar: #bfc7ca;
-  --color-maus-line: #34383e;
+  --color-scrollbar: #d1ccc5;
+  --color-maus-line: #424242;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --radius-lg: 8px;
   --radius-xl: 14px;
@@ -1450,4 +1450,32 @@ button:disabled.bg-danger {
    disabled or busy controls keep the default cursor. */
 [data-sidebar] :is(button, [role="button"]):not(:disabled, [aria-busy="true"]) {
   cursor: pointer;
+}
+
+/* Save feedback stays visible until the draft changes. Respect reduced motion. */
+.custom-theme-save {
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+.custom-theme-save[data-saved="true"] {
+  box-shadow: 0 0 0 2px var(--color-accent-border);
+}
+.custom-theme-save[data-saved="true"] .custom-theme-save-copy {
+  animation: custom-theme-saved 220ms ease-out;
+}
+.custom-theme-save[data-saved="true"] svg {
+  animation: custom-theme-check 280ms ease-out;
+}
+@keyframes custom-theme-saved {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes custom-theme-check {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .custom-theme-save, .custom-theme-save-copy, .custom-theme-save svg {
+    animation: none !important;
+    transition: none !important;
+  }
 }

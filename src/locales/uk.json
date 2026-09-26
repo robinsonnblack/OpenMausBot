@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "наприклад, робочий стіл для розробки",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "У групі має бути принаймні один бот.",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "Керівник координує групу, доки не буде досягнуто мети.",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "Для події календаря потрібен принаймні один бот."
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "Для події календаря потрібен принаймні один бот.",
+  "theme.customSaved": "Власну тему збережено",
+  "theme.customSaveFailed": "Не вдалося зберегти тему. Спробуйте ще раз."
 }

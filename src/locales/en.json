@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "e.g. Engineering desktop",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "A group needs at least one bot.",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "A lead coordinates the group until the goal settles.",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "A calendar event needs at least one bot."
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "A calendar event needs at least one bot.",
+  "theme.customSaved": "Custom theme saved",
+  "theme.customSaveFailed": "Could not save the theme. Please try again."
 }

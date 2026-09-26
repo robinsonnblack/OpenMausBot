@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "उदा. इंजीनियरिंग डेस्कटॉप",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "किसी समूह में कम से कम एक बॉट होना चाहिए।",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "एक लीड लक्ष्य पूरा होने तक समूह का समन्वय करता है।",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "कैलेंडर इवेंट में कम से कम एक बॉट होना ज़रूरी है।"
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "कैलेंडर इवेंट में कम से कम एक बॉट होना ज़रूरी है।",
+  "theme.customSaved": "कस्टम थीम सहेजी गई",
+  "theme.customSaveFailed": "थीम सहेजी नहीं जा सकी। कृपया फिर से प्रयास करें।"
 }

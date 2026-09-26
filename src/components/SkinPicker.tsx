@@ -82,6 +82,26 @@ export function SkinPicker() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<CustomTheme>(() => readCustomTheme() ?? colorsFromSkin("chatgpt"));
   const [base, setBase] = useState<Exclude<SkinId, "custom">>("chatgpt");
+  const [saved, setSaved] = useState(() => readSkin() === "custom" && readCustomTheme() !== null);
+  const [saveError, setSaveError] = useState(false);
+
+  function editDraft(next: CustomTheme) {
+    if (JSON.stringify(next) !== JSON.stringify(draft)) setSaved(false);
+    setSaveError(false);
+    setDraft(next);
+  }
+
+  function saveDraft() {
+    try {
+      saveCustomTheme(draft);
+      setActive("custom");
+      setSaveError(false);
+      setSaved(true);
+    } catch {
+      setSaveError(true);
+      setSaved(false);
+    }
+  }
 
   function chooseSkin(id: SkinId) {
     if (id === "custom" && !readCustomTheme()) {
@@ -89,7 +109,8 @@ export function SkinPicker() {
         setEditing(true);
         return;
       }
-      saveCustomTheme(draft);
+      saveDraft();
+      return;
     } else applySkin(id);
     setActive(id);
   }
@@ -140,7 +161,7 @@ export function SkinPicker() {
           onChange={(event) => {
             const id = event.target.value as Exclude<SkinId, "custom">;
             setBase(id);
-            setDraft(colorsFromSkin(id));
+            editDraft(colorsFromSkin(id));
           }}>
           {SKINS.filter((skin) => skin.id !== "custom").map((skin) => <option key={skin.id} value={skin.id}>{skin.name}</option>)}
         </select>
@@ -148,7 +169,7 @@ export function SkinPicker() {
       <label className="mb-3 block text-sm">{t("hardcoded.components.SkinPicker.9519f0b4")}{" "}
         <select className="rounded-md border border-hairline bg-inset px-2 py-1 text-ink"
           value={draft.layout ?? "standard"}
-          onChange={(event) => setDraft({ ...draft, layout: event.target.value as "standard" | "chatgpt" })}>
+          onChange={(event) => editDraft({ ...draft, layout: event.target.value as "standard" | "chatgpt" })}>
           <option value="standard">{t("hardcoded.components.SkinPicker.3f34fe89")}</option>
           <option value="chatgpt">{t("hardcoded.components.SkinPicker.e0c8751f")}</option>
         </select>
@@ -156,18 +177,24 @@ export function SkinPicker() {
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {COLOR_ROLES.map((role) => <label key={role} className="flex items-center gap-2 text-xs">
           <input type="color" aria-label={`${role} color`} value={draft[role].startsWith("#") ? draft[role].slice(0, 7) : "#000000"}
-            onChange={(event) => setDraft({ ...draft, [role]: event.target.value })} />
+            onChange={(event) => editDraft({ ...draft, [role]: event.target.value })} />
           <span className="min-w-0 flex-1">{role.replaceAll("-", " ")}</span>
           <input className="w-[88px] rounded border border-hairline bg-inset px-1.5 py-1 font-mono text-xs text-ink"
             aria-label={`${role} hex`} value={draft[role]}
-            onChange={(event) => setDraft({ ...draft, [role]: event.target.value })} />
+            onChange={(event) => editDraft({ ...draft, [role]: event.target.value })} />
         </label>)}
       </div>
-      <button type="button" className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
+      <button type="button" className="custom-theme-save mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm disabled:opacity-50"
+        style={{ color: "var(--color-accent-ink)" }}
+        data-saved={saved}
         disabled={!isValidCustomTheme(draft)}
-        onClick={() => { saveCustomTheme(draft); setActive("custom"); }}>
-        {t("hardcoded.components.SkinPicker.2491f00e")}
+        onClick={saveDraft}>
+        <span className="custom-theme-save-copy inline-flex items-center gap-2" key={saved ? "saved" : "unsaved"}>
+          {saved && <Check size={17} aria-hidden="true" />}
+          <span role="status" aria-live="polite">{saved ? t("theme.customSaved") : t("hardcoded.components.SkinPicker.2491f00e")}</span>
+        </span>
       </button>
+      {saveError && <p role="alert" className="mt-2 text-sm text-danger">{t("theme.customSaveFailed")}</p>}
     </div>}
     </div>
   );

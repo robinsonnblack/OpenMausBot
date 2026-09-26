@@ -34,7 +34,7 @@ export const SKINS: readonly Skin[] = [
   { id: "linen", name: "Linen", tagline: "Clean daylight with a restrained navy accent." },
   { id: "dusk", name: "Dusk", tagline: "Muted plum after dark, calm and low-key." },
   { id: "daylight", name: "Daylight", tagline: "Midnight in reverse. Near-white, ink-black bubbles." },
-  { id: "chatgpt", name: "ChatGPT", tagline: "White conversation, pale blue sidebar, black user messages." },
+  { id: "chatgpt", name: "ChatGPT", tagline: "White conversation, warm off-white sidebar, black controls." },
   { id: "custom", name: "Custom", tagline: "Your own colors for every part of the app." },
 ];
 
@@ -129,7 +129,9 @@ export function saveCustomTheme(theme: CustomTheme): void {
     ...theme,
     ...Object.fromEntries(COLOR_ROLES.map((role) => [role, normalizeColor(theme[role])])),
   } as CustomTheme;
-  try { getStore()?.setItem(CUSTOM_KEY, JSON.stringify(normalized)); } catch { /* session-only storage */ }
+  const store = getStore();
+  if (!store) throw new Error("Theme storage unavailable");
+  store.setItem(CUSTOM_KEY, JSON.stringify(normalized));
   applySkin("custom", normalized);
 }
 

@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "例：エンジニアリング用デスクトップ",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "グループには少なくとも1体のボットが必要です。",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "リーダーが目標が達成されるまでグループを調整します。",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "カレンダーイベントには、少なくとも1体のボットが必要です。"
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "カレンダーイベントには、少なくとも1体のボットが必要です。",
+  "theme.customSaved": "カスタムテーマを保存しました",
+  "theme.customSaveFailed": "テーマを保存できませんでした。もう一度お試しください。"
 }

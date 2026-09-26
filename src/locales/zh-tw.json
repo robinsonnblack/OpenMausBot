@@ -3463,5 +3463,7 @@
   "hardcoded.components.CanvasComputers.19e39c3d": "例如：工程部桌面電腦",
   "hardcoded.components.ManageMembersPanel.64e9f32c": "群組至少需要一個機器人。",
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "由一位負責人協調團隊，直到目標達成。",
-  "hardcoded.components.RoutineCalendarPage.fd1c0774": "行事曆事件至少需要一個機器人。"
+  "hardcoded.components.RoutineCalendarPage.fd1c0774": "行事曆事件至少需要一個機器人。",
+  "theme.customSaved": "自訂主題已儲存",
+  "theme.customSaveFailed": "無法儲存主題，請再試一次。"
 }
