@@ -59,7 +59,7 @@ class PhoneSpeech(context: Context) {
         val task = async(start = CoroutineStart.LAZY) {
             val cfg = withContext(Dispatchers.IO) { store.load() }
             val cleaned = speechText(text)
-            if (cfg.provider == "android") speakNative(cleaned, cfg.voice)
+            if (cfg.provider == "android") speakNative(cleaned, voice?.takeIf { it.isNotBlank() } ?: cfg.voice)
             else {
                 val selected = voice?.takeIf { it.isNotBlank() } ?: cfg.voice
                 require(selected.isNotBlank()) { context.getString(com.openmausbot.companion.R.string.phone_voice_required) }
