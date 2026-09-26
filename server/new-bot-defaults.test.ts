@@ -1,8 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { newBotDefaultsSchema } from "./new-bot-defaults.ts";
-import { parseConfigPatch } from "./config.ts";
+import { newBotDefaultsSchema, storedNewBotDefaultsSchema } from "./new-bot-defaults.ts";
+import { parseConfigPatch, parseStoredConfig } from "./config.ts";
 
 describe("new-bot templates", () => {
+  it("reads a legacy flat draft without losing the workspace browser, providers or settings", () => {
+    const legacy = {
+      name: "Assistant", title: "Research", description: "Short replies", soul: "Be precise",
+      section: "Bots", modelSelection: { instanceId: "codex", model: "fixture-model", effort: "high" },
+      notifications: false, color: "cyan", speakReplies: true,
+      approvalMode: "full", autoApprove: true, approvePeerComms: false, confirmFullAccess: true, _routines: [],
+    };
+    const settings = {
+      features: { browser: true }, language: "de", tts: { provider: "fish", voice: "fixture-voice" },
+      imageAttachments: { maxImages: 30, maxTotalImageBytes: 60_000_000 },
+      instances: { codex: { driver: "codex", config: { cli: "fixture-codex" } } },
+    };
+    const raw = JSON.parse(JSON.stringify({ ...settings, newBotDefaults: legacy }));
+    const parsed = parseStoredConfig(raw);
+    const { autoApprove: _auto, confirmFullAccess: _consent, _routines, ...profile } = legacy;
+    expect(parsed).toMatchObject(settings);
+    expect(parsed.newBotDefaults).toEqual({ profile, memory: {}, skills: [], routines: _routines });
+    expect(raw.newBotDefaults).toEqual(legacy);
+    expect(() => parseConfigPatch({ newBotDefaults: legacy })).toThrow();
+  });
+
+  it("keeps canonical values and explicit clearing ahead of legacy draft values", () => {
+    const routine = { name: "Check", prompt: "Review status", schedule: { type: "daily", time: "09:00", weekdays: [1] } };
+    expect(storedNewBotDefaultsSchema.parse({
+      name: "Old", notifications: true, profile: { name: "", notifications: false },
+      _routines: [routine], routines: [], memory: { "MEMORY.md": "Context" },
+    })).toEqual({ profile: { name: "", notifications: false }, routines: [], memory: { "MEMORY.md": "Context" }, skills: [] });
+    expect(storedNewBotDefaultsSchema.parse({ name: "Old", _routines: [routine] }).routines).toEqual([routine]);
+    for (const invalid of [{ name: "one\ntwo" }, { name: "Old", profile: null }, { name: "Old", approvalGrant: true }]) {
+      expect(storedNewBotDefaultsSchema.safeParse(invalid).success).toBe(false);
+    }
+  });
+
   it("stores Full as a preference without accepting reusable consent or identity", () => {
     expect(newBotDefaultsSchema.parse({ profile: { name: "", approvalMode: "full" } }).profile)
       .toEqual({ name: "", approvalMode: "full" });

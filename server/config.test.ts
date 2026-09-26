@@ -550,6 +550,33 @@ describe("configuration boundaries", () => {
 });
 
 describe("saving the newer sections", () => {
+  it("loads and durably converts flat bot defaults while retaining unrelated configuration", () => {
+    const path = join(DATA_DIR, "config.json");
+    mkdirSync(DATA_DIR, { recursive: true });
+    const legacy = { name: "Fixture", notifications: false, approvalMode: "full", confirmFullAccess: true, autoApprove: true, _routines: [] };
+    writeFileSync(path, JSON.stringify({
+      features: { browser: true }, language: "de", tts: { provider: "fish", fishKey: "fixture-key" },
+      privateExtension: { preserve: true }, newBotDefaults: legacy,
+    }));
+    try {
+      expect(loadConfig()).toMatchObject({ features: { browser: true }, newBotDefaults: { profile: { name: "Fixture", notifications: false, approvalMode: "full" } } });
+      expect(JSON.parse(readFileSync(path, "utf8")).newBotDefaults).toEqual(legacy);
+      saveConfig({ defaultModelSelection: { instanceId: "codex", model: "fixture" } });
+      saveConfig({ browserProfiles: [{ id: "work", name: "Work" }] });
+      const disk = JSON.parse(readFileSync(path, "utf8"));
+      expect(disk).toMatchObject({
+        features: { browser: true }, language: "de", tts: { fishKey: "fixture-key" },
+        privateExtension: { preserve: true },
+        newBotDefaults: { profile: { name: "Fixture", notifications: false, modelSelection: { instanceId: "codex", model: "fixture" } } },
+      });
+      expect(disk.newBotDefaults.confirmFullAccess).toBeUndefined();
+      expect(disk.newBotDefaults.profile.confirmFullAccess).toBeUndefined();
+      expect(builtInBrowserEnabled(loadConfig())).toBe(true);
+    } finally {
+      rmSync(path, { force: true });
+    }
+  });
+
   it("persists the Anthropic key, the spend limit and the price list, section by section", () => {
     const path = join(DATA_DIR, "config.json");
     mkdirSync(DATA_DIR, { recursive: true });

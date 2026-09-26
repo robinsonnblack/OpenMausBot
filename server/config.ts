@@ -8,7 +8,7 @@ import { z } from "zod";
 import { normalizeImageGenerationUrl, type ImageGenerationConfig } from "../shared/image-generation.ts";
 
 import { writeFileAtomic } from "./atomic.ts";
-import { newBotDefaultsSchema, type NewBotDefaults } from "./new-bot-defaults.ts";
+import { newBotDefaultsSchema, storedNewBotDefaultsSchema, type NewBotDefaults } from "./new-bot-defaults.ts";
 import { EFFORT_LEVELS, type EffortLevel } from "../shared/wire.ts";
 import { isModelVariant, type InstanceConfigMap, type ModelSelection } from "./contracts.ts";
 import { PROVIDER_ICON_PRESETS, providerIconError } from "../shared/provider-icon.ts";
@@ -473,6 +473,7 @@ const appConfigSchema = z.object({
 });
 const storedAppConfigSchema = appConfigSchema.extend({
   browserProfiles: storedBrowserProfilesSchema.optional(),
+  newBotDefaults: storedNewBotDefaultsSchema.optional(),
 });
 const appConfigPatchSchema = appConfigSchema.omit({ instances: true, mcpServers: true, cliStartup: true, customDomain: true })
   .extend({ threads: threadsPatchSchema.optional(), newBots: newBotsPatchSchema.optional() });
@@ -1038,6 +1039,8 @@ export function saveConfig(
   // back after we have successfully recognized the legacy list.
   const storedProfiles = storedBrowserProfilesSchema.safeParse(disk.browserProfiles);
   if (storedProfiles.success) disk.browserProfiles = storedProfiles.data;
+  const storedDefaults = storedNewBotDefaultsSchema.safeParse(disk.newBotDefaults);
+  if (disk.newBotDefaults !== undefined && storedDefaults.success) disk.newBotDefaults = storedDefaults.data;
   for (const key of ["xai", "anthropic", "mistral", "openaiCompat", "composio", "box", "opencodeGo", "tts", "imageGen", "profile", "rooms", "threads", "context", "localVm", "features", "budgets", "billing", "decisions", "onboarding", "browserEngine", "newBots", "imageAttachments"] as const) {
     const section = checkedPatch[key];
     if (!section) continue;

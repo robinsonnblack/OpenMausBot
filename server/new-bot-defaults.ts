@@ -102,6 +102,29 @@ export type BotDefaultsProfile = NewBotDefaults["profile"];
 export type BotRoutineTemplate = NewBotDefaults["routines"][number];
 export type BotSkillTemplate = NewBotDefaults["skills"][number];
 
+/** Older desktop builds saved a flat bot draft. Only the storage boundary
+ * accepts that shape; current API writes must still use the strict template.
+ * Never replay the draft's one-time consent flags as grants. The source file
+ * is left intact until an ordinary settings save writes the canonical form. */
+export const storedNewBotDefaultsSchema = z.preprocess((value) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+  const raw = value as Record<string, unknown>;
+  const profileFields = new Set(Object.keys(botDefaultsProfileSchema.shape));
+  const oldFields = new Set([...profileFields, "_routines", "autoApprove", "confirmFullAccess"]);
+  if (!Object.keys(raw).some((key) => oldFields.has(key))) return value;
+  const profile = Object.fromEntries(Object.entries(raw).filter(([key]) => profileFields.has(key)));
+  const template = Object.fromEntries(Object.entries(raw).filter(([key]) => !oldFields.has(key)));
+  if (Object.hasOwn(raw, "profile")) {
+    const current = raw.profile;
+    template.profile = current && typeof current === "object" && !Array.isArray(current)
+      ? { ...profile, ...current } : current;
+  } else {
+    template.profile = profile;
+  }
+  if (!Object.hasOwn(raw, "routines") && Object.hasOwn(raw, "_routines")) template.routines = raw._routines;
+  return template;
+}, newBotDefaultsSchema);
+
 /** Explicit values (including empty values) win. A resolved renderer draft
  * opts out so deleted fields and template extras are not restored on POST. */
 export function resolveBotCreationDefaults(saved: NewBotDefaults | undefined, body: Record<string, unknown>) {
