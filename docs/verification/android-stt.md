@@ -25,6 +25,8 @@ Explanations are behind the question-mark button. Save/import buttons show pendi
 
 Mocks prove transport and parsing, not current account credit, actual provider availability or a particular phone microphone. A physical-device recording and a paid-provider call remain separate checks.
 
+Native Android recognition delegates audio-focus ownership to the system recognition service; cloud recording continues to use the app's interruption gate. On the Galaxy A04e (Android 14), logs from the previous APK show Google requesting exclusive focus followed within milliseconds by the app cancelling and destroying its recognizer. The regression test covers both native engine variants through readiness, partial results, manual finalization and final text without requesting competing client focus. Existing interruption tests still cover app-owned recording.
+
 ## Primary provider documentation
 
 - https://developers.openai.com/api/docs/guides/speech-to-text

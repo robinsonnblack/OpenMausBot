@@ -258,7 +258,11 @@ class SpeechDictation internal constructor(
             return
         }
 
-        if (!focus.request(onInterrupted = { onAudioInterrupted(gen) })) {
+        // Android's RecognitionService owns audio focus itself. Requesting it
+        // here makes its startup look like an interruption and cancels capture
+        // before onReadyForSpeech (observed with Google's service on Android 14).
+        // Engines capturing audio in this app still need our focus gate.
+        if (!next.managesAudioFocus && !focus.request(onInterrupted = { onAudioInterrupted(gen) })) {
             next.destroy()
             _isStarting.value = false
             _error.value = START_FAILED_MESSAGE
@@ -440,6 +444,7 @@ fun interface SpeechEngineFactory {
 
 interface SpeechEngine {
     val isOnDevice: Boolean
+    val managesAudioFocus: Boolean get() = false
     fun start(request: RecognitionRequest, listener: Listener)
     fun finish() { cancel() }
     fun cancel()
@@ -497,6 +502,7 @@ internal class PlatformSpeechEngine(
     private val recognizer: SpeechRecognizer,
     override val isOnDevice: Boolean,
 ) : SpeechEngine {
+    override val managesAudioFocus = true
     @Volatile
     private var listener: SpeechEngine.Listener? = null
 

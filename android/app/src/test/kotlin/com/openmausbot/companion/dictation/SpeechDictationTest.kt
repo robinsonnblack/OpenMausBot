@@ -35,6 +35,40 @@ import org.junit.Assert.assertNotEquals
 class SpeechDictationTest {
 
     @Test
+    fun systemRecognizerOwnsFocusWithoutCancellingItsOwnStartup() {
+        for (onDevice in listOf(false, true)) {
+            var listener: SpeechEngine.Listener? = null
+            var finishes = 0
+            var cancels = 0
+            val focus = FakeFocus(grant = false)
+            val factory = SpeechEngineFactory { listOf(EngineOpener(onDevice) { object : SpeechEngine {
+                override val isOnDevice = onDevice
+                override val managesAudioFocus = true
+                override fun start(request: RecognitionRequest, listenerValue: SpeechEngine.Listener) { listener = listenerValue }
+                override fun finish() { finishes++ }
+                override fun cancel() { cancels++ }
+                override fun destroy() = Unit
+            } }) }
+            val dictation = SpeechDictation(factory, { true }, { it(true) }, focus,
+                { listOf("de-DE") }, { Locale.GERMANY }, scheduleTimeout = { _, _ -> }, postMain = { it() })
+            dictation.toggle("Entwurf")
+            assertTrue(dictation.isStarting.value)
+            assertNull(focus.interrupt, "Client focus must not compete with the recognition service")
+            assertEquals(0, cancels)
+            listener!!.onReady()
+            listener!!.onPartial("gesprochener Text")
+            assertTrue(dictation.isListening.value)
+            dictation.toggle("Entwurf")
+            assertEquals(1, finishes)
+            assertTrue(dictation.isProcessing.value)
+            listener!!.onFinal("gesprochener Text")
+            assertEquals("Entwurf gesprochener Text", Dictation.draft(dictation.base, dictation.transcript.value))
+            assertFalse(dictation.locksComposer())
+            assertNull(dictation.error.value)
+        }
+    }
+
+    @Test
     fun typedTextIsPreservedAcrossADictationSession() {
         // Swift: freeze base at mic-on; every partial is base + spoken.
         val fake = FakeEngineFactory()
