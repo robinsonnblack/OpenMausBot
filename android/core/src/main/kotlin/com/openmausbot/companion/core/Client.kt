@@ -462,6 +462,12 @@ class CompanionClient(
         return raw.data
     }
 
+    suspend fun transferSettings(botId: String): JsonObject =
+        send<JsonObject>(makeRequest("GET", "/api/bots/${segment(botId)}/transfer-settings"))["settings"]!!.jsonObject
+
+    suspend fun applyTransferSettings(botId: String, patch: JsonObject): Bot =
+        send<BotResponse>(makeRequest("PATCH", "/api/bots/${segment(botId)}", body = patch)).bot
+
     suspend fun importSttSettings(publicKey: String): JsonObject {
         val request = makeRequest("POST", "/api/transcription/import", body = buildJsonObject { put("publicKey", publicKey) })
         val raw = perform(request, actionClient.newBuilder().callTimeout(100, TimeUnit.SECONDS).readTimeout(100, TimeUnit.SECONDS).build())

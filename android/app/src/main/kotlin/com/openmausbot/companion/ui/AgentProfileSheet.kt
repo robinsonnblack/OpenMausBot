@@ -143,6 +143,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var deleteError by remember { mutableStateOf<String?>(null) }
     var showingHistory by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingMemory by rememberSaveable(opened.id) { mutableStateOf(false) }
+    var showingTransfer by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingSkills by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingAccessDetails by rememberSaveable(opened.id) { mutableStateOf(false) }
     var showingBotUsage by rememberSaveable(opened.id) { mutableStateOf(false) }
@@ -166,6 +167,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
             workingFolderBaseline = workingFolderDraft
         }
     }
+    if (showingTransfer) TransferSettingsSheet(current) { showingTransfer = false }
     var switchingEngine by remember { mutableStateOf(false) }
 
     // The Model section. The draft survives rotation; the catalog is reloaded.
@@ -279,6 +281,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(header = null) {
+                    TextButton(onClick = { showingTransfer = true }) { Text(stringResource(R.string.transfer_title)) }
+
                     ActionRow(
                         text = stringResource(R.string.ui_what_this_bot_does_7a664f4),
                         icon = Icons.Filled.Info,

@@ -34,6 +34,7 @@ export const BOT_SECTIONS: Array<{
   icon: LucideIcon;
   keywords: string[];
 }> = [
+  { id: "transfer", label: "Transfer settings", labelKey: "transfer.title", icon: User, keywords: ["copy", "transfer", "übertragen", "kopieren"] },
   { id: "overview", label: "Overview", icon: LayoutDashboard, keywords: ["summary", "status", "what it does", "won't", "prompt", "what the model sees"] },
   { id: "identity", label: "Identity", icon: User, keywords: ["name", "title", "avatar", "blurb", "instructions"] },
   { id: "slack", label: "Slack", icon: Slack, keywords: ["slack", "slack app", "admin", "message", "direct messages", "mentions"] },

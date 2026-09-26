@@ -820,6 +820,7 @@ export type AppSettingsSection =
 
 export type BotSettingsSection =
   | "overview"
+  | "transfer"
   | "identity"
   | "slack"
   | "soul"

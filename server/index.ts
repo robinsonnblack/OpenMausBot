@@ -1,3 +1,4 @@
+import { transferableSettings } from "../shared/bot-settings-transfer.ts";
 import { SttImportBridge, createSttImportRoutes } from "./routes/stt-import.ts";
 import { validPermissions, configPermissionDenial, effectivePermissions, type PermissionMap } from "../companion/src/permissions.ts";
 import { pairingAccess } from "../companion/src/access.ts";
@@ -18005,6 +18006,13 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       const visible = wireBot(updated);
       broadcast({ kind: "bot", bot: visible });
       return json(res, 200, { bot: visible });
+    }
+    m = path.match(/^\/api\/bots\/([\w-]+)\/transfer-settings$/);
+    if (m && method === "GET") {
+      if (!auth.scopes.includes("admin")) return json(res, 403, { error: "Administrator access is required" });
+      const source = store.bot(m[1]);
+      if (!source) return json(res, 404, { error: "no such bot" });
+      return json(res, 200, { settings: transferableSettings(source) });
     }
     m = path.match(/^\/api\/bots\/([\w-]+)$/);
     if (m && method === "PATCH") {

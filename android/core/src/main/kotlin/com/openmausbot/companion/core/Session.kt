@@ -2470,6 +2470,13 @@ class Session(
         null
     }
 
+    suspend fun transferSettings(botId: String): kotlinx.serialization.json.JsonObject =
+        (client ?: throw APIError.Transport("This computer is offline.")).transferSettings(botId)
+
+    suspend fun applyTransferSettings(botId: String, patch: kotlinx.serialization.json.JsonObject) {
+        (client ?: throw APIError.Transport("This computer is offline.")).applyTransferSettings(botId, patch)
+    }
+
     suspend fun importSttSettings(publicKey: String): kotlinx.serialization.json.JsonObject =
         (client ?: throw APIError.Transport("This computer is offline.")).importSttSettings(publicKey)
 
