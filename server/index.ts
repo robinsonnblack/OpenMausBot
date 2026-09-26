@@ -13231,8 +13231,11 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
     if (m && method === "PATCH") {
       if (auth.kind === "session" && auth.session.id === m[1]) return json(res, 403, { error: "Change another device from the desktop; your current session cannot change its own rights" });
       const body = await readBody(req, 4096);
-      if (!body || Object.keys(body).some(key => !["access", "permissions"].includes(key)) || !["admin", "client", "custom"].includes(body.access) || (body.access === "custom" && !validPermissions(body.permissions))) return json(res, 400, { error: "Choose admin or client access" });
-      if (auth.kind === "session" && !sessions.list().find(session => session.id === auth.session.id)?.scopes.includes("admin")) return json(res, 403, { error: "Administrator access is required" });
+      if (!body || Object.keys(body).some(key => !["access", "permissions"].includes(key)) || !["admin", "client", "custom"].includes(body.access) || (body.access === "custom" && !validPermissions(body.permissions))) return json(res, 400, { error: "Choose full, chat or complete custom access" });
+      if (auth.kind === "session") {
+        const actor = sessions.list().find(session => session.id === auth.session.id);
+        if (!actor?.scopes.includes("admin") || actor.access === "custom") return json(res, 403, { error: "Administrator access is required" });
+      }
       try {
         if (!sessions.setScopes(m[1], body.access !== "client" ? ["admin", "client"] : ["client"], body.access, body.permissions)) return json(res, 404, { error: "no such session" });
       } catch (error) { return json(res, 409, { error: error instanceof Error ? error.message : "Could not save device access" }); }

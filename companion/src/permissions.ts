@@ -80,11 +80,11 @@ export function permissionFor(method: string, path: string): PermissionId | "con
   if (path === "/api/groups") return method === "GET" ? "chatRead" : "groups";
   if (/^\/api\/(?:search|threads)(?:\/|$)/.test(path)) return method === "GET" ? "chatRead" : method === "DELETE" ? "threadDelete" : "threadEdit";
   if (/^\/api\/(?:teams|team-map|sidebar-sections|org-library)(?:\/|$)/.test(path)) return method === "GET" && path === "/api/team-map" ? "chatRead" : "teams";
-  if (/^\/api\/(?:usage|usage\.csv|activity|admin-activity)(?:\/|$)/.test(path)) return "usage";
+  if (/^\/api\/(?:usage|usage\.csv|activity|admin-activity|admin-activity\.csv)(?:\/|$)/.test(path)) return "usage";
   if (/^\/api\/(?:budgets|billing|prices|pricing)(?:\/|$)/.test(path)) return "budgets";
   if (/^\/api\/webhooks(?:\/|$)/.test(path)) return "webhooks";
   if (/^\/api\/(?:backups|backup|workspace-backups|workspace-backup)(?:\/|$)/.test(path)) return "backups";
-  if (/^\/api\/(?:local-computer|local-vm)(?:\/|$)/.test(path)) return "localVm";
+  if (/^\/api\/(?:local-computer|local-vm)(?:\/|$)/.test(path) || /\/local-computer(?:\/|$)/.test(path)) return "localVm";
   if (/^\/api\/(?:browser|browser-profiles|host-browser|browser-engine)(?:\/|$)/.test(path)) return "browser";
   if (/^\/api\/(?:instances|engines)(?:\/|$)/.test(path)) return "engines";
   if (/^\/api\/(?:providers|models|keys|bot-defaults|config\/providers|config\/models)(?:\/|$)/.test(path)) return "providers";
@@ -107,7 +107,7 @@ export function configPermissionDenial(body: unknown, grants: PermissionMap): st
     }
     let id: PermissionId = "workspace";
     if (["profile", "aboutMe"].includes(key)) id = "profile";
-    else if (["instances", "anthropic", "openaiCompat", "xai", "mistral", "opencodeGo", "defaultModelSelection", "newBotDefaults", "tts", "stt"].includes(key)) id = "providers";
+    else if (["instances", "anthropic", "openaiCompat", "xai", "mistral", "opencodeGo", "defaultModelSelection", "newBotDefaults", "newBots", "tts", "stt"].includes(key)) id = "providers";
     else if (["localVm"].includes(key)) id = "localVm";
     else if (["browserProfiles", "expectedBrowserProfiles", "hostBrowser"].includes(key)) id = "browser";
     else if (["budgets", "billing"].includes(key)) id = "budgets";

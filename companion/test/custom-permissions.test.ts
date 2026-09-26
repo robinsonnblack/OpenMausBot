@@ -32,7 +32,9 @@ describe("complete per-action phone permissions", () => {
     ["engines", "POST", "/api/instances/codex/auth/start"],
     ["browser", "POST", "/api/browser-engine/install"],
     ["localVm", "POST", "/api/local-computer/start"],
+    ["localVm", "POST", "/api/bots/b/local-computer/start"],
     ["usage", "GET", "/api/usage"],
+    ["usage", "GET", "/api/admin-activity.csv"],
     ["budgets", "PATCH", "/api/billing"],
     ["webhooks", "DELETE", "/api/webhooks/w"],
     ["workspace", "PATCH", "/api/settings/other"],
@@ -62,6 +64,9 @@ describe("complete per-action phone permissions", () => {
     const grants = presetPermissions("custom"); grants.profile = true;
     expect(configPermissionDenial({ profile: { name: "Fixture" } }, grants)).toBeNull();
     expect(configPermissionDenial({ anthropic: { apiKey: "synthetic" } }, grants)).toContain("providers");
+    expect(configPermissionDenial({ newBots: { effort: "high" } }, grants)).toContain("providers");
+    grants.providers = true;
+    expect(configPermissionDenial({ newBots: { effort: "high" } }, grants)).toBeNull();
     expect(configPermissionDenial({ profile: {}, budgets: {} }, grants)).toContain("budgets");
     grants.browser = true;
     expect(configPermissionDenial({ features: { browser: true, other: true } }, grants)).toContain("workspace");
