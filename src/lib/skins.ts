@@ -62,7 +62,21 @@ export type CustomTheme = Record<ColorRole, string> & {
 };
 
 const colorValue = (value: unknown): value is string =>
-  typeof value === "string" && (value === "transparent" || /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(value));
+  typeof value === "string" && (value === "transparent" || /^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value));
+
+// Production CSS minification shortens e.g. #ffffff to #fff. Keep saved and
+// editable colors in the long form so the color inputs and contrast checks
+// handle copied presets exactly like hand-entered colors.
+function normalizeColor(value: string): string {
+  if (/^#[0-9a-fA-F]{3,4}$/.test(value)) {
+    return `#${value.slice(1).split("").map((digit) => digit + digit).join("")}`;
+  }
+  return value;
+}
+
+export function isValidCustomTheme(theme: CustomTheme): boolean {
+  return COLOR_ROLES.every((role) => colorValue(theme[role]));
+}
 
 export function readCustomTheme(): CustomTheme | null {
   try {
@@ -71,7 +85,7 @@ export function readCustomTheme(): CustomTheme | null {
     const values = parsed as Record<string, unknown>;
     if (!COLOR_ROLES.every((role) => colorValue(values[role]))) return null;
     return {
-      ...Object.fromEntries(COLOR_ROLES.map((role) => [role, values[role]])),
+      ...Object.fromEntries(COLOR_ROLES.map((role) => [role, normalizeColor(values[role] as string)])),
       layout: values.layout === "chatgpt" ? "chatgpt" : "standard",
       fontSans: typeof values.fontSans === "string" && values.fontSans.length < 300 && !/url\s*\(/i.test(values.fontSans) ? values.fontSans : undefined,
       radiusLg: typeof values.radiusLg === "string" && /^\d+(\.\d+)?(px|rem)$/.test(values.radiusLg) ? values.radiusLg : undefined,
@@ -98,7 +112,7 @@ export function colorsFromSkin(id: Exclude<SkinId, "custom">): CustomTheme {
     const computed = getComputedStyle(probe);
     return {
       ...Object.fromEntries(COLOR_ROLES.map((role) =>
-        [role, computed.getPropertyValue(`--color-${role}`).trim()]
+        [role, normalizeColor(computed.getPropertyValue(`--color-${role}`).trim())]
       )),
       layout: id === "chatgpt" ? "chatgpt" : "standard",
       fontSans: computed.getPropertyValue("--font-sans").trim(),
@@ -110,9 +124,13 @@ export function colorsFromSkin(id: Exclude<SkinId, "custom">): CustomTheme {
 }
 
 export function saveCustomTheme(theme: CustomTheme): void {
-  if (!COLOR_ROLES.every((role) => colorValue(theme[role]))) throw new Error("Invalid theme color");
-  try { getStore()?.setItem(CUSTOM_KEY, JSON.stringify(theme)); } catch { /* session-only storage */ }
-  applySkin("custom", theme);
+  if (!isValidCustomTheme(theme)) throw new Error("Invalid theme color");
+  const normalized = {
+    ...theme,
+    ...Object.fromEntries(COLOR_ROLES.map((role) => [role, normalizeColor(theme[role])])),
+  } as CustomTheme;
+  try { getStore()?.setItem(CUSTOM_KEY, JSON.stringify(normalized)); } catch { /* session-only storage */ }
+  applySkin("custom", normalized);
 }
 
 // The input is whatever localStorage handed back — a string this app wrote

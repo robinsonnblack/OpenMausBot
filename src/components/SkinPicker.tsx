@@ -7,7 +7,7 @@
 import { t } from "@/lib/i18n";
 import { useState, type CSSProperties } from "react";
 import { Check } from "lucide-react";
-import { COLOR_ROLES, SKINS, applySkin, colorsFromSkin, readCustomTheme, readSkin, saveCustomTheme, type CustomTheme, type SkinId } from "@/lib/skins";
+import { COLOR_ROLES, SKINS, applySkin, colorsFromSkin, isValidCustomTheme, readCustomTheme, readSkin, saveCustomTheme, type CustomTheme, type SkinId } from "@/lib/skins";
 import { cn } from "@/lib/cn";
 
 /**
@@ -84,8 +84,13 @@ export function SkinPicker() {
   const [base, setBase] = useState<Exclude<SkinId, "custom">>("chatgpt");
 
   function chooseSkin(id: SkinId) {
-    if (id === "custom" && !readCustomTheme()) saveCustomTheme(draft);
-    else applySkin(id);
+    if (id === "custom" && !readCustomTheme()) {
+      if (!isValidCustomTheme(draft)) {
+        setEditing(true);
+        return;
+      }
+      saveCustomTheme(draft);
+    } else applySkin(id);
     setActive(id);
   }
 
@@ -159,7 +164,7 @@ export function SkinPicker() {
         </label>)}
       </div>
       <button type="button" className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm text-white disabled:opacity-50"
-        disabled={!COLOR_ROLES.every((role) => draft[role] === "transparent" || /^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(draft[role]))}
+        disabled={!isValidCustomTheme(draft)}
         onClick={() => { saveCustomTheme(draft); setActive("custom"); }}>
         {t("hardcoded.components.SkinPicker.2491f00e")}
       </button>

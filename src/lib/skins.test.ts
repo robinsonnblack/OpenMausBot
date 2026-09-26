@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { SKINS, SKIN_IDS, DEFAULT_SKIN, colorsFromSkin, readCustomTheme, saveCustomTheme, applySkin } from "./skins";
+import { SKINS, SKIN_IDS, DEFAULT_SKIN, colorsFromSkin, isValidCustomTheme, readCustomTheme, saveCustomTheme, applySkin } from "./skins";
 
 const css = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), "../styles.css"),
@@ -75,7 +75,9 @@ describe("skins", () => {
     vi.stubGlobal("getComputedStyle", (element: { dataset: { skin: string } }) => ({
       getPropertyValue: (name: string) => {
         const body = css.match(new RegExp(`\\[data-skin="${element.dataset.skin}"\\]\\s*\\{([^}]*)\\}`))?.[1] ?? "";
-        return body.match(new RegExp(`${name}:\\s*([^;]+);`))?.[1]?.trim() ?? "";
+        const value = body.match(new RegExp(`${name}:\\s*([^;]+);`))?.[1]?.trim() ?? "";
+        // Vite's production CSS minifier shortens these colors in the real app.
+        return value === "#ffffff" ? "#fff" : value === "#000000" ? "#000" : value;
       },
     }));
     vi.stubGlobal("localStorage", {
@@ -85,7 +87,10 @@ describe("skins", () => {
     vi.stubGlobal("window", {});
     try {
       const daylight = colorsFromSkin("daylight");
-      saveCustomTheme(daylight);
+      expect(isValidCustomTheme(daylight)).toBe(true);
+      saveCustomTheme({ ...daylight, app: "#fff" });
+      expect(readCustomTheme()?.app).toBe("#ffffff");
+      expect(properties.get("--color-app")).toBe("#ffffff");
       expect(readCustomTheme()?.fontSans).toBe(daylight.fontSans);
       expect(properties.get("--font-sans")).toBe(daylight.fontSans);
       expect(properties.get("--radius-lg")).toBe(daylight.radiusLg);
