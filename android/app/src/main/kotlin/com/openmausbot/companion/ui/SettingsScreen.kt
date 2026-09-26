@@ -429,7 +429,7 @@ fun SettingsScreen(
                             onClick = openConnectedApps,
                         )
                     }
-                    onOpenVoice?.takeIf { pairingAccess.allows("providers") }?.let { openVoice ->
+                    onOpenVoice?.let { openVoice ->
                         SettingsButton(
                             text = stringResource(R.string.android_voice_settings_title),
                             icon = R.drawable.ic_phone,

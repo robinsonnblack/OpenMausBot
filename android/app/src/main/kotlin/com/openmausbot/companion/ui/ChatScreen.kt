@@ -604,6 +604,24 @@ private fun LoadedChat(
     }
 
     val bot = (chat as? Chat.BotChat)?.bot
+    val phoneSpeech = (context.applicationContext as com.openmausbot.companion.OpenMausApp).phoneSpeech
+    val alreadyRead = remember(threadId) { rawTranscript.map { it.id }.toMutableSet() }
+    var readJob by remember(threadId) { mutableStateOf<Job?>(null) }
+    LaunchedEffect(rawTranscript, bot?.speakReplies, showingCall) {
+        val fresh = rawTranscript.filter { it.id !in alreadyRead }
+        alreadyRead += rawTranscript.map { it.id }
+        if (bot?.speakReplies == true && !showingCall) {
+            val replies = fresh.filter { it.kind == com.openmausbot.companion.core.Message.Kind.TEXT && it.role == com.openmausbot.companion.core.Message.Role.BOT && !it.text.isNullOrBlank() }
+            if (replies.isNotEmpty()) {
+                val previous = readJob
+                readJob = scope.launch {
+                    previous?.join()
+                    for (reply in replies) phoneSpeech.speak(reply.text.orEmpty(), bot.voice, reply.id)
+                }
+            }
+        } else { readJob?.cancel(); phoneSpeech.stop() }
+    }
+    DisposableEffect(threadId) { onDispose { readJob?.cancel(); phoneSpeech.stop() } }
     val pinnedId = chat.pinnedMessageId
     val pinnedSnippet = pinnedId?.let { id ->
         rawTranscript.firstOrNull { it.id == id }?.text?.trim()?.take(100)

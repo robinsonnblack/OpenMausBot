@@ -55,6 +55,8 @@ class OpenMausApp : Application() {
         private set
     lateinit var voicePreview: VoicePreviewPlayer
         private set
+    lateinit var phoneSpeech: com.openmausbot.companion.audio.PhoneSpeech
+        private set
     lateinit var voiceNotes: VoiceNotePlayer
         private set
     lateinit var linger: SessionLingerController
@@ -91,6 +93,7 @@ class OpenMausApp : Application() {
         avatars = AvatarImageStore(fetch = session::avatarData)
         voicePreview = VoicePreviewPlayer(this)
         voiceNotes = VoiceNotePlayer(this)
+        phoneSpeech = com.openmausbot.companion.audio.PhoneSpeech(this)
 
         // iOS resets the avatar cache inside signOut. Observe Unpaired here so
         // the platform cache cannot outlive the pairing that minted its URLs.

@@ -165,8 +165,8 @@ object ProfileRules {
      * shared contract owns them, and a narrower client limit would silently
      * truncate a profile written on the desktop.
      */
-    fun patch(form: ProfileForm, baseline: ProfileForm, config: ConfigStatus?): BotProfilePatch {
-        val savedSpeakReplies = config
+    fun patch(form: ProfileForm, baseline: ProfileForm, config: ConfigStatus?, phoneCanSpeak: Boolean = false): BotProfilePatch {
+        val savedSpeakReplies = if (phoneCanSpeak) form.speakReplies else config
             ?.let { it.canSpeak(form.voice) && form.speakReplies }
             ?: form.speakReplies
         return BotProfilePatch(

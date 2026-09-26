@@ -2470,6 +2470,9 @@ class Session(
         null
     }
 
+    suspend fun importTtsSettings(publicKey: String): kotlinx.serialization.json.JsonObject =
+        (client ?: throw APIError.Transport("This computer is offline.")).importTtsSettings(publicKey)
+
     suspend fun transferSettings(botId: String): kotlinx.serialization.json.JsonObject =
         (client ?: throw APIError.Transport("This computer is offline.")).transferSettings(botId)
 

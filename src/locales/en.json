@@ -3540,5 +3540,22 @@
   "transfer.field.managedSections": "Managed teams",
   "call.stt.unavailable": "Speech recognition is unavailable in this app build.",
   "call.stt.setup": "Choose a local speech model or a transcription provider in Settings → Transcription. Windows voice typing cannot transcribe calls automatically.",
-  "call.stt.startFailed": "The microphone could not start. Check microphone access."
+  "call.stt.startFailed": "The microphone could not start. Check microphone access.",
+  "phoneVoice.title": "Voice",
+  "phoneVoice.help": "Speech is generated and played on this device. The provider key is stored securely on this phone and used by all bots. Each bot keeps its own voice.",
+  "phoneVoice.android": "Android voices",
+  "phoneVoice.key": "API key",
+  "phoneVoice.default": "Default voice ID",
+  "phoneVoice.url": "Voice server URL",
+  "phoneVoice.save": "Save",
+  "phoneVoice.test": "Test",
+  "phoneVoice.import": "Import voice settings from the laptop",
+  "phoneVoice.saved": "Voice settings saved.",
+  "phoneVoice.sample": "Hello. This is a test of my voice.",
+  "phoneVoice.read": "Read aloud",
+  "phoneVoice.stop": "Stop reading",
+  "phoneVoice.failed": "Speech could not be generated or played.",
+  "phoneVoice.required": "Choose a voice in the bot profile or a default voice in Voice settings.",
+  "phoneVoice.language_missing": "Install a voice for this language in the Android text-to-speech settings.",
+  "phoneVoice.provider_error": "The voice provider returned HTTP {code}."
 }

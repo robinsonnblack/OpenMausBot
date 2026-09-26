@@ -462,6 +462,11 @@ class CompanionClient(
         return raw.data
     }
 
+    suspend fun importTtsSettings(publicKey: String): JsonObject {
+        requireProtectedAdminRoute("Voice settings")
+        return send(makeRequest("POST", "/api/tts/device-settings", body = buildJsonObject { put("publicKey", publicKey) }))
+    }
+
     suspend fun transferSettings(botId: String): JsonObject =
         send<JsonObject>(makeRequest("GET", "/api/bots/${segment(botId)}/transfer-settings"))["settings"]!!.jsonObject
 

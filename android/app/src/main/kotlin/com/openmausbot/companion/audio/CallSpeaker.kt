@@ -55,9 +55,9 @@ class CallSpeaker internal constructor(
                 }
                 if (!started) {
                     synchronized(lock) { releaseCurrentLocked() }
-                    continue
+                    return false
                 }
-                done.await()
+                if (!done.await()) return false
                 synchronized(lock) {
                     if (generation != mine) return false
                     releaseCurrentLocked()

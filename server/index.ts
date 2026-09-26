@@ -1,3 +1,4 @@
+import { sealDeviceTtsSettings } from "./device-tts-settings.ts";
 import { transferableSettings } from "../shared/bot-settings-transfer.ts";
 import { SttImportBridge, createSttImportRoutes } from "./routes/stt-import.ts";
 import { validPermissions, configPermissionDenial, effectivePermissions, type PermissionMap } from "../companion/src/permissions.ts";
@@ -18006,6 +18007,12 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       const visible = wireBot(updated);
       broadcast({ kind: "bot", bot: visible });
       return json(res, 200, { bot: visible });
+    }
+    if (path === "/api/tts/device-settings" && method === "POST") {
+      if (!auth.scopes.includes("admin")) return json(res, 403, { error: "Administrator access is required" });
+      const body = await readBody(req);
+      try { return json(res, 200, sealDeviceTtsSettings(body?.publicKey, cfg)); }
+      catch { return json(res, 400, { error: "Invalid phone encryption key" }); }
     }
     m = path.match(/^\/api\/bots\/([\w-]+)\/transfer-settings$/);
     if (m && method === "GET") {

@@ -113,7 +113,9 @@ const existing = JSON.parse(readFileSync(localePath, "utf8"));
 const state = JSON.parse(readFileSync(hashesPath, "utf8"));
 const hashes = state.locales[code] ?? {};
 const index = usageIndex();
-const missing = Object.keys(source).filter((key) => !Object.hasOwn(existing, key) || hashes[key] !== sourceHash(source[key]));
+const prefixAt = options.indexOf("--prefix");
+const prefixes = prefixAt < 0 ? null : options[prefixAt + 1].split(",");
+const missing = Object.keys(source).filter((key) => (!prefixes || prefixes.some(prefix => key.startsWith(prefix))) && (!Object.hasOwn(existing, key) || hashes[key] !== sourceHash(source[key])));
 const groups = new Map();
 for (const key of missing) {
   const family = key.startsWith("hardcoded.")

@@ -202,7 +202,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
         modelsLoaded = true
         // A stored "speak replies" that nothing can speak is turned off before
         // the toggle is ever drawn.
-        form = ProfileRules.applyLoadedConfig(form, loaded.first)
+        // Android can synthesize locally regardless of the laptop voice setup.
     }
 
     LaunchedEffect(connection?.id, connection?.serverScopes) {
@@ -281,7 +281,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 }
 
                 FormSection(header = null) {
-                    TextButton(onClick = { showingTransfer = true }) { Text(stringResource(R.string.transfer_title)) }
+                    TextButton(enabled = !busy, onClick = { scope.launch {
+                        busy = true
+                        try {
+                            val updated = session.updateProfile(ProfileRules.patch(form, baseline, config, phoneCanSpeak = true), liveBot())
+                            if (updated != null) { form = ProfileForm.of(updated); baseline = form; showingTransfer = true }
+                        } finally { busy = false }
+                    } }) { Text(stringResource(R.string.transfer_title)) }
 
                     ActionRow(
                         text = stringResource(R.string.ui_what_this_bot_does_7a664f4),
@@ -965,37 +971,20 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     SwitchRow(
                         label = stringResource(R.string.ui_speak_replies_90b05ae),
                         checked = form.speakReplies,
-                        enabled = ProfileRules.selectedVoiceCanSpeak(config, form.voice),
+                        enabled = !busy,
                         onCheckedChange = { form = form.copy(speakReplies = it) },
                     )
-                    val previewRefused = localizedProfileCopy(ProfileRules.PREVIEW_REFUSED)
+                    val previewSample = stringResource(R.string.phone_voice_sample)
                     ActionRow(
                         text = stringResource(R.string.ui_preview_voice_560a6fe),
                         painter = R.drawable.ic_volume_up,
-                        enabled = ProfileRules.canPreview(busy, config, form.voice),
+                        enabled = !busy,
                         onClick = {
                             scope.launch {
-                                if (!ProfileRules.selectedVoiceCanSpeak(config, form.voice)) {
-                                    session.actionError = previewRefused
-                                    return@launch
-                                }
                                 busy = true
                                 try {
-                                    val data = session.previewVoice(form.voice, liveBot())
-                                        ?: return@launch
-                                    // `rememberCoroutineScope` dispatches on
-                                    // main, and starting a preview reaches
-                                    // MediaPlayer.prepare(), which blocks
-                                    // until the source is decodable. The
-                                    // controller serialises every transition
-                                    // on its own lock and its callbacks are
-                                    // delivered on the main Looper, so it is
-                                    // safe to start from a worker; the result
-                                    // lands back on main to be reported.
-                                    val failure = withContext(Dispatchers.IO) {
-                                        player.play(data)
-                                    }
-                                    failure?.let { session.actionError = it }
+                                    val speech = (context.applicationContext as com.openmausbot.companion.OpenMausApp).phoneSpeech
+                                    if (!speech.speak(previewSample, form.voice)) session.actionError = speech.error.value
                                 } finally {
                                     busy = false
                                 }
@@ -1015,7 +1004,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                             scope.launch {
                                 busy = true
                                 val updated = session.updateProfile(
-                                    ProfileRules.patch(form, baseline, config),
+                                    ProfileRules.patch(form, baseline, config, phoneCanSpeak = true),
                                     liveBot(),
                                 )
                                 if (updated != null) {

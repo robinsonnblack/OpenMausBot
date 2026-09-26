@@ -69,13 +69,14 @@ internal fun CallScreen(bot: Bot, onDismiss: () -> Unit) {
     val microphone = environment.dictation
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val speaker = remember { CallSpeaker(context) }
+    val speaker = (context.applicationContext as com.openmausbot.companion.OpenMausApp).phoneSpeech
     val state by session.state.collectAsState()
     val current = state.bot(bot.id) ?: bot
     val messages = remember(state, current.threadId) { state.visibleTranscript(current.threadId) }
     val transcript by microphone.transcript.collectAsState()
     val microphoneError by microphone.error.collectAsState()
     val speaking by speaker.isSpeaking.collectAsState()
+    val speakerError by speaker.error.collectAsState()
 
     var phase by remember { mutableStateOf(CallPhase.LISTENING) }
     var note by remember { mutableStateOf<String?>(null) }
@@ -110,18 +111,8 @@ internal fun CallScreen(bot: Bot, onDismiss: () -> Unit) {
         phase = CallPhase.SPEAKING
         microphone.stop()
         return try {
-            val prepared = session.prepareSpeech(text, current.voice)
-            if (!prepared.ready) {
-                note = CallRules.noVoiceNote(current.name)
-                return sayGeneration == mine
-            }
-            val clips = ArrayList<ByteArray>(prepared.utterances.size)
-            for (utterance in prepared.utterances) {
-                if (sayGeneration != mine) return false
-                clips += session.speak(utterance, current.voice)
-            }
-            if (sayGeneration != mine) return false
-            speaker.speak(clips) && sayGeneration == mine
+            speaker.speak(text, current.voice)
+            sayGeneration == mine
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
@@ -177,6 +168,7 @@ internal fun CallScreen(bot: Bot, onDismiss: () -> Unit) {
     }
 
     LaunchedEffect(microphoneError) { microphoneError?.let { note = it } }
+    LaunchedEffect(speakerError) { speakerError?.let { note = it } }
 
     fun hangUp() {
         sayGeneration += 1

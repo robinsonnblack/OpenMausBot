@@ -424,7 +424,13 @@ private fun MessageContent(
     openThread: ((ThreadRef) -> Unit)?,
 ) {
     when (message.kind) {
-        Message.Kind.TEXT -> TextBubble(chat.threadId, message, endsRun, openLink, openAttachment)
+        Message.Kind.TEXT -> Column {
+            TextBubble(chat.threadId, message, endsRun, openLink, openAttachment)
+            if (message.role == Message.Role.BOT && !message.text.isNullOrBlank()) {
+                val voice = (chat as? Chat.BotChat)?.bot?.voice
+                ReadAloudButton(message.text.orEmpty(), voice, message.id)
+            }
+        }
         // A structured ask draws its own card: its answers are the model's
         // questions, not an allow/deny a tap could stand for.
         Message.Kind.OPTIONS -> if (QuestionCardRules.drawsQuestionCard(message)) {
