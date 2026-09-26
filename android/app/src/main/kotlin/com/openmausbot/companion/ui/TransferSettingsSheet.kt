@@ -46,7 +46,9 @@ import kotlinx.serialization.json.*
             }
             Text(label("transfer.fields"), style = MaterialTheme.typography.titleMedium)
             source?.keys?.forEach { field ->
-                Row { Checkbox(field in fields, enabled = !busy, onCheckedChange = { fields = if (it) fields + field else fields - field }); Text(label("transfer.field.$field"), Modifier.padding(top = 12.dp)) }
+                val desktopGrant = field == "approvalMode" && source?.get(field)?.jsonPrimitive?.content in listOf("full", "custom")
+                Row { Checkbox(field in fields, enabled = !busy && !desktopGrant, onCheckedChange = { fields = if (it) fields + field else fields - field }); Text(label("transfer.field.$field"), Modifier.padding(top = 12.dp)) }
+                if (desktopGrant) Text(androidx.compose.ui.res.stringResource(com.openmausbot.companion.R.string.ui_bot_approval_desktop_only))
             }
             Button(enabled = !busy && fields.isNotEmpty() && targets.isNotEmpty(), onClick = {
                 scope.launch {

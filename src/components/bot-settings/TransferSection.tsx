@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { api, useStore, type Bot } from "@/state/store";
+import { api, persistBotUpdate, useStore, type Bot } from "@/state/store";
+import type { BotUpdatePatch } from "@/state/bot-patch-queue";
 import { t } from "@/lib/i18n";
 import type { LocaleKey } from "@/locales";
 import { TRANSFER_SETTINGS, settingsTransferPatch } from "../../../shared/bot-settings-transfer";
@@ -29,8 +30,9 @@ export function TransferSection({ bot }: { bot: Bot }) {
       try {
         await flushBotPatches(id);
         const target = state.bots.find(b => b.id === id);
-        await api(`/api/bots/${id}`, { method: "PATCH", body: JSON.stringify({ ...snapshot,
-          ...(snapshot.modelSelection !== undefined && target ? { threadId: target.threadId } : {}) }) });
+        const patch = { ...snapshot,
+          ...(snapshot.modelSelection !== undefined && target ? { threadId: target.threadId } : {}) };
+        await persistBotUpdate(id, patch as BotUpdatePatch, new AbortController().signal, api, window.ogb?.approvals, target);
         done.push(id);
       } catch (e) { failures.push(`${state.bots.find(b => b.id === id)?.name ?? id}: ${e instanceof Error ? e.message : String(e)}`); }
     }
