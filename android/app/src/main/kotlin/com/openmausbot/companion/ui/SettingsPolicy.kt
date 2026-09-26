@@ -52,7 +52,7 @@ object SettingsPolicy {
     fun pairingAccessText(connection: Connection): String {
         val scopes = connection.serverScopes
         return when {
-            !connection.pairedWithServer || scopes == null -> "Unknown (older pairing)"
+            scopes == null -> "Connection rights have not been retrieved from the desktop"
             "admin" in scopes -> "Full access"
             "client" in scopes -> "Chat and approvals"
             else -> "Limited access"

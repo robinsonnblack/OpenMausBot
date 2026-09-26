@@ -3465,5 +3465,14 @@
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "リーダーが目標が達成されるまでグループを調整します。",
   "hardcoded.components.RoutineCalendarPage.fd1c0774": "カレンダーイベントには、少なくとも1体のボットが必要です。",
   "theme.customSaved": "カスタムテーマを保存しました",
-  "theme.customSaveFailed": "テーマを保存できませんでした。もう一度お試しください。"
+  "theme.customSaveFailed": "テーマを保存できませんでした。もう一度お試しください。",
+  "pairingAccess.title": "Phone connection rights",
+  "pairingAccess.change": "Change connection rights for {name}",
+  "pairingAccess.adminDetail": "Allowed: chats, approvals, routines, advanced bot management and workspace administration.",
+  "pairingAccess.clientDetail": "Allowed: chat, approvals and routines. Blocked: advanced bot management and workspace administration.",
+  "pairingAccess.noRepair": "Changes apply to this existing connection. No new pairing or USB debugging is needed.",
+  "pairingAccess.saving": "Saving connection rights…",
+  "pairingAccess.updateDesktop": "Update and restart the desktop app to load and manage this connection’s rights.",
+  "pairingAccess.failed": "Rights were not changed: {error}",
+  "pairingAccess.saved": "Connection rights saved"
 }

@@ -881,7 +881,6 @@
     <string name="android_settings_connecting">Verbindung wird hergestellt …</string>
     <string name="android_settings_not_paired">Nicht gekoppelt</string>
     <string name="android_settings_unpaired_on_computer">Auf dem Computer entkoppelt</string>
-    <string name="android_settings_unknown_pairing">Unbekannt (ältere Kopplung)</string>
     <string name="android_settings_full_access">Vollzugriff</string>
     <string name="android_settings_chat_approvals">Chats und Genehmigungen</string>
     <string name="android_settings_limited_access">Eingeschränkter Zugriff</string>
@@ -1261,4 +1260,17 @@
     <string name="android_snooze_six_pm">Bis 18 Uhr</string>
     <string name="android_snooze_nine_am">Bis morgen um 9 Uhr</string>
     <string name="android_snooze_stop">Zurückstellen beenden</string>
+    <string name="pairing_access_checking">Rechte werden vom Desktop abgerufen …</string>
+    <string name="pairing_access_failed">Rechte konnten nicht abgerufen werden</string>
+    <string name="pairing_access_failed_detail">Grund: %1$s. Verbindung prüfen und bei Bedarf die Desktop-App aktualisieren. Danach „Rechte aktualisieren“ antippen.</string>
+    <string name="pairing_access_refresh">Rechte aktualisieren</string>
+    <string name="pairing_access_live">Vom verbundenen Desktop bestätigt. Ändere diese Rechte dort unter Fernzugriff. Keine neue Kopplung und kein USB-Debugging nötig.</string>
+    <string name="pairing_access_allowed">Erlaubt</string>
+    <string name="pairing_access_denied">Gesperrt</string>
+    <string name="pairing_access_chat">Chats</string>
+    <string name="pairing_access_approvals">Freigaben</string>
+    <string name="pairing_access_routines">Routinen</string>
+    <string name="pairing_access_bots">Erweiterte Bot-Verwaltung</string>
+    <string name="pairing_access_settings">Workspace-Verwaltung</string>
+    <string name="pairing_access_desktop">Cloud-Desktop bedienen</string>
 </resources>

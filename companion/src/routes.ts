@@ -30,6 +30,7 @@ export interface RouteRequest {
   method: string;
   /** Whether the bearer token on the request matched a paired device. */
   authenticated: boolean;
+  access?: "admin" | "client";
 }
 
 /** The one companion route that crosses into full interactive desktop
@@ -226,7 +227,7 @@ const EXPLAINED: ReadonlyArray<{ path: RegExp; error: string }> = [
  * is what keeps a stolen token from mapping the API. An allowlist rather than
  * a blocklist is the property this whole module exists for, and the one that
  * quietly stopped being true once before. */
-export function denyReason({ path, method, authenticated }: RouteRequest): Denial | null {
+export function denyReason({ path, method, authenticated, access }: RouteRequest): Denial | null {
   // Pairing is the one thing a device does before it has a credential.
   if (method === "POST" && path === "/api/pair") return null;
   // Liveness is the other: it exists to be the first thing anyone curls when
@@ -238,6 +239,22 @@ export function denyReason({ path, method, authenticated }: RouteRequest): Denia
   if (!authenticated) {
     return { status: 401, error: "pair this device from Remote access settings on the host computer" };
   }
+
+  // Forward only canonical paths. URL normalization must never turn an
+  // authorized path into a private route after the permission check.
+  try {
+    const decoded = decodeURIComponent(path);
+    if (decoded !== path || decoded.includes("\\") || decoded.split("/").some(part => part === "." || part === "..")) {
+      return { status: 400, error: "Invalid API path" };
+    }
+  } catch { return { status: 400, error: "Invalid API path" }; }
+
+  if (method === "GET" && path === "/api/companion/access") return null;
+  // Full workspace administration is an explicit per-device grant. Private tool
+  // capabilities and pairing/session administration remain outside this relay.
+  if (access === "admin" && path.startsWith("/api/") &&
+      !/^\/api\/(?:internal|testing|auth)(?:\/|$)/.test(path) &&
+      ["GET", "POST", "PUT", "PATCH", "DELETE"].includes(method)) return null;
 
   if (ALLOWED.some((route) => route.method === method && route.path.test(path))) return null;
 

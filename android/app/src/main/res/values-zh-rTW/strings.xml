@@ -881,7 +881,6 @@
     <string name="android_settings_connecting">正在連線…</string>
     <string name="android_settings_not_paired">尚未配對</string>
     <string name="android_settings_unpaired_on_computer">已在電腦上解除配對</string>
-    <string name="android_settings_unknown_pairing">未知（較舊的配對）</string>
     <string name="android_settings_full_access">完整存取權</string>
     <string name="android_settings_chat_approvals">聊天與核准</string>
     <string name="android_settings_limited_access">有限存取權</string>
@@ -1261,4 +1260,17 @@
     <string name="android_snooze_six_pm">直到下午 6 點</string>
     <string name="android_snooze_nine_am">直到明天上午 9 點</string>
     <string name="android_snooze_stop">停止延後提醒</string>
+    <string name="pairing_access_checking">Retrieving rights from the desktop…</string>
+    <string name="pairing_access_failed">Rights could not be retrieved</string>
+    <string name="pairing_access_failed_detail">Reason: %1$s. Check the connection and update the desktop app if needed, then tap Refresh rights.</string>
+    <string name="pairing_access_refresh">Refresh rights</string>
+    <string name="pairing_access_live">Confirmed by the connected desktop. Change these rights there under Remote access; no new pairing or USB debugging is needed.</string>
+    <string name="pairing_access_allowed">Allowed</string>
+    <string name="pairing_access_denied">Blocked</string>
+    <string name="pairing_access_chat">Chats</string>
+    <string name="pairing_access_approvals">Approvals</string>
+    <string name="pairing_access_routines">Routines</string>
+    <string name="pairing_access_bots">Advanced bot management</string>
+    <string name="pairing_access_settings">Workspace administration</string>
+    <string name="pairing_access_desktop">Cloud desktop control</string>
 </resources>

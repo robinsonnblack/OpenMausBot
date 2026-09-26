@@ -3465,5 +3465,14 @@
   "hardcoded.components.RoutineCalendarPage.5e573d1d": "Eine Leitung koordiniert die Gruppe, bis das Ziel erreicht ist.",
   "hardcoded.components.RoutineCalendarPage.fd1c0774": "Ein Kalendereintrag benötigt mindestens einen Bot.",
   "theme.customSaved": "Eigenes Design gespeichert",
-  "theme.customSaveFailed": "Das Design konnte nicht gespeichert werden. Bitte versuche es erneut."
+  "theme.customSaveFailed": "Das Design konnte nicht gespeichert werden. Bitte versuche es erneut.",
+  "pairingAccess.title": "Rechte der Handyverbindung",
+  "pairingAccess.change": "Verbindungsrechte für {name} ändern",
+  "pairingAccess.adminDetail": "Erlaubt: Chats, Freigaben, Routinen, erweiterte Bot-Verwaltung und Workspace-Verwaltung.",
+  "pairingAccess.clientDetail": "Erlaubt: Chats, Freigaben und Routinen. Gesperrt: erweiterte Bot-Verwaltung und Workspace-Verwaltung.",
+  "pairingAccess.noRepair": "Änderungen gelten für diese bestehende Verbindung. Keine neue Kopplung und kein USB-Debugging nötig.",
+  "pairingAccess.saving": "Verbindungsrechte werden gespeichert …",
+  "pairingAccess.updateDesktop": "Desktop-App aktualisieren und neu starten, um die Rechte dieser Verbindung abzurufen und zu verwalten.",
+  "pairingAccess.failed": "Rechte wurden nicht geändert: {error}",
+  "pairingAccess.saved": "Verbindungsrechte gespeichert"
 }

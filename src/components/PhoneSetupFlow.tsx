@@ -65,6 +65,7 @@ export interface PhoneDevice {
   createdAt: number;
   lastSeenAt: number;
   cloudDesktopAccess: boolean;
+  access?: "admin" | "client";
 }
 
 export interface CompanionState {
@@ -92,6 +93,7 @@ export type CompanionBridge = {
   keepAwake: (enabled: boolean) => Promise<CompanionState>;
   refreshTailscale: () => Promise<CompanionState>;
   pairing: (open: boolean, expectedToken?: string) => Promise<CompanionState>;
+  access?: (deviceId: string, access: "admin" | "client") => Promise<CompanionState>;
   cloudDesktop: (deviceId: string, allowed: boolean) => Promise<CompanionState>;
   revoke: (deviceId: string) => Promise<CompanionState>;
 };
@@ -216,7 +218,7 @@ export interface PhoneSetupController {
   refreshCode: () => void;
   finish: () => void;
   skip: () => void;
-  act: (call: (companion: CompanionBridge) => Promise<CompanionState>) => Promise<void>;
+  act: (call: (companion: CompanionBridge) => Promise<CompanionState>, propagateFailure?: boolean) => Promise<void>;
   accountAct: (call: (remote: AccountBridge) => Promise<CompanionAccountState>) => Promise<void>;
 }
 
@@ -298,7 +300,7 @@ export function usePhoneSetupController(profileEmail = ""): PhoneSetupController
     if (!emailEdited.current && profileEmail) setEmailState(profileEmail);
   }, [profileEmail]);
 
-  const act = useCallback(async (call: (companion: CompanionBridge) => Promise<CompanionState>) => {
+  const act = useCallback(async (call: (companion: CompanionBridge) => Promise<CompanionState>, propagateFailure = false) => {
     const companion = companionBridge();
     if (!companion) return;
     setActionBusy(true);
@@ -316,6 +318,7 @@ export function usePhoneSetupController(profileEmail = ""): PhoneSetupController
           t("phone.error.remoteUpdate"),
         ),
       );
+      if (propagateFailure) throw cause;
     } finally {
       if (mounted.current) setActionBusy(false);
     }

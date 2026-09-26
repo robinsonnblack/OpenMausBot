@@ -277,6 +277,7 @@ export function clearSessionCookie(name: string): string {
  * filter in the handler (bot and room edits: display fields only). Loopback
  * holds both scopes. */
 export const CLIENT_ALLOW: ReadonlyArray<{ methods: readonly string[]; path: RegExp; feature?: "sharedComputers" }> = [
+  { methods: ["GET"], path: /^\/api\/companion\/access$/ },
   // own session
   { methods: ["GET"], path: /^\/api\/auth\/session$/ },
   { methods: ["POST"], path: /^\/api\/auth\/stream-ticket$/ },
@@ -489,7 +490,7 @@ export function resolveRequestAuth(req: IncomingMessage, options: ResolveOptions
         !secureTokenMatch(companionToken, options.companionMutationToken ?? "") ||
         req.headers["x-openmausbot-companion"] !== "1" ||
         !/^[\w-]{1,128}$/.test(headerValue(req.headers["x-openmausbot-companion-device"]) ?? "") ||
-        companionDenial({ path, method, authenticated: true })
+        companionDenial({ path, method, authenticated: true, access: req.headers["x-openmausbot-companion-access"] === "admin" ? "admin" : "client" })
       ) return deny(403, "forbidden: invalid companion request");
       return { auth: { kind: "loopback", scopes: LOOPBACK_SCOPES }, status: 401, error: "" };
     }

@@ -1,3 +1,4 @@
+import { DeviceAccessControl } from "./DeviceAccessControl";
 import { useRef } from "react";
 import { t } from "@/lib/i18n";
 import {
@@ -283,6 +284,11 @@ export function CompanionSection({ profileEmail = "" }: { profileEmail?: string 
                     <Trash2 size={14} />
                   </button>
                 </div>
+                <DeviceAccessControl name={device.name} access={device.access} disabled={c.busy}
+                  onChange={async access => { await c.act(async companion => {
+                    if (!companion.access) throw new Error(t("pairingAccess.updateDesktop"));
+                    return companion.access(device.id, access);
+                    }, true); }} />
                 <div className="mt-3 flex items-center justify-between gap-3 border-t border-hairline/30 pt-3">
                   <div>
                     <div className="text-[12px] text-ink">{t("remote.devices.allowView")}</div>

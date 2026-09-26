@@ -165,6 +165,10 @@ describe("resolveRequestAuth", () => {
       ["POST", "/api/bots/b/secret-cards/card/provide"],
       ["GET", "/api/events"], ["PATCH", "/api/bots/b/profile"],
     ]) expect(check(method, path).auth?.kind, path).toBe("loopback");
+    expect(check("GET", "/api/usage").auth).toBeNull();
+    expect(check("GET", "/api/usage", { "x-openmausbot-companion-access": "admin" }).auth?.kind).toBe("loopback");
+    expect(check("GET", "/api/usage", { "x-openmausbot-companion-access": "admin", "x-openmausbot-companion-auth": "forged" }).auth).toBeNull();
+    expect(check("GET", "/api/auth/sessions", { "x-openmausbot-companion-access": "admin" }).auth).toBeNull();
     const forged: Record<string, string>[] = [
       { "x-openmausbot-companion-auth": "" },
       { "x-openmausbot-companion-auth": "desktop-secret" },

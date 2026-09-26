@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.openmausbot.companion.core.PairingAccessState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,6 +71,15 @@ fun SettingsScreen(
     val connection by session.connection.collectAsState()
     val connections by session.connections.collectAsState()
     val status by session.status.collectAsState()
+    val pairingAccess by session.pairingAccess.collectAsState()
+    LaunchedEffect(connection?.id, status) {
+        if (connection != null) {
+            do {
+                session.refreshPairingAccess()
+                delay(5_000)
+            } while (status == Session.Status.Live)
+        }
+    }
     val notifications by environment.notifications.access.collectAsState()
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
     val showThreads by environment.chatPreferences.showThreads.collectAsState()
@@ -188,7 +198,7 @@ fun SettingsScreen(
                 }
                 SettingsRow(stringResource(R.string.android_settings_connection_6512ee), localizedConnectionStatus(status))
                 if (bound != null) {
-                    SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), localizedPairingAccess(bound))
+                    PairingAccessDetails(pairingAccess) { scope.launch { session.refreshPairingAccess() } }
                     Footnote(stringResource(R.string.android_settings_this_is_the_access_granted_to_this_phone_f_70120e))
                     SettingsButton(stringResource(R.string.android_settings_connect_another_computer_2a3942)) {
                         haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
@@ -671,6 +681,33 @@ private fun SettingsSection(title: String?, content: @Composable () -> Unit) {
 }
 
 @Composable
+internal fun PairingAccessDetails(pairingAccess: PairingAccessState, onRefresh: () -> Unit) {
+    when (val access = pairingAccess) {
+        PairingAccessState.Checking -> SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), stringResource(R.string.pairing_access_checking))
+        is PairingAccessState.Failed -> {
+            SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), stringResource(R.string.pairing_access_failed))
+            Footnote(stringResource(R.string.pairing_access_failed_detail, access.reason))
+        }
+        is PairingAccessState.Ready -> {
+            SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), stringResource(if (access.access.role == "admin") R.string.android_settings_full_access else R.string.android_settings_chat_approvals))
+            val permissions = access.access.permissions
+            listOf(
+                R.string.pairing_access_chat to permissions.chat,
+                R.string.pairing_access_approvals to permissions.approvals,
+                R.string.pairing_access_routines to permissions.routines,
+                R.string.pairing_access_bots to permissions.manageBots,
+                R.string.pairing_access_settings to permissions.manageSettings,
+                R.string.pairing_access_desktop to permissions.cloudDesktop,
+            ).forEach { (label, allowed) ->
+                SettingsRow(stringResource(label), stringResource(if (allowed) R.string.pairing_access_allowed else R.string.pairing_access_denied))
+            }
+            Footnote(stringResource(R.string.pairing_access_live))
+        }
+    }
+    SettingsButton(stringResource(R.string.pairing_access_refresh), onClick = onRefresh)
+}
+
+@Composable
 private fun SettingsRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(label, fontSize = 15.sp, color = secondaryTint)
@@ -791,18 +828,6 @@ private fun localizedConnectionStatus(status: Session.Status): String = when (st
     Session.Status.Unpaired -> stringResource(R.string.android_settings_not_paired)
     Session.Status.Unauthorized -> stringResource(R.string.android_settings_unpaired_on_computer)
     is Session.Status.Offline -> status.message
-}
-
-@Composable
-private fun localizedPairingAccess(connection: Connection): String {
-    val scopes = connection.serverScopes
-    val resource = when {
-        !connection.pairedWithServer || scopes == null -> R.string.android_settings_unknown_pairing
-        "admin" in scopes -> R.string.android_settings_full_access
-        "client" in scopes -> R.string.android_settings_chat_approvals
-        else -> R.string.android_settings_limited_access
-    }
-    return stringResource(resource)
 }
 
 @Composable

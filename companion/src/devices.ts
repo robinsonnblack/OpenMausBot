@@ -17,6 +17,8 @@ import { DATA_DIR, ensureDataDir, writeFileAtomic } from "./state.ts";
 
 /** One paired phone, as it is written to disk. */
 export interface DeviceRecord {
+  /** Existing companions retain their previous restricted surface. */
+  access: "admin" | "client";
   id: string;
   name: string;
   /** sha256 of the bearer token — never the token itself */
@@ -119,6 +121,7 @@ function normalizeDevice(record: Partial<DeviceRecord> & { id: string; tokenHash
     createdAt,
     lastSeenAt: timestamp(record.lastSeenAt, createdAt),
     cloudDesktopAccess: record.cloudDesktopAccess === true,
+    access: record.access === "admin" ? "admin" : "client",
   };
 }
 
@@ -272,6 +275,7 @@ export class DeviceRegistry {
       createdAt: Date.now(),
       lastSeenAt: Date.now(),
       cloudDesktopAccess: false,
+      access: "client",
     };
     this.devices.push(device);
     // Unlike the lastSeenAt write below, this one must not be swallowed. A
@@ -340,9 +344,17 @@ export class DeviceRegistry {
     return true;
   }
 
-  /** Grant or remove the one capability that crosses from companion actions
-   * into full desktop control. This is per device so a watch-only phone does
-   * not inherit a different phone's permission. */
+  /** Persist the workspace role while keeping this device's existing token. */
+  setAccess(id: string, access: "admin" | "client"): boolean {
+    const device = this.devices.find(candidate => candidate.id === id);
+    if (!device) return false;
+    const previous = device.access;
+    device.access = access;
+    try { this.persist(); } catch (error) { device.access = previous; throw error; }
+    return true;
+  }
+
+  /** Cloud desktop control remains a separate per-device capability. */
   setCloudDesktopAccess(id: string, allowed: boolean): boolean {
     const device = this.devices.find((candidate) => candidate.id === id);
     if (!device) return false;

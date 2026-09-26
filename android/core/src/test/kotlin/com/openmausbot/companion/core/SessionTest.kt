@@ -40,6 +40,66 @@ import okhttp3.mockwebserver.MockWebServer
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionTest {
     @Test
+    fun legacyPairingFetchesLiveRightsAndUpdatesSameConnectionWithoutReplacingToken() = runTest {
+        val server = MockWebServer()
+        server.start()
+        try {
+            val connection = Connection(id = "existing", name = "Desktop", host = "127.0.0.1", port = server.port)
+            val store = FakeConnectionStore(connection)
+            val tokens = FakeTokenStore().apply { saved[connection.id] = "same-phone-token" }
+            val session = session(connectionStore = store, tokenStore = tokens, access = { it.pairingAccess() })
+            session.awaitRestored()
+            for (role in listOf("admin", "client")) {
+                val admin = role == "admin"
+                server.enqueue(MockResponse().setBody("""{"role":"$role","scopes":${if (admin) "[\"admin\",\"client\"]" else "[\"client\"]"},"permissions":{"chat":true,"approvals":true,"routines":true,"manageBots":$admin,"manageSettings":$admin,"cloudDesktop":false}}"""))
+                session.refreshPairingAccess()
+                val ready = assertIs<PairingAccessState.Ready>(session.pairingAccess.value)
+                assertEquals(role, ready.access.role)
+                assertEquals(admin, ready.access.permissions.manageSettings)
+                assertEquals(admin, session.connection.value?.serverScopes?.contains("admin"))
+                assertEquals(connection.id, store.saved?.id)
+                assertEquals("same-phone-token", tokens.saved[connection.id])
+                val request = server.takeRequest()
+                assertEquals("/api/companion/access", request.path)
+                assertEquals("Bearer same-phone-token", request.getHeader("Authorization"))
+            }
+            server.enqueue(MockResponse().setResponseCode(404).setBody("""{"error":"no route"}"""))
+            session.refreshPairingAccess()
+            val failed = assertIs<PairingAccessState.Failed>(session.pairingAccess.value)
+            assertTrue(failed.reason.contains("Update and restart"))
+            assertFalse(failed.reason.contains("older pairing"))
+        } finally { server.shutdown() }
+    }
+
+    @Test
+    fun delayedPermissionResponseCannotApplyAfterUnpairing() = runTest {
+        val answer = CompletableDeferred<PairingAccess>()
+        val connection = Connection(id = "old", name = "Desktop", host = "127.0.0.1", port = 8810)
+        val session = session(connectionStore = FakeConnectionStore(connection), tokenStore = FakeTokenStore().apply { saved[connection.id] = "token" }, access = { answer.await() })
+        session.awaitRestored()
+        val pending = launch { session.refreshPairingAccess() }
+        runCurrent()
+        session.signOutAndAwait()
+        answer.complete(PairingAccess("admin", listOf("admin", "client"), PairingPermissions(true, true, true, true, true, true)))
+        pending.join()
+        assertNull(session.connection.value)
+        assertIs<PairingAccessState.Checking>(session.pairingAccess.value)
+    }
+
+    @Test
+    fun inconsistentDesktopRightsAreShownAsAFailureInsteadOfFullAccess() = runTest {
+        val server = MockWebServer()
+        server.start()
+        try {
+            server.enqueue(MockResponse().setBody("""{"role":"admin","scopes":["client"],"permissions":{"chat":true,"approvals":true,"routines":true,"manageBots":true,"manageSettings":true,"cloudDesktop":true}}"""))
+            val connection = Connection(id = "existing", name = "Desktop", host = "127.0.0.1", port = server.port)
+            val session = session(connectionStore = FakeConnectionStore(connection), tokenStore = FakeTokenStore().apply { saved[connection.id] = "token" }, access = { it.pairingAccess() })
+            session.awaitRestored()
+            session.refreshPairingAccess()
+            assertTrue(assertIs<PairingAccessState.Failed>(session.pairingAccess.value).reason.contains("inconsistent"))
+        } finally { server.shutdown() }
+    }
+    @Test
     fun deleteBotRequiresAdminScopeBeforeAnyRequest() = runTest {
         val connection = Connection(id = "c1", name = "Mac", host = "192.168.1.2", port = 8810)
             .copy(serverEnvironmentId = "env-fixture", serverScopes = listOf("client"))
@@ -2028,6 +2088,7 @@ class SessionTest {
         },
         // Default: the older sidecar every existing test implicitly speaks to.
         metadata: suspend (CompanionClient) -> CompanionConnectionMetadata = { throw APIError.Status(404) },
+        access: suspend (CompanionClient) -> PairingAccess = { throw APIError.Status(404) },
     ): Session = Session(
         scope = backgroundScope,
         connectionStore = connectionStore,
@@ -2040,6 +2101,7 @@ class SessionTest {
         eventsFn = { _, since, screens -> events(since, screens) },
         hydrateFn = { _, _ -> hydrate() },
         metadataFn = metadata,
+        accessFn = access,
     )
 
     private fun roomJson(): String = """{

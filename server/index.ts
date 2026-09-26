@@ -1,3 +1,4 @@
+import { pairingAccess } from "../companion/src/access.ts";
 import { configurePromptInspector, forgetPromptCaptures } from "./prompt-inspector.ts";
 import { normalizeMeetingLimits, meetingBudgetText } from "../shared/meeting-limits.ts";
 import { MeetingSession } from "./meeting-session.ts";
@@ -13069,6 +13070,10 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
     // are tried here, behind the gate above; do not add route `if`s below.
     if (await dispatchRoutes(ROUTES, { req, res, url, path, method, auth, json, readBody })) return;
 
+    if (method === "GET" && path === "/api/companion/access") {
+      const role = auth.scopes.includes("admin") ? "admin" : "client";
+      return json(res, 200, pairingAccess(role, role === "admin"));
+    }
     // ── sessions: who am I, tickets, pairing and revocation ─────────────
     if (method === "GET" && path === "/api/auth/session") {
       return json(
@@ -13222,6 +13227,16 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       return json(res, 200, { sessions: sessions.list(), current: auth.kind === "session" ? auth.session.id : null });
     }
     m = path.match(/^\/api\/auth\/sessions\/([\w-]+)$/);
+    if (m && method === "PATCH") {
+      if (auth.kind === "session" && auth.session.id === m[1]) return json(res, 403, { error: "Change another device from the desktop; your current session cannot change its own rights" });
+      const body = await readBody(req, 4096);
+      if (!body || Object.keys(body).length !== 1 || !["admin", "client"].includes(body.access)) return json(res, 400, { error: "Choose admin or client access" });
+      if (auth.kind === "session" && !sessions.list().find(session => session.id === auth.session.id)?.scopes.includes("admin")) return json(res, 403, { error: "Administrator access is required" });
+      try {
+        if (!sessions.setScopes(m[1], body.access === "admin" ? ["admin", "client"] : ["client"])) return json(res, 404, { error: "no such session" });
+      } catch (error) { return json(res, 409, { error: error instanceof Error ? error.message : "Could not save device access" }); }
+      return json(res, 200, { sessions: sessions.list() });
+    }
     if (m && method === "DELETE") {
       const revoked = sessions.revoke(m[1]);
       if (auth.kind === "session" && auth.session.id === m[1]) res.setHeader("set-cookie", clearSessionCookie(SESSION_COOKIE));

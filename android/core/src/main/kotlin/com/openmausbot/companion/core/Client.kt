@@ -196,6 +196,12 @@ class CompanionClient(
     suspend fun health(): JsonObject = send(makeRequest("GET", "/api/health"))
 
     /** Wire support for P1-03; applying the snapshot to a live session is deliberately later. */
+    suspend fun pairingAccess(): PairingAccess = send<PairingAccess>(makeRequest("GET", "/api/companion/access")).also {
+        if (it.role !in listOf("admin", "client") || (it.role == "admin") != it.scopes.contains("admin")) {
+            throw APIError.Transport("The desktop returned inconsistent connection rights.")
+        }
+    }
+
     suspend fun connectionMetadata(): CompanionConnectionMetadata =
         send(makeRequest("GET", "/api/companion/endpoints"))
 

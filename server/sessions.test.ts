@@ -35,6 +35,25 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); rmSync(dir, { recursive: true, force: true }); });
 
 describe("the native-app encoding of a pairing window", () => {
+  it("changes rights without replacing credentials, invalidates stream tickets and persists the grant", () => {
+    const issued = registry.issue({ label: "Existing phone", scopes: ["client"] });
+    const ticket = registry.issueStreamTicket(issued.session.id);
+    const disconnected: string[] = [];
+    registry.onSessionRevoked(id => disconnected.push(id));
+    expect(registry.setScopes(issued.session.id, ["admin", "client"])).toBe(true);
+    expect(registry.authenticate(issued.token)?.scopes).toEqual(["admin", "client"]);
+    expect(disconnected).toEqual([issued.session.id]);
+    expect(registry.redeemStreamTicket(ticket.ticket)).toBeNull();
+    expect(new SessionRegistry({ file: file(), now: () => clock }).authenticate(issued.token)?.scopes).toEqual(["admin", "client"]);
+    const write = vi.spyOn(atomic, "writeFileAtomic").mockImplementationOnce(() => { throw new Error("ENOSPC"); });
+    expect(() => registry.setScopes(issued.session.id, ["client"])).toThrow("ENOSPC");
+    expect(registry.authenticate(issued.token)?.scopes).toEqual(["admin", "client"]);
+    expect(disconnected).toHaveLength(1);
+    write.mockRestore();
+    const accounts = new SessionRegistry({ file: join(dir, "accounts.json"), now: () => clock, emailScopes: () => ["client"] });
+    const account = accounts.issue({ label: "Account", email: "owner@example.invalid", scopes: ["client"] });
+    expect(() => accounts.setScopes(account.session.id, ["admin"])).toThrow(/membership/);
+  });
   it("redeems the same window as the typed code, and consumes it", () => {
     const { code, credential } = registry.openPairing({ label: "Pixel" });
     // The shape the Android companion's parser demands: the 9-character

@@ -15,6 +15,7 @@
 import { request as httpRequest, type IncomingMessage, type ServerResponse } from "node:http";
 import type { Duplex } from "node:stream";
 
+import { pairingAccess } from "./access.ts";
 import { bearerToken } from "./devices.ts";
 import {
   COMPANION_ENDPOINT_KINDS,
@@ -33,7 +34,7 @@ export interface ProxyOptions {
    * Undefined keeps standalone sidecars compatible with a plain Node harness. */
   mutationToken?: () => string | null;
   /** Does this bearer token belong to a paired device? */
-  authenticate: (token: string | undefined) => { id?: string; cloudDesktopAccess: boolean } | null;
+  authenticate: (token: string | undefined) => { id?: string; cloudDesktopAccess: boolean; access?: "admin" | "client" } | null;
   /** Redeem a pairing code. Handled here and never forwarded: the harness
    * has no such route and no idea devices exist — pairing is the sidecar's
    * own concern, and the one thing a device does before it has a token. */
@@ -214,7 +215,7 @@ const endpointSnapshot = (options: ProxyOptions): CompanionEndpointSnapshot => {
  * blocklist: `host` and `origin` must not travel (see above), `authorization`
  * is the sidecar's credential and means nothing to the harness, and hop-by-hop
  * headers are by definition not ours to relay. */
-const forwardHeaders = (req: IncomingMessage, authenticatedDeviceId?: string, mutationToken?: string): Record<string, string> => {
+const forwardHeaders = (req: IncomingMessage, authenticatedDeviceId?: string, mutationToken?: string, access: "admin" | "client" = "client"): Record<string, string> => {
   const out: Record<string, string> = {
     accept: String(req.headers.accept ?? "*/*"),
     // Lets a response whose URL is intentionally loopback-only (the VPS SSH
@@ -227,6 +228,7 @@ const forwardHeaders = (req: IncomingMessage, authenticatedDeviceId?: string, mu
   // the harness to bind an encrypted credential to the same paired phone.
   if (authenticatedDeviceId && /^[\w-]{1,128}$/.test(authenticatedDeviceId)) {
     out["x-openmausbot-companion-device"] = authenticatedDeviceId;
+    out["x-openmausbot-companion-access"] = access;
     if (mutationToken) out["x-openmausbot-companion-auth"] = mutationToken;
   }
   const contentType = req.headers["content-type"];
@@ -280,8 +282,13 @@ export function createProxyHandler(options: ProxyOptions) {
       // that disagree about what a credential looks like means the header a
       // phone sends authenticates on one code path and not the other.
       authenticated: Boolean(device),
+      access: device?.access,
     });
     if (denial) return sendJson(res, denial.status, { error: denial.error });
+
+    if (method === "GET" && path === "/api/companion/access" && device) {
+      return sendJson(res, 200, pairingAccess(device.access === "admin" ? "admin" : "client", device.cloudDesktopAccess));
+    }
 
     // Pairing a phone grants the ordinary companion surface, not a browser
     // session with every credential that may exist inside the cloud desktop.
@@ -349,7 +356,7 @@ export function createProxyHandler(options: ProxyOptions) {
         port: options.harnessPort,
         path: req.url,
         method,
-        headers: forwardHeaders(req, device?.id, mutationToken ?? undefined),
+        headers: forwardHeaders(req, device?.id, mutationToken ?? undefined, device?.access),
       },
       (harness) => {
         clearTimeout(headersDeadline);

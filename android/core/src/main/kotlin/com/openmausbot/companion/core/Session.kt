@@ -75,6 +75,7 @@ class Session(
     private val metadataFn: suspend (CompanionClient) -> CompanionConnectionMetadata = { client ->
         client.connectionMetadata()
     },
+    private val accessFn: suspend (CompanionClient) -> PairingAccess = { it.pairingAccess() },
     /** Test seam for the handoff between a completed transfer and its caller. */
     private val afterAttachmentDownload: suspend () -> Unit = {},
 ) {
@@ -103,6 +104,9 @@ class Session(
      */
     private val _steeringInstanceIds = MutableStateFlow<Set<String>>(emptySet())
     val steeringInstanceIds: StateFlow<Set<String>> = _steeringInstanceIds.asStateFlow()
+
+    private val _pairingAccess = MutableStateFlow<PairingAccessState>(PairingAccessState.Checking)
+    val pairingAccess: StateFlow<PairingAccessState> = _pairingAccess.asStateFlow()
 
     private val _connection = MutableStateFlow<Connection?>(null)
     val connection: StateFlow<Connection?> = _connection.asStateFlow()
@@ -135,6 +139,10 @@ class Session(
 
     private var registry = ConnectionRegistry()
     private var client: CompanionClient? = null
+        set(value) {
+            if (field !== value) _pairingAccess.value = PairingAccessState.Checking
+            field = value
+        }
     private var token: String? = null
     private var rotation = CandidateRotation(emptyList())
     private var streamJob: Job? = null
@@ -143,6 +151,7 @@ class Session(
     private var reconnectDelaySeconds: Long = 0
     private var screenWatchers = 0
     private val gate = Mutex()
+    private val accessGate = Mutex()
     private val notificationGate = Mutex()
     private val attachmentDownloads = AttachmentDownloadCache(scope)
     private val restored = CompletableDeferred<Unit>()
@@ -848,6 +857,7 @@ class Session(
                                 _status.value = Status.Live
                                 promoteWorkingRoute()
                                 refreshConnectionMetadata(activeClient)
+                                scope.launch { refreshPairingAccess(activeClient) }
                             }
                             else -> {
                                 _state.update { it.apply(frame) }
@@ -879,6 +889,34 @@ class Session(
             if (!currentCoroutineContext().isActive) return
             reconnectDelaySeconds = if (reconnectDelaySeconds == 0L) 1L else minOf(reconnectDelaySeconds * 2, 15L)
             delay(reconnectDelaySeconds * 1_000)
+        }
+    }
+
+    /** Fetch effective permissions from the desktop, including legacy companions. */
+    suspend fun refreshPairingAccess() {
+        val active = client ?: run {
+            _pairingAccess.value = PairingAccessState.Failed("No computer connection is active.")
+            return
+        }
+        refreshPairingAccess(active)
+    }
+
+    private suspend fun refreshPairingAccess(source: CompanionClient) = accessGate.withLock {
+        if (client !== source) return@withLock
+        try {
+            val access = accessFn(source)
+            gate.withLock {
+                if (client !== source) return@withLock
+                val current = _connection.value ?: return@withLock
+                _pairingAccess.value = PairingAccessState.Ready(access)
+                persistActiveConnectionLocked(current.copy(serverScopes = access.scopes))
+            }
+        } catch (error: CancellationException) { throw error }
+        catch (error: Exception) {
+            if (client === source) _pairingAccess.value = PairingAccessState.Failed(
+                if ((error as? APIError.Status)?.code == 404) "This desktop version does not provide connection rights. Update and restart the desktop app."
+                else error.message ?: "The desktop did not return connection rights."
+            )
         }
     }
 

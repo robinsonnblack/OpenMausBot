@@ -46,8 +46,9 @@ class SettingsPolicyTest {
         assertEquals("Full access", SettingsPolicy.pairingAccessText(server.copy(serverScopes = listOf("client", "admin"))))
         assertEquals("Chat and approvals", SettingsPolicy.pairingAccessText(server.copy(serverScopes = listOf("client"))))
         assertEquals("Limited access", SettingsPolicy.pairingAccessText(server.copy(serverScopes = emptyList())))
-        assertEquals("Unknown (older pairing)", SettingsPolicy.pairingAccessText(server))
-        assertEquals("Unknown (older pairing)", SettingsPolicy.pairingAccessText(server.copy(serverEnvironmentId = null)))
+        assertEquals("Connection rights have not been retrieved from the desktop", SettingsPolicy.pairingAccessText(server))
+        assertEquals("Connection rights have not been retrieved from the desktop", SettingsPolicy.pairingAccessText(server.copy(serverEnvironmentId = null)))
+        assertEquals("Full access", SettingsPolicy.pairingAccessText(server.copy(serverEnvironmentId = null, serverScopes = listOf("admin", "client"))))
     }
 
     /**

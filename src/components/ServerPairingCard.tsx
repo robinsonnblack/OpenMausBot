@@ -1,3 +1,4 @@
+import { DeviceAccessControl } from "./DeviceAccessControl";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -208,6 +209,16 @@ export function ServerPairingCard({ initialSession = null, initialPairingCodes =
                   {device.id === current ? ` · ${t("remote.serverPairing.thisBrowser")}` : ""}
                 </span>
               </span>
+              {!device.email && device.id !== current && <div className="w-full">
+                <DeviceAccessControl name={device.label} access={device.scopes.includes("admin") ? "admin" : "client"}
+                  onChange={async access => {
+                    const body = await api("/api/auth/sessions/" + device.id, { method: "PATCH", body: JSON.stringify({ access }) });
+                    if (!Array.isArray(body?.sessions)) throw new Error("The desktop did not confirm the new access");
+                    const updated = body.sessions.find((candidate: PairedDevice) => candidate.id === device.id);
+                    if (!updated || updated.scopes.includes("admin") !== (access === "admin")) throw new Error("The desktop did not confirm the requested rights");
+                    setDevices(body.sessions);
+                  }} />
+              </div>}
               {device.id === current ? null : (
                 <button type="button" onClick={() => void signOut(device.id)} className={quiet}>
                   {t("remote.serverPairing.signOut")}

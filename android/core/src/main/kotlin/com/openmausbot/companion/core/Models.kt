@@ -1718,3 +1718,22 @@ data class MessageImageAttachment(
     /** `kind == "audio"`: the server's duration estimate, used until the player loads metadata. */
     val durationMs: Double? = null,
 )
+
+@Serializable
+data class PairingPermissions(
+    val chat: Boolean,
+    val approvals: Boolean,
+    val routines: Boolean,
+    val manageBots: Boolean,
+    val manageSettings: Boolean,
+    val cloudDesktop: Boolean,
+)
+
+@Serializable
+data class PairingAccess(val role: String, val scopes: List<String>, val permissions: PairingPermissions)
+
+sealed interface PairingAccessState {
+    data object Checking : PairingAccessState
+    data class Ready(val access: PairingAccess) : PairingAccessState
+    data class Failed(val reason: String) : PairingAccessState
+}

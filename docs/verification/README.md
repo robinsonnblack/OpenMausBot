@@ -50,6 +50,7 @@ Use only mapped, tested commands:
 - [Waiting for an occupied desktop](computer-wait.md)
 - [Chat UI, driven headlessly](chat-ui.md)
 - [Custom theme save feedback and reference colors](custom-theme.md)
+- [Existing phone connection rights](pairing-access.md)
 - [Welcome flow and guided tour](onboarding.md)
 - [Channels](channels.md)
 - [In-chat team coordination](room-coordination.md)

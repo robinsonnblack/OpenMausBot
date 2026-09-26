@@ -124,8 +124,9 @@ async function control(method, urlPath, body, { timeoutMs = 4_000 } = {}) {
     options.headers = { "content-type": "application/json" };
   }
   const res = await fetch(`http://127.0.0.1:${CONTROL_PORT}${urlPath}`, options);
-  if (!res.ok && res.status !== 404) throw new Error(`companion control ${res.status}`);
-  return res.json();
+  const result = await res.json();
+  if (!res.ok && res.status !== 404) throw new Error(result.error || `companion control ${res.status}`);
+  return result;
 }
 
 /** Whether this process owns a running sidecar. */
@@ -470,4 +471,14 @@ export async function companionCloudDesktopAccess(deviceId, allowed) {
   if (!/^[\w-]{1,64}$/.test(String(deviceId ?? ""))) return companionState();
   await control(allowed ? "POST" : "DELETE", `/devices/${deviceId}/cloud-desktop`).catch(() => {});
   return companionState();
+}
+
+/** Change an existing phone grant without replacing its credential. */
+export async function companionAccess(deviceId, access) {
+  if (!proc) throw new Error("Start Remote access before changing phone rights");
+  if (!/^[\w-]{1,64}$/.test(String(deviceId ?? "")) || !["admin", "client"].includes(access)) throw new Error("Invalid phone access");
+  const state = await control("POST", "/devices/" + deviceId + "/access", { access });
+  if (state.error) throw new Error(state.error);
+  if (state.devices?.find(device => device.id === deviceId)?.access !== access) throw new Error("The desktop did not confirm the requested rights");
+  return { enabled: true, keepAwake: companionKeepAwakeAtRest(), ...state };
 }

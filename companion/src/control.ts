@@ -308,6 +308,28 @@ export function createControlServer(options: ControlOptions): Server {
       );
       return;
     }
+    const access = path.match(/^\/devices\/([\w-]+)\/access$/);
+    if (access && method === "POST") {
+      void (async () => {
+        let size = 0;
+        const chunks: Buffer[] = [];
+        for await (const chunk of req) {
+          size += chunk.length;
+          if (size > 4096) throw new Error("body too large");
+          chunks.push(chunk);
+        }
+        const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+        if (!body || Object.keys(body).length !== 1 || !["admin", "client"].includes(body.access)) {
+          return json(res, 400, { error: "Choose admin or client access" });
+        }
+        try {
+          if (!options.devices.setAccess(access[1], body.access)) return json(res, 404, { error: "no such device" });
+        } catch { return json(res, 500, { error: "Could not save access; previous rights remain active" }); }
+        options.disconnectDevice?.(access[1]);
+        json(res, 200, companionState(options));
+      })().catch(() => json(res, 400, { error: "Invalid access request" }));
+      return;
+    }
     const cloudDesktop = path.match(/^\/devices\/([\w-]+)\/cloud-desktop$/);
     if (cloudDesktop && (method === "POST" || method === "DELETE")) {
       try {

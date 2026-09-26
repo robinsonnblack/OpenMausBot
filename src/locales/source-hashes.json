@@ -3468,7 +3468,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "es": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -6937,7 +6946,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "fr": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -10406,7 +10424,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "hi": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -13875,7 +13902,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "ja": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -17344,7 +17380,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "pt-br": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -20813,7 +20858,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "zh": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -24282,7 +24336,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "zh-tw": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -27751,7 +27814,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     },
     "uk": {
       "noEngines.title": "af88855a5f80377de709995229ba3907df9e8fb3b940fbf7c0d9cbe6eea54afe",
@@ -31220,7 +31292,16 @@
       "hardcoded.components.RoutineCalendarPage.5e573d1d": "a22bee375f3a159c58f311dff3034e0593afcd497b1b5dbbaacf2b4d56683843",
       "hardcoded.components.RoutineCalendarPage.fd1c0774": "faf354d266b4c625e8af8c16ba8f0cd0261e43a66a102c3221c2248344d5126e",
       "theme.customSaved": "411c31e7b79aa31103f24c665e1531dc01f3f8a4a6c6390ac7ffa5631c3b5c70",
-      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393"
+      "theme.customSaveFailed": "3d0fd5e73408b95ba7424aaaf02b630e8b98faea797bb2b9377151b617eae393",
+      "pairingAccess.title": "df1e8707eb426207aa0ece387ceb8e41175ca2cbcd1df673ba4d85348d15ae3e",
+      "pairingAccess.change": "3e15ea43226dbcae4e5f495bfbabc623081dc9a12f1302048a783a76b9483a05",
+      "pairingAccess.adminDetail": "9b80668ab7db10c5fa5e8a329673b37d7b1a4bdc5750d5ea1677cbbdb96f4fc2",
+      "pairingAccess.clientDetail": "4840b9e3b687abc54b1ec90df815d0bb3bbb9558f9e7890d84845a34592640cf",
+      "pairingAccess.noRepair": "ec43ac639f19db2c2cd522568b13cc0e07f1b113c15a4ed6637745614334f7a7",
+      "pairingAccess.saving": "399ce3335e0ecc48656338e09558b18a0fbf8cde6457be890646a25a43193518",
+      "pairingAccess.updateDesktop": "b540c6f5d172a6c0c9362d54b7027332ba7d03a061fe178e4eb6af0a94ce2fe3",
+      "pairingAccess.failed": "065ab15fca9fcecfd336633fdda64899e891c92174d0fa30650f16d896aba8c3",
+      "pairingAccess.saved": "a05bfb98370c770bdfa928be5d291749e114ecbf3fac158ee7cd4c0857d55e3d"
     }
   }
 }

@@ -550,6 +550,19 @@ export class SessionRegistry {
     return this.sessions.map(publicSession);
   }
 
+  setScopes(id: string, scopes: Scope[]): boolean {
+    this.prune();
+    const record = this.sessions.find(session => session.id === id);
+    if (!record) return false;
+    if (record.email) throw new Error("Account rights are managed through membership, not device pairing");
+    const previous = record.scopes;
+    record.scopes = [...new Set(scopes)];
+    try { this.persist(); } catch (error) { record.scopes = previous; throw error; }
+    // End existing streams and tickets, while preserving the same device token.
+    this.forget(id);
+    return true;
+  }
+
   revoke(id: string): boolean {
     const before = this.sessions.length;
     this.sessions = this.sessions.filter((s) => s.id !== id);

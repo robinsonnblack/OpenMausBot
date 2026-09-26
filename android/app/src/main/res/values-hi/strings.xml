@@ -881,7 +881,6 @@
     <string name="android_settings_connecting">कनेक्ट हो रहा है…</string>
     <string name="android_settings_not_paired">पेयर नहीं किया गया</string>
     <string name="android_settings_unpaired_on_computer">कंप्यूटर पर पेयरिंग हटाई गई</string>
-    <string name="android_settings_unknown_pairing">अज्ञात (पुरानी पेयरिंग)</string>
     <string name="android_settings_full_access">पूरा ऐक्सेस</string>
     <string name="android_settings_chat_approvals">चैट और अनुमोदन</string>
     <string name="android_settings_limited_access">सीमित पहुँच</string>
@@ -1261,4 +1260,17 @@
     <string name="android_snooze_six_pm">शाम 6 बजे तक</string>
     <string name="android_snooze_nine_am">कल सुबह 9 बजे तक</string>
     <string name="android_snooze_stop">स्नूज़ बंद करें</string>
+    <string name="pairing_access_checking">Retrieving rights from the desktop…</string>
+    <string name="pairing_access_failed">Rights could not be retrieved</string>
+    <string name="pairing_access_failed_detail">Reason: %1$s. Check the connection and update the desktop app if needed, then tap Refresh rights.</string>
+    <string name="pairing_access_refresh">Refresh rights</string>
+    <string name="pairing_access_live">Confirmed by the connected desktop. Change these rights there under Remote access; no new pairing or USB debugging is needed.</string>
+    <string name="pairing_access_allowed">Allowed</string>
+    <string name="pairing_access_denied">Blocked</string>
+    <string name="pairing_access_chat">Chats</string>
+    <string name="pairing_access_approvals">Approvals</string>
+    <string name="pairing_access_routines">Routines</string>
+    <string name="pairing_access_bots">Advanced bot management</string>
+    <string name="pairing_access_settings">Workspace administration</string>
+    <string name="pairing_access_desktop">Cloud desktop control</string>
 </resources>
