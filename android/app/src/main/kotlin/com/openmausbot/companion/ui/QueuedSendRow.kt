@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,8 +42,9 @@ import com.openmausbot.companion.core.QueuedSend
  * where a thing you have not said yet belongs — still in your hands, next to
  * the field you typed it in. Both actions are words, not glyphs: Steer stops
  * the turn so these words run now (the harness deliberately keeps its queue
- * across an interrupt, which is what makes stopping a send), and the bin
- * drops them.
+ * across an interrupt, which is what makes stopping a send), the pencil
+ * takes them back into the chat bar to tweak or extend, and the bin drops
+ * them.
  */
 @Composable
 fun QueuedSendRow(
@@ -58,6 +60,8 @@ fun QueuedSendRow(
      * seconds has, as far as the person is concerned, done nothing.
      */
     steering: Boolean,
+    /** Pull these words back into the chat bar to change them before they send. */
+    onEdit: () -> Unit,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -106,6 +110,16 @@ fun QueuedSendRow(
                 )
             }
         }
+        Icon(
+            imageVector = Icons.Filled.Edit,
+            contentDescription = "Edit this queued message",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .clickable(role = Role.Button, onClick = onEdit)
+                .padding(6.dp)
+                .size(16.dp),
+        )
         Icon(
             imageVector = Icons.Filled.Delete,
             contentDescription = stringResource(R.string.ui_delete_this_queued_message_4390e04),

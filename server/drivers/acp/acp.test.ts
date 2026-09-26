@@ -377,6 +377,34 @@ describe("ACP turns (fake CLI)", () => {
     expect(await send("fifth", "")).toBe("fifth");
   });
 
+  it("re-anchors the full prompt after eight bare turns on one native session", async () => {
+    const dump = join(scratch, "acp-prompt-reanchor.json");
+    process.env.FAKE_ACP_DUMP = dump;
+    process.env.FAKE_ACP_DUMP_PROMPT = "1";
+    await create();
+    const threadId = "t-acp-prompt-reanchor-" + randomUUID();
+    const promptOf = () =>
+      (JSON.parse(readFileSync(dump + ".prompt.json", "utf8")) as Array<{ type: string; text: string }>)[0]?.text;
+    const messages: string[] = [];
+    for (let i = 0; i < 10; i++) {
+      const { turnId } = await instance.adapter.sendTurn({
+        threadId,
+        text: "turn " + i,
+        system: "Standing rules.\n\nMemory: likes quiet hours.",
+        systemStable: "Standing rules.",
+        systemVolatile: "Memory: likes quiet hours.",
+      });
+      await recorder.until((event) => event.type === "turn.completed" && event.turnId === turnId);
+      messages.push(promptOf()!);
+    }
+    // Agents can compact their own history away between turns; the re-anchor
+    // backstop returns the standing instructions within a bounded window.
+    const full = "Standing rules.\n\nMemory: likes quiet hours.";
+    expect(messages[0]).toBe(full + "\n\nturn 0");
+    for (let i = 1; i <= 8; i++) expect(messages[i]).toBe("turn " + i);
+    expect(messages[9]).toBe(full + "\n\nturn 9");
+  });
+
   it("fails clearly when an image-capable adapter meets an older ACP runtime", async () => {
     const imagePath = join(scratch, "tiny.png");
     writeFileSync(imagePath, "not-read-before-capability-check");
@@ -1567,8 +1595,10 @@ describe("ACP turns (fake CLI)", () => {
     });
 
     it("closes the idle process and resumes on the next turn", async () => {
-      process.env.OMB_ACP_SESSION_IDLE_MIN_MS = "50";
-      process.env.OMB_ACP_SESSION_IDLE_MS = "100";
+      // Ten seconds is the lowest window the floor allows now; exercise the
+      // close at the floor itself and give the poll room past it.
+      process.env.OMB_ACP_SESSION_IDLE_MIN_MS = "10000";
+      process.env.OMB_ACP_SESSION_IDLE_MS = "10000";
       countFile = join(scratch, "launches");
       rpcFile = join(scratch, "rpc.json");
       process.env.FAKE_ACP_LAUNCH_COUNT_FILE = countFile;
@@ -1579,7 +1609,7 @@ describe("ACP turns (fake CLI)", () => {
       // the close reason is only logged, never emitted — poll the native log
       // for it rather than sleeping a fixed window past the idle deadline
       await new Promise<void>((resolve, reject) => {
-        const deadline = Date.now() + 5_000;
+        const deadline = Date.now() + 20_000;
         const log = join(NATIVE_DIR, "t-pool-idle.ndjson");
         const check = () => {
           if (Date.now() > deadline) return reject(new Error("idle close was never logged"));
@@ -1606,7 +1636,7 @@ describe("ACP turns (fake CLI)", () => {
       // the dump is per-process and overwritten on spawn, so this is the resumed child
       expect(rpc()).toContain("session/load");
       expect(rpc()).toContain("initialize");
-    });
+    }, 30_000);
 
     it("respawns when the spawn contract changes", async () => {
       countFile = join(scratch, "launches");
@@ -1803,11 +1833,13 @@ describe("ACP snapshot", () => {
     // The child env inherits process.env (core.ts childEnv), so a developer
     // machine with a real FACTORY_API_KEY exported would otherwise satisfy
     // every case here and prove nothing about the on-disk lookup.
+    // Windows resolves the driver home from USERPROFILE first, so every
+    // case pins both to its scratch home like the qwen turn test does.
     const make = (environment: Record<string, string>) =>
       DroidAgentDriver.create({
         instanceId: "droid-auth",
         displayName: undefined,
-        environment: { FACTORY_API_KEY: "", ...environment },
+        environment: { FACTORY_API_KEY: "", ...(environment.HOME ? { USERPROFILE: environment.HOME } : {}), ...environment },
         enabled: true,
         config: { cli: FAKE_CLI, fullAuto: false },
       });
@@ -1872,7 +1904,7 @@ describe("ACP snapshot", () => {
     const instance = await DroidAgentDriver.create({
       instanceId: "droid-models",
       displayName: undefined,
-      environment: { HOME: scratch },
+      environment: { HOME: scratch, USERPROFILE: scratch },
       enabled: true,
       config: { cli: FAKE_CLI, fullAuto: false },
     });

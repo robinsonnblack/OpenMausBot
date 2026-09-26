@@ -329,6 +329,7 @@ const bridge = {
     save: (id, grant) => ipcRenderer.invoke("sharing:save", id, grant),
     revoke: id => ipcRenderer.invoke("sharing:revoke", id),
   },
+  confirm: message => ipcRenderer.invoke("dialog:confirm", message),
 };
 
 contextBridge.exposeInMainWorld(

@@ -20,6 +20,7 @@ import { CloudBackendPicker } from "../CloudBackendPicker";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { LocalComputerAutoWarning } from "../LocalComputerAutoWarning";
 import { Switch } from "../SettingsPrimitives";
+import { ProposalStatus } from "./ProposalStatus";
 import { preloadConnectedApps, type ConnectorInventory } from "../PluginsPanel";
 import {
   classifyConnectorTool,
@@ -68,6 +69,7 @@ function WorkingFolder({ bot }: { bot: Bot }) {
     <div className="rounded-xl bg-card p-4">
       <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.dd278904")}</div>
       <div className="mt-0.5 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.e6cd6669")}</div>
+      <ProposalStatus bot={bot} kind="chief" />
       {canPick ? (
         <div className="mt-3 flex items-center gap-2">
           <div className="min-w-0 flex-1 truncate rounded-lg border border-hairline/40 bg-inset px-3 py-2 font-mono text-[12.5px] text-ink" title={bot.cwd}>
@@ -140,6 +142,7 @@ function McpServersCard({ bot, patch }: { bot: Bot; patch: (patch: { mcpServers:
           <div className="mt-0.5 text-[13px] text-ink-secondary">
             {t("botAccess.mcpDescription")}
           </div>
+          <ProposalStatus bot={bot} kind="owner" />
         </div>
       </div>
       {error && (
@@ -558,6 +561,7 @@ export function AccessSection({
         <div className="mt-0.5 text-[13px] text-ink-secondary">
           {t("hardcoded.components.botsettings.AccessSection.ddb566ff")}{bot.computer ? "" : " (currently: auto)"}. Browser is the built-in browser tab only; no desktop.
         </div>
+        <ProposalStatus bot={bot} kind="owner" />
         <div className="mt-3 flex overflow-hidden rounded-lg border border-hairline/40">
           {([
             [null, "Auto"],
@@ -657,6 +661,7 @@ export function AccessSection({
                         : "Let this bot use your connected Gmail, Calendar, Slack, and other apps."
                     : "Keep your connected apps unavailable to this bot."}
             </div>
+            <ProposalStatus bot={bot} kind="owner" />
           </div>
           <Switch
             checked={connectedAppsEnabled}
@@ -712,6 +717,7 @@ export function AccessSection({
                       ? "This bot has its own browser with its own logins."
                       : "Keep the built-in browser unavailable to this bot."}
           </div>
+          <ProposalStatus bot={bot} kind="owner" />
         </div>
         <Switch
           checked={browserEnabled && bot.computer !== "off"}
@@ -729,6 +735,7 @@ export function AccessSection({
       {!draft && <div className="rounded-xl bg-card p-4">
         <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.1dee5e56")}</div>
         <div className="mt-0.5 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.4c5ea104")}</div>
+        <ProposalStatus bot={bot} kind="owner" />
         {webhooks.length === 0 ? (
           <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.895d9ba7")}</div>
         ) : (
@@ -756,6 +763,7 @@ export function AccessSection({
       {!draft && <div className="rounded-xl bg-card p-4">
         <div className="text-[15px] font-medium text-ink">{t("hardcoded.components.botsettings.AccessSection.63150564")}</div>
         <div className="mt-0.5 text-[13px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.1bacfcc6")}</div>
+        <ProposalStatus bot={bot} kind="owner" />
         {alwaysAllow.length === 0 ? (
           <div className="mt-3 rounded-lg bg-inset px-3 py-2 text-[12px] text-ink-secondary">{t("hardcoded.components.botsettings.AccessSection.8f3be29a")}</div>
         ) : (

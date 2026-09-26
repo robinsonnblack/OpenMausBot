@@ -1024,6 +1024,20 @@ private fun LoadedChat(
                 onCancelQueued = { queued ->
                     scope.launch { session.cancelQueued(queued, chat) }
                 },
+                onEditQueued = { queued ->
+                    // The computer drops it from the queue first; only a
+                    // confirmed removal hands the words back, so a send that
+                    // already joined the turn is never resent. The composer is
+                    // this conversation's cached draft, so a thread switch
+                    // mid-request still lands the words in the right place.
+                    val target = composer
+                    scope.launch {
+                        if (session.cancelQueued(queued, chat)) {
+                            target.onTypedChange(queued.editDraft(keeping = target.text))
+                            publishFrom(target)
+                        }
+                    }
+                },
                 openingFileName = openingFileName,
                 attachmentError = fileOpenError ?: attachmentError,
                 onRemoveAttachment = { attachment ->
@@ -1544,6 +1558,7 @@ internal fun Composer(
     steering: Boolean,
     onSteer: (() -> Unit)?,
     onCancelQueued: (QueuedSend) -> Unit,
+    onEditQueued: (QueuedSend) -> Unit,
     openingFileName: String?,
     attachmentError: String?,
     onRemoveAttachment: (PendingMessageAttachment) -> Unit,
@@ -1619,6 +1634,7 @@ internal fun Composer(
                 send = queued,
                 onSteer = onSteer,
                 steering = steering,
+                onEdit = { onEditQueued(queued) },
                 onCancel = { onCancelQueued(queued) },
                 modifier = Modifier.fillMaxWidth(),
             )
