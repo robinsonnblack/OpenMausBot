@@ -307,18 +307,16 @@ private fun LoadedChat(
     suspend fun importInto(target: ChatDraftHolder.Attachments, count: Int, read: suspend (Int, Int) -> PendingMessageAttachment) {
         if (target.preparing.value || target.sending.value) return
         val existing = target.items.toList()
-        if (count > AttachmentPolicy.MAXIMUM_ITEMS - existing.size) {
-            target.error.value = AttachmentImportRules.TOO_MANY
-            return
-        }
+
         target.preparing.value = true
         target.error.value = null
         try {
+            val limits = session.imageAttachmentSettings()
             val imported = mutableListOf<PendingMessageAttachment>()
             for (index in 0 until count) {
-                val remaining = AttachmentImportRules.remainingBytes(existing + imported)
+                val remaining = AttachmentImportRules.remainingBytes(existing + imported, limits)
                 val candidate = withContext(Dispatchers.IO) { read(index, remaining) }
-                AttachmentPolicy.validate(existing + imported + candidate)
+                AttachmentPolicy.validate(existing + imported + candidate, limits)
                 imported += candidate
             }
             target.items += imported
@@ -332,7 +330,7 @@ private fun LoadedChat(
     }
 
     val pickPhotos = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickMultipleVisualMedia(AttachmentPolicy.MAXIMUM_ITEMS),
+        ActivityResultContracts.OpenMultipleDocuments(),
     ) { uris ->
         if (uris.isEmpty()) return@rememberLauncherForActivityResult
         val target = pickerDraft
@@ -630,7 +628,7 @@ private fun LoadedChat(
             ChatActionId.PHOTOS -> {
                 pickerDraft = attachmentDraft
                 pickPhotos.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                arrayOf("image/*"),
                 )
             }
             ChatActionId.FILES -> {
@@ -991,7 +989,6 @@ private fun LoadedChat(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
-                name = chat.name,
                 draft = draft,
                 accessory = ComposerAccessories.accessory(
                     hudOpen = hudOpen,
@@ -1238,6 +1235,7 @@ private fun ChatHeader(
                 chat = chat,
                 size = 60.dp,
                 state = face,
+                animated = false,
                 modifier = if (chat is Chat.BotChat || chat is Chat.RoomChat && chat.room.dm != true) {
                     Modifier
                         .clickable(role = Role.Button, onClick = onOpenProfile)
@@ -1508,9 +1506,8 @@ private fun ChatActionIcon(id: ChatActionId, tint: Color) {
 
 /** A round + and a pill with the send button inside it. */
 @Composable
-private fun Composer(
+internal fun Composer(
     modifier: Modifier = Modifier,
-    name: String,
     draft: String,
     accessory: ComposerAccessory,
     commands: List<SlashCommand>,
@@ -1646,11 +1643,49 @@ private fun Composer(
 
             ComposerAccessory.NONE -> Unit
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.Bottom,
+        Column(
+            modifier = Modifier.fillMaxWidth().chromeSheet(cornerRadius = 22.dp),
         ) {
+            Box(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {
+                if (draft.isEmpty()) Text(
+                    text = stringResource(if (dictationListening) R.string.android_composer_listening else R.string.android_composer_task),
+                    fontSize = 17.sp, color = secondaryTint, maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                    BasicTextField(
+                        value = draft,
+                        onValueChange = onDraftChange,
+                        // Partials rebuild from a frozen base; prevent competing
+                        // edits without dimming the text.
+                        readOnly = dictationLocked,
+                        minLines = 1,
+                        maxLines = 5,
+                        textStyle = LocalTextStyle.current.copy(
+                            fontSize = 17.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                        // The software keyboard's Return breaks the line, like
+                        // Messages; the arrow button on the bar is the one send.
+                        // A hardware Return still sends and Shift+Return breaks
+                        // the line. Some soft keyboards deliver their Return as a
+                        // key event too, so the rule also asks where it came from.
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onPreviewKeyEvent { event ->
+                                val sends = ComposerReturn.sends(
+                                    isReturnKey = event.key == Key.Enter || event.key == Key.NumPadEnter,
+                                    keyDown = event.type == KeyEventType.KeyDown,
+                                    shift = event.isShiftPressed,
+                                    fromSoftwareKeyboard =
+                                        event.nativeKeyEvent.deviceId == KeyCharacterMap.VIRTUAL_KEYBOARD,
+                                )
+                                if (sends) onSend()
+                                sends
+                            },
+                    )
+            }
+            Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             TouchTarget(
                 onClick = onTogglePlus,
                 contentDescription = stringResource(if (plusOpen) R.string.ui_close_bbfa773 else R.string.android_accessibility_more),
@@ -1682,23 +1717,6 @@ private fun Composer(
                     )
                 }
             }
-
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    // A capsule at one line (48dp tall, 24dp corners) that keeps
-                    // those corners as the draft grows, the way Messages does.
-                    // CircleShape rounds to half the height, and a five-line
-                    // draft became a giant pill.
-                    .chromeSheet(cornerRadius = MIN_TOUCH_TARGET / 2)
-                    .heightIn(min = MIN_TOUCH_TARGET),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                // The way into the HUD that does not start with typing. iOS draws
-                // the `command` glyph here; Android's core icon set has no
-                // counterpart, and the character the feature is named after says
-                // it better than a borrowed symbol would.
                 TouchTarget(
                     onClick = onToggleHud,
                     contentDescription = stringResource(R.string.ui_slash_commands_efce77d),
@@ -1722,58 +1740,7 @@ private fun Composer(
                         },
                     )
                 }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(top = 13.dp, bottom = 13.dp),
-                ) {
-                    if (draft.isEmpty()) {
-                        Text(
-                            text = ComposerPromise.placeholder(
-                                name = name,
-                                busy = busy,
-                                engineCanSteer = engineCanSteer,
-                                sending = sending,
-                                listening = dictationListening,
-                            ),
-                            fontSize = 17.sp,
-                            color = secondaryTint,
-                        )
-                    }
-                    BasicTextField(
-                        value = draft,
-                        onValueChange = onDraftChange,
-                        // Partials rebuild from a frozen base; prevent competing
-                        // edits without dimming the text.
-                        readOnly = dictationLocked,
-                        maxLines = 5,
-                        textStyle = LocalTextStyle.current.copy(
-                            fontSize = 17.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                        // The software keyboard's Return breaks the line, like
-                        // Messages; the arrow button on the bar is the one send.
-                        // A hardware Return still sends and Shift+Return breaks
-                        // the line. Some soft keyboards deliver their Return as a
-                        // key event too, so the rule also asks where it came from.
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onPreviewKeyEvent { event ->
-                                val sends = ComposerReturn.sends(
-                                    isReturnKey = event.key == Key.Enter || event.key == Key.NumPadEnter,
-                                    keyDown = event.type == KeyEventType.KeyDown,
-                                    shift = event.isShiftPressed,
-                                    fromSoftwareKeyboard =
-                                        event.nativeKeyEvent.deviceId == KeyCharacterMap.VIRTUAL_KEYBOARD,
-                                )
-                                if (sends) onSend()
-                                sends
-                            },
-                    )
-                }
-
+                Spacer(Modifier.weight(1f))
                 TouchTarget(
                     onClick = onToggleDictation,
                     contentDescription = if (dictationListening) {

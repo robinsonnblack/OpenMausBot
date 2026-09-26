@@ -6,13 +6,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { extractTurnImages } from "./turn-images.ts";
 
-const IDS = [
-  "123e4567-e89b-42d3-a456-426614174000",
-  "123e4567-e89b-42d3-a456-426614174001",
-  "123e4567-e89b-42d3-a456-426614174002",
-  "123e4567-e89b-42d3-a456-426614174003",
-  "123e4567-e89b-42d3-a456-426614174004",
-] as const;
+const IDS = Array.from({ length: 100 }, (_, i) => `123e4567-e89b-42d3-a456-${String(i).padStart(12, "0")}`);
 
 describe("turn image admission", () => {
   const temporary: string[] = [];
@@ -99,8 +93,17 @@ describe("turn image admission", () => {
       "Send no more than 1 images",
     );
     expect(() => extractTurnImages(source, { attachmentsDir: root, maxBytes: 7 })).toThrow(
-      "Attached images exceed 0 MB total",
+      "Attached images exceed 0.000007 MB total",
     );
+  });
+
+  it("accepts 30 by default and higher configured limits without truncating images", () => {
+    const root = store();
+    const paths = Array.from({ length: 75 }, (_, index) => image(root, index));
+    const source = (count: number) => paths.slice(0, count).map(path => `<attached-image path="${path}" />`).join("\n\n");
+    expect(extractTurnImages(source(30), { attachmentsDir: root }).images).toHaveLength(30);
+    expect(() => extractTurnImages(source(31), { attachmentsDir: root })).toThrow("30 images");
+    expect(extractTurnImages(source(75), { attachmentsDir: root, maxCount: 100_000, maxBytes: 1_000_000_000_000 }).images).toHaveLength(75);
   });
 
   it("does not admit a symlink carrying an attachment-shaped name", () => {

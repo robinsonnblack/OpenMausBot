@@ -304,6 +304,8 @@ export function appendComposerDraft(id: string, text: string): void {
 
 /** Append completed uploads directly to the keyed durable draft. This is
  * safe after the Composer that started the upload has unmounted. */
+export function readDraftAttachments(id: string): Attachment[] { return getDraftAttachments(getStore(), id); }
+
 export function appendDraftAttachments(id: string, additions: Attachment[]): void {
   if (additions.length === 0) return;
   markDraftEdited(id);

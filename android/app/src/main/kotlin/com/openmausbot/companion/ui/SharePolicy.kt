@@ -20,10 +20,10 @@ import java.net.URI
  * cannot, live here so the tests do not have to construct an Intent.
  */
 object SharePolicy {
-    const val MAXIMUM_ITEMS = 4
+    const val MAXIMUM_ITEMS = 30
     const val MAXIMUM_TEXT_CHARACTERS = 100_000
     const val MAXIMUM_INSTRUCTION_CHARACTERS = 20_000
-    const val MAXIMUM_TOTAL_ATTACHMENT_BYTES = 50 * 1_024 * 1_024
+    const val MAXIMUM_TOTAL_ATTACHMENT_BYTES = 60_000_000
     const val MAXIMUM_IMAGE_BYTES = 10 * 1_024 * 1_024
     const val MAXIMUM_FILE_BYTES = CompanionClient.SHARE_FILE_MAX_BYTES
     const val MAXIMUM_URL_BYTES = 8_192
@@ -275,7 +275,7 @@ object SharePolicy {
     fun nothingSupported(): String =
         "There isn't any text, link, image, or supported document to send."
 
-    fun tooManyItems(): String = "Send up to 4 items at a time."
+    fun tooManyItems(): String = "Send up to 30 images at a time."
 
     fun tooMuchText(): String = "That text is too large to share. Send a shorter selection."
 

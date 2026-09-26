@@ -86,16 +86,13 @@ object ShareItemLoader {
         if (streams.isEmpty() && extraText == null) {
             throw ShareLoadException(SharePolicy.nothingSupported())
         }
-        if (SharePolicy.tooManyItems(streams.size)) {
-            throw ShareLoadException(SharePolicy.tooManyItems())
-        }
+        // The destination server enforces its configurable image limits after selection.
 
         val texts = mutableListOf<String>()
         val urls = mutableListOf<String>()
         val attachments = mutableListOf<LocalShareAttachment>()
         var ignored = 0
         var textCharacters = 0
-        var attachmentBytes = 0
 
         fun addText(value: String) {
             textCharacters += value.length
@@ -121,10 +118,6 @@ object ShareItemLoader {
                 }
                 SharePolicy.StreamKind.IMAGE, SharePolicy.StreamKind.FILE -> {
                     val copied = copyUri(resolver, intent, uri, inbox, kind)
-                    attachmentBytes += copied.bytes
-                    if (attachmentBytes > SharePolicy.MAXIMUM_TOTAL_ATTACHMENT_BYTES) {
-                        throw ShareLoadException(SharePolicy.tooLarge("Those files together", 50))
-                    }
                     attachments += copied
                 }
                 SharePolicy.StreamKind.IGNORE -> ignored += 1

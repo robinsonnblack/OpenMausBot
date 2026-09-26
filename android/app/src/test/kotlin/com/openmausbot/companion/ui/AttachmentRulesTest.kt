@@ -29,16 +29,16 @@ class AttachmentRulesTest {
     @Test
     fun `a read is bounded by the item cap or the total's remainder, whichever is smaller`() {
         assertEquals(AttachmentPolicy.MAXIMUM_TOTAL_BYTES, AttachmentImportRules.remainingBytes(emptyList()))
-        assertEquals(AttachmentPolicy.MAXIMUM_TOTAL_BYTES - 1_000, AttachmentImportRules.remainingBytes(listOf(pending(1_000))))
+        assertEquals(AttachmentPolicy.MAXIMUM_TOTAL_BYTES - 1_000, AttachmentImportRules.remainingBytes(listOf(pending(1_000, PendingMessageAttachment.Kind.IMAGE))))
         assertEquals(AttachmentPolicy.MAXIMUM_IMAGE_BYTES, AttachmentImportRules.readLimit(PendingMessageAttachment.Kind.IMAGE, Int.MAX_VALUE))
         assertEquals(AttachmentPolicy.MAXIMUM_FILE_BYTES, AttachmentImportRules.readLimit(PendingMessageAttachment.Kind.FILE, Int.MAX_VALUE))
         assertEquals(500, AttachmentImportRules.readLimit(PendingMessageAttachment.Kind.FILE, 500))
     }
 
     @Test
-    fun `adding stops at four and while anything is in flight`() {
+    fun `adding has no hardcoded count cap and stops while anything is in flight`() {
         assertTrue(AttachmentImportRules.canAdd(3, preparing = false, sending = false))
-        assertFalse(AttachmentImportRules.canAdd(4, preparing = false, sending = false))
+        assertTrue(AttachmentImportRules.canAdd(4000, preparing = false, sending = false))
         assertFalse(AttachmentImportRules.canAdd(0, preparing = true, sending = false))
         assertFalse(AttachmentImportRules.canAdd(0, preparing = false, sending = true))
     }

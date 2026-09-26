@@ -135,7 +135,7 @@ object ComposerPromise {
     ): String = when {
         sending -> "Sending…"
         listening -> "Listening…"
-        !busy -> "Ask $name"
+        !busy -> "Your task"
         engineCanSteer -> "Sends into this turn"
         else -> "Sends after this turn"
     }

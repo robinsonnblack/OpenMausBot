@@ -1220,7 +1220,7 @@
     <string name="android_share_no_destinations">目前没有可发送到的机器人或频道。请先在电脑上创建一个。</string>
     <string name="android_share_update_for_images">分享图片前，请先更新这台电脑上的 OpenMausBot。</string>
     <string name="android_share_nothing_supported">没有可发送的文本、链接、图片或受支持的文档。</string>
-    <string name="android_share_too_many">每次最多发送 4 个项目。</string>
+    <string name="android_share_too_many">每次最多发送 30 个项目。</string>
     <string name="android_share_text_too_large">这段文本太长，无法分享。请缩短所选内容。</string>
     <string name="android_share_timeout">发送时间过长。请检查网络连接后重试。</string>
     <string name="android_share_generic_error">OpenMausBot 无法发送此内容。请重试。</string>
@@ -1285,4 +1285,17 @@
     <string name="pairing_access_catalog_missing">This desktop does not provide the complete permission list. Update the desktop app.</string>
     <string name="pairing_access_mode_help">Full access permits all listed actions. Chat and approvals only permits chat features and approving or denying bot actions. Custom uses individually configured permissions.</string>
     <string name="pairing_reconnect_success">✓ Connection restored</string>
+    <string name="android_composer_task">Your task</string>
+    <string name="android_composer_listening">Listening…</string>
+    <string name="image_attachment_settings_title">Image attachments</string>
+    <string name="image_attachment_settings_edit">Edit image limits</string>
+    <string name="image_attachment_settings_count">Maximum number of images</string>
+    <string name="image_attachment_settings_size">Total image size (MB)</string>
+    <string name="image_attachment_settings_help">These limits apply to one message on this computer, including desktop and phone. 1 MB is 1,000,000 bytes. Defaults: 30 images and 60 MB. You can increase both without a fixed upper limit.</string>
+    <string name="image_attachment_settings_invalid">Enter a positive whole image count and a positive size in MB.</string>
+    <string name="image_attachment_settings_saved">✓ Limits saved</string>
+    <string name="image_attachment_settings_saving">Saving…</string>
+    <string name="image_attachment_settings_save">Save limits</string>
+    <string name="image_attachment_count_error">Attach up to %1$s images at a time.</string>
+    <string name="image_attachment_size_error">Those images are larger than %1$s MB together.</string>
 </resources>

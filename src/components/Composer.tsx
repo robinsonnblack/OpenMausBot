@@ -1,3 +1,4 @@
+import { imageAttachmentLimits, imageAttachmentLimitError } from "../../shared/image-attachment-limits";
 import { TranscriptionSettings } from "./TranscriptionSettings";
 import { useTranscription } from "./useTranscription";
 import { track } from "@/lib/analytics";
@@ -9,6 +10,7 @@ import { activeLocale, t } from "@/lib/i18n";
 import { useOwnerOrAdmin } from "@/lib/use-owner-or-admin";
 import {
   draftRevision,
+  readDraftAttachments,
   appendDraftAttachments,
   changeDraftAttachmentPending,
   forgetFailedComposerSend,
@@ -448,6 +450,9 @@ export function Composer({
     : undefined;
   const trustedThreadAccess = Boolean(!remoteClient && window.ogb?.approvals && capabilities.host.packaged);
   const uploadImage = useCallback(async (file: File): Promise<Attachment | null> => {
+    const currentImages = readDraftAttachments(draftId).filter(attachment => attachment.kind === "image");
+    const limitError = imageAttachmentLimitError([...currentImages, { size: file.size }], imageAttachmentLimits(state.config?.imageAttachments), activeLocale().startsWith("de"));
+    if (limitError) throw new Error(limitError);
     const optimistic = optimisticImageAttachment(file);
     if (!optimistic) return null;
     appendDraftAttachments(draftId, [optimistic]);
@@ -471,7 +476,7 @@ export function Composer({
       releaseAttachmentImagePreview(optimistic);
       throw error;
     }
-  }, [draftId]);
+  }, [draftId, state.config?.imageAttachments]);
   const pickFiles = async (picked: FileList | null) => {
     if (!picked?.length) return;
     changeDraftAttachmentPending(draftId, true);
@@ -537,6 +542,8 @@ export function Composer({
   };
   const send = () => {
     if (locked || attachmentPending || transcribing) return;
+    const limitError = imageAttachmentLimitError(attachments.filter(attachment => attachment.kind === "image"), imageAttachmentLimits(state.config?.imageAttachments), activeLocale().startsWith("de"));
+    if (limitError) { setAttachmentNotice(limitError); return; }
     if (
       attachments.some((attachment) => attachment.kind === "image") &&
       !imageTargetsSupport(effectiveText, effectiveChannelMode)

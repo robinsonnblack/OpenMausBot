@@ -1245,7 +1245,8 @@ class Session(
         val connectionId = _connection.value?.id
         _actionError.value = null
         return try {
-            AttachmentPolicy.validate(attachments)
+            val limits = if (attachments.any { it.kind == PendingMessageAttachment.Kind.IMAGE }) activeClient.config().imageAttachments else ImageAttachmentSettings()
+            AttachmentPolicy.validate(attachments, limits)
             if (text.isBlank() && attachments.isEmpty()) {
                 _actionError.value = "Write a message or attach a file first."
                 return false
@@ -2397,6 +2398,12 @@ class Session(
         if (error is kotlinx.coroutines.CancellationException) throw error
         null
     }
+
+    suspend fun imageAttachmentSettings(): ImageAttachmentSettings =
+        (client ?: throw APIError.Transport("This computer is offline.")).config().imageAttachments
+
+    suspend fun updateImageAttachmentSettings(settings: ImageAttachmentSettings): ConfigStatus =
+        (client ?: throw APIError.Transport("This computer is offline.")).updateImageAttachmentSettings(settings)
 
     suspend fun updateWorkspaceBudget(budget: WorkspaceBudgetConfig): ConfigStatus {
         if (_connection.value?.serverScopes?.contains("admin") != true) {

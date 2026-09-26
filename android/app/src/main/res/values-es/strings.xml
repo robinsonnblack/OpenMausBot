@@ -1220,7 +1220,7 @@
     <string name="android_share_no_destinations">Todavía no hay bots ni canales a los que enviar esto. Primero, crea uno en tu ordenador.</string>
     <string name="android_share_update_for_images">Actualiza OpenMausBot en este ordenador antes de compartir imágenes.</string>
     <string name="android_share_nothing_supported">No hay texto, enlace, imagen ni documento compatible para enviar.</string>
-    <string name="android_share_too_many">Envía hasta 4 elementos a la vez.</string>
+    <string name="android_share_too_many">Envía hasta 30 elementos a la vez.</string>
     <string name="android_share_text_too_large">Ese texto es demasiado largo para compartirlo. Selecciona un fragmento más corto.</string>
     <string name="android_share_timeout">El envío tardó demasiado. Comprueba tu conexión e inténtalo de nuevo.</string>
     <string name="android_share_generic_error">OpenMausBot no pudo enviar esto. Inténtalo de nuevo.</string>
@@ -1285,4 +1285,17 @@
     <string name="pairing_access_catalog_missing">This desktop does not provide the complete permission list. Update the desktop app.</string>
     <string name="pairing_access_mode_help">Full access permits all listed actions. Chat and approvals only permits chat features and approving or denying bot actions. Custom uses individually configured permissions.</string>
     <string name="pairing_reconnect_success">✓ Connection restored</string>
+    <string name="android_composer_task">Your task</string>
+    <string name="android_composer_listening">Listening…</string>
+    <string name="image_attachment_settings_title">Image attachments</string>
+    <string name="image_attachment_settings_edit">Edit image limits</string>
+    <string name="image_attachment_settings_count">Maximum number of images</string>
+    <string name="image_attachment_settings_size">Total image size (MB)</string>
+    <string name="image_attachment_settings_help">These limits apply to one message on this computer, including desktop and phone. 1 MB is 1,000,000 bytes. Defaults: 30 images and 60 MB. You can increase both without a fixed upper limit.</string>
+    <string name="image_attachment_settings_invalid">Enter a positive whole image count and a positive size in MB.</string>
+    <string name="image_attachment_settings_saved">✓ Limits saved</string>
+    <string name="image_attachment_settings_saving">Saving…</string>
+    <string name="image_attachment_settings_save">Save limits</string>
+    <string name="image_attachment_count_error">Attach up to %1$s images at a time.</string>
+    <string name="image_attachment_size_error">Those images are larger than %1$s MB together.</string>
 </resources>

@@ -115,8 +115,8 @@ class SharePolicyTest {
         assertTrue(SharePolicy.validWebUrl("https://example.com/story"))
         assertFalse(SharePolicy.validWebUrl("file:///tmp/notes.pdf"))
         assertFalse(SharePolicy.validWebUrl("https://"))
-        assertTrue(SharePolicy.tooManyItems(5))
-        assertFalse(SharePolicy.tooManyItems(4))
+        assertTrue(SharePolicy.tooManyItems(31))
+        assertFalse(SharePolicy.tooManyItems(30))
     }
 
     @Test

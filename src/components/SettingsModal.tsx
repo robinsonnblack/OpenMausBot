@@ -1,3 +1,4 @@
+import { ImageAttachmentSettings } from "./ImageAttachmentSettings";
 // App settings, as a real modal with sections rather than one long panel.
 // Per-bot settings (persona, model, computer) live in BotSettingsDialog — this
 // is the stuff shared by every bot: who you are, your keys, and the
@@ -724,6 +725,7 @@ export function SettingsModal() {
                 <Card title={t("settings.roomTurns.title")} subtitle={t("settings.roomTurns.subtitle")}>
                   <RoomTurnTimeoutSettings />
                 </Card>
+                <ImageAttachmentSettings />
                 <ThreadConcurrencySettings />
                 <ThreadCleanupSettings />
                 <div>

@@ -6257,6 +6257,28 @@ describe("harness HTTP API", () => {
     expect(card.answered).toBe("unavailable");
   });
 
+  it("saves configurable image limits and enforces them on real incoming messages", async () => {
+    const before = await api("GET", "/api/config");
+    const defaults = before.body.imageAttachments;
+    expect(defaults).toEqual({ maxImages: 30, maxTotalImageBytes: 60_000_000 });
+    try {
+      const { body: fleet } = await api("GET", "/api/bots");
+      const upload = await fetch(`${BASE}/api/attachments`, { method: "POST", headers: { "content-type": "image/png" }, body: new Uint8Array([1, 2]) });
+      const { path } = await upload.json() as { path: string };
+      const tag = `<attached-image path="${path}" />`;
+      expect((await api("PATCH", "/api/config", { imageAttachments: { maxImages: 1, maxTotalImageBytes: 60_000_000 } })).status).toBe(200);
+      const count = await api("POST", `/api/bots/${fleet.bots[0].id}/messages`, { text: `${tag}\n\n${tag}` });
+      expect(count.status).toBe(413); expect(count.body.error).toContain("1 images");
+      expect((await api("PATCH", "/api/config", { imageAttachments: { maxImages: 30, maxTotalImageBytes: 1 } })).status).toBe(200);
+      const size = await api("POST", `/api/bots/${fleet.bots[0].id}/messages`, { text: tag });
+      expect(size.status).toBe(413); expect(size.body.error).toContain("MB total");
+      const raised = { maxImages: 100_000, maxTotalImageBytes: 1_000_000_000_000 };
+      expect((await api("PATCH", "/api/config", { imageAttachments: raised })).body.imageAttachments).toEqual(raised);
+      expect(JSON.parse(readFileSync(join(home, ".openmausbot", "config.json"), "utf8")).imageAttachments).toEqual(raised);
+      expect((await api("PATCH", "/api/config", { imageAttachments: { maxImages: 0, maxTotalImageBytes: 1 } })).status).toBe(400);
+    } finally { await api("PATCH", "/api/config", { imageAttachments: defaults }); }
+  });
+
   it("rejects an empty message and explains an unavailable provider", async () => {
     const { body } = await api("GET", "/api/bots");
     const bot = body.bots[0];

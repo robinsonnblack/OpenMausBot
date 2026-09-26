@@ -13,10 +13,9 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { ATTACHMENTS_DIR, IMAGE_MAX_BYTES } from "./attachments.ts";
 import type { TurnImageInput } from "./contracts.ts";
 
-/** Matches the companion composer policy. Four maximum-sized images are
- * bounded to 40 MiB before a provider is asked to ingest them. */
-export const TURN_IMAGE_MAX_COUNT = 4;
-export const TURN_IMAGE_MAX_BYTES = TURN_IMAGE_MAX_COUNT * IMAGE_MAX_BYTES;
+/** Defaults; the server supplies its saved limits for every incoming turn. */
+export const TURN_IMAGE_MAX_COUNT = 30;
+export const TURN_IMAGE_MAX_BYTES = 60_000_000;
 
 type MarkdownNode = {
   type: string;
@@ -151,7 +150,7 @@ export function extractTurnImages(
   }
   const aggregateBytes = admitted.reduce((total, item) => total + item.image.bytes, 0);
   if (aggregateBytes > maxBytes) {
-    throw statusError(413, `Attached images exceed ${Math.floor(maxBytes / (1024 * 1024))} MB total`);
+    throw statusError(413, `Attached images exceed ${maxBytes / 1_000_000} MB total`);
   }
 
   let providerText = text;

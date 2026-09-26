@@ -398,22 +398,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         )
                     }
 
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(MIN_TOUCH_TARGET),
-                    ) {
-                        AvatarCrop.entries.forEachIndexed { index, option ->
-                            SegmentedButton(
-                                selected = form.crop == option,
-                                onClick = { form = form.copy(crop = option) },
-                                shape = SegmentedButtonDefaults.itemShape(
-                                    index = index,
-                                    count = AvatarCrop.entries.size,
-                                ),
-                            ) {
-                                Text(localizedProfileCopy(ProfileRules.cropLabel(option)))
-                            }
-                        }
-                    }
+                    AvatarCropChoices(form.crop) { form = form.copy(crop = it) }
+
 
                     ActionRow(
                         text = stringResource(R.string.ui_upload_image_f35dec5),
@@ -1522,3 +1508,23 @@ private val ProfileFormSaver = listSaver<ProfileForm, Any>(
         )
     },
 )
+
+@Composable
+internal fun AvatarCropChoices(selected: AvatarCrop, onSelect: (AvatarCrop) -> Unit) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        AvatarCrop.entries.chunked(2).forEach { options ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                options.forEach { option ->
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = { onSelect(option) },
+                        modifier = Modifier.weight(1f).height(80.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(if (selected == option) 2.dp else 1.dp,
+                            if (selected == option) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
+                    ) { Text(localizedProfileCopy(ProfileRules.cropLabel(option)), textAlign = androidx.compose.ui.text.style.TextAlign.Center) }
+                }
+            }
+        }
+    }
+}

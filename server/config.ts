@@ -356,6 +356,7 @@ const appConfigSchema = z.object({
   defaultModelSelection: defaultModelSelectionSchema.optional(),
   newBotDefaults: newBotDefaultsSchema.optional(),
   newBots: newBotsConfigSchema.optional(),
+  imageAttachments: z.object({ maxImages: z.number().int().positive(), maxTotalImageBytes: z.number().int().positive() }).strict().optional(),
   /** CLI-only launch preferences. Never enable remote access implicitly. */
   cliStartup: z.object({
     access: z.enum(["local", "tunnel", "tailscale", "public-url"]),
@@ -486,6 +487,7 @@ export interface AppConfig {
   newBotDefaults?: NewBotDefaults;
   /** Defaults for newly created bots that no model selection carries. */
   newBots?: { effort?: EffortLevel };
+  imageAttachments?: { maxImages: number; maxTotalImageBytes: number };
   cliStartup?: {
     access: "local" | "tunnel" | "tailscale" | "public-url";
     publicUrl?: string;
@@ -1015,7 +1017,7 @@ export function saveConfig(
   // back after we have successfully recognized the legacy list.
   const storedProfiles = storedBrowserProfilesSchema.safeParse(disk.browserProfiles);
   if (storedProfiles.success) disk.browserProfiles = storedProfiles.data;
-  for (const key of ["xai", "anthropic", "mistral", "openaiCompat", "composio", "box", "opencodeGo", "tts", "imageGen", "profile", "rooms", "threads", "context", "localVm", "features", "budgets", "billing", "decisions", "onboarding", "browserEngine", "newBots"] as const) {
+  for (const key of ["xai", "anthropic", "mistral", "openaiCompat", "composio", "box", "opencodeGo", "tts", "imageGen", "profile", "rooms", "threads", "context", "localVm", "features", "budgets", "billing", "decisions", "onboarding", "browserEngine", "newBots", "imageAttachments"] as const) {
     const section = checkedPatch[key];
     if (!section) continue;
     const current = jsonObjectSchema.safeParse(disk[key]);

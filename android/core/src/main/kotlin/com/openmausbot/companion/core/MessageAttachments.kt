@@ -35,8 +35,8 @@ class AttachmentPolicyException(message: String) : Exception(message)
  * attachment that the authenticated upload route will reject.
  */
 object AttachmentPolicy {
-    const val MAXIMUM_ITEMS: Int = 4
-    const val MAXIMUM_TOTAL_BYTES: Int = 50 * 1_024 * 1_024
+    const val MAXIMUM_ITEMS: Int = 30
+    const val MAXIMUM_TOTAL_BYTES: Int = 60_000_000
     const val MAXIMUM_IMAGE_BYTES: Int = 10 * 1_024 * 1_024
     const val MAXIMUM_FILE_BYTES: Int = 25 * 1_024 * 1_024
 
@@ -56,8 +56,8 @@ object AttachmentPolicy {
         "application/vnd.oasis.opendocument.presentation",
     )
 
-    const val TOO_MANY_ITEMS: String = "Attach up to 4 items at a time."
-    const val TOTAL_TOO_LARGE: String = "Those attachments are larger than 50 MB together."
+    const val TOO_MANY_ITEMS: String = "Attach up to 30 images at a time."
+    const val TOTAL_TOO_LARGE: String = "Those images are larger than 60 MB together."
     const val INVALID_NAME: String = "That file doesn't have a valid filename."
 
     fun unsupportedType(name: String): String =
@@ -77,10 +77,11 @@ object AttachmentPolicy {
     }
 
     /** Throws [AttachmentPolicyException] with the sentence the composer shows. */
-    fun validate(attachments: List<PendingMessageAttachment>) {
-        if (attachments.size > MAXIMUM_ITEMS) throw AttachmentPolicyException(TOO_MANY_ITEMS)
-        if (attachments.sumOf { it.data.size.toLong() } > MAXIMUM_TOTAL_BYTES) {
-            throw AttachmentPolicyException(TOTAL_TOO_LARGE)
+    fun validate(attachments: List<PendingMessageAttachment>, limits: ImageAttachmentSettings = ImageAttachmentSettings()) {
+        val images = attachments.filter { it.kind == PendingMessageAttachment.Kind.IMAGE }
+        if (images.size > limits.maxImages) throw AttachmentPolicyException("Attach up to ${limits.maxImages} images at a time.")
+        if (images.sumOf { it.data.size.toLong() } > limits.maxTotalImageBytes) {
+            throw AttachmentPolicyException("Those images are larger than ${(limits.maxTotalImageBytes / 1_000_000.0).toString().removeSuffix(".0")} MB together.")
         }
         for (attachment in attachments) {
             val name = attachment.name.trim()

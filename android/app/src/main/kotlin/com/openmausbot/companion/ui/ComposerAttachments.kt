@@ -74,8 +74,8 @@ object AttachmentImportRules {
     }
 
     /** Whatever the 50 MB total has left after what is already attached. */
-    fun remainingBytes(attached: List<PendingMessageAttachment>): Int =
-        max(0, AttachmentPolicy.MAXIMUM_TOTAL_BYTES - attached.sumOf { it.data.size })
+    fun remainingBytes(attached: List<PendingMessageAttachment>, limits: com.openmausbot.companion.core.ImageAttachmentSettings = com.openmausbot.companion.core.ImageAttachmentSettings()): Int =
+        (limits.maxTotalImageBytes - attached.filter { it.kind == PendingMessageAttachment.Kind.IMAGE }.sumOf { it.data.size.toLong() }).coerceIn(0, Int.MAX_VALUE.toLong()).toInt()
 
     /** The most one more item of this kind may read: its own cap, or the total's remainder. */
     fun readLimit(kind: PendingMessageAttachment.Kind, remainingBytes: Int): Int {
@@ -87,7 +87,7 @@ object AttachmentImportRules {
     }
 
     fun canAdd(attached: Int, preparing: Boolean, sending: Boolean): Boolean =
-        attached < AttachmentPolicy.MAXIMUM_ITEMS && !preparing && !sending
+        !preparing && !sending
 
     /** `canSend` in the Swift: text or an attachment, and nothing in flight. */
     fun canSend(draft: String, attached: Int, preparing: Boolean, sending: Boolean): Boolean =
@@ -121,7 +121,7 @@ object AttachmentImport {
                 ?: "application/octet-stream",
         )
         val kind = AttachmentPolicy.kindForMime(mime) ?: throw AttachmentImportException(AttachmentImportRules.unsupported(name))
-        val limit = AttachmentImportRules.readLimit(kind, remainingBytes)
+        val limit = if (kind == PendingMessageAttachment.Kind.FILE) AttachmentPolicy.MAXIMUM_FILE_BYTES else AttachmentImportRules.readLimit(kind, remainingBytes)
         val data = readBounded(resolver, uri, limit)
             ?: throw AttachmentImportException(AttachmentImportRules.tooLarge(name, limit))
         if (data.isEmpty()) throw AttachmentImportException(AttachmentImportRules.unreadable(name))

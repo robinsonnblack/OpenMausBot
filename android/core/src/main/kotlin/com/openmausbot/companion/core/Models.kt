@@ -1013,7 +1013,11 @@ data class BrowserEngineStatus(
 data class FeatureFlags(val browser: Boolean? = null, val skillAuthoring: Boolean? = null)
 
 @Serializable
+data class ImageAttachmentSettings(val maxImages: Long = 30, val maxTotalImageBytes: Long = 60_000_000)
+
+@Serializable
 data class ConfigStatus(
+    val imageAttachments: ImageAttachmentSettings = ImageAttachmentSettings(),
     val edition: EditionStatus? = null,
     val budgets: WorkspaceBudgetConfig? = null,
     val billing: WorkspaceBillingConfig? = null,

@@ -51,6 +51,7 @@ Use only mapped, tested commands:
 - [Chat UI, driven headlessly](chat-ui.md)
 - [Custom theme save feedback and reference colors](custom-theme.md)
 - [Existing phone connection rights](pairing-access.md)
+- [Android chat controls and configurable image limits](mobile-chat-polish.md)
 - [Welcome flow and guided tour](onboarding.md)
 - [Channels](channels.md)
 - [In-chat team coordination](room-coordination.md)

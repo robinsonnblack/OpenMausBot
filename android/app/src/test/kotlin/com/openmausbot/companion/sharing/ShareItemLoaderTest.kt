@@ -104,19 +104,10 @@ class ShareItemLoaderTest {
     }
 
     @Test
-    fun fourItemsAreAcceptedAndAFifthIsRefusedRatherThanDropped() {
-        val four = (1..4).map { content("photo$it.png", "image/png", png) }
-        val accepted = ShareItemLoader.load(sendMultiple(four), resolver, inboxRoot)
-        assertEquals(4, accepted.attachments.size)
-
-        val five = (1..5).map { content("shot$it.png", "image/png", png) }
-        val refusal = assertFailsWith<ShareLoadException> {
-            ShareItemLoader.load(sendMultiple(five), resolver, inboxRoot)
-        }
-
-        assertEquals("Send up to 4 items at a time.", refusal.message)
-        // A refused share leaves nothing of itself in the cache.
-        assertEquals(emptyList(), inboxRoot.listFiles().orEmpty().toList())
+    fun shareIntakeDoesNotOverrideTheDestinationImageCount() {
+        val images = (1..75).map { content("photo$it.png", "image/png", png) }
+        val accepted = ShareItemLoader.load(sendMultiple(images), resolver, inboxRoot)
+        assertEquals(75, accepted.attachments.size)
     }
 
     @Test

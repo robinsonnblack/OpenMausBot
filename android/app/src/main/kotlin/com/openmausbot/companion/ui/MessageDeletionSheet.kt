@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -55,13 +59,14 @@ internal fun MessageDeletionSheet(
     }
     val labels = remember(messages) { messages.associateBy(Message::id) }
 
-    ModalBottomSheet(onDismissRequest = { if (!deleting) onDismiss() }) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = { if (!deleting) onDismiss() }, sheetState = sheetState) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 24.dp),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(horizontal = 20.dp).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text(stringResource(R.string.ui_delete_messages_93f3675), style = MaterialTheme.typography.titleLarge)
-            Text(stringResource(R.string.ui_select_messages_to_permanently_remove_olde_000f52e))
+            PermissionHelp(stringResource(R.string.ui_select_messages_to_permanently_remove_olde_000f52e))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(enabled = selection != null && !deleting, onClick = {
                     selected = selection?.allIds.orEmpty().toSet()
@@ -73,8 +78,8 @@ internal fun MessageDeletionSheet(
             }
             if (selection == null && error == null) CircularProgressIndicator()
             if (selection?.allIds?.isEmpty() == true) Text(stringResource(R.string.ui_no_messages_in_this_conversation_089151e))
-            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 380.dp)) {
-                items(selection?.allIds.orEmpty(), key = { it }) { id ->
+            LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                items(selection?.allIds.orEmpty().asReversed(), key = { it }) { id ->
                     val message = labels[id]
                     val label = if (message == null) l10n.getString(R.string.android_deletion_older_version, id) else {
                         val sender = l10n.getString(if (message.role == Message.Role.USER) R.string.android_deletion_you else R.string.android_deletion_bot)
@@ -86,7 +91,7 @@ internal fun MessageDeletionSheet(
                             enabled = !deleting,
                             onCheckedChange = { checked -> selected = if (checked) selected + id else selected - id },
                         )
-                        Text(label, modifier = Modifier.padding(top = 12.dp))
+                        Text(label, modifier = Modifier.weight(1f).padding(top = 12.dp), maxLines = 3, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }

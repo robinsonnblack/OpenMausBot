@@ -103,7 +103,7 @@ class MessageAttachmentsTest {
         val valid = PendingMessageAttachment(data = byteArrayOf(1), name = "notes.txt", mime = "text/plain", kind = PendingMessageAttachment.Kind.FILE)
         assertEquals(
             AttachmentPolicy.TOO_MANY_ITEMS,
-            assertFailsWith<AttachmentPolicyException> { AttachmentPolicy.validate(List(5) { valid }) }.message,
+            assertFailsWith<AttachmentPolicyException> { AttachmentPolicy.validate(List(31) { PendingMessageAttachment(data = byteArrayOf(1), name = "a.png", mime = "image/png", kind = PendingMessageAttachment.Kind.IMAGE) }) }.message,
         )
         assertEquals(
             "archive.zip isn't a supported file. Try PDF, text, Word, Excel, or PowerPoint.",
@@ -123,5 +123,15 @@ class MessageAttachmentsTest {
                 AttachmentPolicy.validate(listOf(PendingMessageAttachment(data = ByteArray(AttachmentPolicy.MAXIMUM_IMAGE_BYTES + 1), name = "huge.png", mime = "image/png", kind = PendingMessageAttachment.Kind.IMAGE)))
             }.message,
         )
+    }
+    @Test fun configurableImageLimitsUseDecimalMegabytesWithoutAnArtificialCeiling() {
+        fun image(bytes: Int) = PendingMessageAttachment(data = ByteArray(bytes), name = "a.png", mime = "image/png", kind = PendingMessageAttachment.Kind.IMAGE)
+        AttachmentPolicy.validate(List(30) { image(1) })
+        val tenMB = image(10_000_000)
+        AttachmentPolicy.validate(List(6) { tenMB })
+        assertFailsWith<AttachmentPolicyException> { AttachmentPolicy.validate(List(7) { tenMB }) }
+        AttachmentPolicy.validate(List(75) { image(1) }, ImageAttachmentSettings(100_000, 1_000_000_000_000))
+        assertFailsWith<AttachmentPolicyException> { AttachmentPolicy.validate(List(2) { image(1) }, ImageAttachmentSettings(1, 60_000_000)) }
+        assertFailsWith<AttachmentPolicyException> { AttachmentPolicy.validate(listOf(image(2)), ImageAttachmentSettings(30, 1)) }
     }
 }

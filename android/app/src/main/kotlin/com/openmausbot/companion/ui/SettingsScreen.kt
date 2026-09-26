@@ -144,6 +144,7 @@ fun SettingsScreen(
     var restoringBackup by remember { mutableStateOf(false) }
     var editingDefaultBotModel by remember { mutableStateOf(false) }
     var editingNewBotEffort by remember { mutableStateOf(false) }
+    var editingImageAttachments by remember { mutableStateOf(false) }
     var managingBrowserProfiles by remember { mutableStateOf(false) }
     var editingHostBrowser by remember { mutableStateOf(false) }
     var editingSkillAuthoring by remember { mutableStateOf(false) }
@@ -290,6 +291,10 @@ fun SettingsScreen(
                     onClick = environment.notifications::act,
                 )
                 Footnote(stringResource(R.string.android_onboarding_notifications_body))
+            }
+
+            if (pairingAccess.allows("workspace")) SettingsSection(stringResource(R.string.image_attachment_settings_title)) {
+                SettingsButton(stringResource(R.string.image_attachment_settings_edit)) { editingImageAttachments = true }
             }
 
             SettingsSection(stringResource(R.string.android_settings_appearance_41def7)) {
@@ -680,6 +685,7 @@ fun SettingsScreen(
     if (managingLocalVm) LocalVmManagementSheet { managingLocalVm = false }
     if (exportingBackup) WorkspaceBackupExportSheet { exportingBackup = false }
     if (restoringBackup) WorkspaceBackupRestoreSheet { restoringBackup = false }
+    if (editingImageAttachments) ImageAttachmentSettingsSheet { editingImageAttachments = false }
     if (editingBudget) WorkspaceBudgetSheet { editingBudget = false }
     if (editingBilling) WorkspaceBillingSheet { editingBilling = false }
     if (editingDefaultBotModel) DefaultBotModelSheet { editingDefaultBotModel = false }
@@ -780,7 +786,7 @@ internal fun PairingAccessDetails(pairingAccess: PairingAccessState, onRefresh: 
 }
 
 @Composable
-private fun PermissionHelp(explanation: String, title: String? = null) {
+internal fun PermissionHelp(explanation: String, title: String? = null) {
     var open by remember { mutableStateOf(false) }
     val description = stringResource(R.string.pairing_access_help) + (title?.let { ": $it" } ?: "")
     TextButton(onClick = { open = true }, modifier = Modifier.semantics { contentDescription = description }) { Text("?") }

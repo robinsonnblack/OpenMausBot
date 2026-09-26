@@ -448,6 +448,13 @@ class CompanionClient(
         return raw.data
     }
 
+    suspend fun updateImageAttachmentSettings(settings: ImageAttachmentSettings): ConfigStatus {
+        require(settings.maxImages > 0 && settings.maxTotalImageBytes > 0)
+        return send(makeRequest("PATCH", "/api/config", body = buildJsonObject {
+            put("imageAttachments", CompanionJson.encodeToJsonElement(settings))
+        }))
+    }
+
     suspend fun updateThreadSettings(settings: ThreadSettings): ConfigStatus {
         require(settings.maxConcurrentPerBot in 1..10)
         require(settings.eventLogMaxBytes == null || settings.eventLogMaxBytes in 262_144L..4_294_967_296L)

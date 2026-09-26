@@ -290,6 +290,7 @@ import { narrateTool, toUtterances } from "./tts/speech-text.ts";
 import { buildRecoveryText, buildTurnContext, engineIsFresh, NATIVELY_REPLAYING_DRIVER_KINDS, peerMessageText } from "./turn-context.ts";
 import { Handoffs, handedStateUsable, recordHanded, renderUnseen, sessionStart, unseenMessages, withUnseenMessages, type ContextMessage } from "./delta-context.ts";
 import { extractTurnImages } from "./turn-images.ts";
+import { imageAttachmentLimits } from "../shared/image-attachment-limits.ts";
 import { TurnWatchdog } from "./turn-watchdog.ts";
 import { TurnResources, workspaceResource, type TurnOwner } from "./turn-resources.ts";
 import {
@@ -637,6 +638,10 @@ let companionMutationToken: string | undefined = DESKTOP_MANAGED ? "" : undefine
 // Where remote clients reach this server (a proxy's public address); pairing URLs use it.
 const FALLBACK_PUBLIC_URL = process.env.OMB_PUBLIC_URL?.trim().replace(/\/+$/, "") || null;
 const cfg = loadConfig();
+function extractConfiguredTurnImages(text: string) {
+  const limits = imageAttachmentLimits(cfg.imageAttachments);
+  return extractTurnImages(text, { maxCount: limits.maxImages, maxBytes: limits.maxTotalImageBytes });
+}
 const hostedModels = hostedModelPolicy(DATA_DIR);
 const providerConfigs = () => hostedModels ? hostedModels.configs() : instanceConfigs(cfg);
 const decorateHostedProvider = hostedModels ? (instance: ProviderInstance) => hostedModels.decorate(instance) : undefined;
@@ -7570,7 +7575,7 @@ async function startTurn(
   // string remains the durable message. Native-image providers get a
   // path-free prompt and bounded inputs instead of needing a Read tool;
   // path-reading drivers retain the attachment tag as their compatibility route.
-  const resolvedImages = extractTurnImages(text);
+  const resolvedImages = extractConfiguredTurnImages(text);
   const usesNativeImageInput = instance.adapter.capabilities.nativeImageInput === true;
   const providerText = usesNativeImageInput ? resolvedImages.text : text;
   const turnImages = usesNativeImageInput ? resolvedImages.images : [];
@@ -9903,7 +9908,7 @@ async function runGroupMemberTurn(
     (message) => message.role === "user" && message.kind === "text" && message.text,
   );
   const resolvedLatestImages = latestUser?.text && !cardContinuation
-    ? extractTurnImages(latestUser.text)
+    ? extractConfiguredTurnImages(latestUser.text)
     : { text: latestUser?.text ?? "", images: [] };
   const usesNativeImageInput = instance.adapter.capabilities.nativeImageInput === true;
   const roomContext = serializeRoomContext(
@@ -11244,7 +11249,7 @@ function startGroupTurn(
   // one-shot simply keeps the snippet.
   const titleBot = goalCoordinator ?? dynamicRouter ?? responders[0]!;
   const titleInstance = registry.get(titleBot.modelSelection.instanceId);
-  const titleText = extractTurnImages(text).text;
+  const titleText = extractConfiguredTurnImages(text).text;
   // An engine the organisation disallows never receives the text, even for a title.
   if (titled && snippet && titleText.trim() && llmThreadTitlesEnabled(cfg) && titleInstance?.generateText && !policyModelRefusal(titleInstance)) {
     void generateThreadTitle(titleInstance, titleText)
@@ -12459,6 +12464,7 @@ function configStatus() {
     rooms: { turnTimeoutMinutes: roomTurnTimeoutMinutes(cfg) },
     // absent effort = no level is sent, so clients can tell it from any level
     newBots: cfg.newBots?.effort ? { effort: cfg.newBots.effort } : {},
+    imageAttachments: imageAttachmentLimits(cfg.imageAttachments),
     threads: {
       maxConcurrentPerBot: maxConcurrentBotThreads(cfg),
       ...(eventLogMaxBytes !== null ? { eventLogMaxBytes } : {}),
@@ -18478,7 +18484,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
             // A live text steer has no image side channel. Keep an attachment
             // message intact for the next ordinary turn, where central image
             // admission can hand it to the provider natively.
-            const carriesImages = extractTurnImages(text).images.length > 0;
+            const carriesImages = extractConfiguredTurnImages(text).images.length > 0;
             const steerTarget = handoffs.current(threadId);
             if (!carriesImages && !computerSelectionTurns.get(threadId)?.selected && instance?.adapter.capabilities.queueing && instance.adapter.steer) {
               steered = await instance.adapter
@@ -18577,7 +18583,7 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
       if (!held) return json(res, 404, { error: "no such queued message" });
       // A live steer has no image side channel. Attachment words wait for a
       // real turn where central admission can hand the images to the engine.
-      if (held.items.some((item) => extractTurnImages(item.text).images.length > 0)) {
+      if (held.items.some((item) => extractConfiguredTurnImages(item.text).images.length > 0)) {
         restoreHeldSteeredQueue(held);
         return json(res, 200, { ok: true, queued: true, threadId: bot.threadId });
       }

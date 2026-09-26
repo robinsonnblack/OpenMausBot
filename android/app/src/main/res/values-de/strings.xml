@@ -1220,7 +1220,7 @@
     <string name="android_share_no_destinations">Es gibt noch keine Bots oder Kanäle, an die du etwas senden kannst. Erstelle zuerst einen auf deinem Computer.</string>
     <string name="android_share_update_for_images">Aktualisiere OpenMausBot auf diesem Computer, bevor du Bilder teilst.</string>
     <string name="android_share_nothing_supported">Es gibt keinen Text, Link, kein Bild und kein unterstütztes Dokument zum Senden.</string>
-    <string name="android_share_too_many">Sende höchstens 4 Elemente auf einmal.</string>
+    <string name="android_share_too_many">Sende höchstens 30 Elemente auf einmal.</string>
     <string name="android_share_text_too_large">Dieser Text ist zu groß zum Teilen. Wähle einen kürzeren Abschnitt aus.</string>
     <string name="android_share_timeout">Das Senden hat zu lange gedauert. Überprüfe deine Verbindung und versuche es erneut.</string>
     <string name="android_share_generic_error">OpenMausBot konnte diesen Inhalt nicht senden. Bitte versuche es erneut.</string>
@@ -1285,4 +1285,17 @@
     <string name="pairing_access_catalog_missing">Dieser Desktop liefert keine vollständige Berechtigungsliste. Aktualisiere die Desktop-App.</string>
     <string name="pairing_access_mode_help">Vollzugriff erlaubt alle aufgeführten Aktionen. Nur Chat und Freigaben erlaubt Chatfunktionen und das Bestätigen oder Ablehnen von Bot-Aktionen. Benutzerdefiniert verwendet einzeln festgelegte Rechte.</string>
     <string name="pairing_reconnect_success">✓ Verbindung wiederhergestellt</string>
+    <string name="android_composer_task">Deine Aufgabe</string>
+    <string name="android_composer_listening">Höre zu…</string>
+    <string name="image_attachment_settings_title">Bildanhänge</string>
+    <string name="image_attachment_settings_edit">Bildgrenzen ändern</string>
+    <string name="image_attachment_settings_count">Maximale Bildanzahl</string>
+    <string name="image_attachment_settings_size">Gesamtgröße der Bilder (MB)</string>
+    <string name="image_attachment_settings_help">Diese Grenzen gelten pro Nachricht auf diesem Computer, auch für Desktop und Handy. 1 MB sind 1.000.000 Bytes. Standard: 30 Bilder und 60 MB. Beide Werte lassen sich ohne feste Obergrenze erhöhen.</string>
+    <string name="image_attachment_settings_invalid">Gib eine positive ganze Bildanzahl und eine positive Größe in MB ein.</string>
+    <string name="image_attachment_settings_saved">✓ Grenzen gespeichert</string>
+    <string name="image_attachment_settings_saving">Speichern…</string>
+    <string name="image_attachment_settings_save">Grenzen speichern</string>
+    <string name="image_attachment_count_error">Maximal %1$s Bilder pro Nachricht.</string>
+    <string name="image_attachment_size_error">Die Bilder überschreiten zusammen %1$s MB.</string>
 </resources>
