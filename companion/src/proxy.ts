@@ -23,7 +23,7 @@ import {
   MAX_COMPANION_ENDPOINTS,
   type CompanionEndpoint,
 } from "./endpoints.ts";
-import { denyReason, isCloudDesktopAccess, isMessageFileDownload } from "./routes.ts";
+import { denyReason, isCloudDesktopAccess, isMessageFileDownload, voiceConfigDenial } from "./routes.ts";
 import { CompanionViewerRelay } from "./viewer-relay.ts";
 import { createSseScrubber, isJson, scrub } from "./wire.ts";
 
@@ -363,15 +363,14 @@ export function createProxyHandler(options: ProxyOptions) {
     if (device && options.mutationToken && !mutationToken) {
       return sendJson(res, 503, { error: "The desktop connection is starting. Please try again shortly." });
     }
-    let configBody: Buffer | undefined;
-    if (path === "/api/config" && ["PATCH", "PUT"].includes(method) && device) {
-      try {
-        const body = await readJson(req, 1_000_000);
-        const blocked = configPermissionDenial(body, effectivePermissions(device.access ?? "client", device.permissions, device.cloudDesktopAccess));
-        if (blocked) return sendJson(res, 403, { error: blocked });
-        configBody = Buffer.from(JSON.stringify(body));
-        req.headers["content-length"] = String(configBody.length);
-      } catch { return sendJson(res, 400, { error: "Invalid configuration body" }); }
+    // Config bodies are authorized field by field before forwarding.
+    // Everything else streams straight through. `payload` is
+    // that re-serialised body; absent, the request is piped as it arrived.
+    const forward = (payload?: Buffer): void => {
+    const headers = forwardHeaders(req, device?.id, mutationToken ?? undefined, device?.access, device?.permissions, device?.cloudDesktopAccess);
+    if (payload) {
+      headers["content-type"] = "application/json";
+      headers["content-length"] = String(payload.length);
     }
     const upstream = httpRequest(
       {
@@ -379,7 +378,7 @@ export function createProxyHandler(options: ProxyOptions) {
         port: options.harnessPort,
         path: req.url,
         method,
-        headers: forwardHeaders(req, device?.id, mutationToken ?? undefined, device?.access, device?.permissions, device?.cloudDesktopAccess),
+        headers,
       },
       (harness) => {
         clearTimeout(headersDeadline);
@@ -670,8 +669,31 @@ export function createProxyHandler(options: ProxyOptions) {
           : { error: "OpenMausBot is not running on this computer" },
       );
     });
-    if (configBody) upstream.end(configBody);
+    if (payload) upstream.end(payload);
     else req.pipe(upstream);
+    };
+
+    if (path === "/api/config" && ["PUT", "PATCH"].includes(method)) {
+      readJson(req).then(
+        (body) => {
+          const denial = device ? configPermissionDenial(body, effectivePermissions(device.access ?? "client", device.permissions, device.cloudDesktopAccess)) : voiceConfigDenial(body);
+          if (denial) return sendJson(res, 403, { error: denial });
+          if (body && typeof body === "object" && !Array.isArray(body)) {
+            const top = body as Record<string, unknown>;
+            const tts = top.tts;
+            if (Object.keys(top).length === 1 && tts && typeof tts === "object" && !Array.isArray(tts)
+                && Object.keys(tts).every(field => field === "key" || field === "provider")) {
+              const invalid = voiceConfigDenial(body);
+              if (invalid) return sendJson(res, 403, { error: invalid });
+            }
+          }
+          forward(Buffer.from(JSON.stringify(body)));
+        },
+        (error: Error) => sendJson(res, 400, { error: error.message }),
+      );
+      return;
+    }
+    forward();
   };
 
   handle.upgrade = (req: IncomingMessage, socket: Duplex, head: Buffer): void => {

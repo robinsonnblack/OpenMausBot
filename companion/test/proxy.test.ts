@@ -171,7 +171,7 @@ beforeAll(async () => {
   sidecar = createServer(
     createProxyHandler({
       harnessPort: HARNESS_PORT,
-      authenticate: (t) => (t === TOKEN ? { id: "d1", cloudDesktopAccess: true, access: "custom", permissions: { ...presetPermissions("client"), botCreate: true, teams: true, cloudDesktop: true } } : null),
+      authenticate: (t) => (t === "omb_voice_fixture_token" ? { id: "voice-fixture", access: "custom", permissions: { ...presetPermissions("client"), providers: true } } : t === TOKEN ? { id: "d1", cloudDesktopAccess: true, access: "custom", permissions: { ...presetPermissions("client"), botCreate: true, teams: true, cloudDesktop: true } } : null),
       redeem: (code, deviceName) =>
         code === "424242"
           ? { token: TOKEN, device: { id: "d1", name: String(deviceName) } }
@@ -301,6 +301,9 @@ describe("the sidecar in front of an unmodified harness", () => {
   it("refuses what a device has no business doing, by default", async () => {
     // settings and credentials stay on the machine
     expect((await device("PUT", "/api/config", { body: { xai: { apiKey: "x" } } })).status).toBe(403);
+    // …even riding along with the one write a phone may make
+    expect((await device("PUT", "/api/config", { body: { tts: { provider: "system" }, xai: { apiKey: "x" } } })).status).toBe(403);
+    expect((await device("PATCH", "/api/config", { body: { tts: { provider: "system" } } })).status).toBe(403);
     expect((await device("GET", "/api/devices")).status).toBe(403);
     expect((await device("GET", "/api/companion")).status).toBe(403);
     expect((await device("POST", "/api/local-computer/start")).status).toBe(403);
@@ -1029,5 +1032,28 @@ describe("pairing, end to end", () => {
     } finally {
       await new Promise<void>((r) => control.close(() => r()));
     }
+  });
+});
+
+describe("the voice config write", () => {
+  it("requires the provider grant before accepting a voice change", async () => {
+    const denied = await device("PUT", "/api/config", { body: { tts: { provider: "system" } } });
+    expect(denied.status).toBe(403);
+    expect(denied.body.error).toMatch(/providers/);
+  });
+  it("forwards a voice engine change to the harness, and nothing rides along", async () => {
+    const changed = await device("PUT", "/api/config", { token: "omb_voice_fixture_token", body: { tts: { provider: "system" } } });
+    expect(changed.status, JSON.stringify(changed.body)).toBe(200);
+    const config = await device("GET", "/api/config");
+    expect(config.status).toBe(200);
+    expect(config.body.tts?.provider).toBe("system");
+    const back = await device("PUT", "/api/config", { token: "omb_voice_fixture_token", body: { tts: { provider: "elevenlabs" } } });
+    expect(back.status, JSON.stringify(back.body)).toBe(200);
+  });
+
+  it("refuses a malformed key before the harness sees it", async () => {
+    const refused = await device("PUT", "/api/config", { token: "omb_voice_fixture_token", body: { tts: { key: "bad\nkey" } } });
+    expect(refused.status).toBe(403);
+    expect(refused.body.error).toMatch(/API key/);
   });
 });

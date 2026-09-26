@@ -1336,4 +1336,5 @@
     <string name="android_restoring_connection">Verbindung wird geladen…</string>
     <string name="android_advanced_settings">Erweitert</string>
     <string name="android_prompt_inspector_help">Zeigt die an das Modell gesendeten Anfragen über das Symbol { } im Chat an.</string>
+    <string name="android_voice_settings_title">Stimme</string>
 </resources>

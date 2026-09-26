@@ -266,6 +266,9 @@ private fun LoadedChat(
     var showingDeletion by remember(threadId) { mutableStateOf(false) }
     var showingPromptInspector by remember(threadId) { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
+    // The bot on the line. Not saveable: a call does not survive a rotation's
+    // teardown of the audio session any better than a phone call would.
+    var showingCall by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -527,6 +530,7 @@ private fun LoadedChat(
     LaunchedEffect(showingPlus) { if (showingPlus) dictation.stop() }
     LaunchedEffect(showingTasks) { if (showingTasks) dictation.stop() }
     LaunchedEffect(showingProfile) { if (showingProfile) dictation.stop() }
+    LaunchedEffect(showingCall) { if (showingCall) dictation.stop() }
 
     val connection by session.connection.collectAsState()
     val permissionAccess by session.pairingAccess.collectAsState()
@@ -949,7 +953,13 @@ private fun LoadedChat(
                         dictation.stop()
                         if (bot != null) onOpenComputer(bot.id)
                     },
-                    // The avatar opens settings; the name pill opens threads.
+                    onCall = {
+                        focusManager.clearFocus()
+                        showingCall = true
+                    },
+                    // A bot's face and its name pill are both the door to its
+                    // profile; a room has no profile, so its pill opens the same
+                    // sheet the + does.
                     onOpenProfile = {
                         if (bot != null) {
                             showingProfile = true
@@ -1141,6 +1151,10 @@ private fun LoadedChat(
             onOpen = { filePreviews.openWithSystem(item) },
         )
     }
+
+    if (showingCall && bot != null) {
+        CallScreen(bot = bot, onDismiss = { showingCall = false })
+    }
 }
 
 private fun share(
@@ -1195,6 +1209,7 @@ private fun ChatHeader(
     onDeleteMessages: (() -> Unit)?,
     onInspectPrompt: (() -> Unit)?,
     onWatchComputer: () -> Unit,
+    onCall: () -> Unit,
     onOpenProfile: () -> Unit,
     onOpenThreads: () -> Unit,
     modifier: Modifier = Modifier,
@@ -1237,6 +1252,12 @@ private fun ChatHeader(
             )
             // The computer is a bot idea; a room has none (§12).
             if (chat is Chat.BotChat) {
+                ChromeButton(
+                    painter = painterResource(R.drawable.ic_phone),
+                    contentDescription = "Call ${chat.name}",
+                    onClick = onCall,
+                )
+                Spacer(Modifier.size(8.dp))
                 ChromeButton(
                     painter = painterResource(R.drawable.ic_display),
                     contentDescription = stringResource(R.string.ui_dynamic_watch_1_s_s_computer_92efc11, chat.name),

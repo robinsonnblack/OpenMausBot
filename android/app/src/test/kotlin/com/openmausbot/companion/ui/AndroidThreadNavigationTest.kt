@@ -88,6 +88,7 @@ class AndroidThreadNavigationTest {
                 requests.add(request)
                 return when {
                     request.method != "GET" -> answerAction(request)
+                    request.path == "/api/companion/access" -> json("""{"role":"admin","scopes":["admin"],"permissions":{"chat":true,"approvals":true,"routines":true,"manageBots":true,"manageSettings":true,"cloudDesktop":true}}""")
                     request.path == "/api/instances" -> json("""{"instances":[]}""")
                     request.path?.startsWith("/api/threads/") == true -> answerHistory()
                     else -> MockResponse().setResponseCode(404)
@@ -384,6 +385,7 @@ class AndroidThreadNavigationTest {
         }
         compose.runOnIdle { scene.session.connect() }
         compose.waitUntil(5_000) { scene.session.state.value.bot(bot.id) != null }
+        compose.waitUntil(5_000) { scene.session.pairingAccess.value is com.openmausbot.companion.core.PairingAccessState.Ready }
         compose.waitForIdle()
     }
 

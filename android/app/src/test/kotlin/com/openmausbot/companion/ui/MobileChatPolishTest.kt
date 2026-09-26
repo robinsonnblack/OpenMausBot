@@ -37,7 +37,7 @@ class MobileChatPolishTest {
                     onTogglePlus = {}, onDraftChange = { draft = it }, onToggleDictation = {}, onSend = {},
                     onToggleHud = {}, onCloseHud = {}, onSelectCommand = {}, chips = emptyList(), onSelectChip = {},
                     attachments = emptyList(), sending = false, preparing = false, busy = false, engineCanSteer = false,
-                    queuedSends = emptyList(), steering = false, onSteer = null, onCancelQueued = {}, openingFileName = null,
+                    queuedSends = emptyList(), steering = false, onSteer = null, onCancelQueued = {}, onEditQueued = {}, openingFileName = null,
                     attachmentError = null, onRemoveAttachment = {}, onDismissError = {})
             }
         }
