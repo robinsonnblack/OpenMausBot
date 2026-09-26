@@ -1328,4 +1328,10 @@
     <string name="stt_recording_options_help">In manual mode, pauses do not end recording. In automatic mode, recording ends after speech followed by the chosen pause length. Tapping again ends either mode. Controlled Android recognition requires Android 13 or newer and a recognition service supporting streamed input.</string>
     <string name="stt_after_action_help">Insert leaves the text in your draft. Send sends once after complete, successful transcription, including the existing draft and attachments. Cancellation or failure sends nothing.</string>
     <string name="stt_send_busy">Attachments are still being prepared or sent. Your transcript remains in the text field.</string>
+    <string name="chat_activity_full">Full</string>
+    <string name="chat_activity_reduced">Reduced</string>
+    <string name="chat_activity_hidden">Hidden</string>
+    <string name="chat_activity_full_help">Every step a bot takes.</string>
+    <string name="chat_activity_reduced_help">Steps fold into one line. Failures always show.</string>
+    <string name="chat_activity_hidden_help">No activity, only messages.</string>
 </resources>

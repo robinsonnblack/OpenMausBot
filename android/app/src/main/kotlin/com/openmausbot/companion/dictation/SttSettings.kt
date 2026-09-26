@@ -8,7 +8,7 @@ import kotlinx.serialization.encodeToString
 
 @Serializable data class SttProfile(val key: String = "", val model: String = "", val endpoint: String = "")
 @Serializable data class SttConfig(val provider: String = "android", val language: String = "auto", val profiles: Map<String, SttProfile> = emptyMap(),
-    val stopMode: String = "manual", val silenceMs: Int = 1000, val afterAction: String = "insert") {
+    val stopMode: String = "manual", val silenceMs: Int = 5000, val afterAction: String = "insert") {
     fun validated(): SttConfig {
         require(stopMode in listOf("manual", "silence") && afterAction in listOf("insert", "send")) { "Choose valid recording and transcript actions." }
         require(silenceMs > 0) { "Pause length must be a positive whole number of milliseconds." }

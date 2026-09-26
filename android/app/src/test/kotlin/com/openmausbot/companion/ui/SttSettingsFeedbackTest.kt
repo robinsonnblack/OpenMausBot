@@ -2,6 +2,13 @@ package com.openmausbot.companion.ui
 
 import android.graphics.Bitmap
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.input.key.Key
+import kotlin.test.assertTrue
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.openmausbot.companion.dictation.*
@@ -24,6 +31,7 @@ import kotlin.test.assertFails
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "de-w360dp-h640dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@OptIn(ExperimentalTestApi::class)
 class SttSettingsFeedbackTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
     @Test fun importHasPendingAndPersistentSuccessFeedbackAndEditingResetsIt() {
@@ -79,6 +87,38 @@ class SttSettingsFeedbackTest {
         compose.onNodeWithText("Speichern").assertIsEnabled()
         compose.onNodeWithText("Spracheingabe").performScrollTo()
         screenshot("stt-options-german.png")
+    }
+    @Test fun deletingJustTheLeadingDigitPreservesZerosAndTheCursor() {
+        var saved: SttConfig? = null
+        compose.setContent { CompanionTheme(darkTheme=false) { SttSettingsEditor(SttConfig(stopMode="silence"),onSave={saved=it.validated()},onImport={it}) } }
+        val input = compose.onAllNodes(hasSetTextAction())[0]
+        input.performScrollTo().assertTextContains("5000")
+        input.performClick().performTextInputSelection(TextRange(1))
+        input.performKeyInput { pressKey(Key.Backspace) }
+        input.assertTextContains("000")
+        input.performTextInput("2")
+        input.assertTextContains("2000")
+        compose.onNodeWithText("Speichern").performClick()
+        assertEquals(2000, saved!!.silenceMs)
+        compose.onNodeWithText("✓ Gespeichert").assertIsNotEnabled()
+        input.performTextInputSelection(TextRange(2))
+        compose.onNodeWithText("✓ Gespeichert").assertIsNotEnabled()
+    }
+    @Test @Config(sdk=[34], qualifiers="de-w360dp-h800dp-mdpi")
+    fun expandedPhoneEditorShowsBothCompletionChoicesWithoutScrolling() {
+        compose.setContent { CompanionTheme(darkTheme=false) { Column(Modifier.fillMaxSize()) {
+            SttSettingsEditor(SttConfig(stopMode="silence"),onSave={},onImport={it}, modifier=Modifier.weight(1f))
+            TextButton(onClick={}) { Text("Schließen") }
+        } } }
+        val row = compose.onNodeWithTag("stt-after-actions")
+        val clipped = row.fetchSemanticsNode().boundsInRoot
+        val full = row.getUnclippedBoundsInRoot()
+        assertTrue(clipped.height >= (full.bottom.value - full.top.value) - 1, "The completion choices must not be clipped: $clipped / $full")
+        compose.onNodeWithText("Nur einfügen").assertIsDisplayed()
+        compose.onNodeWithText("Direkt senden").assertIsDisplayed()
+        compose.onNodeWithText("Speichern").assertIsDisplayed()
+        compose.onNodeWithText("Vom Desktop übernehmen").assertIsDisplayed()
+        screenshot("stt-pause-editor-german.png")
     }
     private fun screenshot(name:String) {
         compose.waitForIdle(); compose.runOnUiThread {

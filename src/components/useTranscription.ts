@@ -109,7 +109,7 @@ export function useTranscription(chatKey: string, text: string, edit: (text: str
         session.frame = requestAnimationFrame(draw);
       };
       draw();
-      const pause = createSilenceStop("stopMode" in choice ? choice.stopMode : "manual", "silenceMs" in choice ? choice.silenceMs : 1000, () => void stop());
+      const pause = createSilenceStop("stopMode" in choice ? choice.stopMode : "manual", "silenceMs" in choice ? choice.silenceMs : 5000, () => void stop());
       session.processor = session.context.createScriptProcessor(4096, 1, 1);
       session.processor.onaudioprocess = event => {
         const input = event.inputBuffer.getChannelData(0), rate = event.inputBuffer.sampleRate;

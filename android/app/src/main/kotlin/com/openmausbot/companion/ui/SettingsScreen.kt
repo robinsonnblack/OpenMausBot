@@ -341,7 +341,7 @@ fun SettingsScreen(
             }
 
             SettingsSection(stringResource(R.string.android_settings_chat_2ced57)) {
-                SettingsRow(stringResource(R.string.android_settings_activity_81c0d9), activityDetail.label, activityDetail.caption)
+                SettingsRow(stringResource(R.string.android_settings_activity_81c0d9), activityLabel(activityDetail), activityCaption(activityDetail))
                 SettingsButton(stringResource(R.string.android_settings_change_activity_detail_f396fa)) { choosingActivity = true }
                 SettingsButton(stringResource(R.string.android_settings_quick_replies_c14223)) { editingQuickReplies = true }
                 SettingsRow(stringResource(R.string.android_settings_thread_lists_f64d31), stringResource(
@@ -566,10 +566,8 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             RadioButton(selected = detail == activityDetail, onClick = null)
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(detail.label, textAlign = TextAlign.Start)
-                                Text(detail.caption, fontSize = 12.sp, color = secondaryTint)
-                            }
+                            Text(activityLabel(detail), textAlign = TextAlign.Start, modifier = Modifier.weight(1f))
+                            PermissionHelp(activityCaption(detail), activityLabel(detail))
                         }
                     }
                 }
@@ -946,3 +944,17 @@ internal fun shortenedAddress(address: String): String {
     val leading = minOf(20, maxOf(8, address.length - 8))
     return address.take(leading) + "…" + address.takeLast(6)
 }
+
+@Composable
+internal fun activityLabel(detail: ActivityDetail): String = stringResource(when (detail) {
+    ActivityDetail.FULL -> R.string.chat_activity_full
+    ActivityDetail.REDUCED -> R.string.chat_activity_reduced
+    ActivityDetail.HIDDEN -> R.string.chat_activity_hidden
+})
+
+@Composable
+internal fun activityCaption(detail: ActivityDetail): String = stringResource(when (detail) {
+    ActivityDetail.FULL -> R.string.chat_activity_full_help
+    ActivityDetail.REDUCED -> R.string.chat_activity_reduced_help
+    ActivityDetail.HIDDEN -> R.string.chat_activity_hidden_help
+})

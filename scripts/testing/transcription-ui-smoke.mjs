@@ -2,7 +2,7 @@
 import { app, BrowserWindow, ipcMain, safeStorage } from "electron";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,17 @@ app.setPath("userData", data);
 app.disableHardwareAcceleration();
 app.commandLine.appendSwitch("use-fake-ui-for-media-stream");
 app.commandLine.appendSwitch("use-fake-device-for-media-stream");
+// Explicit PCM makes the fake microphone independent of platform default audio.
+const microphone = path.join(data, "microphone.wav");
+const wave = Buffer.alloc(44 + 16000 * 2 * 2);
+wave.write("RIFF", 0); wave.writeUInt32LE(wave.length - 8, 4); wave.write("WAVEfmt ", 8);
+wave.writeUInt32LE(16, 16); wave.writeUInt16LE(1, 20); wave.writeUInt16LE(1, 22);
+wave.writeUInt32LE(16000, 24); wave.writeUInt32LE(32000, 28); wave.writeUInt16LE(2, 32); wave.writeUInt16LE(16, 34);
+wave.write("data", 36); wave.writeUInt32LE(wave.length - 44, 40);
+for (let i = 0; i < 32000; i++) wave.writeInt16LE(Math.round(Math.sin(i * 2 * Math.PI * 220 / 16000) * 6000), 44 + i * 2);
+writeFileSync(microphone, wave);
+app.commandLine.appendSwitch("use-file-for-fake-audio-capture", microphone);
+
 let win, preview, server;
 const report = { checks: [], passed: false };
 const until = async predicate => {
@@ -95,6 +106,14 @@ try {
   assert.equal(await js("document.querySelector('textarea').value"), "");
   report.checks.push("Changing chats cancels capture and does not copy the transcript");
   await open();
+  await change("End recording", "silence", true);
+  await change("Pause length (milliseconds)", "5000");
+  await js(`(() => { const input = document.querySelector('[aria-label="Pause length (milliseconds)"]'); input.focus(); input.setSelectionRange(0, 1); document.execCommand('delete'); })()`);
+  assert.equal(await js(`document.querySelector('[aria-label="Pause length (milliseconds)"]').value`), "000");
+  await js(`document.execCommand('insertText', false, '2')`);
+  assert.equal(await js(`document.querySelector('[aria-label="Pause length (milliseconds)"]').value`), "2000");
+  await change("End recording", "manual", true);
+  report.checks.push("Editing the leading pause digit retains remaining zeros and cursor position");
   await change("After transcription", "send", true);
   await click("Save"); await until(() => js("document.body.textContent.includes('✓ Saved')"));
   assert(await js("[...document.querySelectorAll('button')].some(b => b.textContent === '✓ Saved' && b.disabled)"));

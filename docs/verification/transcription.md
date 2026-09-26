@@ -58,6 +58,6 @@ fixture verifies both save and install IPC reject an unselected executable.
 
 ## Recording and completion preferences
 
-Settings → Transcription provides **End recording** (manual or continuous silence), a positive pause length in milliseconds, and **After transcription** (insert draft or send). Defaults are manual, 1000 ms and insert. The selected configuration is frozen for each recording. System Windows Win+H owns its capture and insertion behavior; these app controls apply to cloud/local providers and are visibly unavailable for Win+H. Save displays pending then a persistent checkmark until another edit.
+Settings → Transcription provides **End recording** (manual or continuous silence), a positive pause length in milliseconds, and **After transcription** (insert draft or send). Defaults are manual, 5000 ms and insert. The selected configuration is frozen for each recording. System Windows Win+H owns its capture and insertion behavior; these app controls apply to cloud/local providers and are visibly unavailable for Win+H. Save displays pending then a persistent checkmark until another edit.
 
 The isolated Electron smoke additionally verifies final auto-send happens once and chat switching never sends. Synthetic PCM tests cover initial silence, accumulated speech, pause reset and manual mode. Auto-send is suppressed on errors, cancellation, empty results and stale chat sessions; attachments still being prepared leave the text and a visible notice.

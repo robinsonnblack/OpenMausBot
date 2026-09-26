@@ -15,7 +15,7 @@ export const PROVIDERS = [
     { id: 'compatible', name: 'Custom OpenAI-compatible service', kind: 'audio', model: 'whisper-1', help: 'Connect a local server or cloud service that implements the audio/transcriptions API.' }
 ];
 export function defaults(platform = process.platform) {
-    return { version: 1, provider: platform === 'win32' ? 'windows-typing' : platform === 'darwin' ? 'apple-speech' : 'whisper-local', language: 'auto', profiles: {}, localModel: 'base', threads: 2, accelerate: false, executable: '', stopMode: 'manual', silenceMs: 1000, afterAction: 'insert' };
+    return { version: 1, provider: platform === 'win32' ? 'windows-typing' : platform === 'darwin' ? 'apple-speech' : 'whisper-local', language: 'auto', profiles: {}, localModel: 'base', threads: 2, accelerate: false, executable: '', stopMode: 'manual', silenceMs: 5000, afterAction: 'insert' };
 }
 export function validateConfig(input, platform = process.platform) {
     const cfg = { ...defaults(platform), ...input };

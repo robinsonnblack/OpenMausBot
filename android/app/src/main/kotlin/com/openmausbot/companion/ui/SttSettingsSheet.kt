@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
@@ -54,9 +56,10 @@ internal fun SttSettingsSheet(onDismiss: () -> Unit) {
     var failure by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(Unit) { try { initial = withContext(Dispatchers.IO) { store.load() } } catch (_: Exception) { failure = context.getString(R.string.stt_read_failed) } }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+      Column(Modifier.fillMaxWidth().fillMaxHeight()) {
         val loaded = initial
         if(loaded == null) Column(Modifier.padding(20.dp)) { if(failure == null) CircularProgressIndicator() else Text(failure.orEmpty(), color = MaterialTheme.colorScheme.error) }
-        else SttSettingsEditor(loaded, onSave = { withContext(Dispatchers.IO) { store.save(it) } }, onImport = { current ->
+        else SttSettingsEditor(loaded, modifier = Modifier.weight(1f), onSave = { withContext(Dispatchers.IO) { store.save(it) } }, onImport = { current ->
             val pair = withContext(Dispatchers.IO) { KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair() }
             val envelope = session.importSttSettings(Base64.getEncoder().encodeToString(pair.public.encoded))
             val imported = withContext(Dispatchers.IO) { decryptSttImport(envelope, pair.private) }
@@ -65,14 +68,16 @@ internal fun SttSettingsSheet(onDismiss: () -> Unit) {
             merged
         })
         TextButton(onClick = onDismiss) { Text(stringResource(R.string.pairing_access_close)) }
+      }
     }
 }
 
 @Composable
-internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -> Unit, onImport: suspend (SttConfig) -> SttConfig) {
+internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -> Unit, onImport: suspend (SttConfig) -> SttConfig, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var config by remember { mutableStateOf(initial) }
+    var pauseInput by remember { mutableStateOf(TextFieldValue(initial.silenceMs.toString())) }
     var menu by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var importing by remember { mutableStateOf(false) }
@@ -83,7 +88,7 @@ internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -
     val provider = STT_PROVIDERS.first { it.id == config.provider }
     val profile = config.profiles[provider.id] ?: SttProfile(model = provider.model)
     fun profileChange(value: SttProfile) = change(config.copy(profiles = config.profiles + (provider.id to value)))
-    Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
       Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(stringResource(R.string.stt_settings_title), style = MaterialTheme.typography.titleLarge)
@@ -101,14 +106,14 @@ internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -
             FilterChip(selected = config.stopMode == "manual", enabled = !busy, onClick = { change(config.copy(stopMode = "manual")) }, label = { Text(stringResource(R.string.stt_stop_manual)) })
             FilterChip(selected = config.stopMode == "silence", enabled = !busy, onClick = { change(config.copy(stopMode = "silence")) }, label = { Text(stringResource(R.string.stt_stop_silence)) })
         }
-        if (config.stopMode == "silence") OutlinedTextField(config.silenceMs.takeIf { it > 0 }?.toString().orEmpty(),
-            { change(config.copy(silenceMs = it.toIntOrNull() ?: 0)) }, label = { Text(stringResource(R.string.stt_pause_ms)) },
+        if (config.stopMode == "silence") OutlinedTextField(pauseInput,
+            { value -> if (value.text.all(Char::isDigit)) { val edited = value.text != pauseInput.text; pauseInput = value; if (edited) change(config.copy(silenceMs = value.text.toIntOrNull() ?: 0)) } }, label = { Text(stringResource(R.string.stt_pause_ms)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Text(stringResource(R.string.stt_after_action), modifier = Modifier.weight(1f))
             PermissionHelp(stringResource(R.string.stt_after_action_help), stringResource(R.string.stt_after_action))
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.testTag("stt-after-actions"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(selected = config.afterAction == "insert", enabled = !busy, onClick = { change(config.copy(afterAction = "insert")) }, label = { Text(stringResource(R.string.stt_insert)) })
             FilterChip(selected = config.afterAction == "send", enabled = !busy, onClick = { change(config.copy(afterAction = "send")) }, label = { Text(stringResource(R.string.stt_send)) })
         }
@@ -130,7 +135,7 @@ internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -
         }) { Text(stringResource(if (busy && !importing) R.string.stt_saving else if(saved) R.string.stt_saved else R.string.stt_save)) }
         OutlinedButton(enabled = !busy, onClick = {
             busy = true; importing = true; error = null
-            scope.launch { try { config = onImport(config); imported = true; saved = true } catch(c: CancellationException) { throw c } catch(f: Exception) { error = f.message ?: context.getString(R.string.stt_import_failed) } finally { busy = false; importing = false } }
+            scope.launch { try { config = onImport(config); pauseInput = TextFieldValue(config.silenceMs.toString()); imported = true; saved = true } catch(c: CancellationException) { throw c } catch(f: Exception) { error = f.message ?: context.getString(R.string.stt_import_failed) } finally { busy = false; importing = false } }
         }) { Text(stringResource(if (importing) R.string.stt_importing else if(imported) R.string.stt_imported else R.string.stt_import)) }
     }
 }

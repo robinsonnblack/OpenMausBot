@@ -1327,4 +1327,10 @@
     <string name="stt_recording_options_help">Im manuellen Modus beenden Pausen die Aufnahme nicht. Im automatischen Modus endet sie nach Sprache und der eingestellten Pausenlänge. Erneutes Tippen beendet beide Modi. Die gesteuerte Android-Erkennung benötigt Android 13 oder neuer und einen Dienst mit Unterstützung für Audio-Streams.</string>
     <string name="stt_after_action_help">Einfügen lässt den Text im Entwurf. Direkt senden sendet einmal nach vollständiger, erfolgreicher Transkription, einschließlich vorhandenem Entwurf und Anhängen. Abbrechen oder Fehler sendet nichts.</string>
     <string name="stt_send_busy">Anhänge werden noch vorbereitet oder gesendet. Dein Transkript bleibt im Textfeld.</string>
+    <string name="chat_activity_full">Vollständig</string>
+    <string name="chat_activity_reduced">Reduziert</string>
+    <string name="chat_activity_hidden">Ausgeblendet</string>
+    <string name="chat_activity_full_help">Alle Arbeitsschritte des Bots anzeigen.</string>
+    <string name="chat_activity_reduced_help">Arbeitsschritte werden in einer Zeile zusammengefasst. Fehler bleiben sichtbar.</string>
+    <string name="chat_activity_hidden_help">Nur Nachrichten anzeigen, keine Arbeitsschritte.</string>
 </resources>

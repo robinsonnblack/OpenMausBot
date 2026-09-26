@@ -69,7 +69,7 @@ private val releaseKeystore: java.io.File? = when {
 // The one line to edit at a release. `versionCode` is derived from it below, so
 // there is no second number to bump and no way to build a new version under a
 // code the Play Store has already accepted.
-private val appVersionName = "1.0.6"
+private val appVersionName = "1.0.7"
 
 // Play orders uploads by `versionCode` alone and refuses one it has already
 // seen, so the code has to rise whenever the name does — and rise in the
@@ -138,7 +138,7 @@ android {
         create("personal") {
             initWith(getByName("debug"))
             applicationIdSuffix = ".personal"
-            versionNameSuffix = "-personal.12"
+            versionNameSuffix = "-personal.13"
             matchingFallbacks += "debug"
             // Stable on this development machine, independent from the official
             // app. Later personal APKs can update this one without erasing it.

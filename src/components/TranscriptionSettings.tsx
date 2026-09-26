@@ -30,6 +30,7 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
   const [cfg, setCfg] = useState<SttConfig | null>(null), [error, setError] = useState("");
   const [busy, setBusy] = useState(false), [downloading, setDownloading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [pauseInput, setPauseInput] = useState("");
   const de = activeLocale().startsWith("de");
   const panel = useRef<HTMLElement>(null), workBusy = useRef(false);
   workBusy.current = busy || downloading;
@@ -37,7 +38,7 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
   useEffect(() => {
     if (!open || !bridge?.sttSettings) return;
     let alive = true;
-    void bridge.sttSettings().then(result => { if (alive) { setData(result); setCfg(result.config); } }).catch(e => { if (alive) setError(transcriptionError(e)); });
+    void bridge.sttSettings().then(result => { if (alive) { setData(result); setCfg(result.config); setPauseInput(String(result.config.silenceMs)); } }).catch(e => { if (alive) setError(transcriptionError(e)); });
     const previous = document.activeElement as HTMLElement | null;
     panel.current?.focus();
     const key = (e: KeyboardEvent) => {
@@ -95,7 +96,7 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
               {field(de ? "Aufnahme beenden" : "End recording", <select aria-label="End recording" className={inputClass} disabled={busy} value={cfg.stopMode} onChange={e => update({ stopMode: e.target.value as SttConfig["stopMode"] })}>
                 <option value="manual">{de ? "Nur durch erneutes Tippen" : "Only by tapping again"}</option><option value="silence">{de ? "Automatisch nach einer Sprechpause" : "Automatically after a pause"}</option>
               </select>, de ? "Sprechpausen beenden die Aufnahme nur im automatischen Modus. Erneutes Tippen beendet sie in beiden Modi." : "Pauses end recording only in automatic mode. Tapping again ends either mode.")}
-              {cfg.stopMode === "silence" && field(de ? "Pausenlänge (Millisekunden)" : "Pause length (milliseconds)", <input aria-label="Pause length (milliseconds)" className={inputClass} type="number" min={1} step={1} disabled={busy} value={cfg.silenceMs || ""} onChange={e => update({ silenceMs: Number(e.target.value) })} />)}
+              {cfg.stopMode === "silence" && field(de ? "Pausenlänge (Millisekunden)" : "Pause length (milliseconds)", <input aria-label="Pause length (milliseconds)" className={inputClass} type="text" inputMode="numeric" pattern="[0-9]+" disabled={busy} value={pauseInput} onChange={e => { const value = e.target.value; if (/^[0-9]*$/.test(value)) { setPauseInput(value); update({ silenceMs: Number(value) }); } }} />)}
               {field(de ? "Nach der Transkription" : "After transcription", <select aria-label="After transcription" className={inputClass} disabled={busy} value={cfg.afterAction} onChange={e => update({ afterAction: e.target.value as SttConfig["afterAction"] })}>
                 <option value="insert">{de ? "Text nur einfügen" : "Insert text only"}</option><option value="send">{de ? "Nachricht direkt senden" : "Send message immediately"}</option>
               </select>, de ? "Direktes Senden erfolgt einmal nach erfolgreicher, vollständiger Transkription. Der bestehende Entwurf und Anhänge werden mitgesendet. Abbrechen oder Fehler sendet nichts." : "Send once after successful, complete transcription, including the existing draft and attachments. Cancellation or failure sends nothing.")}

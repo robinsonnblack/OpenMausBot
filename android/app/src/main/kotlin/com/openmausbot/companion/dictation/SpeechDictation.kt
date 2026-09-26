@@ -436,7 +436,7 @@ data class RecognitionRequest(
     val languageTag: String,
     val preferOffline: Boolean,
     val stopMode: String = "manual",
-    val silenceMs: Int = 1000,
+    val silenceMs: Int = 5000,
 )
 
 data class DictationUpdate(val text: String, val completed: Boolean = false, val send: Boolean = false)

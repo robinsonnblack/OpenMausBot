@@ -29,11 +29,13 @@ class SettingsHelpLayoutTest {
                 TextButton(onClick = {}) { Text("Einschalten") }
             }
             SettingsSection("Chat") {
-                SettingsRow("Aktivität", "Vollständig", "Aktivitäts-Hilfe")
+                SettingsRow("Aktivität", activityLabel(com.openmausbot.companion.core.ActivityDetail.FULL), "Aktivitäts-Hilfe")
                 SettingsRow("Thread-Listen", "Angezeigt", "Thread-Hilfe")
             }
             SettingsSection("Workspace", "Workspace-Hilfe") { TextButton(onClick = {}) { Text("Verbundene Apps") } }
         } } } }
+        compose.onNodeWithText("Vollständig").assertIsDisplayed()
+        compose.onNodeWithText("Full").assertDoesNotExist()
         compose.onNodeWithText("Aktivitäts-Hilfe").assertDoesNotExist()
         compose.onAllNodesWithText("?").assertCountEquals(0)
         val label = compose.onNodeWithText("Aktivität").fetchSemanticsNode().boundsInRoot
