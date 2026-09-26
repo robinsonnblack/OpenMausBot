@@ -655,6 +655,7 @@ class SpeechDictationTurnTest {
         postMain = { it() },
         postDelayed = { _, block -> scheduled.addLast(block) },
         clock = { now },
+        scheduleTimeout = { _, _ -> }, // Startup watchdog has its own tests; this fake uses only the endpoint clock.
     )
 
     /** Advance the clock and run every endpoint check that was queued. */

@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.Bot
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +32,7 @@ import kotlinx.serialization.json.*
     var confirmed by remember { mutableStateOf<JsonObject?>(null) }
     suspend fun load() {
         try { source = session.transferSettings(bot.id); error = "" }
+        catch (e: CancellationException) { throw e }
         catch (e: Exception) { error = e.message.orEmpty() }
     }
     LaunchedEffect(bot.id) { load() }
@@ -57,7 +59,8 @@ import kotlinx.serialization.json.*
                             if (fields.any { it in listOf("computer", "approvalMode", "modelSelection", "alwaysAllow") }) put("acknowledgeLocalAuto", true)
                             if ("peers" in fields || "managedSections" in fields) put("acknowledgePeerScope", true)
                         }
-                    } catch (e: Exception) { error = e.message.orEmpty() }
+                    } catch (e: CancellationException) { throw e }
+                    catch (e: Exception) { error = e.message.orEmpty() }
                     finally { busy = false }
                 }
             }) { Text(label("transfer.review")) }
@@ -74,6 +77,7 @@ import kotlinx.serialization.json.*
                 busy = true; val failures = mutableListOf<String>(); val completed = mutableSetOf<String>()
                 try {
                     for (id in targets) try { session.applyTransferSettings(id, patch); completed += id }
+                    catch (e: CancellationException) { throw e }
                     catch (e: Exception) { failures += "${state.bots.find { it.id == id }?.name}: ${e.message}" }
                     targets -= completed; error = failures.joinToString("\n")
                     done = label("transfer.completed").replace("{count}", completed.size.toString()); confirmed = null

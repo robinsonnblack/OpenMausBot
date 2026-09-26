@@ -91,11 +91,11 @@ internal fun decryptPhoneVoice(envelope: JsonObject, privateKey: java.security.P
     val scope = rememberCoroutineScope()
     val active by speech.messageId.collectAsState()
     val error by speech.error.collectAsState()
-    var requested by remember(messageId) { mutableStateOf(false) }
+    val errorMessageId by speech.errorMessageId.collectAsState()
     Column {
-        TextButton(onClick = { if (active == messageId) speech.stop() else scope.launch { requested = true; speech.speak(text, voice, messageId) } }) {
+        TextButton(onClick = { if (active == messageId) speech.stop() else scope.launch { speech.speak(text, voice, messageId) } }) {
             Text(stringResource(if (active == messageId) R.string.phone_voice_stop else R.string.phone_voice_read))
         }
-        if (requested && active == null && error != null) Text(error.orEmpty(), color = MaterialTheme.colorScheme.error)
+        if (errorMessageId == messageId && error != null) Text(error.orEmpty(), color = MaterialTheme.colorScheme.error)
     }
 }

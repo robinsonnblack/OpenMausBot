@@ -427,7 +427,9 @@ private fun MessageContent(
         Message.Kind.TEXT -> Column {
             TextBubble(chat.threadId, message, endsRun, openLink, openAttachment)
             if (message.role == Message.Role.BOT && !message.text.isNullOrBlank()) {
-                val voice = (chat as? Chat.BotChat)?.bot?.voice
+                val bots by LocalCompanion.current.session.state.collectAsState()
+                val voice = message.from?.botId?.let { id -> bots.bots.find { it.id == id }?.voice }
+                    ?: (chat as? Chat.BotChat)?.bot?.voice
                 ReadAloudButton(message.text.orEmpty(), voice, message.id)
             }
         }

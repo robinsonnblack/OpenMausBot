@@ -2477,7 +2477,11 @@ class Session(
         (client ?: throw APIError.Transport("This computer is offline.")).transferSettings(botId)
 
     suspend fun applyTransferSettings(botId: String, patch: kotlinx.serialization.json.JsonObject) {
-        (client ?: throw APIError.Transport("This computer is offline.")).applyTransferSettings(botId, patch)
+        val target = state.value.bots.find { it.id == botId }
+        val pinned = if (patch.containsKey("modelSelection") && target != null) kotlinx.serialization.json.JsonObject(
+            patch + ("threadId" to kotlinx.serialization.json.JsonPrimitive(target.threadId))
+        ) else patch
+        (client ?: throw APIError.Transport("This computer is offline.")).applyTransferSettings(botId, pinned)
     }
 
     suspend fun importSttSettings(publicKey: String): kotlinx.serialization.json.JsonObject =

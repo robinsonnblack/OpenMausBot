@@ -51,11 +51,13 @@ class PhoneSpeech(context: Context) {
     val messageId = _messageId.asStateFlow()
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
+    private val _errorMessageId = MutableStateFlow<String?>(null)
+    val errorMessageId = _errorMessageId.asStateFlow()
 
     fun stop() { active?.cancel(); player.stop(); engine?.stop(); nativeDone?.complete(false); focus.abandon(); _speaking.value = false; _messageId.value = null }
 
     suspend fun speak(text: String, voice: String?, messageId: String? = null): Boolean = coroutineScope {
-        stop(); _error.value = null; _speaking.value = true; _messageId.value = messageId
+        stop(); _error.value = null; _errorMessageId.value = null; _speaking.value = true; _messageId.value = messageId
         val task = async(start = CoroutineStart.LAZY) {
             val cfg = withContext(Dispatchers.IO) { store.load() }
             val cleaned = speechText(text)
@@ -67,7 +69,7 @@ class PhoneSpeech(context: Context) {
                 for (part in parts) {
                     ensureActive()
                     val clip = synthesize(cfg, part, selected)
-                    if (!player.speak(listOf(clip))) return@async false
+                    if (!player.speak(listOf(clip))) throw IOException(context.getString(com.openmausbot.companion.R.string.phone_voice_failed))
                 }
                 true
             }
@@ -75,7 +77,7 @@ class PhoneSpeech(context: Context) {
         active = task
         try { task.await() }
         catch (e: CancellationException) { false }
-        catch (e: Exception) { _error.value = e.message ?: context.getString(com.openmausbot.companion.R.string.phone_voice_failed); false }
+        catch (e: Exception) { if (active === task) { _errorMessageId.value = messageId; _error.value = e.message ?: context.getString(com.openmausbot.companion.R.string.phone_voice_failed) }; false }
         finally { if (active === task) { active = null; _speaking.value = false; _messageId.value = null; focus.abandon() } }
     }
 
@@ -89,7 +91,7 @@ class PhoneSpeech(context: Context) {
         val language = context.resources.configuration.locales[0]
         if (tts.setLanguage(language) < 0) throw IOException(context.getString(com.openmausbot.companion.R.string.phone_voice_language_missing))
         tts.voices?.find { it.name == voice }?.let { tts.voice = it }
-        focus.request(onInterrupted = { stop() })
+        if (!focus.request(onInterrupted = { stop() })) throw IOException(context.getString(com.openmausbot.companion.R.string.phone_voice_failed))
         // Android engines impose an input cap. Split before it, never silently truncate.
         for (part in speechParts(text, minOf(3000, TextToSpeech.getMaxSpeechInputLength() - 1))) {
             val utteranceId = UUID.randomUUID().toString()

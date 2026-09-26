@@ -28,7 +28,9 @@ export function TransferSection({ bot }: { bot: Bot }) {
     for (const id of targets) {
       try {
         await flushBotPatches(id);
-        await api(`/api/bots/${id}`, { method: "PATCH", body: JSON.stringify(snapshot) });
+        const target = state.bots.find(b => b.id === id);
+        await api(`/api/bots/${id}`, { method: "PATCH", body: JSON.stringify({ ...snapshot,
+          ...(snapshot.modelSelection !== undefined && target ? { threadId: target.threadId } : {}) }) });
         done.push(id);
       } catch (e) { failures.push(`${state.bots.find(b => b.id === id)?.name ?? id}: ${e instanceof Error ? e.message : String(e)}`); }
     }
