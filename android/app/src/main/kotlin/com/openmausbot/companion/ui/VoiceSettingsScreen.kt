@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.stringResource
+import com.openmausbot.companion.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -82,6 +83,9 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
     var saving by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var messageIsError by remember { mutableStateOf(false) }
+    val providerChanged = stringResource(R.string.android_voice_provider_changed)
+    val keySaved = stringResource(R.string.android_voice_key_saved)
+    val keyRemoved = stringResource(R.string.android_voice_key_removed)
 
     suspend fun refresh() {
         status = session.configStatus()
@@ -90,9 +94,11 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
     LaunchedEffect(Unit) { refresh() }
 
     fun run(action: suspend () -> String?, success: String?) {
+        if (saving) return
+        saving = true
+        message = null
         scope.launch {
-            saving = true
-            message = null
+
             try {
                 val error = action()
                 if (error != null) {
@@ -115,9 +121,9 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.ui_back_b52b36b))
             }
-            Text("Voice", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.android_voice_settings_title), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
         }
         Column(
             modifier = Modifier
@@ -127,12 +133,12 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(VoiceSettingsRules.HEADER.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = secondaryTint)
-                HorizontalDivider()
+            SettingsSection(stringResource(R.string.android_voice_settings_title),
+                stringResource(R.string.android_voice_selection_help) +
+                    if (VoiceSettingsRules.usesSystemVoices(status)) "\n\n" + stringResource(R.string.android_voice_system_help) else "") {
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("Status", fontSize = 15.sp, color = secondaryTint, modifier = Modifier.weight(1f))
-                    val text = VoiceSettingsRules.statusText(status)
+                    val text = status?.let { stringResource(if (it.isTTSConfigured) R.string.android_voice_ready else R.string.android_voice_not_setup) }
                     if (text == null) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     } else {
@@ -144,22 +150,18 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
                     }
                 }
                 if (VoiceSettingsRules.usesSystemVoices(status)) {
-                    Text(VoiceSettingsRules.SYSTEM_NOTE, fontSize = 13.sp, color = secondaryTint)
-                    ActionRow(text = "Use ElevenLabs", enabled = !saving) {
-                        run({ session.updateVoiceProvider("elevenlabs") }, success = null)
+                    ActionRow(text = stringResource(R.string.android_voice_use_elevenlabs), enabled = !saving) {
+                        run({ session.updateVoiceProvider("elevenlabs") }, success = providerChanged)
                     }
                 }
-                Text(VoiceSettingsRules.HEADER_FOOTER, fontSize = 13.sp, color = secondaryTint)
             }
 
             if (VoiceSettingsRules.showsKeyField(status)) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("ELEVENLABS", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = secondaryTint)
-                    HorizontalDivider()
+                SettingsSection("ElevenLabs", stringResource(R.string.android_voice_key_help)) {
                     OutlinedTextField(
                         value = key,
-                        onValueChange = { key = it },
-                        label = { Text("ElevenLabs API key") },
+                        onValueChange = { key = it; message = null },
+                        label = { Text(stringResource(R.string.android_voice_api_key)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrectEnabled = false),
@@ -168,7 +170,7 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Box(modifier = Modifier.weight(1f)) {
                             ActionRow(
-                                text = VoiceSettingsRules.saveLabel(status),
+                                text = if (saving) stringResource(R.string.android_voice_saving) else stringResource(if (status?.isTTSConfigured == true) R.string.android_voice_replace_key else R.string.ui_save_key_f5216b3),
                                 enabled = VoiceSettingsRules.canSave(key, saving),
                             ) {
                                 val entered = key
@@ -178,15 +180,15 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
                                         if (error == null) key = ""
                                         error
                                     },
-                                    success = VoiceSettingsRules.SAVED,
+                                    success = keySaved,
                                 )
                             }
                         }
                         if (saving) CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                     }
                     if (VoiceSettingsRules.canRemove(status, saving = false)) {
-                        ActionRow(text = "Remove key", enabled = !saving, destructive = true) {
-                            run({ session.updateVoiceKey("") }, success = VoiceSettingsRules.REMOVED)
+                        ActionRow(text = stringResource(R.string.ui_remove_key_582d9a7), enabled = !saving, destructive = true) {
+                            run({ session.updateVoiceKey("") }, success = keyRemoved)
                         }
                     }
                     message?.let {
@@ -196,7 +198,6 @@ fun VoiceSettingsScreen(onBack: () -> Unit) {
                             color = if (messageIsError) Color(0xFFFF9800) else Color(0xFF009957),
                         )
                     }
-                    Text(VoiceSettingsRules.KEY_FOOTER, fontSize = 13.sp, color = secondaryTint)
                 }
             } else {
                 message?.let { Text(text = it, fontSize = 13.sp, color = Color(0xFFFF9800)) }

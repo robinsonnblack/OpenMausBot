@@ -1338,4 +1338,16 @@
     <string name="android_advanced_settings">Advanced</string>
     <string name="android_prompt_inspector_help">Shows the requests sent to the model through the { } icon in chat.</string>
     <string name="android_voice_settings_title">Voice</string>
+    <string name="android_voice_ready">Ready</string>
+    <string name="android_voice_not_setup">Not set up</string>
+    <string name="android_voice_use_elevenlabs">Use ElevenLabs</string>
+    <string name="android_voice_api_key">ElevenLabs API key</string>
+    <string name="android_voice_saving">Saving…</string>
+    <string name="android_voice_replace_key">Replace key</string>
+    <string name="android_voice_key_saved">✓ Key saved</string>
+    <string name="android_voice_key_removed">✓ Key removed</string>
+    <string name="android_voice_provider_changed">✓ Voice engine changed</string>
+    <string name="android_voice_key_help">The key is checked and stored on your computer. Get one at elevenlabs.io → Settings → API Keys.</string>
+    <string name="android_voice_selection_help">Choose a voice in each bot’s profile.</string>
+    <string name="android_voice_system_help">System voices require macOS on the connected computer.</string>
 </resources>

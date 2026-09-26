@@ -58,6 +58,7 @@ internal class WiringScene(
     token: String? = "device-token",
     /** An isolated fleet for conversation fixtures; older wiring scenes stay empty. */
     fleet: Fleet = Fleet(emptyList(), emptyList()),
+    access: com.openmausbot.companion.core.PairingAccess? = null,
     /** The transcript voice-note player; null builds a real one, tests inject a fake. */
     voiceNotes: VoiceNotePlayer? = null,
     /** The body of the nth stream (1-based). Hangs by default, like a live SSE. */
@@ -88,6 +89,7 @@ internal class WiringScene(
         eventsFn = { _, _, _ -> flow { emitAll(events(streamStarts.incrementAndGet())) } },
         hydrateFn = { _, _ -> fleet },
         metadataFn = { throw APIError.Status(404) },
+        accessFn = { access ?: it.pairingAccess() },
     )
 
     val environment = CompanionEnvironment(

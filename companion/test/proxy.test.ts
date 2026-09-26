@@ -171,7 +171,7 @@ beforeAll(async () => {
   sidecar = createServer(
     createProxyHandler({
       harnessPort: HARNESS_PORT,
-      authenticate: (t) => (t === "omb_voice_fixture_token" ? { id: "voice-fixture", access: "custom", permissions: { ...presetPermissions("client"), providers: true } } : t === TOKEN ? { id: "d1", cloudDesktopAccess: true, access: "custom", permissions: { ...presetPermissions("client"), botCreate: true, teams: true, cloudDesktop: true } } : null),
+      authenticate: (t) => (t === "omb_voice_fixture_token" ? { id: "voice-fixture", cloudDesktopAccess: false, access: "custom", permissions: { ...presetPermissions("client"), providers: true } } : t === TOKEN ? { id: "d1", cloudDesktopAccess: true, access: "custom", permissions: { ...presetPermissions("client"), botCreate: true, teams: true, cloudDesktop: true } } : null),
       redeem: (code, deviceName) =>
         code === "424242"
           ? { token: TOKEN, device: { id: "d1", name: String(deviceName) } }

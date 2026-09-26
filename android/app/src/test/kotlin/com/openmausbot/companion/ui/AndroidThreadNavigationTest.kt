@@ -373,6 +373,8 @@ class AndroidThreadNavigationTest {
         scene = WiringScene(
             connection = Connection(id = "thread-fixture", name = "Offline fixture", host = "127.0.0.1", port = server.port),
             fleet = Fleet(listOf(bot), emptyList()),
+            access = com.openmausbot.companion.core.PairingAccess("admin", listOf("admin"),
+                com.openmausbot.companion.core.PairingPermissions(true, true, true, true, true, true)),
             events = events,
         )
         compose.setContent {
