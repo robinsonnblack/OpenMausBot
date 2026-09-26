@@ -854,7 +854,7 @@
     <string name="android_settings_experimental_b718f8">Experimental</string>
     <string name="android_settings_bot_skill_authoring_25b0fc">Bot skill authoring</string>
     <string name="android_settings_workspace_4ca0a7">Workspace</string>
-    <string name="android_settings_not_here_1f3909">Not here</string>
+    <string name="android_settings_not_here_1f3909">On the desktop</string>
     <string name="android_settings_always_on">Always on</string>
     <string name="android_settings_only_while_open">Only while open</string>
     <string name="android_settings_background_on_help">OpenMausBot keeps a permanent notification while this is on, so scheduled reminders and routine results reach you even with the app fully closed.</string>
@@ -1318,4 +1318,14 @@
     <string name="stt_starting">Starting microphone…</string>
     <string name="stt_recording">Recording · Tap to finish</string>
     <string name="stt_processing">Transcribing… · Tap to cancel</string>
+    <string name="stt_stop_mode">End recording</string>
+    <string name="stt_stop_manual">Tap again</string>
+    <string name="stt_stop_silence">Speech pause</string>
+    <string name="stt_pause_ms">Pause length (milliseconds)</string>
+    <string name="stt_after_action">After transcription</string>
+    <string name="stt_insert">Insert only</string>
+    <string name="stt_send">Send immediately</string>
+    <string name="stt_recording_options_help">In manual mode, pauses do not end recording. In automatic mode, recording ends after speech followed by the chosen pause length. Tapping again ends either mode. Controlled Android recognition requires Android 13 or newer and a recognition service supporting streamed input.</string>
+    <string name="stt_after_action_help">Insert leaves the text in your draft. Send sends once after complete, successful transcription, including the existing draft and attachments. Cancellation or failure sends nothing.</string>
+    <string name="stt_send_busy">Attachments are still being prepared or sent. Your transcript remains in the text field.</string>
 </resources>

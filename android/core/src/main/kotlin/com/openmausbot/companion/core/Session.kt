@@ -1149,7 +1149,12 @@ class Session(
 
     // MARK: - Actions
 
-    suspend fun send(text: String, to: Chat) {
+    suspend fun send(text: String, to: Chat): Boolean {
+        if (client == null) {
+            _actionError.value = "This computer is offline."
+            return false
+        }
+        var sent = false
         perform {
             val connectionId = _connection.value?.id
             val receipt = when (to) {
@@ -1158,7 +1163,9 @@ class Session(
             }
             record(receipt, text, to.threadId)
             reconcileAcceptedSend(receipt, to.threadId, it, connectionId)
+            sent = true
         }
+        return sent
     }
 
     /** A successful POST must become visible even when the live event is missed. */

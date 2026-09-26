@@ -10,6 +10,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.CompanionJson
 import com.openmausbot.companion.dictation.*
@@ -81,7 +83,8 @@ internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -
     val provider = STT_PROVIDERS.first { it.id == config.provider }
     val profile = config.profiles[provider.id] ?: SttProfile(model = provider.model)
     fun profileChange(value: SttProfile) = change(config.copy(profiles = config.profiles + (provider.id to value)))
-    Column(Modifier.fillMaxWidth().heightIn(max = 600.dp).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+      Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(stringResource(R.string.stt_settings_title), style = MaterialTheme.typography.titleLarge)
             PermissionHelp(stringResource(R.string.stt_settings_help))
@@ -89,6 +92,25 @@ internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -
         Box {
             OutlinedButton(enabled = !busy, onClick = { menu = true }, modifier = Modifier.fillMaxWidth()) { Text(provider.name) }
             DropdownMenu(menu, { menu = false }) { STT_PROVIDERS.forEach { item -> DropdownMenuItem(text = { Text(item.name) }, onClick = { change(config.copy(provider = item.id)); menu = false }) } }
+        }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text(stringResource(R.string.stt_stop_mode), modifier = Modifier.weight(1f))
+            PermissionHelp(stringResource(R.string.stt_recording_options_help), stringResource(R.string.stt_stop_mode))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = config.stopMode == "manual", enabled = !busy, onClick = { change(config.copy(stopMode = "manual")) }, label = { Text(stringResource(R.string.stt_stop_manual)) })
+            FilterChip(selected = config.stopMode == "silence", enabled = !busy, onClick = { change(config.copy(stopMode = "silence")) }, label = { Text(stringResource(R.string.stt_stop_silence)) })
+        }
+        if (config.stopMode == "silence") OutlinedTextField(config.silenceMs.takeIf { it > 0 }?.toString().orEmpty(),
+            { change(config.copy(silenceMs = it.toIntOrNull() ?: 0)) }, label = { Text(stringResource(R.string.stt_pause_ms)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
+        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text(stringResource(R.string.stt_after_action), modifier = Modifier.weight(1f))
+            PermissionHelp(stringResource(R.string.stt_after_action_help), stringResource(R.string.stt_after_action))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(selected = config.afterAction == "insert", enabled = !busy, onClick = { change(config.copy(afterAction = "insert")) }, label = { Text(stringResource(R.string.stt_insert)) })
+            FilterChip(selected = config.afterAction == "send", enabled = !busy, onClick = { change(config.copy(afterAction = "send")) }, label = { Text(stringResource(R.string.stt_send)) })
         }
         if(provider.id != "android") {
             OutlinedTextField(profile.key, { profileChange(profile.copy(key = it)) }, label = { Text(stringResource(R.string.stt_key)) },
@@ -100,6 +122,7 @@ internal fun SttSettingsEditor(initial: SttConfig, onSave: suspend (SttConfig) -
             OutlinedTextField(config.language, { change(config.copy(language = it)) }, label = { Text(stringResource(R.string.stt_language)) },
                 singleLine = true, enabled = !busy, modifier = Modifier.fillMaxWidth())
         }
+      }
         error?.let { Text(sttErrorText(context, it), color = MaterialTheme.colorScheme.error) }
         Button(enabled = !busy && !saved, onClick = {
             busy = true; error = null

@@ -49,7 +49,7 @@ export function registerStt({ ipcMain, localOnly }) {
             const owner = event.sender.id;
             event.sender.once('destroyed', () => registry.cancel(owner));
         }
-        return { id: registry.begin(event.sender.id, cfg), provider: provider.id, kind: provider.kind, language: cfg.language };
+        return { id: registry.begin(event.sender.id, cfg), provider: provider.id, kind: provider.kind, language: cfg.language, stopMode: cfg.stopMode, silenceMs: cfg.silenceMs, afterAction: cfg.afterAction };
     });
     handle('stt:cancel', (event, id) => registry.cancel(event.sender.id, id));
     handle('stt:transcribe', async (event, { id, pcm }) => {

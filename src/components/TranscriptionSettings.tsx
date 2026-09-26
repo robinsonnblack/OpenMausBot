@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, CircleHelp, X } from "lucide-react";
 import { transcriptionError, type SttConfig, type SttState } from "@/lib/transcription";
+import { activeLocale } from "@/lib/i18n";
 
 function Help({ label, children }: { label: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -28,6 +29,8 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
   const [open, setOpen] = useState(false), [data, setData] = useState<SttState | null>(null);
   const [cfg, setCfg] = useState<SttConfig | null>(null), [error, setError] = useState("");
   const [busy, setBusy] = useState(false), [downloading, setDownloading] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const de = activeLocale().startsWith("de");
   const panel = useRef<HTMLElement>(null), workBusy = useRef(false);
   workBusy.current = busy || downloading;
   const bridge = window.ogb;
@@ -59,10 +62,10 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
     return () => clearInterval(timer);
   }, [downloading, bridge]);
   if (!bridge?.sttSettings) return null;
-  const update = (patch: Partial<SttConfig>) => setCfg(c => c && ({ ...c, ...patch }));
+  const update = (patch: Partial<SttConfig>) => { setSaved(false); setCfg(c => c && ({ ...c, ...patch })); };
   const provider = data?.providers.find(p => p.id === cfg?.provider);
   const profile = cfg?.profiles[cfg.provider];
-  const setProfile = (patch: Record<string, unknown>) => setCfg(c => c && ({ ...c, profiles: { ...c.profiles, [c.provider]: { ...c.profiles[c.provider]!, ...patch } } }));
+  const setProfile = (patch: Record<string, unknown>) => { setSaved(false); setCfg(c => c && ({ ...c, profiles: { ...c.profiles, [c.provider]: { ...c.profiles[c.provider]!, ...patch } } })); };
   const field = (label: string, node: ReactNode, help?: string, status?: ReactNode) => <div className="space-y-1.5">
     <div className="flex items-center gap-1 text-[13px] text-ink-secondary">{label}{help && <Help label={label}>{help}</Help>}{status}</div>{node}</div>;
   const install = async () => {
@@ -74,7 +77,7 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
   return <>
     <button type="button" disabled={disabled} aria-label={t("hardcoded.components.TranscriptionSettings.3cd97c3d")} title={t("hardcoded.components.TranscriptionSettings.3cd97c3d")}
       className="flex h-8 w-5 shrink-0 items-center justify-center rounded-full text-ink-secondary hover:bg-raised disabled:opacity-40"
-      onClick={() => { setError(""); setData(null); setCfg(null); setOpen(true); }}><ChevronDown size={12} /></button>
+      onClick={() => { setError(""); setSaved(false); setData(null); setCfg(null); setOpen(true); }}><ChevronDown size={12} /></button>
     {open && createPortal(<div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4">
       <section ref={panel} tabIndex={-1} role="dialog" aria-modal="true" aria-label={t("hardcoded.components.TranscriptionSettings.3cd97c3d")}
         className="flex w-full max-w-[520px] flex-col rounded-3xl border border-hairline/50 bg-panel p-5 shadow-xl outline-none" style={{ height: "min(680px, calc(100dvh - 32px))" }}>
@@ -84,10 +87,19 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
         </div>
         {!cfg || !data ? <p className="text-sm text-ink-secondary">{error || "Loading…"}</p> : <form className="flex min-h-0 flex-1 flex-col" onSubmit={async e => {
           e.preventDefault(); setBusy(true); setError("");
-          try { await bridge.sttSave!(cfg); setOpen(false); } catch (err) { setError(transcriptionError(err)); } finally { setBusy(false); }
+          try { const result = await bridge.sttSave!(cfg); setCfg(result.config); setData(result); setSaved(true); } catch (err) { setError(transcriptionError(err)); } finally { setBusy(false); }
         }}>
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto" style={{ scrollbarGutter: "stable" }}>
             {field("Provider", <select aria-label={t("hardcoded.components.TranscriptionSettings.10130318")} className={inputClass} value={cfg.provider} disabled={busy || downloading} onChange={e => update({ provider: e.target.value })}>{data.providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>, provider?.help)}
+            {provider?.kind === "system" ? <div className="flex items-center gap-2 text-sm text-ink-secondary"><span>{de ? "Win+H steuert Aufnahme und Texteingabe selbst" : "Win+H controls recording and text input itself"}</span><Help label="Win+H">{de ? "Für die folgenden Aufnahmeoptionen einen Anbieter wählen, der direkt in OpenMausBot aufnimmt, etwa OpenRouter oder lokales Whisper." : "Choose an in-app recording provider, such as OpenRouter or Local Whisper, to use recording and send options."}</Help></div> : <>
+              {field(de ? "Aufnahme beenden" : "End recording", <select aria-label="End recording" className={inputClass} disabled={busy} value={cfg.stopMode} onChange={e => update({ stopMode: e.target.value as SttConfig["stopMode"] })}>
+                <option value="manual">{de ? "Nur durch erneutes Tippen" : "Only by tapping again"}</option><option value="silence">{de ? "Automatisch nach einer Sprechpause" : "Automatically after a pause"}</option>
+              </select>, de ? "Sprechpausen beenden die Aufnahme nur im automatischen Modus. Erneutes Tippen beendet sie in beiden Modi." : "Pauses end recording only in automatic mode. Tapping again ends either mode.")}
+              {cfg.stopMode === "silence" && field(de ? "Pausenlänge (Millisekunden)" : "Pause length (milliseconds)", <input aria-label="Pause length (milliseconds)" className={inputClass} type="number" min={1} step={1} disabled={busy} value={cfg.silenceMs || ""} onChange={e => update({ silenceMs: Number(e.target.value) })} />)}
+              {field(de ? "Nach der Transkription" : "After transcription", <select aria-label="After transcription" className={inputClass} disabled={busy} value={cfg.afterAction} onChange={e => update({ afterAction: e.target.value as SttConfig["afterAction"] })}>
+                <option value="insert">{de ? "Text nur einfügen" : "Insert text only"}</option><option value="send">{de ? "Nachricht direkt senden" : "Send message immediately"}</option>
+              </select>, de ? "Direktes Senden erfolgt einmal nach erfolgreicher, vollständiger Transkription. Der bestehende Entwurf und Anhänge werden mitgesendet. Abbrechen oder Fehler sendet nichts." : "Send once after successful, complete transcription, including the existing draft and attachments. Cancellation or failure sends nothing.")}
+            </>}
             {provider?.kind === "audio" && field("Language", <select aria-label={t("hardcoded.components.TranscriptionSettings.7251bca0")} className={inputClass} value={cfg.language} onChange={e => update({ language: e.target.value })}>{languages.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>, "Automatic detects supported languages. Azure requires a specific language.")}
             {provider?.kind === "audio" && cfg.provider !== "whisper-local" && <>
               {field("API key", <div className="flex gap-2"><input aria-label={t("hardcoded.components.TranscriptionSettings.b4e54786")} type="password" autoComplete="off" className={inputClass} value={profile?.key || ""} placeholder={profile?.hasKey ? "Saved securely" : "Enter API key"} onChange={e => setProfile({ key: e.target.value, clearKey: false })} />{profile?.hasKey && <button type="button" onClick={() => setProfile({ key: "", clearKey: true, hasKey: false })} className="px-2 text-xs text-ink-secondary">{t("hardcoded.components.TranscriptionSettings.71cab323")}</button>}</div>, "Keys use this computer's protected storage. Custom local services may not require a key.", profile?.hasKey && !profile.clearKey && !profile.key?.trim() && <span role="status" className="ml-1 text-xs text-success">{t("hardcoded.components.TranscriptionSettings.d007a7df")}</span>)}
@@ -102,7 +114,7 @@ export function TranscriptionSettings({ disabled = false }: { disabled?: boolean
               {field("Speech engine", <button type="button" className="rounded-lg border border-hairline px-3 py-2 text-xs" onClick={async () => { try { const executable = await bridge.sttPickEngine!(); if (executable) update({ executable }); } catch (e) { setError(transcriptionError(e)); } }}>{cfg.executable || data.local.executable ? "Change whisper-cli…" : "Choose whisper-cli…"}</button>, "Supported Windows/Linux systems can download the engine. On macOS install whisper-cpp with Homebrew, or choose an installed executable.")}
             </>}
           </div>
-          <div className="shrink-0 pt-3"><div className="min-h-9 text-xs text-danger" role="alert">{error}</div><div className="flex justify-end"><button type="submit" disabled={busy || downloading} className="rounded-full bg-accent px-5 py-2 text-sm text-white disabled:opacity-50">{busy ? "Saving…" : "Save"}</button></div></div>
+          <div className="shrink-0 pt-3"><div className="min-h-9 text-xs text-danger" role="alert">{error}</div><div className="flex justify-end"><button type="submit" disabled={busy || downloading || saved} className="rounded-full bg-accent px-5 py-2 text-sm text-white disabled:opacity-50">{busy ? (de ? "Speichern…" : "Saving…") : saved ? (de ? "✓ Gespeichert" : "✓ Saved") : (de ? "Speichern" : "Save")}</button></div></div>
         </form>}
       </section>
     </div>, document.body)}

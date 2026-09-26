@@ -2,6 +2,19 @@ export interface SttProfile { model: string; endpoint: string; key?: string; has
 export interface SttConfig {
   version: number; provider: string; language: string; profiles: Record<string, SttProfile>;
   localModel: string; threads: number; accelerate: boolean; executable: string;
+  stopMode: "manual" | "silence"; silenceMs: number; afterAction: "insert" | "send";
+}
+
+/** Stop only after speech followed by a continuous pause; initial silence is not speech. */
+export function createSilenceStop(mode: "manual" | "silence", milliseconds: number, onStop: () => void) {
+  let voiced = 0, silence = 0, ended = false;
+  return (input: Float32Array, rate: number) => {
+    if (ended || mode !== "silence" || !input.length || !Number.isFinite(rate) || rate <= 0) return;
+    const duration = input.length * 1000 / rate;
+    const active = Math.sqrt(input.reduce((sum, sample) => sum + sample * sample, 0) / input.length) > .006;
+    if (active) { voiced += duration; silence = 0; } else silence += duration;
+    if (voiced >= 120 && silence >= milliseconds) { ended = true; onStop(); }
+  };
 }
 export interface LocalSpeechState {
   models: Array<{ id: string; name: string; installed: boolean }>;

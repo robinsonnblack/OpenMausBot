@@ -217,7 +217,8 @@ export function Composer({
     },
     [text, editText, editAttachments],
   );
-  const transcription = useTranscription(threadId, text, editText);
+  const speechSend = useRef<(value: string) => void>(() => {});
+  const transcription = useTranscription(threadId, text, editText, value => speechSend.current(value));
   const recording = transcription.phase === "recording";
   const speechError = transcription.error;
   const transcribing = transcription.phase !== "idle";
@@ -540,13 +541,19 @@ export function Composer({
       dispatch({ type: "send", botId: bot.id, ...retry });
     }
   };
-  const send = () => {
-    if (locked || attachmentPending || transcribing) return;
+  const send = (spokenText?: string) => {
+    if (locked || attachmentPending || (transcribing && spokenText === undefined)) {
+      if (spokenText !== undefined) setAttachmentNotice(activeLocale().startsWith("de") ? "Transkript eingefügt. Automatisches Senden ist gerade nicht möglich; bitte den Senden-Button verwenden." : "Transcript inserted. Sending is currently blocked; please use Send when ready.");
+      return;
+    }
+    const spokenGoal = spokenText !== undefined && group && !group.dm ? goalTextFromComposer(spokenText) : null;
+    const outgoingText = spokenGoal ?? spokenText ?? effectiveText;
+    const outgoingMode = spokenGoal !== null ? "goal" : effectiveChannelMode;
     const limitError = imageAttachmentLimitError(attachments.filter(attachment => attachment.kind === "image"), imageAttachmentLimits(state.config?.imageAttachments), activeLocale().startsWith("de"));
     if (limitError) { setAttachmentNotice(limitError); return; }
     if (
       attachments.some((attachment) => attachment.kind === "image") &&
-      !imageTargetsSupport(effectiveText, effectiveChannelMode)
+      !imageTargetsSupport(outgoingText, outgoingMode)
     ) {
       dispatch({ type: "error", message: t("composer.error.noImages") });
       return;
@@ -554,19 +561,19 @@ export function Composer({
     // named `body`, not `t` — that name belongs to the catalog lookup now
     // resolvable "#Title" runs leave as canonical links, so the thread id
     // stays machine-readable in the stored send and the model's context
-    const body = composeMessage(serializeThreadRefs(effectiveText, threads, currentBotId), attachments);
+    const body = composeMessage(serializeThreadRefs(outgoingText, threads, currentBotId), attachments);
     if (!body) return;
     const sentDraft: ComposerDraftSnapshot = {
       draftId,
       revision: draftRevision(draftId),
       sendId: restoredSendId(draftId) ?? crypto.randomUUID(),
-      text,
+      text: spokenText ?? text,
       requestText: body,
       attachments: [...attachments],
       reply: replyTo ?? null,
       replyToId: replyTo?.id,
       threadId,
-      channelMode: group ? effectiveChannelMode : undefined,
+      channelMode: group ? outgoingMode : undefined,
     };
     if (group) {
       dispatch({
@@ -576,10 +583,10 @@ export function Composer({
         sendId: sentDraft.sendId,
         replyToId: replyTo?.id,
         threadId,
-        mode: effectiveChannelMode,
+        mode: outgoingMode,
         onError: () => restoreDraft(sentDraft),
       });
-      track("message_sent", { room: true, mode: effectiveChannelMode, queued: busy });
+      track("message_sent", { room: true, mode: outgoingMode, queued: busy });
     } else if (bot) {
       dispatch({
         type: "send",
@@ -597,6 +604,7 @@ export function Composer({
     onConsumeReply?.();
     if (group) setChannelMode("chat");
   };
+  speechSend.current = value => send(value);
 
   /**
    * Handles clipboard paste events in the composer textarea: converts pasted clipboard
@@ -1091,7 +1099,7 @@ export function Composer({
         {!locked && capabilities.transcription?.available && <TranscriptionSettings disabled={transcribing} />}
         {hasContent && !locked && (
           <button
-            onClick={send}
+            onClick={() => send()}
             disabled={attachmentPending || transcribing}
             aria-label={
               busy && canSteer

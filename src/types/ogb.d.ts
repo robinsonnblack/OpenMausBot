@@ -202,7 +202,7 @@ const __APP_VERSION__: string;
       sttSave?(config: import("../lib/transcription").SttConfig): Promise<import("../lib/transcription").SttState>;
       sttInstall?(request: { id: string; executable: string }): Promise<import("../lib/transcription").LocalSpeechState>;
       sttPickEngine?(): Promise<string | null>;
-      sttBegin?(): Promise<{ id: string; provider: string; kind: "audio" | "native" | "system"; language: string }>;
+      sttBegin?(): Promise<{ id: string; provider: string; kind: "audio" | "native" | "system"; language: string; stopMode: "manual" | "silence"; silenceMs: number; afterAction: "insert" | "send" }>;
       sttCancel?(id: string): Promise<void>;
       sttTranscribe?(request: { id: string; pcm: ArrayBuffer }): Promise<{ text: string }>;
       sttVoiceTyping?(): Promise<void>;

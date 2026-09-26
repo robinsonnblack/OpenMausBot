@@ -44,6 +44,7 @@ try {
   const { registerStt } = await import("../../electron/stt-service.mjs");
   registerStt({ ipcMain, localOnly });
   win = new BrowserWindow({ show: false, width: 1000, height: 900, webPreferences: { preload: path.join(root, "electron/preload.cjs"), contextIsolation: true, sandbox: true, backgroundThrottling: false } });
+  win.webContents.on("preload-error", (_event, _path, error) => console.log("Fixture preload failed:", String(error)));
   const js = source => win.webContents.executeJavaScript(source);
   const click = label => js(`(() => { const button = [...document.querySelectorAll('button')].find(b => b.getAttribute('aria-label') === ${JSON.stringify(label)} || b.textContent.trim() === ${JSON.stringify(label)}); if (!button || button.disabled) throw Error('No enabled button: '+${JSON.stringify(label)}); button.click(); return true; })()`);
   const change = (label, value, select = false) => js(`(() => { const el = document.querySelector('[aria-label=${JSON.stringify(label)}]'); Object.getOwnPropertyDescriptor(${select ? "HTMLSelectElement" : "HTMLInputElement"}.prototype,'value').set.call(el,${JSON.stringify(value)}); el.dispatchEvent(new Event('${select ? "change" : "input"}',{bubbles:true})); return true; })()`);
@@ -63,7 +64,7 @@ try {
   const height = await js("document.querySelector('[role=dialog]').getBoundingClientRect().height");
   await change("Transcription provider", "openrouter", true);
   await change("Transcription API key", "synthetic-key-never-sent");
-  await click("Save"); await until(() => js("!document.querySelector('[role=dialog]')"));
+  await click("Save"); await until(() => js("document.body.textContent.includes('✓ Saved')")); await click("Close transcription settings");
   await new Promise(resolve => { win.webContents.once("did-finish-load", resolve); win.reload(); }); await until(() => js("Boolean(document.querySelector('[aria-label=\"Transcription settings\"]'))")); await open();
   assert.equal(await js("document.querySelector('[aria-label=\"Transcription provider\"]').value"), "openrouter");
   assert(await js("document.body.textContent.includes('Key saved')"));
@@ -75,7 +76,7 @@ try {
   assert.equal(await js("document.querySelector('[role=dialog]').getBoundingClientRect().height"), height);
   await change("Transcription provider", "compatible", true);
   await change("Transcription endpoint", `${apiUrl}/v1`);
-  await click("Save"); await until(() => js("!document.querySelector('[role=dialog]')"));
+  await click("Save"); await until(() => js("document.body.textContent.includes('✓ Saved')")); await click("Close transcription settings");
   const { createSttSettings } = await import("../../electron/stt-settings.mjs");
   const reloaded = await createSttSettings(path.join(data, "transcription"), safeStorage).load();
   assert.equal(reloaded.profiles.openrouter.key, "synthetic-key-never-sent");
@@ -93,6 +94,19 @@ try {
   await click("Switch chat"); await until(() => js("Boolean(document.querySelector('[data-phase=idle]'))"));
   assert.equal(await js("document.querySelector('textarea').value"), "");
   report.checks.push("Changing chats cancels capture and does not copy the transcript");
+  await open();
+  await change("After transcription", "send", true);
+  await click("Save"); await until(() => js("document.body.textContent.includes('✓ Saved')"));
+  assert(await js("[...document.querySelectorAll('button')].some(b => b.textContent === '✓ Saved' && b.disabled)"));
+  await click("Close transcription settings");
+  await click("Start recording"); await until(() => js("Boolean(document.querySelector('[data-phase=recording]'))"));
+  await new Promise(resolve => setTimeout(resolve, 700));
+  await click("Stop recording"); await until(() => js("document.querySelector('[data-sent]').dataset.sent === '1'"));
+  assert.equal(await js("document.querySelector('textarea').value"), "");
+  await click("Start recording"); await until(() => js("Boolean(document.querySelector('[data-phase=recording]'))"));
+  await click("Switch chat"); await new Promise(resolve => setTimeout(resolve, 300));
+  assert.equal(await js("document.querySelector('[data-sent]').dataset.sent"), "1");
+  report.checks.push("Saved feedback stays visible; complete dictation sends once; changing chats never auto-sends");
   report.passed = true;
 } catch (error) { report.error = String(error.stack || error); if (win && !win.isDestroyed()) report.renderer = await win.webContents.executeJavaScript("document.body.innerText").catch(() => "unavailable"); }
 finally {

@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.ui.res.stringResource
+import androidx.compose.material3.IconButton
 import android.content.ClipData
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -222,7 +223,7 @@ fun SettingsScreen(
 
             val otherComputers = connections.filter { it.id != connection?.id }
             if (otherComputers.isNotEmpty()) {
-                SettingsSection(stringResource(R.string.android_settings_other_computers_a46a75)) {
+                SettingsSection(stringResource(R.string.android_settings_other_computers_a46a75), stringResource(R.string.android_settings_each_computer_is_paired_separately_only_th_d4064b)) {
                     otherComputers.forEach { computer ->
                         SettingsButton(stringResource(R.string.android_settings_use_computer_name_199816, computer.name)) {
                             haptics.play(TactileAction.SWITCH_COMPUTER)
@@ -232,13 +233,11 @@ fun SettingsScreen(
                             pendingComputerRemoval = computer
                         }
                     }
-                    Footnote(stringResource(R.string.android_settings_each_computer_is_paired_separately_only_th_d4064b))
                 }
             }
 
             if (connection != null) {
-                SettingsSection(stringResource(R.string.android_settings_troubleshooting_285ec8)) {
-                    Footnote(localizedTroubleshooting(status))
+                SettingsSection(stringResource(R.string.android_settings_troubleshooting_285ec8), localizedTroubleshooting(status)) {
                     SettingsButton(
                         text = stringResource(R.string.ui_try_reconnecting_8310b02),
                         enabled = !reconnecting,
@@ -273,7 +272,7 @@ fun SettingsScreen(
                 }
             }
 
-            SettingsSection(stringResource(R.string.android_settings_notifications_753a22)) {
+            SettingsSection(stringResource(R.string.android_settings_notifications_753a22), stringResource(R.string.android_onboarding_notifications_body)) {
                 SettingsRow(
                     stringResource(R.string.android_settings_status_bae7d5),
                     stringResource(when (notifications) {
@@ -291,7 +290,6 @@ fun SettingsScreen(
                     enabled = NotificationPermissionController.buttonEnabled(notifications),
                     onClick = environment.notifications::act,
                 )
-                Footnote(stringResource(R.string.android_onboarding_notifications_body))
             }
 
             SettingsSection(stringResource(R.string.stt_settings_title)) { SettingsButton(stringResource(R.string.stt_settings_edit)) { editingStt = true } }
@@ -306,7 +304,7 @@ fun SettingsScreen(
             }
 
             if (pairingAccess.allows("profile")) {
-                SettingsSection(stringResource(R.string.android_settings_shared_profile_ff09ab)) {
+                SettingsSection(stringResource(R.string.android_settings_shared_profile_ff09ab), stringResource(R.string.android_settings_shared_with_bots_on_this_computer_editing_382ab3)) {
                     SettingsButton(stringResource(R.string.android_settings_name_email_and_about_me_b2337b)) {
                         editingAboutMe = true
                         aboutMeLoading = true
@@ -328,7 +326,6 @@ fun SettingsScreen(
                             }
                         }
                     }
-                    Footnote(stringResource(R.string.android_settings_shared_with_bots_on_this_computer_editing_382ab3))
                 }
             }
 
@@ -336,32 +333,23 @@ fun SettingsScreen(
                 val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
                 SettingsRow(stringResource(R.string.android_settings_status_bae7d5), stringResource(
                     if (alwaysOnEnabled) R.string.android_settings_always_on else R.string.android_settings_only_while_open,
-                ))
+                ), stringResource(if (alwaysOnEnabled) R.string.android_settings_background_on_help else R.string.android_settings_background_off_help))
                 SettingsButton(
                     text = stringResource(if (alwaysOnEnabled) R.string.ui_turn_off else R.string.ui_turn_on),
                     onClick = environment.onToggleAlwaysOn,
                 )
-                Footnote(
-                    if (alwaysOnEnabled) {
-                        stringResource(R.string.android_settings_background_on_help)
-                    } else {
-                        stringResource(R.string.android_settings_background_off_help)
-                    },
-                )
             }
 
             SettingsSection(stringResource(R.string.android_settings_chat_2ced57)) {
-                SettingsRow(stringResource(R.string.android_settings_activity_81c0d9), activityDetail.label)
+                SettingsRow(stringResource(R.string.android_settings_activity_81c0d9), activityDetail.label, activityDetail.caption)
                 SettingsButton(stringResource(R.string.android_settings_change_activity_detail_f396fa)) { choosingActivity = true }
                 SettingsButton(stringResource(R.string.android_settings_quick_replies_c14223)) { editingQuickReplies = true }
                 SettingsRow(stringResource(R.string.android_settings_thread_lists_f64d31), stringResource(
                     if (showThreads) R.string.android_settings_shown else R.string.android_settings_hidden,
-                ))
+                ), stringResource(R.string.android_settings_this_only_changes_the_bot_list_you_can_sti_d94a78))
                 SettingsButton(stringResource(if (showThreads) R.string.android_settings_hide_thread_lists else R.string.android_settings_show_thread_lists)) {
                     environment.chatPreferences.setShowThreads(!showThreads)
                 }
-                Footnote(stringResource(R.string.android_settings_this_only_changes_the_bot_list_you_can_sti_d94a78))
-                Footnote(activityDetail.caption)
             }
 
             if (connection != null && (pairingAccess.allows("usage") || budgetEntitled || billingEntitled)) SettingsSection(stringResource(R.string.android_settings_usage_0bb186)) {
@@ -420,7 +408,7 @@ fun SettingsScreen(
             // With no binding there is nothing to schedule against, so the row
             // is absent rather than present and dead.
             if (onOpenRoutines != null || onOpenConnectedApps != null) {
-                SettingsSection(stringResource(R.string.android_settings_workspace_4ca0a7)) {
+                SettingsSection(stringResource(R.string.android_settings_workspace_4ca0a7), stringResource(R.string.android_settings_workspace_help)) {
                     onOpenRoutines?.takeIf { pairingAccess.allows("routines") || pairingAccess.allows("routineRun") }?.let { openRoutines ->
                         SettingsButton(
                             text = stringResource(R.string.ui_threads_routines_65d7efc),
@@ -434,7 +422,6 @@ fun SettingsScreen(
                             onClick = openConnectedApps,
                         )
                     }
-                    Footnote(stringResource(R.string.android_settings_workspace_help))
                 }
             }
 
@@ -444,14 +431,12 @@ fun SettingsScreen(
                         text = stringResource(if (connections.size > 1) R.string.ui_remove_this_computer
                             else R.string.ui_unpair_this_phone),
                         destructive = true,
+                        help = stringResource(R.string.android_settings_unpair_help),
                     ) { confirmingUnpair = true }
-                    Footnote(stringResource(R.string.android_settings_unpair_help))
                 }
             }
 
-            SettingsSection(stringResource(R.string.android_settings_not_here_1f3909)) {
-                Footnote(stringResource(R.string.android_settings_not_here_help))
-            }
+            SettingsSection(stringResource(R.string.android_settings_not_here_1f3909), stringResource(R.string.android_settings_not_here_help)) {}
         }
     }
 
@@ -699,15 +684,19 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsSection(title: String?, content: @Composable () -> Unit) {
+internal fun SettingsSection(title: String?, help: String? = null, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         title?.let {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = it.uppercase(),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = secondaryTint,
+                modifier = Modifier.weight(1f),
             )
+            if (help != null) PermissionHelp(help, title)
+            }
         }
         HorizontalDivider()
         content()
@@ -793,15 +782,17 @@ internal fun PairingAccessDetails(pairingAccess: PairingAccessState, onRefresh: 
 internal fun PermissionHelp(explanation: String, title: String? = null) {
     var open by remember { mutableStateOf(false) }
     val description = stringResource(R.string.pairing_access_help) + (title?.let { ": $it" } ?: "")
-    TextButton(onClick = { open = true }, modifier = Modifier.semantics { contentDescription = description }) { Text("?") }
+    IconButton(onClick = { open = true }, modifier = Modifier.size(48.dp).semantics { contentDescription = description }) {
+        Icon(painterResource(R.drawable.ic_help), contentDescription = null, modifier = Modifier.size(20.dp), tint = secondaryTint)
+    }
     if (open) AlertDialog(onDismissRequest = { open = false }, text = { Text(explanation) }, confirmButton = {
         TextButton(onClick = { open = false }) { Text(stringResource(R.string.pairing_access_close)) }
     })
 }
 
 @Composable
-private fun SettingsRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+internal fun SettingsRow(label: String, value: String, help: String? = null) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(label, fontSize = 15.sp, color = secondaryTint)
         Text(
             text = value,
@@ -811,6 +802,7 @@ private fun SettingsRow(label: String, value: String) {
                 .weight(1f)
                 .padding(start = 12.dp),
         )
+        if (help != null) PermissionHelp(help, label)
     }
 }
 
@@ -865,6 +857,7 @@ private fun SettingsButton(
     enabled: Boolean = true,
     destructive: Boolean = false,
     icon: Int? = null,
+    help: String? = null,
     /** Drawn at the end of the row — a progress indicator while one is running. */
     trailing: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
@@ -874,10 +867,11 @@ private fun SettingsButton(
     } else {
         MaterialTheme.colorScheme.primary
     }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     TextButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = Modifier.fillMaxWidth().heightIn(min = MIN_TOUCH_TARGET),
+        modifier = Modifier.weight(1f).heightIn(min = MIN_TOUCH_TARGET),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -901,11 +895,8 @@ private fun SettingsButton(
             trailing?.invoke()
         }
     }
-}
-
-@Composable
-private fun Footnote(text: String) {
-    PermissionHelp(text)
+    if (help != null) PermissionHelp(help, text)
+    }
 }
 
 private const val ADDRESS_CLIP_LABEL = "OpenMausMobile computer address"

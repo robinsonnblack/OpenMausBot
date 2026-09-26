@@ -2,6 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {PROVIDERS,defaults,validateConfig,publicConfig,mergePublicConfig,pcmToWav,transcribeCloud,createRequestRegistry} from './stt-core.mjs';
 const pcm=new Int16Array(16000).buffer;
+test('Recording preferences migrate, persist, and reject invalid modes or pause lengths',()=>{
+ const old=validateConfig({provider:'openrouter'},'win32'); assert.equal(old.stopMode,'manual');assert.equal(old.silenceMs,1000);assert.equal(old.afterAction,'insert');
+ const cfg=validateConfig({...old,stopMode:'silence',silenceMs:750,afterAction:'send'},'win32');assert.equal(publicConfig(cfg).silenceMs,750);assert.equal(cfg.afterAction,'send');
+ for(const silenceMs of [0,-1,1.5,NaN,Infinity])assert.throws(()=>validateConfig({...old,silenceMs},'win32'));
+ for(const patch of [{stopMode:'unknown'},{afterAction:'unknown'}])assert.throws(()=>validateConfig({...old,...patch},'win32'));
+});
 test('Retired Windows recognizers disappear; migration preserves cloud credentials and chosen OpenRouter',()=>{
  for(const provider of ['windows-sapi','windows-speech']){
   assert(!PROVIDERS.some(p=>p.id===provider));

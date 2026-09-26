@@ -12,6 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Assert.assertNotEquals
+import kotlinx.coroutines.launch
 
 /**
  * Composer dictation lifecycle pinned to `ios/App/SpeechDictation.swift` and
@@ -33,6 +34,27 @@ import org.junit.Assert.assertNotEquals
  * - opening Computer / Tasks / Profile / Plus
  */
 class SpeechDictationTest {
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test fun sendActionOccursOnceOnlyAfterSuccessfulFinalText() = kotlinx.coroutines.test.runTest {
+        val fake = FakeEngineFactory()
+        val dictation = SpeechDictation(fake, { true }, { it(true) }, FakeFocus(true), { listOf("de-DE") }, { Locale.GERMANY },
+            captureConfig = { SttConfig(afterAction = "send") }, scheduleTimeout = { _, _ -> }, postMain = { it() })
+        val updates = mutableListOf<DictationUpdate>()
+        backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { dictation.updates.collect { updates += it } }
+        dictation.toggle("Entwurf")
+        val first = fake.engine!!.listener!!
+        first.onPartial("eins"); assertFalse(updates.any { it.send })
+        dictation.toggle("Entwurf"); assertFalse(updates.any { it.send })
+        first.onFinal("eins zwei"); first.onFinal("duplicate")
+        assertEquals(listOf("Entwurf eins zwei"), updates.filter { it.send }.map { it.text })
+        for (failure in listOf(false, true)) {
+            dictation.toggle(""); val next = fake.engine!!.listener!!
+            next.onPartial("nicht senden")
+            if (failure) next.onFailure("failed") else dictation.stop()
+            next.onFinal("late")
+        }
+        assertEquals(1, updates.count { it.send })
+    }
 
     @Test
     fun systemRecognizerOwnsFocusWithoutCancellingItsOwnStartup() {

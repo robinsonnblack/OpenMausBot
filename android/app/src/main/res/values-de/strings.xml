@@ -853,7 +853,7 @@
     <string name="android_settings_experimental_b718f8">Experimentell</string>
     <string name="android_settings_bot_skill_authoring_25b0fc">Bot-Skills erstellen</string>
     <string name="android_settings_workspace_4ca0a7">Workspace</string>
-    <string name="android_settings_not_here_1f3909">Nicht hier</string>
+    <string name="android_settings_not_here_1f3909">Am Desktop</string>
     <string name="android_settings_always_on">Immer aktiv</string>
     <string name="android_settings_only_while_open">Nur bei geöffneter App</string>
     <string name="android_settings_background_on_help">OpenMausBot zeigt dauerhaft eine Benachrichtigung an, solange diese Funktion aktiviert ist. So erhältst du geplante Erinnerungen und Routinen-Ergebnisse, auch wenn die App vollständig geschlossen ist.</string>
@@ -1317,4 +1317,14 @@
     <string name="stt_starting">Mikrofon startet…</string>
     <string name="stt_recording">Aufnahme läuft · Tippen zum Beenden</string>
     <string name="stt_processing">Transkribiere… · Tippen zum Abbrechen</string>
+    <string name="stt_stop_mode">Aufnahme beenden</string>
+    <string name="stt_stop_manual">Erneutes Tippen</string>
+    <string name="stt_stop_silence">Sprechpause</string>
+    <string name="stt_pause_ms">Pausenlänge (Millisekunden)</string>
+    <string name="stt_after_action">Nach der Transkription</string>
+    <string name="stt_insert">Nur einfügen</string>
+    <string name="stt_send">Direkt senden</string>
+    <string name="stt_recording_options_help">Im manuellen Modus beenden Pausen die Aufnahme nicht. Im automatischen Modus endet sie nach Sprache und der eingestellten Pausenlänge. Erneutes Tippen beendet beide Modi. Die gesteuerte Android-Erkennung benötigt Android 13 oder neuer und einen Dienst mit Unterstützung für Audio-Streams.</string>
+    <string name="stt_after_action_help">Einfügen lässt den Text im Entwurf. Direkt senden sendet einmal nach vollständiger, erfolgreicher Transkription, einschließlich vorhandenem Entwurf und Anhängen. Abbrechen oder Fehler sendet nichts.</string>
+    <string name="stt_send_busy">Anhänge werden noch vorbereitet oder gesendet. Dein Transkript bleibt im Textfeld.</string>
 </resources>

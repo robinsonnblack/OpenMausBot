@@ -15,7 +15,7 @@ export const PROVIDERS = [
     { id: 'compatible', name: 'Custom OpenAI-compatible service', kind: 'audio', model: 'whisper-1', help: 'Connect a local server or cloud service that implements the audio/transcriptions API.' }
 ];
 export function defaults(platform = process.platform) {
-    return { version: 1, provider: platform === 'win32' ? 'windows-typing' : platform === 'darwin' ? 'apple-speech' : 'whisper-local', language: 'auto', profiles: {}, localModel: 'base', threads: 2, accelerate: false, executable: '' };
+    return { version: 1, provider: platform === 'win32' ? 'windows-typing' : platform === 'darwin' ? 'apple-speech' : 'whisper-local', language: 'auto', profiles: {}, localModel: 'base', threads: 2, accelerate: false, executable: '', stopMode: 'manual', silenceMs: 1000, afterAction: 'insert' };
 }
 export function validateConfig(input, platform = process.platform) {
     const cfg = { ...defaults(platform), ...input };
@@ -31,6 +31,8 @@ export function validateConfig(input, platform = process.platform) {
     if (!Number.isInteger(cfg.threads) || cfg.threads < 1 || cfg.threads > 16)
         throw Error('CPU threads must be between 1 and 16.');
     cfg.accelerate = cfg.accelerate === true;
+    if (!['manual', 'silence'].includes(cfg.stopMode) || !['insert', 'send'].includes(cfg.afterAction)) throw Error('Choose valid recording and transcript actions.');
+    if (!Number.isSafeInteger(cfg.silenceMs) || cfg.silenceMs < 1 || cfg.silenceMs > 2147483647) throw Error('Pause length must be a positive whole number of milliseconds.');
     cfg.executable = String(cfg.executable || '').slice(0, 4096);
     const profiles = {};
     for (const p of PROVIDERS.filter(p => p.model || p.id === 'azure')) {
@@ -41,7 +43,7 @@ export function validateConfig(input, platform = process.platform) {
         if (p.id === 'azure' && profiles[p.id].endpoint && !new URL(profiles[p.id].endpoint).hostname.endsWith('.cognitiveservices.azure.com') && !new URL(profiles[p.id].endpoint).hostname.endsWith('.stt.speech.microsoft.com'))
             throw Error('Use your Azure Speech resource endpoint.');
     }
-    return { version: 1, provider: cfg.provider, language: cfg.language, profiles, localModel: cfg.localModel, threads: cfg.threads, accelerate: cfg.accelerate, executable: cfg.executable };
+    return { version: 1, provider: cfg.provider, language: cfg.language, profiles, localModel: cfg.localModel, threads: cfg.threads, accelerate: cfg.accelerate, executable: cfg.executable, stopMode: cfg.stopMode, silenceMs: cfg.silenceMs, afterAction: cfg.afterAction };
 }
 export function validateEndpoint(value) {
     let u;

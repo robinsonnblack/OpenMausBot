@@ -4,6 +4,11 @@ import android.content.Context
 fun sttErrorText(context: Context, message: String): String {
     if (!context.resources.configuration.locales[0].language.equals("de")) return message
     val fixed = mapOf(
+        "Controlled Android recognition requires Android 13 or newer. Choose a cloud provider on this device." to "Die gesteuerte Android-Erkennung benötigt Android 13 oder neuer. Bitte auf diesem Gerät einen Cloud-Anbieter wählen.",
+        "Pause length must be a positive whole number of milliseconds." to "Eine positive ganze Zahl für die Pausenlänge in Millisekunden eingeben.",
+        "Choose valid recording and transcript actions." to "Gültige Optionen für Aufnahmeende und Transkription wählen.",
+        "Android recognition ended before recording stopped. This speech service does not support continuous input." to "Dieser Android-Spracherkennungsdienst unterstützt keine fortlaufende Audioeingabe. Bitte einen anderen STT-Anbieter wählen.",
+        "Transcription cannot keep up. Choose a faster service." to "Die Transkription kommt nicht hinterher. Bitte einen schnelleren Dienst wählen.",
         "Import declined on the desktop." to "Übernahme am Desktop abgelehnt.",
         "No STT keys are saved on this desktop." to "Auf diesem Desktop sind keine STT-Schlüssel gespeichert.",
         "Desktop STT keys could not be read." to "STT-Schlüssel am Desktop konnten nicht gelesen werden.",

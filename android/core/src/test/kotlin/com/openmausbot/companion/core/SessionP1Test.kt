@@ -72,8 +72,8 @@ class SessionP1Test {
         val message = Message("message-a", Message.Role.USER, Message.Kind.TEXT, 1.0, text = "original")
         repeat(10) { server.enqueue(json("""{"activeLeafId":"message-a","messages":[]}""")) }
 
-        session.send("plain text", chat)
-        session.send("/quick command", chat)
+        assertTrue(session.send("plain text", chat))
+        assertTrue(session.send("/quick command", chat))
         session.interrupt(captured)
         session.markRead(chat)
         session.alwaysAllow(captured, permissionCard(listOf("Always allow"), "Read"))
@@ -91,6 +91,15 @@ class SessionP1Test {
         assertEquals(List(8) { "task-a" }, writes.map { body(it)["threadId"] })
         assertEquals("task-b", session.state.value.bot("b1")?.threadId)
         assertNull(session.actionError)
+    }
+
+    @Test
+    fun rejectedPlainSendReportsFailureSoTheComposerCanRetainItsTranscript() = runTest {
+        val session = session()
+        server.enqueue(MockResponse().setResponseCode(403).setBody("{\"error\":\"Sending is blocked\"}"))
+        assertEquals(false, session.send("dictated fixture", Chat.BotChat(bot("b1", "task-a", "task-a"))))
+        assertTrue(session.actionError?.contains("Sending is blocked") == true)
+        assertEquals(1, server.requestCount)
     }
 
     @Test

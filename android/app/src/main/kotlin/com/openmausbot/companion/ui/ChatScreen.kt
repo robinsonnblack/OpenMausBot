@@ -220,6 +220,7 @@ private fun LoadedChat(
     val insecureLinkError = stringResource(R.string.android_chat_insecure_link_error)
     val createThreadError = stringResource(R.string.android_chat_create_thread_error)
     val sendMessageError = stringResource(R.string.android_chat_send_message_error)
+    val dictationSendBusy = stringResource(R.string.stt_send_busy)
     var threadOpenJob by remember { mutableStateOf<Job?>(null) }
     DisposableEffect(threadId) {
         onDispose { threadOpenJob?.cancel() }
@@ -519,24 +520,6 @@ private fun LoadedChat(
         }
     }
 
-    // Always join against the text frozen at capture start. A newer partial
-    // then replaces the older partial instead of duplicating it. Skip the
-    // first emission: StateFlow replays a sticky transcript from a prior
-    // session, and applying that on open would clobber this chat's draft.
-    // Merged text stays in the volatile draft / holder — never in the
-    // saveable typed snapshot.
-    LaunchedEffect(threadId, dictation) {
-        var first = true
-        dictation.transcript.collect { next ->
-            if (first) {
-                first = false
-                return@collect
-            }
-            val merged = Dictation.draft(base = dictation.base, transcript = next)
-            composer.onDictation(merged)
-            publishFrom(composer)
-        }
-    }
     if (showingSttSettings) SttSettingsSheet { showingSttSettings = false }
     LaunchedEffect(dictationListening) {
         if (dictationListening) focusManager.clearFocus()
@@ -688,7 +671,7 @@ private fun LoadedChat(
      * `/dif` you had half-typed is what you were asking for, and leaving it
      * behind would send it again on the next tap of the send button.
      */
-    fun submit(explicitText: String? = null) {
+    fun submit(explicitText: String? = null, fromDictation: Boolean = false) {
         // Cancels an in-flight permission prompt before it can open the
         // microphone after the message has already been sent.
         dictation.stop()
@@ -696,7 +679,10 @@ private fun LoadedChat(
         // With attachments waiting, the message is the attachments plus
         // whatever was typed; the draft is cleared only once they are sent.
         if (attachments.isNotEmpty()) {
-            if (preparingAttachments || sendingMessage) return
+            if (preparingAttachments || sendingMessage) {
+                if (fromDictation) attachmentError = dictationSendBusy
+                return
+            }
             val outgoing = attachments.toList()
             val draftAtSend = draft
             sendingMessage = true
@@ -736,7 +722,24 @@ private fun LoadedChat(
         // Deliberately not disabled while the bot is busy: the harness answers
         // 409 and Session surfaces "The bot is busy — stop it first." That is a
         // clearer answer than a dead button.
-        scope.launch { session.send(text, chat) }
+        scope.launch {
+            if (!session.send(text, chat) && fromDictation) {
+                if (composer.text.isEmpty()) {
+                    composer.onDictation(text)
+                    publishFrom(composer)
+                }
+                attachmentError = session.actionError ?: sendMessageError
+                session.actionError = null
+            }
+        }
+    }
+
+    LaunchedEffect(threadId, dictation) {
+        dictation.updates.collect { update ->
+            composer.onDictation(update.text)
+            publishFrom(composer)
+            if (update.completed && update.send) submit(update.text, fromDictation = true)
+        }
     }
 
     fun selectCommand(command: SlashCommand) {

@@ -82,48 +82,6 @@ internal class ConfiguredSpeechEngineFactory(private val context: Context) : Spe
     override fun openers(): List<EngineOpener> {
         val config = SttStore(context).load()
         return if(config.provider == "android") AndroidSpeechEngineFactory(context).openers()
-        else listOf(EngineOpener(false) { CloudSpeechEngine(config) })
+        else listOf(EngineOpener(false) { ManagedCloudSpeechEngine(config) })
     }
-}
-internal class CloudSpeechEngine(private val config: SttConfig) : SpeechEngine {
-    override val isOnDevice = false
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    @Volatile private var recording = false
-    @Volatile private var cancelled = false
-    private var recorder: AudioRecord? = null
-    override fun start(request: RecognitionRequest, listener: SpeechEngine.Listener) {
-        recording = true
-        scope.launch {
-            try {
-                SttCloud().request(config, ByteArray(320))
-                val pcm = withContext(Dispatchers.IO) {
-                    val size = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT).coerceAtLeast(4096)
-                    val audio = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, 16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, size)
-                    recorder = audio
-                    try {
-                        check(audio.state == AudioRecord.STATE_INITIALIZED) { "Could not start the microphone." }
-                        audio.startRecording()
-                        check(audio.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "Could not start the microphone." }
-                        withContext(Dispatchers.Main) { listener.onReady() }
-                        val output = ByteArrayOutputStream(); val buffer = ByteArray(size)
-                        while(recording && output.size() < 16000 * 2 * 60) {
-                            ensureActive()
-                            val read = audio.read(buffer, 0, buffer.size, AudioRecord.READ_NON_BLOCKING)
-                            if(read > 0) output.write(buffer, 0, minOf(read, 16000 * 2 * 60 - output.size()))
-                            else if(read < 0 && recording) error("Microphone recording failed ($read).") else delay(10)
-                        }
-                        output.toByteArray()
-                    } finally { recorder = null; runCatching { audio.stop() }; audio.release() }
-                }
-                if(!cancelled) {
-                    listener.onProcessing()
-                    try { listener.onFinal(SttCloud().transcribe(config, pcm)) } finally { pcm.fill(0) }
-                } else pcm.fill(0)
-            } catch(cancellation: CancellationException) { throw cancellation }
-            catch(failure: Exception) { if(!cancelled) listener.onFailure(failure.message ?: "Transcription failed.") }
-        }
-    }
-    override fun finish() { recording = false }
-    override fun cancel() { cancelled = true; recording = false; scope.cancel(); runCatching { recorder?.stop() } }
-    override fun destroy() = cancel()
 }

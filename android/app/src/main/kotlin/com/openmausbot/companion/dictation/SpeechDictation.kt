@@ -21,16 +21,13 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
- * On-device dictation for the composer — Android counterpart of
- * `ios/App/SpeechDictation.swift`.
- *
- * Prefer an on-device recognizer when API 31+ and the device offers it.
- * If creating, starting, or serving that engine fails, degrade to
- * [SpeechRecognizer.createSpeechRecognizer] (the platform default, which may
- * use the network) — the same shape as iOS leaving
- * `requiresOnDeviceRecognition` unset when on-device is unavailable.
+ * Dictation for the composer. Android 13+ native recognition consumes an
+ * app-controlled PCM stream; cloud providers consume bounded, ordered chunks.
+ * The selected pause policy controls the input lifetime and completion action.
  *
  * Locale candidates from [Dictation.localeCandidates] are tried in order;
  * a language error advances to the next candidate, then the next engine.
@@ -51,6 +48,7 @@ class SpeechDictation internal constructor(
     private val focus: DictationAudioFocus,
     private val preferredLanguages: () -> List<String>,
     private val currentLocale: () -> Locale,
+    private val captureConfig: () -> SttConfig = { SttConfig() },
     private val scheduleTimeout: (Long, () -> Unit) -> Unit = { delay, block -> Handler(Looper.getMainLooper()).postDelayed({ block() }, delay) },
     private val postMain: (() -> Unit) -> Unit = { block ->
         Handler(Looper.getMainLooper()).post(block)
@@ -70,6 +68,7 @@ class SpeechDictation internal constructor(
         focus = DictationAudioFocusGate(context.applicationContext),
         preferredLanguages = preferredLanguages,
         currentLocale = currentLocale,
+        captureConfig = { SttStore(context.applicationContext).load() },
     )
 
     private val lock = Any()
@@ -85,6 +84,9 @@ class SpeechDictation internal constructor(
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
     private var failureDetail: String? = null
+    private var config = SttConfig()
+    private val _updates = MutableSharedFlow<DictationUpdate>(extraBufferCapacity = 32, onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST)
+    val updates = _updates.asSharedFlow()
     private val _transcript = MutableStateFlow("")
     private val _error = MutableStateFlow<String?>(null)
 
@@ -176,6 +178,7 @@ class SpeechDictation internal constructor(
         if (locksComposer()) return
         _error.value = null
         failureDetail = null
+        config = try { captureConfig().validated() } catch (_: Exception) { _error.value = "STT settings could not be read. Open STT settings and try again."; return }
         base = capturing.trim()
         _transcript.value = ""
         _isStarting.value = true
@@ -216,7 +219,7 @@ class SpeechDictation internal constructor(
             _error.value = NO_RECOGNIZER_MESSAGE
             return
         }
-        val locales = Dictation.localeCandidates(
+        val locales = if (config.language != "auto") listOf(Locale.forLanguageTag(config.language)) else Dictation.localeCandidates(
             preferredLanguages = preferredLanguages(),
             current = currentLocale(),
         )
@@ -280,6 +283,8 @@ class SpeechDictation internal constructor(
                 RecognitionRequest(
                     languageTag = language,
                     preferOffline = false,
+                    stopMode = config.stopMode,
+                    silenceMs = config.silenceMs,
                 ),
                 listener = EngineListener(
                     gen = gen,
@@ -358,6 +363,7 @@ class SpeechDictation internal constructor(
             synchronized(lock) {
                 if (!live() || !_isListening.value) return
                 _transcript.value = Dictation.updateTranscript(_transcript.value, text)
+                _updates.tryEmit(DictationUpdate(Dictation.draft(base, _transcript.value)))
             }
         }
 
@@ -365,10 +371,13 @@ class SpeechDictation internal constructor(
             synchronized(lock) {
                 if (!live()) return
                 if (text.isNotEmpty()) _transcript.value = Dictation.updateTranscript(_transcript.value, text)
-                else if (_transcript.value.isBlank()) _error.value = "No speech recognized. Try again."
+                else _error.value = "No speech recognized. Try again."
+                val completedText = Dictation.draft(base, _transcript.value)
+                val send = config.afterAction == "send" && text.isNotBlank()
                 // Composer dictation does not wait for a later final beyond
                 // this — matching iOS stopping when the recognizer finalizes.
                 stopLocked()
+                if (text.isNotBlank()) _updates.tryEmit(DictationUpdate(completedText, completed = true, send = send))
             }
         }
 
@@ -426,7 +435,11 @@ class SpeechDictation internal constructor(
 data class RecognitionRequest(
     val languageTag: String,
     val preferOffline: Boolean,
+    val stopMode: String = "manual",
+    val silenceMs: Int = 1000,
 )
+
+data class DictationUpdate(val text: String, val completed: Boolean = false, val send: Boolean = false)
 
 /**
  * One recognizer the controller may open. Factories return on-device first
@@ -468,13 +481,15 @@ interface DictationAudioFocus {
 }
 
 /**
- * Production factory: on-device when API ≥ 31 and the device offers it, then
- * the default recognizer as a degradation candidate (minSdk 26 fallback).
+ * Production factory: controlled streaming on Android 13+, with legacy engines on older APIs.
+ * Legacy native engines report the unsupported control mode rather than silently stopping.
  */
 internal class AndroidSpeechEngineFactory(
     private val context: Context,
 ) : SpeechEngineFactory {
     override fun openers(): List<EngineOpener> {
+        if (Build.VERSION.SDK_INT >= 33 && SpeechRecognizer.isRecognitionAvailable(context))
+            return listOf(EngineOpener(false) { StreamedAndroidSpeechEngine(context) })
         val list = ArrayList<EngineOpener>(2)
         if (Build.VERSION.SDK_INT >= 31 && SpeechRecognizer.isOnDeviceRecognitionAvailable(context)) {
             list += EngineOpener(isOnDevice = true) {
@@ -507,6 +522,10 @@ internal class PlatformSpeechEngine(
     private var listener: SpeechEngine.Listener? = null
 
     override fun start(request: RecognitionRequest, listener: SpeechEngine.Listener) {
+        if (Build.VERSION.SDK_INT < 33) {
+            listener.onFailure("Controlled Android recognition requires Android 13 or newer. Choose a cloud provider on this device.")
+            return
+        }
         this.listener = listener
         recognizer.setRecognitionListener(PlatformListener())
         recognizer.startListening(buildIntent(request))

@@ -36,7 +36,7 @@ class SttSettingsFeedbackTest {
         compose.onNodeWithText("✓ Vom Desktop übernommen").assertIsDisplayed().assertIsEnabled()
         compose.onNodeWithText("✓ Gespeichert").assertIsDisplayed().assertIsNotEnabled()
         val label=compose.onNodeWithText("API-Schlüssel");label.assertIsDisplayed()
-        compose.onAllNodes(hasSetTextAction())[0].performTextReplacement("synthetic-edited")
+        compose.onAllNodes(hasSetTextAction())[0].performScrollTo().performTextReplacement("synthetic-edited")
         compose.onNodeWithText("Speichern").assertIsEnabled()
         screenshot("stt-editor-german.png")
     }
@@ -48,7 +48,7 @@ class SttSettingsFeedbackTest {
         compose.runOnIdle { done.complete(Unit) }
         compose.waitForIdle()
         compose.onNodeWithText("✓ Gespeichert").assertIsDisplayed().assertIsNotEnabled()
-        compose.onAllNodes(hasSetTextAction())[0].performTextReplacement("synthetic-edited")
+        compose.onAllNodes(hasSetTextAction())[0].performScrollTo().performTextReplacement("synthetic-edited")
         compose.onNodeWithText("Speichern").assertIsEnabled()
     }
     @Test fun failedImportIsVisibleAndCanBeRetried() {
@@ -65,6 +65,20 @@ class SttSettingsFeedbackTest {
         val imported=decryptSttImport(envelope,key)
         assertEquals("synthetic-interoperability-key",imported.profiles["openrouter"]!!.key)
         assertFails { decryptSttImport(JsonObject(envelope + ("requestId" to JsonPrimitive("altered"))),key) }
+    }
+    @Test fun recordingAndSendOptionsSaveTogetherAndKeepSuccessFeedback() {
+        var saved: SttConfig? = null
+        compose.setContent { CompanionTheme(darkTheme=false) { SttSettingsEditor(SttConfig(),onSave={saved=it.validated()},onImport={it}) } }
+        compose.onNodeWithText("Sprechpause").performScrollTo().performClick()
+        compose.onAllNodes(hasSetTextAction())[0].performTextReplacement("750")
+        compose.onNodeWithText("Direkt senden").performScrollTo().performClick()
+        compose.onNodeWithText("Speichern").performClick()
+        compose.onNodeWithText("✓ Gespeichert").assertIsNotEnabled()
+        assertEquals("silence",saved!!.stopMode); assertEquals(750,saved!!.silenceMs); assertEquals("send",saved!!.afterAction)
+        compose.onNodeWithText("Erneutes Tippen").performScrollTo().performClick()
+        compose.onNodeWithText("Speichern").assertIsEnabled()
+        compose.onNodeWithText("Spracheingabe").performScrollTo()
+        screenshot("stt-options-german.png")
     }
     private fun screenshot(name:String) {
         compose.waitForIdle(); compose.runOnUiThread {

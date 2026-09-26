@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createSpeechSegments } from "./transcription";
+import { createSpeechSegments, createSilenceStop } from "./transcription";
 
 const voice = new Float32Array(16000).fill(.1), silence = new Float32Array(16000);
 function fixture(transcribe = vi.fn(async (_pcm: ArrayBuffer) => "recognized")) {
@@ -7,6 +7,18 @@ function fixture(transcribe = vi.fn(async (_pcm: ArrayBuffer) => "recognized")) 
   return { transcribe, onText, onError, audio: createSpeechSegments({ transcribe, onText, onError }) };
 }
 describe("speech segmentation", () => {
+  it("ends once at the configured continuous pause, only after speech", () => {
+    const stop = vi.fn(), push = createSilenceStop("silence", 500, stop);
+    push(silence, 16000); expect(stop).not.toHaveBeenCalled();
+    push(voice, 16000); push(new Float32Array(6400), 16000); expect(stop).not.toHaveBeenCalled();
+    push(voice, 16000); push(new Float32Array(7999), 16000); expect(stop).not.toHaveBeenCalled();
+    push(new Float32Array(1), 16000); push(silence, 16000); expect(stop).toHaveBeenCalledTimes(1);
+  });
+  it("keeps manual recording active through pauses", () => {
+    const stop = vi.fn(), push = createSilenceStop("manual", 1, stop);
+    push(voice, 16000); for (let n = 0; n < 120; n++) push(silence, 16000);
+    expect(stop).not.toHaveBeenCalled();
+  });
   it("does not upload silence", async () => {
     const f = fixture(); f.audio.push(silence, 16000); await f.audio.finish(); expect(f.transcribe).not.toHaveBeenCalled();
   });
