@@ -1,4 +1,4 @@
-import { callSpeech } from "@/lib/call-speech";
+import { callSpeech, windowsCallSpeechAvailable } from "@/lib/call-speech";
 // Conference call mode — one microphone, several room members.
 //
 // Capture stays half-duplex for the same reason as one-to-one calls: the
@@ -307,6 +307,7 @@ function GroupCall({ group, members }: { group: Group; members: Bot[] }) {
         setNote("Calls need macOS dictation, which isn't available here yet.");
         return;
       }
+      if (code === 1 && windowsCallSpeechAvailable()) return;
       if (code === 1) {
         setNote(
           reason === "helper-build-failed"
