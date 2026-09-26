@@ -24,6 +24,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.runtime.key
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import kotlinx.coroutines.CancellationException
+import java.util.Locale
+import java.text.DateFormat
+import java.util.Date
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.core.allows
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
@@ -99,6 +110,7 @@ fun SettingsScreen(
     var showingFullAddress by remember { mutableStateOf(false) }
     var addressCopied by remember { mutableStateOf(false) }
     var reconnecting by remember { mutableStateOf(false) }
+    var reconnectResult by remember(connection?.id) { mutableStateOf<Session.Status?>(null) }
     var confirmingUnpair by remember { mutableStateOf(false) }
     var pendingComputerRemoval by remember { mutableStateOf<Connection?>(null) }
     var choosingActivity by remember { mutableStateOf(false) }
@@ -136,13 +148,13 @@ fun SettingsScreen(
     var editingHostBrowser by remember { mutableStateOf(false) }
     var editingSkillAuthoring by remember { mutableStateOf(false) }
 
-    LaunchedEffect(connection) {
+    LaunchedEffect(connection, pairingAccess) {
         budgetEntitled = false
         billingEntitled = false
         if (connection?.serverScopes?.contains("admin") == true) {
             val features = session.configStatus()?.edition?.features.orEmpty()
-            budgetEntitled = "budgets" in features
-            billingEntitled = "billing" in features
+            budgetEntitled = "budgets" in features && pairingAccess.allows("budgets")
+            billingEntitled = "billing" in features && pairingAccess.allows("budgets")
         }
     }
 
@@ -198,8 +210,7 @@ fun SettingsScreen(
                 }
                 SettingsRow(stringResource(R.string.android_settings_connection_6512ee), localizedConnectionStatus(status))
                 if (bound != null) {
-                    PairingAccessDetails(pairingAccess) { scope.launch { session.refreshPairingAccess() } }
-                    Footnote(stringResource(R.string.android_settings_this_is_the_access_granted_to_this_phone_f_70120e))
+                    key(bound.id) { PairingAccessDetails(pairingAccess) { session.refreshPairingAccess() } }
                     SettingsButton(stringResource(R.string.android_settings_connect_another_computer_2a3942)) {
                         haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
                         session.beginPairing()
@@ -238,13 +249,24 @@ fun SettingsScreen(
                             }
                         },
                     ) {
+                        reconnecting = true
+                        reconnectResult = null
                         scope.launch {
-                            reconnecting = true
                             // Waits until the stream leaves connecting (or 10s),
                             // so the spinner means what it appears to mean.
-                            session.refresh()
-                            reconnecting = false
+                            try {
+                                session.refresh()
+                                reconnectResult = session.status.value
+                            } finally { reconnecting = false }
                         }
+                    }
+                    reconnectResult?.let { result ->
+                        Text(
+                            if (result == Session.Status.Live) stringResource(R.string.pairing_reconnect_success)
+                            else localizedConnectionStatus(result),
+                            fontSize = 13.sp,
+                            color = if (result is Session.Status.Offline || result == Session.Status.Unauthorized) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                        )
                     }
                 }
             }
@@ -275,7 +297,7 @@ fun SettingsScreen(
                 SettingsButton(stringResource(R.string.android_settings_theme_themeid_replacefirstchar_char_upperc_700698, themeId.replaceFirstChar(Char::uppercase))) { editingTheme = true }
             }
 
-            if (connection?.serverScopes?.contains("admin") == true) {
+            if (pairingAccess.allows("profile")) {
                 SettingsSection(stringResource(R.string.android_settings_shared_profile_ff09ab)) {
                     SettingsButton(stringResource(R.string.android_settings_name_email_and_about_me_b2337b)) {
                         editingAboutMe = true
@@ -334,52 +356,54 @@ fun SettingsScreen(
                 Footnote(activityDetail.caption)
             }
 
-            if (connection != null) SettingsSection(stringResource(R.string.android_settings_usage_0bb186)) {
-                SettingsButton(stringResource(if (showingUsage) R.string.android_settings_hide_usage else R.string.android_settings_show_usage)) {
-                    showingUsage = !showingUsage
+            if (connection != null && (pairingAccess.allows("usage") || budgetEntitled || billingEntitled)) SettingsSection(stringResource(R.string.android_settings_usage_0bb186)) {
+                if (pairingAccess.allows("usage")) {
+                    SettingsButton(stringResource(if (showingUsage) R.string.android_settings_hide_usage else R.string.android_settings_show_usage)) {
+                        showingUsage = !showingUsage
+                    }
+                    if (showingUsage) WorkspaceUsageSection()
                 }
-                if (showingUsage) WorkspaceUsageSection()
                 if (budgetEntitled) SettingsButton(stringResource(R.string.android_settings_monthly_spending_limit_4a8a9e)) { editingBudget = true }
                 if (billingEntitled) SettingsButton(stringResource(R.string.android_settings_model_prices_5f9f78)) { editingBilling = true }
             }
 
             if (connection?.serverScopes?.contains("admin") == true) {
-                SettingsSection(stringResource(R.string.android_settings_bot_defaults_f064df)) {
+                if (pairingAccess.allows("providers")) SettingsSection(stringResource(R.string.android_settings_bot_defaults_f064df)) {
                     SettingsButton(stringResource(R.string.android_settings_default_model_for_new_bots_e47907)) { editingDefaultBotModel = true }
                     SettingsButton(stringResource(R.string.android_settings_default_reasoning_for_new_bots_a4425b)) { editingNewBotEffort = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_teams_cbfd44)) {
+                if (pairingAccess.allows("teams")) SettingsSection(stringResource(R.string.android_settings_teams_cbfd44)) {
                     SettingsButton(stringResource(R.string.android_settings_manage_teams_c99bf8)) { managingTeams = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_providers_87b7c0)) {
+                if (pairingAccess.allows("providers")) SettingsSection(stringResource(R.string.android_settings_providers_87b7c0)) {
                     ProviderConnection.entries.forEach { provider ->
                         SettingsButton(stringResource(R.string.android_settings_provider_label_api_and_models_d95ab7, provider.label)) { configuringProvider = provider }
                     }
                 }
-                SettingsSection(stringResource(R.string.android_settings_engines_7f5d63)) {
+                if (pairingAccess.allows("engines")) SettingsSection(stringResource(R.string.android_settings_engines_7f5d63)) {
                     SettingsButton(stringResource(R.string.android_settings_manage_engines_on_this_computer_a0a12c)) { managingEngines = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_threads_bb12e8)) {
+                if (pairingAccess.allows("workspace")) SettingsSection(stringResource(R.string.android_settings_threads_bb12e8)) {
                     SettingsButton(stringResource(R.string.android_settings_concurrency_and_log_retention_ea73fb)) { managingThreads = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_room_turns_6062aa)) {
+                if (pairingAccess.allows("workspace")) SettingsSection(stringResource(R.string.android_settings_room_turns_6062aa)) {
                     SettingsButton(stringResource(R.string.android_settings_turn_timeout_70c2c0)) { editingRoomTurnTimeout = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_activity_81c0d9)) {
+                if (pairingAccess.allows("usage")) SettingsSection(stringResource(R.string.android_settings_activity_81c0d9)) {
                     SettingsButton(stringResource(R.string.android_settings_changes_and_approvals_1afb99)) { viewingAdminActivity = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_computer_924645)) {
+                if (pairingAccess.allows("localVm")) SettingsSection(stringResource(R.string.android_settings_computer_924645)) {
                     SettingsButton(stringResource(R.string.android_settings_manage_local_vm_on_this_computer_906520)) { managingLocalVm = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_backups_530cc2)) {
+                if (pairingAccess.allows("backups")) SettingsSection(stringResource(R.string.android_settings_backups_530cc2)) {
                     SettingsButton(stringResource(R.string.android_settings_export_encrypted_workspace_backup_484354)) { exportingBackup = true }
                     SettingsButton(stringResource(R.string.android_settings_import_and_restore_a_workspace_backup_291447)) { restoringBackup = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_browser_54a2cf)) {
+                if (pairingAccess.allows("browser")) SettingsSection(stringResource(R.string.android_settings_browser_54a2cf)) {
                     SettingsButton(stringResource(R.string.android_settings_built_in_browser_on_this_computer_fca83a)) { editingHostBrowser = true }
                     SettingsButton(stringResource(R.string.android_settings_manage_browser_profiles_b7690f)) { managingBrowserProfiles = true }
                 }
-                SettingsSection(stringResource(R.string.android_settings_experimental_b718f8)) {
+                if (pairingAccess.allows("skills")) SettingsSection(stringResource(R.string.android_settings_experimental_b718f8)) {
                     SettingsButton(stringResource(R.string.android_settings_bot_skill_authoring_25b0fc)) { editingSkillAuthoring = true }
                 }
             }
@@ -389,14 +413,14 @@ fun SettingsScreen(
             // is absent rather than present and dead.
             if (onOpenRoutines != null || onOpenConnectedApps != null) {
                 SettingsSection(stringResource(R.string.android_settings_workspace_4ca0a7)) {
-                    onOpenRoutines?.let { openRoutines ->
+                    onOpenRoutines?.takeIf { pairingAccess.allows("routines") || pairingAccess.allows("routineRun") }?.let { openRoutines ->
                         SettingsButton(
                             text = stringResource(R.string.ui_threads_routines_65d7efc),
                             icon = R.drawable.ic_schedule,
                             onClick = openRoutines,
                         )
                     }
-                    onOpenConnectedApps?.let { openConnectedApps ->
+                    onOpenConnectedApps?.takeIf { pairingAccess.allows("connectors") }?.let { openConnectedApps ->
                         SettingsButton(
                             text = stringResource(R.string.ui_connected_apps_8ab72a8),
                             onClick = openConnectedApps,
@@ -681,30 +705,88 @@ private fun SettingsSection(title: String?, content: @Composable () -> Unit) {
 }
 
 @Composable
-internal fun PairingAccessDetails(pairingAccess: PairingAccessState, onRefresh: () -> Unit) {
-    when (val access = pairingAccess) {
-        PairingAccessState.Checking -> SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), stringResource(R.string.pairing_access_checking))
-        is PairingAccessState.Failed -> {
-            SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), stringResource(R.string.pairing_access_failed))
-            Footnote(stringResource(R.string.pairing_access_failed_detail, access.reason))
-        }
-        is PairingAccessState.Ready -> {
-            SettingsRow(stringResource(R.string.android_settings_pairing_access_a10032), stringResource(if (access.access.role == "admin") R.string.android_settings_full_access else R.string.android_settings_chat_approvals))
-            val permissions = access.access.permissions
-            listOf(
-                R.string.pairing_access_chat to permissions.chat,
-                R.string.pairing_access_approvals to permissions.approvals,
-                R.string.pairing_access_routines to permissions.routines,
-                R.string.pairing_access_bots to permissions.manageBots,
-                R.string.pairing_access_settings to permissions.manageSettings,
-                R.string.pairing_access_desktop to permissions.cloudDesktop,
-            ).forEach { (label, allowed) ->
-                SettingsRow(stringResource(label), stringResource(if (allowed) R.string.pairing_access_allowed else R.string.pairing_access_denied))
-            }
-            Footnote(stringResource(R.string.pairing_access_live))
+internal fun PairingAccessDetails(pairingAccess: PairingAccessState, onRefresh: suspend () -> PairingAccessState) {
+    val scope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+    var confirmation by remember { mutableStateOf<String?>(null) }
+    var failure by remember { mutableStateOf<String?>(null) }
+    var showingDetails by remember { mutableStateOf(false) }
+    val updated = stringResource(R.string.pairing_access_updated)
+    val changed = stringResource(R.string.pairing_access_updated_changed)
+    val unchanged = stringResource(R.string.pairing_access_updated_unchanged)
+    val ready = (pairingAccess as? PairingAccessState.Ready)?.access
+    val role = when (ready?.role) {
+        "admin" -> stringResource(R.string.android_settings_full_access)
+        "client" -> stringResource(R.string.android_settings_chat_approvals)
+        "custom" -> stringResource(R.string.pairing_access_custom)
+        else -> stringResource(if (pairingAccess is PairingAccessState.Failed) R.string.pairing_access_failed else R.string.pairing_access_checking)
+    }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.android_settings_pairing_access_a10032), modifier = Modifier.weight(1f), fontSize = 15.sp)
+        Text(role, fontSize = 15.sp)
+        PermissionHelp(stringResource(R.string.pairing_access_mode_help))
+    }
+    SettingsButton(stringResource(R.string.pairing_access_details)) { showingDetails = true }
+    SettingsButton(
+        text = if (refreshing) stringResource(R.string.pairing_access_refreshing) else stringResource(R.string.pairing_access_refresh),
+        enabled = !refreshing,
+        trailing = { if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp) },
+    ) {
+        // Set busy synchronously, before the coroutine starts or a second tap arrives.
+        refreshing = true
+        confirmation = null
+        failure = null
+        val previous = ready
+        scope.launch {
+            try {
+                when (val result = onRefresh()) {
+                    is PairingAccessState.Ready -> confirmation = (if (result.access == previous) unchanged else changed) + " · " + DateFormat.getTimeInstance(DateFormat.MEDIUM).format(Date())
+                    is PairingAccessState.Failed -> failure = result.reason
+                    PairingAccessState.Checking -> failure = "No confirmed permission response was received."
+                }
+            } catch (error: CancellationException) { throw error }
+            catch (error: Exception) { failure = error.message ?: "Permission refresh failed." }
+            finally { refreshing = false }
         }
     }
-    SettingsButton(stringResource(R.string.pairing_access_refresh), onClick = onRefresh)
+    AnimatedContent(confirmation, label = "permission-refresh-feedback") { message ->
+        if (message != null) Text("✓ $updated: $message", fontSize = 13.sp)
+    }
+    val error = failure ?: (pairingAccess as? PairingAccessState.Failed)?.reason
+    if (error != null) Text(stringResource(R.string.pairing_access_error, error), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+    if (showingDetails) Dialog(onDismissRequest = { showingDetails = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        androidx.compose.material3.Surface(modifier = Modifier.fillMaxSize().padding(16.dp), shape = MaterialTheme.shapes.large) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.pairing_access_details), modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                    TextButton(onClick = { showingDetails = false }) { Text(stringResource(R.string.pairing_access_close)) }
+                }
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (ready == null) Text(role)
+                    else if (ready.capabilities.isEmpty()) Text(stringResource(R.string.pairing_access_catalog_missing))
+                    else ready.capabilities.forEach { grant ->
+                        val de = Locale.getDefault().language == "de"
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Text(if (de) grant.labelDe else grant.labelEn, modifier = Modifier.weight(1f), fontSize = 15.sp)
+                            Text(stringResource(if (grant.allowed) R.string.pairing_access_allowed else R.string.pairing_access_denied), modifier = Modifier.padding(start = 8.dp), fontSize = 14.sp)
+                            PermissionHelp(if (de) grant.descriptionDe else grant.descriptionEn, if (de) grant.labelDe else grant.labelEn)
+                        }
+                        HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PermissionHelp(explanation: String, title: String? = null) {
+    var open by remember { mutableStateOf(false) }
+    val description = stringResource(R.string.pairing_access_help) + (title?.let { ": $it" } ?: "")
+    TextButton(onClick = { open = true }, modifier = Modifier.semantics { contentDescription = description }) { Text("?") }
+    if (open) AlertDialog(onDismissRequest = { open = false }, text = { Text(explanation) }, confirmButton = {
+        TextButton(onClick = { open = false }) { Text(stringResource(R.string.pairing_access_close)) }
+    })
 }
 
 @Composable
@@ -813,7 +895,7 @@ private fun SettingsButton(
 
 @Composable
 private fun Footnote(text: String) {
-    Text(text = text, fontSize = 13.sp, color = secondaryTint)
+    PermissionHelp(text)
 }
 
 private const val ADDRESS_CLIP_LABEL = "OpenMausMobile computer address"

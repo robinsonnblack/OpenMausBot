@@ -12,6 +12,7 @@ import type { IncomingMessage } from "node:http";
 import { timingSafeEqual } from "node:crypto";
 import { isIP } from "node:net";
 
+import { permissionDenial, validPermissions, type PermissionMap } from "../companion/src/permissions.ts";
 import type { Scope, SessionRecord, SessionRegistry } from "./sessions.ts";
 import { denyReason as companionDenial } from "../companion/src/routes.ts";
 
@@ -27,7 +28,7 @@ export type LoopbackTrust = "owner" | "service";
 
 export type RequestAuth =
   // `trust` is present only when reduced; an owner request looks as it always did.
-  | { kind: "loopback"; scopes: readonly Scope[]; trust?: "service" }
+  | { kind: "loopback"; scopes: readonly Scope[]; trust?: "service"; permissions?: PermissionMap }
   | { kind: "session"; session: SessionRecord; via: "bearer" | "cookie" | "ticket"; scopes: readonly Scope[] };
 
 export interface RequestAuthResult {
@@ -93,8 +94,8 @@ export function serviceAllowed(method: string, path: string): boolean {
  * per-launch capability, and only its owner uses the machine. Elsewhere the
  * operator may set OMB_LOOPBACK_TRUST=owner|service. Without it a hosted
  * workspace (any OMB_ADMIN_* setting, even an incomplete one) defaults to
- * `service` — shared-workspace Full access is only honoured there, so it needs
- * no rule of its own — and a headless self-hosted server keeps `owner`. A
+ * `service` â€” shared-workspace Full access is only honoured there, so it needs
+ * no rule of its own â€” and a headless self-hosted server keeps `owner`. A
  * value that is neither fails closed. */
 export function resolveLoopbackTrust(input: {
   env?: NodeJS.ProcessEnv;
@@ -464,8 +465,10 @@ export function resolveRequestAuth(req: IncomingMessage, options: ResolveOptions
   if (session && via) {
     if (via === "cookie" && !isSameOrigin(req)) return deny(403, "forbidden: cross-origin request");
     const needed = requiredScope(method, path, options.features ?? {});
-    if (!session.scopes.includes(needed)) {
-      return deny(403, `forbidden: this session lacks the ${needed} scope`);
+    if (!session.scopes.includes(needed)) return deny(403, `forbidden: this session lacks the ${needed} scope`);
+    if (!session.email && (session.access === "custom" || !session.scopes.includes("admin"))) {
+      const blocked = permissionDenial(method, path, session.access ?? "client", session.permissions);
+      if (blocked) return deny(403, blocked);
     }
     // Only a request that passed both checks counts as use of the session,
     // and only a request the client made itself: redeeming a stream ticket
@@ -485,14 +488,18 @@ export function resolveRequestAuth(req: IncomingMessage, options: ResolveOptions
   const loopback = !proxied && isLoopbackHost(headerValue(req.headers.host)) && isAllowedOrigin(headerValue(req.headers.origin));
   if (loopback) {
     const companionToken = headerValue(req.headers["x-openmausbot-companion-auth"]);
+    let relayPermissions: PermissionMap | undefined;
+    try { const raw = JSON.parse(headerValue(req.headers["x-openmausbot-companion-permissions"]) ?? "null"); if (validPermissions(raw)) relayPermissions = raw; } catch { /* denied below for custom */ }
+    const relayAccess = req.headers["x-openmausbot-companion-access"] === "admin" ? "admin" : req.headers["x-openmausbot-companion-access"] === "custom" ? "custom" : "client";
     if (companionToken && options.loopbackMutationToken !== undefined) {
       if (
         !secureTokenMatch(companionToken, options.companionMutationToken ?? "") ||
         req.headers["x-openmausbot-companion"] !== "1" ||
+        (relayAccess === "custom" && !relayPermissions) ||
         !/^[\w-]{1,128}$/.test(headerValue(req.headers["x-openmausbot-companion-device"]) ?? "") ||
-        companionDenial({ path, method, authenticated: true, access: req.headers["x-openmausbot-companion-access"] === "admin" ? "admin" : "client" })
+        companionDenial({ path, method, authenticated: true, access: relayAccess, permissions: relayPermissions, cloudDesktopAccess: relayPermissions?.cloudDesktop })
       ) return deny(403, "forbidden: invalid companion request");
-      return { auth: { kind: "loopback", scopes: LOOPBACK_SCOPES }, status: 401, error: "" };
+      return { auth: { kind: "loopback", scopes: LOOPBACK_SCOPES, permissions: relayPermissions }, status: 401, error: "" };
     }
     if (
       options.loopbackMutationToken !== undefined &&

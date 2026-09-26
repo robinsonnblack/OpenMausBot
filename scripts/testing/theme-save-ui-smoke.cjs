@@ -58,6 +58,18 @@ async function until(fn) {
     assert.equal(initial.panel, "rgb(253, 250, 247)");
     assert.equal(initial.disabled, false);
     assert.equal(initial.text, "Eigenes Design speichern und verwenden");
+    for (const width of [1280, 900, 560, 360]) {
+      await page.setViewportSize({ width, height: 1100 });
+      const overlap = await page.evaluate(() => [...document.querySelectorAll('input[type="color"]')].map(input => {
+        const label = input.closest('label'); const text = label.querySelector('span');
+        const a = text.getBoundingClientRect(), b = input.getBoundingClientRect();
+        return { text: text.textContent, overlap: a.bottom > b.top + 1, clipped: text.scrollWidth > text.clientWidth + 1 };
+      }).filter(row => row.overlap || row.clipped));
+      assert.deepEqual(overlap, [], 'All color names must remain readable at width ' + width);
+      await page.locator('[aria-label="accent-ink color"]').scrollIntoViewIfNeeded();
+      await page.screenshot({ path: join(evidence, 'theme-colors-' + width + '.png') });
+    }
+    await page.setViewportSize({ width: 1280, height: 1100 });
     await save();
     const saved = await until(async () => { const s = await state(); return s?.saved === 'true' && s; });
     assert.equal(saved.text, "Eigenes Design gespeichert");

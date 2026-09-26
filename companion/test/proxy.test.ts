@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { presetPermissions } from "../src/permissions.ts";
 import { createProxyHandler } from "../src/proxy.ts";
 import { createConnectedDeviceTracker } from "../src/connected-devices.ts";
 import type { CompanionEndpoint } from "../src/endpoints.ts";
@@ -170,7 +171,7 @@ beforeAll(async () => {
   sidecar = createServer(
     createProxyHandler({
       harnessPort: HARNESS_PORT,
-      authenticate: (t) => (t === TOKEN ? { id: "d1", cloudDesktopAccess: true } : null),
+      authenticate: (t) => (t === TOKEN ? { id: "d1", cloudDesktopAccess: true, access: "custom", permissions: { ...presetPermissions("client"), botCreate: true, teams: true, cloudDesktop: true } } : null),
       redeem: (code, deviceName) =>
         code === "424242"
           ? { token: TOKEN, device: { id: "d1", name: String(deviceName) } }
@@ -315,8 +316,8 @@ describe("the sidecar in front of an unmodified harness", () => {
     // verbs instead, so a stolen device token cannot smuggle those fields.
     const { body } = await device("GET", "/api/bots");
     const botId = body.bots[0].id;
-    expect((await device("PATCH", `/api/bots/${botId}`, { body: { autoApprove: true } })).status).toBe(404);
-    expect((await device("PATCH", `/api/groups/not-a-room`, { body: { unread: false } })).status).toBe(404);
+    expect((await device("PATCH", `/api/bots/${botId}`, { body: { autoApprove: true } })).status).toBe(403);
+    expect((await device("PATCH", `/api/groups/not-a-room`, { body: { unread: false } })).status).toBe(403);
   });
 
   it("lets a device answer an approval, and manage its own chats", async () => {
@@ -386,8 +387,8 @@ describe("the sidecar in front of an unmodified harness", () => {
     const after = (await device("GET", "/api/bots")).body.bots;
     expect(after).toHaveLength(before.length + 1);
     expect(after.some((bot: { id: string }) => bot.id === id)).toBe(true);
-    expect((await device("GET", "/api/bot-defaults")).status).toBe(404);
-    expect((await device("PATCH", `/api/bots/${id}`, { body: { soul: "not permitted" } })).status).toBe(404);
+    expect((await device("GET", "/api/bot-defaults")).status).toBe(403);
+    expect((await device("PATCH", `/api/bots/${id}`, { body: { soul: "not permitted" } })).status).toBe(403);
   });
 
   it("only remembers an always-allow key carried by a pending card", async () => {

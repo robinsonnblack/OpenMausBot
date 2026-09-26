@@ -2515,8 +2515,8 @@ ipcMain.handle("companion:pairing", localOnly("companion:pairing", (_event, open
   if (refusal) throw new Error(refusal);
   return companionPairing(Boolean(open), expectedToken).then(decorateDesktopCompanionState);
 }));
-ipcMain.handle("companion:access", localOnly("companion:access", (_event, deviceId, access) =>
-  companionAccess(deviceId, access).then(() => desktopCompanionState()),
+ipcMain.handle("companion:access", localOnly("companion:access", (_event, deviceId, access, permissions) =>
+  companionAccess(deviceId, access, permissions).then(() => desktopCompanionState()),
 ));
 ipcMain.handle("companion:cloud-desktop", localOnly("companion:cloud-desktop", (_event, deviceId, allowed) =>
   companionCloudDesktopAccess(deviceId, Boolean(allowed)).then(() => desktopCompanionState()),

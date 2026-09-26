@@ -9,6 +9,7 @@ import { createProxyHandler } from "../src/proxy.ts";
 import { createConnectedDeviceTracker } from "../src/connected-devices.ts";
 import { DATA_DIR } from "../src/state.ts";
 import { denyReason } from "../src/routes.ts";
+import { PERMISSIONS, presetPermissions } from "../src/permissions.ts";
 
 describe("existing phone rights through isolated desktop, companion and server", () => {
   let fixture: VerificationServer;
@@ -50,7 +51,7 @@ describe("existing phone rights through isolated desktop, companion and server",
     expect((await ask(proxyUrl, "GET", "/api/usage", undefined, token, { "x-openmausbot-companion-access": "admin" })).status).not.toBe(200);
     expect((await ask(controlUrl, "POST", "/devices/" + device.id + "/access", { access: "admin" })).status).toBe(200);
     const full = await ask(proxyUrl, "GET", "/api/companion/access", undefined, token);
-    expect(full.body).toMatchObject({ role: "admin", scopes: ["admin", "client"], permissions: { manageBots: true, manageSettings: true, cloudDesktop: false } });
+    expect(full.body).toMatchObject({ role: "admin", scopes: ["admin", "client"], permissions: { manageBots: true, manageSettings: true, cloudDesktop: true } });
     expect((await ask(proxyUrl, "GET", "/api/usage", undefined, token)).status).toBe(200);
     expect(new DeviceRegistry().authenticate(token)?.access).toBe("admin");
     const stream = await fetch(proxyUrl + "/api/events", { headers: { authorization: "Bearer " + token } });
@@ -77,6 +78,8 @@ describe("existing phone rights through isolated desktop, companion and server",
       expect(failed.status).toBe(500);
       expect(failed.body.error).toContain("previous rights remain active");
       expect(registry.list()[0].access).toBe("client");
+      expect(() => registry.revoke(device.id)).toThrow("ENOSPC");
+      expect(registry.list().some(candidate => candidate.id === device.id)).toBe(true);
     } finally { writable.persist = persist; }
     expect((await ask(controlUrl, "POST", "/devices/" + device.id + "/access", { access: "admin" }, undefined, { origin: "https://example.invalid" })).status).toBe(403);
     expect((await ask(controlUrl, "POST", "/devices/" + device.id + "/access", { access: "owner" })).status).toBe(400);
@@ -84,6 +87,39 @@ describe("existing phone rights through isolated desktop, companion and server",
     for (const path of ["/api/auth/sessions", "/api/internal/secrets", "/api/testing/state", "/api/anything/../internal/secrets", "/api/anything/%2e%2e/internal/secrets"]) {
       expect(denyReason({ method: "GET", path, authenticated: true, access: "admin" }), path).not.toBeNull();
     }
+  });
+
+  it("persists custom rights and enforces deletion independently on both real HTTP paths", async () => {
+    const phone = registry.redeem(registry.openPairing().code, "Custom fixture");
+    if ("error" in phone) throw new Error(phone.error);
+    const offer = await ask(fixture.info.url, "POST", "/api/auth/pairing", { label: "Custom server fixture", scopes: ["client"] });
+    const accepted = await ask(fixture.info.url, "POST", "/api/auth/pair", { code: offer.body.code, label: "Custom server fixture" });
+    const grants = presetPermissions("admin"); grants.messageDelete = false; grants.threadDelete = false; grants.profile = true; grants.providers = false;
+    const save = async () => {
+      expect((await ask(controlUrl, "POST", "/devices/" + phone.device.id + "/access", { access: "custom", permissions: grants })).status).toBe(200);
+      expect((await ask(fixture.info.url, "PATCH", "/api/auth/sessions/" + accepted.body.session.id, { access: "custom", permissions: grants })).status).toBe(200);
+    };
+    await save();
+    for (const [url, token] of [[proxyUrl, phone.token], [fixture.info.url, accepted.body.token]]) {
+      const snapshot = await ask(url, "GET", "/api/companion/access", undefined, token);
+      expect(snapshot.body.role).toBe("custom");
+      expect(snapshot.body.capabilities).toHaveLength(PERMISSIONS.length);
+      expect(snapshot.body.capabilities.find((row: any) => row.id === "threadDelete").allowed).toBe(false);
+      expect((await ask(url, "POST", "/api/threads/nonexistent/messages/delete", { ids: ["m"] }, token)).status).toBe(403);
+      expect((await ask(url, "DELETE", "/api/bots/nonexistent/tasks/nonexistent", undefined, token)).status).toBe(403);
+      expect((await ask(url, "PATCH", "/api/config", { anthropic: { apiKey: "synthetic-fixture-value" } }, token)).status).toBe(403);
+    }
+    expect(new DeviceRegistry().authenticate(phone.token)?.permissions?.threadDelete).toBe(false);
+    grants.threadDelete = true; await save();
+    for (const [url, token] of [[proxyUrl, phone.token], [fixture.info.url, accepted.body.token]]) {
+      // Passing the gate reaches the real handler, which reports the missing fixture bot.
+      expect((await ask(url, "DELETE", "/api/bots/nonexistent/tasks/nonexistent", undefined, token)).status).toBe(404);
+      expect((await ask(url, "POST", "/api/threads/nonexistent/messages/delete", { ids: ["m"] }, token)).status).toBe(403);
+      expect((await ask(url, "PATCH", "/api/auth/sessions/" + accepted.body.session.id, { access: "admin" }, token)).status).toBe(403);
+    }
+    const incomplete = { ...grants }; delete (incomplete as any).threadDelete;
+    expect((await ask(controlUrl, "POST", "/devices/" + phone.device.id + "/access", { access: "custom", permissions: incomplete })).status).toBe(400);
+    expect((await ask(fixture.info.url, "PATCH", "/api/auth/sessions/" + accepted.body.session.id, { access: "custom", permissions: incomplete })).status).toBe(400);
   });
 
   it("changes a server pairing in place and prevents a restricted phone from granting itself access", async () => {

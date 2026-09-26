@@ -65,7 +65,8 @@ export interface PhoneDevice {
   createdAt: number;
   lastSeenAt: number;
   cloudDesktopAccess: boolean;
-  access?: "admin" | "client";
+  access?: "admin" | "client" | "custom";
+  permissions?: import("../../companion/src/permissions").PermissionMap;
 }
 
 export interface CompanionState {
@@ -93,7 +94,7 @@ export type CompanionBridge = {
   keepAwake: (enabled: boolean) => Promise<CompanionState>;
   refreshTailscale: () => Promise<CompanionState>;
   pairing: (open: boolean, expectedToken?: string) => Promise<CompanionState>;
-  access?: (deviceId: string, access: "admin" | "client") => Promise<CompanionState>;
+  access?: (deviceId: string, access: "admin" | "client" | "custom", permissions?: import("../../companion/src/permissions").PermissionMap) => Promise<CompanionState>;
   cloudDesktop: (deviceId: string, allowed: boolean) => Promise<CompanionState>;
   revoke: (deviceId: string) => Promise<CompanionState>;
 };
@@ -302,7 +303,12 @@ export function usePhoneSetupController(profileEmail = ""): PhoneSetupController
 
   const act = useCallback(async (call: (companion: CompanionBridge) => Promise<CompanionState>, propagateFailure = false) => {
     const companion = companionBridge();
-    if (!companion) return;
+    if (!companion) {
+      const failure = new Error(t("phone.error.desktopOnly"));
+      if (mounted.current) setError(failure.message);
+      if (propagateFailure) throw failure;
+      return;
+    }
     setActionBusy(true);
     setError(null);
     try {

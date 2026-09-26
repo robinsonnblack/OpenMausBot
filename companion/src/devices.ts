@@ -13,12 +13,14 @@ import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { type AccessMode, type PermissionMap, validPermissions, presetPermissions } from "./permissions.ts";
 import { DATA_DIR, ensureDataDir, writeFileAtomic } from "./state.ts";
 
 /** One paired phone, as it is written to disk. */
 export interface DeviceRecord {
   /** Existing companions retain their previous restricted surface. */
-  access: "admin" | "client";
+  access: AccessMode;
+  permissions?: PermissionMap;
   id: string;
   name: string;
   /** sha256 of the bearer token — never the token itself */
@@ -114,6 +116,12 @@ const timestamp = (value: unknown, fallback: number): number =>
  * from since pairing was last seen when it paired. */
 function normalizeDevice(record: Partial<DeviceRecord> & { id: string; tokenHash: string }): DeviceRecord {
   const createdAt = timestamp(record.createdAt, Date.now());
+  let access: AccessMode = record.access === "admin" ? "admin" : record.access === "custom" ? "custom" : "client";
+  let permissions = access === "custom" && validPermissions(record.permissions) ? record.permissions : undefined;
+  if (access !== "custom" && (record.cloudDesktopAccess === true) !== (access === "admin")) {
+    permissions = { ...presetPermissions(access), cloudDesktop: record.cloudDesktopAccess === true };
+    access = "custom";
+  }
   return {
     id: record.id,
     tokenHash: record.tokenHash,
@@ -121,7 +129,8 @@ function normalizeDevice(record: Partial<DeviceRecord> & { id: string; tokenHash
     createdAt,
     lastSeenAt: timestamp(record.lastSeenAt, createdAt),
     cloudDesktopAccess: record.cloudDesktopAccess === true,
-    access: record.access === "admin" ? "admin" : "client",
+    access,
+    permissions,
   };
 }
 
@@ -336,21 +345,24 @@ export class DeviceRegistry {
   /** Take a phone's access away. False when there was no such device — a
    * revoke that quietly matched nothing would read as success on the page. */
   revoke(id: string): boolean {
-    const before = this.devices.length;
+    const before = this.devices;
     this.devices = this.devices.filter((d) => d.id !== id);
-    if (this.devices.length === before) return false;
+    if (this.devices.length === before.length) return false;
+    try { this.persist(); } catch (error) { this.devices = before; throw error; }
     this.lastSeenWrites.delete(id);
-    this.persist();
     return true;
   }
 
   /** Persist the workspace role while keeping this device's existing token. */
-  setAccess(id: string, access: "admin" | "client"): boolean {
+  setAccess(id: string, access: AccessMode, permissions?: PermissionMap): boolean {
+    if (access === "custom" && !validPermissions(permissions)) throw new Error("Complete custom permissions are required");
     const device = this.devices.find(candidate => candidate.id === id);
     if (!device) return false;
-    const previous = device.access;
+    const previous = { access: device.access, permissions: device.permissions, cloudDesktopAccess: device.cloudDesktopAccess };
     device.access = access;
-    try { this.persist(); } catch (error) { device.access = previous; throw error; }
+    device.permissions = access === "custom" ? { ...permissions! } : undefined;
+    device.cloudDesktopAccess = access === "admin" || (access === "custom" && permissions!.cloudDesktop);
+    try { this.persist(); } catch (error) { Object.assign(device, previous); throw error; }
     return true;
   }
 
@@ -358,12 +370,14 @@ export class DeviceRegistry {
   setCloudDesktopAccess(id: string, allowed: boolean): boolean {
     const device = this.devices.find((candidate) => candidate.id === id);
     if (!device) return false;
-    const previous = device.cloudDesktopAccess;
+    const previous = { access: device.access, permissions: device.permissions, cloudDesktopAccess: device.cloudDesktopAccess };
+    device.permissions = { ...presetPermissions(device.access), ...device.permissions, cloudDesktop: allowed };
+    device.access = "custom";
     device.cloudDesktopAccess = allowed;
     try {
       this.persist();
     } catch (error) {
-      device.cloudDesktopAccess = previous;
+      Object.assign(device, previous);
       throw error;
     }
     return true;

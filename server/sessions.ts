@@ -63,6 +63,8 @@ export const EXCHANGE_REPLAY_MS = 60_000;
 export const MAX_STREAM_TICKETS_PER_SESSION = 5;
 const LAST_SEEN_WRITE_INTERVAL_MS = 60_000;
 
+import { type AccessMode, type PermissionMap, validPermissions } from "../companion/src/permissions.ts";
+
 const scopeSchema = z.enum(["admin", "client"]);
 
 const sessionSchema = z.object({
@@ -70,6 +72,8 @@ const sessionSchema = z.object({
   tokenHash: z.string().length(64),
   label: z.string().max(80),
   scopes: z.array(scopeSchema).min(1),
+  access: z.enum(["admin", "client", "custom"]).optional(),
+  permissions: z.record(z.string(), z.boolean()).optional(),
   createdAt: z.number(),
   lastSeenAt: z.number(),
   expiresAt: z.number(),
@@ -86,6 +90,8 @@ export type SessionRecord = z.infer<typeof sessionSchema>;
 
 /** What the UI may see: never the hash. */
 export interface PublicSession {
+  access?: AccessMode;
+  permissions?: PermissionMap;
   id: string;
   label: string;
   scopes: Scope[];
@@ -176,6 +182,8 @@ function publicSession(record: SessionRecord): PublicSession {
     id: record.id,
     label: record.label,
     scopes: [...record.scopes],
+    access: record.access,
+    permissions: record.permissions as PermissionMap | undefined,
     createdAt: record.createdAt,
     lastSeenAt: record.lastSeenAt,
     expiresAt: record.expiresAt,
@@ -550,25 +558,28 @@ export class SessionRegistry {
     return this.sessions.map(publicSession);
   }
 
-  setScopes(id: string, scopes: Scope[]): boolean {
+  setScopes(id: string, scopes: Scope[], access?: AccessMode, permissions?: PermissionMap): boolean {
+    if (access === "custom" && !validPermissions(permissions)) throw new Error("Complete custom permissions are required");
     this.prune();
     const record = this.sessions.find(session => session.id === id);
     if (!record) return false;
     if (record.email) throw new Error("Account rights are managed through membership, not device pairing");
-    const previous = record.scopes;
+    const previous = { scopes: record.scopes, access: record.access, permissions: record.permissions };
     record.scopes = [...new Set(scopes)];
-    try { this.persist(); } catch (error) { record.scopes = previous; throw error; }
+    record.access = access;
+    record.permissions = access === "custom" ? { ...permissions! } : undefined;
+    try { this.persist(); } catch (error) { Object.assign(record, previous); throw error; }
     // End existing streams and tickets, while preserving the same device token.
     this.forget(id);
     return true;
   }
 
   revoke(id: string): boolean {
-    const before = this.sessions.length;
+    const before = this.sessions;
     this.sessions = this.sessions.filter((s) => s.id !== id);
-    if (this.sessions.length === before) return false;
+    if (this.sessions.length === before.length) return false;
+    try { this.persist(); } catch (error) { this.sessions = before; throw error; }
     this.forget(id);
-    this.persist();
     return true;
   }
 

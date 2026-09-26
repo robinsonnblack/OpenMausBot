@@ -1,3 +1,4 @@
+import { activeLocale } from "@/lib/i18n";
 import { DeviceAccessControl } from "./DeviceAccessControl";
 import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
@@ -18,6 +19,8 @@ export interface PairingOffer {
 }
 
 export interface PairedDevice {
+  access?: import("../../companion/src/permissions").AccessMode;
+  permissions?: import("../../companion/src/permissions").PermissionMap;
   id: string;
   label: string;
   scopes: string[];
@@ -203,19 +206,19 @@ export function ServerPairingCard({ initialSession = null, initialPairingCodes =
                 {device.email ? <span className="text-ink-secondary"> · {device.email}</span> : null}
                 <span className="text-ink-secondary">
                   {" · "}
-                  {device.scopes.includes("admin") ? t("remote.serverPairing.scope.admin") : t("remote.serverPairing.scope.client")}
+                  {device.access === "custom" ? (activeLocale().startsWith("de") ? "Benutzerdefiniert" : "Custom") : device.scopes.includes("admin") ? t("remote.serverPairing.scope.admin") : t("remote.serverPairing.scope.client")}
                   {" · "}
                   {t("remote.serverPairing.seen", { when: lastSeen(device.lastSeenAt, now) })}
                   {device.id === current ? ` · ${t("remote.serverPairing.thisBrowser")}` : ""}
                 </span>
               </span>
               {!device.email && device.id !== current && <div className="w-full">
-                <DeviceAccessControl name={device.label} access={device.scopes.includes("admin") ? "admin" : "client"}
-                  onChange={async access => {
-                    const body = await api("/api/auth/sessions/" + device.id, { method: "PATCH", body: JSON.stringify({ access }) });
+                <DeviceAccessControl name={device.label} access={device.access ?? (device.scopes.includes("admin") ? "admin" : "client")} permissions={device.permissions}
+                  onChange={async (access, permissions) => {
+                    const body = await api("/api/auth/sessions/" + device.id, { method: "PATCH", body: JSON.stringify({ access, ...(access === "custom" ? { permissions } : {}) }) });
                     if (!Array.isArray(body?.sessions)) throw new Error("The desktop did not confirm the new access");
                     const updated = body.sessions.find((candidate: PairedDevice) => candidate.id === device.id);
-                    if (!updated || updated.scopes.includes("admin") !== (access === "admin")) throw new Error("The desktop did not confirm the requested rights");
+                    if (!updated || updated.access !== access || (access === "custom" && Object.entries(permissions!).some(([key, value]) => updated.permissions?.[key as keyof typeof permissions] !== value))) throw new Error("The desktop did not confirm the requested rights");
                     setDevices(body.sessions);
                   }} />
               </div>}

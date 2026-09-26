@@ -175,13 +175,16 @@ export function SkinPicker() {
         </select>
       </label>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {COLOR_ROLES.map((role) => <label key={role} className="flex items-center gap-2 text-xs">
-          <input type="color" aria-label={`${role} color`} value={draft[role].startsWith("#") ? draft[role].slice(0, 7) : "#000000"}
+        {COLOR_ROLES.map((role) => <label key={role} className="flex min-w-0 flex-col items-stretch gap-2 rounded-lg border border-hairline/40 p-3 text-xs">
+          <span className="break-words text-sm leading-normal">{role.replaceAll("-", " ")}</span>
+          <div className="flex items-center gap-3">
+          <input type="color" className="h-9 w-12 shrink-0" aria-label={`${role} color`} value={draft[role].startsWith("#") ? draft[role].slice(0, 7) : "#000000"}
             onChange={(event) => editDraft({ ...draft, [role]: event.target.value })} />
-          <span className="min-w-0 flex-1">{role.replaceAll("-", " ")}</span>
-          <input className="w-[88px] rounded border border-hairline bg-inset px-1.5 py-1 font-mono text-xs text-ink"
+
+          <input className="min-w-0 flex-1 rounded border border-hairline bg-inset px-1.5 py-1 font-mono text-xs text-ink"
             aria-label={`${role} hex`} value={draft[role]}
             onChange={(event) => editDraft({ ...draft, [role]: event.target.value })} />
+          </div>
         </label>)}
       </div>
       <button type="button" className="custom-theme-save mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm disabled:opacity-50"

@@ -39,3 +39,29 @@ Existing legacy grants migrate to the previously enforced restricted access.
 Changing rights does not replace the credential, require USB debugging, or
 require re-pairing. An old Android app must first be updated to display live
 permissions. This recipe does not establish installation on a physical phone.
+# Custom permissions and compact phone UI
+
+Version personal.8 uses `companion/src/permissions.ts` as the authoritative
+catalogue for both pairing paths. Full access enables all 34 catalogue entries;
+chat and approvals excludes deletion and administration. Custom records persist
+each boolean without changing the pairing token. Existing screen-control
+exceptions migrate to custom grants so a preset label never hides an exception.
+
+Run `pnpm exec vitest run companion/test server/sessions.test.ts server/request-auth.test.ts`.
+The custom-permissions tests exercise every catalogue entry. The real HTTP
+fixture proves independent message/thread deletion gates, persisted grants,
+complete snapshots, rejection of incomplete editors and self-escalation, and
+field-level protection of configuration writes.
+
+After `pnpm build`, run `node --experimental-strip-types scripts/verify-pairing-access.ts`
+and `node --experimental-strip-types scripts/verify-theme-save.ts`. The desktop
+fixture opens both real custom editors, checks all entries and explicit help,
+proves save feedback and retained values after reload, and injects a write
+failure. Theme geometry is checked at 1280, 900, 560 and 360 pixels.
+
+Android checks: `:core:test --tests '*SessionTest'` and `:app:testDebugUnitTest`
+with `*PairingAccessDisplayTest`, `*SettingsReconnectWiringTest` and
+`*SettingsPolicyTest`. The Compose tests prove compact settings, permission
+details and help opened explicitly, immediate busy/disabled feedback, identical
+successful refreshes on successive taps, and error feedback without false success.
+These tests do not claim control of or installation on a physical phone.

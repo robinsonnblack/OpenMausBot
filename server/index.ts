@@ -1,3 +1,4 @@
+import { validPermissions, configPermissionDenial, effectivePermissions, type PermissionMap } from "../companion/src/permissions.ts";
 import { pairingAccess } from "../companion/src/access.ts";
 import { configurePromptInspector, forgetPromptCaptures } from "./prompt-inspector.ts";
 import { normalizeMeetingLimits, meetingBudgetText } from "../shared/meeting-limits.ts";
@@ -13071,8 +13072,8 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
     if (await dispatchRoutes(ROUTES, { req, res, url, path, method, auth, json, readBody })) return;
 
     if (method === "GET" && path === "/api/companion/access") {
-      const role = auth.scopes.includes("admin") ? "admin" : "client";
-      return json(res, 200, pairingAccess(role, role === "admin"));
+      const role = auth.kind === "session" && auth.session.access ? auth.session.access : auth.scopes.includes("admin") ? "admin" : "client";
+      return json(res, 200, pairingAccess(role, role === "admin" || (role === "custom" && auth.kind === "session" && auth.session.permissions?.cloudDesktop === true), auth.kind === "session" ? auth.session.permissions as PermissionMap | undefined : undefined));
     }
     // ── sessions: who am I, tickets, pairing and revocation ─────────────
     if (method === "GET" && path === "/api/auth/session") {
@@ -13230,10 +13231,10 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
     if (m && method === "PATCH") {
       if (auth.kind === "session" && auth.session.id === m[1]) return json(res, 403, { error: "Change another device from the desktop; your current session cannot change its own rights" });
       const body = await readBody(req, 4096);
-      if (!body || Object.keys(body).length !== 1 || !["admin", "client"].includes(body.access)) return json(res, 400, { error: "Choose admin or client access" });
+      if (!body || Object.keys(body).some(key => !["access", "permissions"].includes(key)) || !["admin", "client", "custom"].includes(body.access) || (body.access === "custom" && !validPermissions(body.permissions))) return json(res, 400, { error: "Choose admin or client access" });
       if (auth.kind === "session" && !sessions.list().find(session => session.id === auth.session.id)?.scopes.includes("admin")) return json(res, 403, { error: "Administrator access is required" });
       try {
-        if (!sessions.setScopes(m[1], body.access === "admin" ? ["admin", "client"] : ["client"])) return json(res, 404, { error: "no such session" });
+        if (!sessions.setScopes(m[1], body.access !== "client" ? ["admin", "client"] : ["client"], body.access, body.permissions)) return json(res, 404, { error: "no such session" });
       } catch (error) { return json(res, 409, { error: error instanceof Error ? error.message : "Could not save device access" }); }
       return json(res, 200, { sessions: sessions.list() });
     }
@@ -20095,6 +20096,11 @@ const handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
     }
     if ((method === "PUT" || method === "PATCH") && path === "/api/config") {
       const body = await readBody(req);
+      const phoneGrants = auth.kind === "loopback" ? auth.permissions : auth.session.access === "custom" ? effectivePermissions("custom", auth.session.permissions) : undefined;
+      if (phoneGrants) {
+        const blocked = configPermissionDenial(body, phoneGrants);
+        if (blocked) return json(res, 403, { error: blocked });
+      }
       if (hostedModels && ["instances", "anthropic", "openaiCompat", "xai", "mistral", "opencodeGo"].some(key => Object.hasOwn(body, key))) return json(res, 403, { error: HOSTED_PROVIDER_SETTINGS_ERROR });
       const patch = parseConfigPatch(body);
       if (patch.newBotDefaults) {

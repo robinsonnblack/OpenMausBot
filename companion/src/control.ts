@@ -12,6 +12,7 @@
 // refuses to expose to phones for exactly that reason. Serving it anywhere
 // else would hand away the control plane the design just took care to
 // withhold.
+import { validPermissions } from "./permissions.ts";
 import { createServer, type Server, type ServerResponse } from "node:http";
 
 import type { DeviceRegistry } from "./devices.ts";
@@ -319,11 +320,11 @@ export function createControlServer(options: ControlOptions): Server {
           chunks.push(chunk);
         }
         const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
-        if (!body || Object.keys(body).length !== 1 || !["admin", "client"].includes(body.access)) {
-          return json(res, 400, { error: "Choose admin or client access" });
+        if (!body || Object.keys(body).some(key => !["access", "permissions"].includes(key)) || !["admin", "client", "custom"].includes(body.access) || (body.access === "custom" && !validPermissions(body.permissions))) {
+          return json(res, 400, { error: "Choose full, chat or complete custom access" });
         }
         try {
-          if (!options.devices.setAccess(access[1], body.access)) return json(res, 404, { error: "no such device" });
+          if (!options.devices.setAccess(access[1], body.access, body.permissions)) return json(res, 404, { error: "no such device" });
         } catch { return json(res, 500, { error: "Could not save access; previous rights remain active" }); }
         options.disconnectDevice?.(access[1]);
         json(res, 200, companionState(options));

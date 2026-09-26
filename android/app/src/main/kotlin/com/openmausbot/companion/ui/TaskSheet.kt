@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.ui.platform.LocalContext
+import com.openmausbot.companion.core.allows
 import com.openmausbot.companion.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
@@ -77,7 +78,8 @@ fun TaskSheet(
     val scope = rememberCoroutineScope()
     val state by session.state.collectAsState()
     val connection by session.connection.collectAsState()
-    val canDeleteThreads = connection?.let { !it.pairedWithServer || it.serverScopes?.contains("admin") == true } == true
+    val permissionAccess by session.pairingAccess.collectAsState()
+    val canDeleteThreads = permissionAccess.allows("threadDelete")
 
     // The live record, so busy and the task list stay current as frames land.
     val current = remember(state, chat) {

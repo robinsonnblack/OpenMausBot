@@ -110,7 +110,7 @@ describe("what the app may do", () => {
   ];
 
   for (const [method, path] of calls) {
-    it(`allows ${method} ${path}`, () => expect(ask(method, path)).toBeNull());
+    it(`full access allows ${method} ${path}`, () => expect(denyReason({ method, path, authenticated: true, access: "admin" })).toBeNull());
   }
 });
 
@@ -129,7 +129,7 @@ describe("what it may not", () => {
     ] as Array<[string, string]>) {
       const denial = ask(method, path);
       expect(denial?.status, `${method} ${path}`).toBe(403);
-      expect(denial?.error, `${method} ${path}`).toMatch(/on (?:your|the host) computer/);
+      expect(denial?.error, `${method} ${path}`).toMatch(/Permission blocked|on (?:your|the host) computer/);
     }
     expect(ask("GET", "/api/devices")).toEqual({
       status: 403,
@@ -157,11 +157,11 @@ describe("what it may not", () => {
       const denial = ask(method, path);
       expect(denial, `${method} ${path}`).toEqual({
         status: 403,
-        error: "this routine operation is only available on your computer",
+        error: `Berechtigung gesperrt / Permission blocked: ${path.endsWith("/cancel") ? "routineRun" : "routines"}`,
       });
     }
-    expect(ask("GET", "/api/routines")).toBeNull();
-    expect(ask("POST", "/api/routines/routine_1/run")).toBeNull();
+    expect(ask("GET", "/api/routines")?.status).toBe(403);
+    expect(ask("POST", "/api/routines/routine_1/run")?.status).toBe(403);
   });
 
   it("denies the peer-agent endpoints exist at all", () => {
@@ -175,10 +175,14 @@ describe("what it may not", () => {
   });
 
   it("opens and previews only an explicitly granted cloud viewer", () => {
-    expect(allowed("POST", "/api/bots/bot_123/computer/join")).toBe(true);
-    expect(allowed("POST", "/api/bots/bot_123/computer/control")).toBe(true);
-    expect(allowed("POST", "/api/bots/bot_123/computer/screenshot")).toBe(true);
-    expect(allowed("POST", "/api/bots/bot_123/computer/viewer-close")).toBe(true);
+    expect(allowed("POST", "/api/bots/bot_123/computer/join")).toBe(false);
+    expect(denyReason({ method: "POST", path: "/api/bots/bot_123/computer/join", authenticated: true, access: "admin" })).toBeNull();
+    expect(allowed("POST", "/api/bots/bot_123/computer/control")).toBe(false);
+    expect(denyReason({ method: "POST", path: "/api/bots/bot_123/computer/control", authenticated: true, access: "admin" })).toBeNull();
+    expect(allowed("POST", "/api/bots/bot_123/computer/screenshot")).toBe(false);
+    expect(denyReason({ method: "POST", path: "/api/bots/bot_123/computer/screenshot", authenticated: true, access: "admin" })).toBeNull();
+    expect(allowed("POST", "/api/bots/bot_123/computer/viewer-close")).toBe(false);
+    expect(denyReason({ method: "POST", path: "/api/bots/bot_123/computer/viewer-close", authenticated: true, access: "admin" })).toBeNull();
     expect(allowed("GET", "/api/bots/bot_123/computer")).toBe(false);
     expect(allowed("GET", "/api/bots/bot_123/computer/control")).toBe(false);
     expect(allowed("GET", "/api/bots/bot_123/computer/viewer-close")).toBe(false);
@@ -223,7 +227,7 @@ describe("what it may not", () => {
     expect(allowed("GET", "/api/connectors/connected/all")).toBe(false);
     // per-account removal is allowed (the server proves ownership before
     // revoking); removing the whole service binding stays host-only
-    expect(allowed("DELETE", "/api/connectors/slack/accounts/ca_123")).toBe(true);
+    expect(allowed("DELETE", "/api/connectors/slack/accounts/ca_123")).toBe(false);
     expect(allowed("DELETE", "/api/connectors/slack/accounts/../gmail")).toBe(false);
     expect(allowed("POST", "/api/bots/bot_123/secret-cards/msg_2/provided")).toBe(false);
     expect(allowed("PATCH", "/api/groups/room-1")).toBe(false);

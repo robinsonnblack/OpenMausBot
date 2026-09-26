@@ -19,6 +19,8 @@
 // purpose, in a diff someone can read. That cost is the feature.
 
 /** A refusal to send back, or null to let the request through. */
+import { permissionDenial, type AccessMode, type PermissionMap } from "./permissions.ts";
+
 export interface Denial {
   status: number;
   error: string;
@@ -30,7 +32,9 @@ export interface RouteRequest {
   method: string;
   /** Whether the bearer token on the request matched a paired device. */
   authenticated: boolean;
-  access?: "admin" | "client";
+  access?: AccessMode;
+  permissions?: PermissionMap;
+  cloudDesktopAccess?: boolean;
 }
 
 /** The one companion route that crosses into full interactive desktop
@@ -227,7 +231,7 @@ const EXPLAINED: ReadonlyArray<{ path: RegExp; error: string }> = [
  * is what keeps a stolen token from mapping the API. An allowlist rather than
  * a blocklist is the property this whole module exists for, and the one that
  * quietly stopped being true once before. */
-export function denyReason({ path, method, authenticated, access }: RouteRequest): Denial | null {
+export function denyReason({ path, method, authenticated, access, permissions, cloudDesktopAccess }: RouteRequest): Denial | null {
   // Pairing is the one thing a device does before it has a credential.
   if (method === "POST" && path === "/api/pair") return null;
   // Liveness is the other: it exists to be the first thing anyone curls when
@@ -250,9 +254,13 @@ export function denyReason({ path, method, authenticated, access }: RouteRequest
   } catch { return { status: 400, error: "Invalid API path" }; }
 
   if (method === "GET" && path === "/api/companion/access") return null;
+  if (!path.startsWith("/api/") || /^\/api\/(?:internal|testing)(?:\/|$)/.test(path)) return { status: 404, error: "no route" };
+  if (/^\/api\/(?:devices|companion)(?:\/|$)/.test(path) && !["/api/companion/access", "/api/companion/endpoints"].includes(path)) return { status: 403, error: "Remote access settings are managed on the host computer" };
+  const blocked = permissionDenial(method, path, access ?? "client", permissions, cloudDesktopAccess);
+  if (blocked) return { status: 403, error: blocked };
   // Full workspace administration is an explicit per-device grant. Private tool
   // capabilities and pairing/session administration remain outside this relay.
-  if (access === "admin" && path.startsWith("/api/") &&
+  if ((access === "admin" || access === "custom") && path.startsWith("/api/") &&
       !/^\/api\/(?:internal|testing|auth)(?:\/|$)/.test(path) &&
       ["GET", "POST", "PUT", "PATCH", "DELETE"].includes(method)) return null;
 

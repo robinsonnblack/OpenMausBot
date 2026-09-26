@@ -1273,4 +1273,16 @@
     <string name="pairing_access_bots">Erweiterte Bot-Verwaltung</string>
     <string name="pairing_access_settings">Workspace-Verwaltung</string>
     <string name="pairing_access_desktop">Cloud-Desktop bedienen</string>
+    <string name="pairing_access_custom">Benutzerdefiniert</string>
+    <string name="pairing_access_details">Alle Berechtigungen anzeigen</string>
+    <string name="pairing_access_refreshing">Rechte werden aktualisiert …</string>
+    <string name="pairing_access_updated">Rechte aktualisiert</string>
+    <string name="pairing_access_updated_changed">Änderungen abgerufen</string>
+    <string name="pairing_access_updated_unchanged">Erfolgreich geprüft – Rechte unverändert</string>
+    <string name="pairing_access_error">Aktualisierung fehlgeschlagen: %1$s</string>
+    <string name="pairing_access_close">Schließen</string>
+    <string name="pairing_access_help">Erklärung</string>
+    <string name="pairing_access_catalog_missing">Dieser Desktop liefert keine vollständige Berechtigungsliste. Aktualisiere die Desktop-App.</string>
+    <string name="pairing_access_mode_help">Vollzugriff erlaubt alle aufgeführten Aktionen. Nur Chat und Freigaben erlaubt Chatfunktionen und das Bestätigen oder Ablehnen von Bot-Aktionen. Benutzerdefiniert verwendet einzeln festgelegte Rechte.</string>
+    <string name="pairing_reconnect_success">✓ Verbindung wiederhergestellt</string>
 </resources>

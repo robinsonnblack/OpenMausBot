@@ -16,7 +16,7 @@ async function request(path: string, body?: unknown) {
 }
 Object.assign(window, { ogb: { companion: {
   state: () => request("/fixture/state"),
-  access: (id: string, access: string) => request("/fixture/access/" + id, { access }),
+  access: (id: string, access: string, permissions: unknown) => request("/fixture/access/" + id, { access, ...(access === "custom" ? { permissions } : {}) }),
 } } });
 createRoot(document.getElementById("root")!).render(<StoreProvider><main className="mx-auto max-w-3xl bg-app p-6 text-ink">
   <h1 className="mb-5 text-xl font-semibold">Fernzugriff · Verbindungsrechte</h1>

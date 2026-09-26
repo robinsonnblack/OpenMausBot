@@ -197,7 +197,7 @@ class CompanionClient(
 
     /** Wire support for P1-03; applying the snapshot to a live session is deliberately later. */
     suspend fun pairingAccess(): PairingAccess = send<PairingAccess>(makeRequest("GET", "/api/companion/access")).also {
-        if (it.role !in listOf("admin", "client") || (it.role == "admin") != it.scopes.contains("admin")) {
+        if (it.role !in listOf("admin", "client", "custom") || (it.role != "client") != it.scopes.contains("admin") || it.capabilities.map { row -> row.id }.distinct().size != it.capabilities.size) {
             throw APIError.Transport("The desktop returned inconsistent connection rights.")
         }
     }

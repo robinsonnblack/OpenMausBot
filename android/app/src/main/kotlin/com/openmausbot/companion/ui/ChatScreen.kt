@@ -98,6 +98,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.openmausbot.companion.core.allows
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.AttachmentPolicy
 import com.openmausbot.companion.core.Chat
@@ -544,8 +545,9 @@ private fun LoadedChat(
     LaunchedEffect(showingProfile) { if (showingProfile) dictation.stop() }
 
     val connection by session.connection.collectAsState()
-    val canDeleteMessages = connection?.serverScopes?.contains("admin") == true
-    val canInspectPrompt = connection?.serverScopes?.contains("admin") == true
+    val permissionAccess by session.pairingAccess.collectAsState()
+    val canDeleteMessages = permissionAccess.allows("messageDelete")
+    val canInspectPrompt = permissionAccess.allows("promptInspector")
     LaunchedEffect(chatId, threadId, connection?.id) {
         environment.chatPreferences.rememberThread(chat, connection?.id)
     }

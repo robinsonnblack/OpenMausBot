@@ -523,6 +523,20 @@ describe("sessions", () => {
 });
 
 describe("stream tickets", () => {
+  it("keeps credentials and stream tickets active when revocation cannot be saved", () => {
+    const issued = registry.issue({ label: "Phone", scopes: ["client"] });
+    const ticket = registry.issueStreamTicket(issued.session.id);
+    const disconnected: string[] = [];
+    registry.onSessionRevoked(id => disconnected.push(id));
+    const writable = registry as unknown as { persist: () => void };
+    const persist = writable.persist;
+    writable.persist = () => { throw new Error("ENOSPC"); };
+    try { expect(() => registry.revoke(issued.session.id)).toThrow("ENOSPC"); }
+    finally { writable.persist = persist; }
+    expect(registry.authenticate(issued.token)?.id).toBe(issued.session.id);
+    expect(registry.redeemStreamTicket(ticket.ticket)?.id).toBe(issued.session.id);
+    expect(disconnected).toEqual([]);
+  });
   it("are single use, short-lived, and die with their session", () => {
     const { session } = pair();
     const { ticket } = registry.issueStreamTicket(session.id);

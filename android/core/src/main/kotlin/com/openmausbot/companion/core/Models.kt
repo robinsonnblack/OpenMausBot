@@ -1730,10 +1730,28 @@ data class PairingPermissions(
 )
 
 @Serializable
-data class PairingAccess(val role: String, val scopes: List<String>, val permissions: PairingPermissions)
+data class PairingCapability(val id: String, val labelDe: String, val labelEn: String, val descriptionDe: String, val descriptionEn: String, val allowed: Boolean)
+
+@Serializable
+data class PairingAccess(val role: String, val scopes: List<String>, val permissions: PairingPermissions, val capabilities: List<PairingCapability> = emptyList())
 
 sealed interface PairingAccessState {
     data object Checking : PairingAccessState
     data class Ready(val access: PairingAccess) : PairingAccessState
     data class Failed(val reason: String) : PairingAccessState
+}
+
+/** Buttons use the live catalogue; custom never inherits the broad admin scope. */
+fun PairingAccessState.allows(id: String): Boolean {
+    val access = (this as? PairingAccessState.Ready)?.access ?: return false
+    if (access.capabilities.isNotEmpty()) return access.capabilities.firstOrNull { it.id == id }?.allowed == true
+    // Older desktops have no custom mode or catalogue. Keep explicit legacy grants.
+    if (id == "cloudDesktop") return access.permissions.cloudDesktop
+    if (access.role == "admin") return true
+    return when (id) {
+        "chatRead", "chatSend", "chatEdit", "threadCreate", "threadEdit", "attachments", "voice" -> access.permissions.chat
+        "approvals" -> access.permissions.approvals
+        "routines", "routineRun" -> access.permissions.routines
+        else -> false
+    }
 }

@@ -893,12 +893,14 @@ class Session(
     }
 
     /** Fetch effective permissions from the desktop, including legacy companions. */
-    suspend fun refreshPairingAccess() {
+    suspend fun refreshPairingAccess(): PairingAccessState {
         val active = client ?: run {
-            _pairingAccess.value = PairingAccessState.Failed("No computer connection is active.")
-            return
+            val failure = PairingAccessState.Failed("No computer connection is active.")
+            _pairingAccess.value = failure
+            return failure
         }
         refreshPairingAccess(active)
+        return if (client === active) _pairingAccess.value else PairingAccessState.Failed("The computer connection changed during the request. Refresh the selected computer.")
     }
 
     private suspend fun refreshPairingAccess(source: CompanionClient) = accessGate.withLock {
@@ -909,7 +911,7 @@ class Session(
                 if (client !== source) return@withLock
                 val current = _connection.value ?: return@withLock
                 _pairingAccess.value = PairingAccessState.Ready(access)
-                persistActiveConnectionLocked(current.copy(serverScopes = access.scopes))
+                if (current.serverScopes != access.scopes) persistActiveConnectionLocked(current.copy(serverScopes = access.scopes))
             }
         } catch (error: CancellationException) { throw error }
         catch (error: Exception) {

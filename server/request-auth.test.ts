@@ -160,11 +160,14 @@ describe("resolveRequestAuth", () => {
         loopbackMutationToken: "desktop-secret", companionMutationToken: relay,
       });
     for (const [method, path] of [
-      ["POST", "/api/bots"], ["POST", "/api/bots/b/messages"],
+      ["POST", "/api/bots/b/messages"],
       ["POST", "/api/bots/b/read"], ["POST", "/api/bots/b/respond"],
       ["POST", "/api/bots/b/secret-cards/card/provide"],
-      ["GET", "/api/events"], ["PATCH", "/api/bots/b/profile"],
+      ["GET", "/api/events"],
     ]) expect(check(method, path).auth?.kind, path).toBe("loopback");
+    expect(check("POST", "/api/bots").auth).toBeNull();
+    expect(check("PATCH", "/api/bots/b/profile").auth).toBeNull();
+    expect(check("DELETE", "/api/bots/b/tasks/t").auth).toBeNull();
     expect(check("GET", "/api/usage").auth).toBeNull();
     expect(check("GET", "/api/usage", { "x-openmausbot-companion-access": "admin" }).auth?.kind).toBe("loopback");
     expect(check("GET", "/api/usage", { "x-openmausbot-companion-access": "admin", "x-openmausbot-companion-auth": "forged" }).auth).toBeNull();

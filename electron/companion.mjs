@@ -458,27 +458,32 @@ export async function companionPairing(open, expectedToken) {
 
 /** Unpair one device. Ignores an id the renderer should not have sent. */
 export async function companionRevoke(deviceId) {
-  if (!proc) return companionState();
+  if (!proc) throw new Error("Start Remote access before removing a device");
   // the id came from the renderer, so it does not get to shape a path
   if (!/^[\w-]{1,64}$/.test(String(deviceId ?? ""))) return companionState();
-  await control("DELETE", `/devices/${deviceId}`).catch(() => {});
-  return companionState();
+  const state = await control("DELETE", `/devices/${deviceId}`);
+  if (state.error) throw new Error(state.error);
+  if (state.devices?.some(device => device.id === deviceId)) throw new Error("The desktop did not confirm device removal");
+  return { enabled: true, keepAwake: companionKeepAwakeAtRest(), ...state };
 }
 
 /** Enable or remove interactive cloud-desktop access for one paired phone. */
 export async function companionCloudDesktopAccess(deviceId, allowed) {
   if (!proc) return companionState();
   if (!/^[\w-]{1,64}$/.test(String(deviceId ?? ""))) return companionState();
-  await control(allowed ? "POST" : "DELETE", `/devices/${deviceId}/cloud-desktop`).catch(() => {});
-  return companionState();
+  const state = await control(allowed ? "POST" : "DELETE", `/devices/${deviceId}/cloud-desktop`);
+  if (state.error) throw new Error(state.error);
+  if (state.devices?.find(device => device.id === deviceId)?.cloudDesktopAccess !== allowed) throw new Error("The desktop did not confirm screen-control rights");
+  return { enabled: true, keepAwake: companionKeepAwakeAtRest(), ...state };
 }
 
 /** Change an existing phone grant without replacing its credential. */
-export async function companionAccess(deviceId, access) {
+export async function companionAccess(deviceId, access, permissions) {
   if (!proc) throw new Error("Start Remote access before changing phone rights");
-  if (!/^[\w-]{1,64}$/.test(String(deviceId ?? "")) || !["admin", "client"].includes(access)) throw new Error("Invalid phone access");
-  const state = await control("POST", "/devices/" + deviceId + "/access", { access });
+  if (!/^[\w-]{1,64}$/.test(String(deviceId ?? "")) || !["admin", "client", "custom"].includes(access)) throw new Error("Invalid phone access");
+  const state = await control("POST", "/devices/" + deviceId + "/access", { access, ...(access === "custom" ? { permissions } : {}) });
   if (state.error) throw new Error(state.error);
-  if (state.devices?.find(device => device.id === deviceId)?.access !== access) throw new Error("The desktop did not confirm the requested rights");
+  const confirmed = state.devices?.find(device => device.id === deviceId);
+  if (confirmed?.access !== access || (access === "custom" && Object.entries(permissions).some(([key, value]) => confirmed.permissions?.[key] !== value))) throw new Error("The desktop did not confirm the requested rights");
   return { enabled: true, keepAwake: companionKeepAwakeAtRest(), ...state };
 }

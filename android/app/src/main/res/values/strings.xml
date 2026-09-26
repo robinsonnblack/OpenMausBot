@@ -1274,4 +1274,16 @@
     <string name="pairing_access_bots">Advanced bot management</string>
     <string name="pairing_access_settings">Workspace administration</string>
     <string name="pairing_access_desktop">Cloud desktop control</string>
+    <string name="pairing_access_custom">Custom</string>
+    <string name="pairing_access_details">View all permissions</string>
+    <string name="pairing_access_refreshing">Refreshing rights …</string>
+    <string name="pairing_access_updated">Rights refreshed</string>
+    <string name="pairing_access_updated_changed">Changes retrieved</string>
+    <string name="pairing_access_updated_unchanged">Checked successfully – rights unchanged</string>
+    <string name="pairing_access_error">Refresh failed: %1$s</string>
+    <string name="pairing_access_close">Close</string>
+    <string name="pairing_access_help">Explanation</string>
+    <string name="pairing_access_catalog_missing">This desktop does not provide the complete permission list. Update the desktop app.</string>
+    <string name="pairing_access_mode_help">Full access permits all listed actions. Chat and approvals only permits chat features and approving or denying bot actions. Custom uses individually configured permissions.</string>
+    <string name="pairing_reconnect_success">✓ Connection restored</string>
 </resources>
