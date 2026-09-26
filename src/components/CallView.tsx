@@ -1,3 +1,4 @@
+import { callSpeech, windowsCallSpeechAvailable } from "@/lib/call-speech";
 // Call mode — the bot on the line.
 //
 // The loop is deliberately HALF-DUPLEX: the microphone is live only when
@@ -77,7 +78,7 @@ export function CallTargetButton({
   const { capabilities, ready: capabilitiesReady } = useDesktopCapabilities();
   const active = useOnCall() === targetId;
   const capabilityHelp = capabilitiesReady
-    ? callCapabilityHelp(capabilities, Boolean(window.ogb?.speechStart))
+    ? windowsCallSpeechAvailable() ? null : callCapabilityHelp(capabilities, Boolean(callSpeech()?.speechStart))
     : null;
   const supported = capabilitiesReady && !capabilityHelp;
   const localVoice = localSystemVoiceActive();
@@ -265,7 +266,7 @@ function Call({ bot }: { bot: Bot }) {
   }, []);
 
   const hush = useCallback(() => {
-    void window.ogb?.speechStop();
+    void callSpeech()?.speechStop();
   }, []);
 
   const listen = useCallback(() => {
@@ -273,9 +274,9 @@ function Call({ bot }: { bot: Bot }) {
     move("listening");
     setHeard("");
     setNote(null);
-    void window.ogb?.speechStart({ endpointMs: CALL_ENDPOINT_MS }).catch(() => {
+    void callSpeech()?.speechStart({ endpointMs: CALL_ENDPOINT_MS }).catch((error: unknown) => {
       if (alive.current && currentCall() === bot.id) {
-        setNote("The microphone couldn't start. Check Microphone and Speech Recognition access.");
+        setNote(error instanceof Error ? error.message : t("call.stt.startFailed"));
       }
     });
   }, [bot.id, move]);
@@ -321,12 +322,12 @@ function Call({ bot }: { bot: Bot }) {
 
   // ── the microphone ───────────────────────────────────────────────────
   useEffect(() => {
-    const bridge = window.ogb;
+    const bridge = callSpeech();
     if (!bridge) return;
     const offTranscript = bridge.onSpeechTranscript((line) => {
       if (!alive.current || currentCall() !== bot.id || phaseRef.current !== "listening") return;
       if (line.error) {
-        setNote("Dictation stopped unexpectedly. Check Microphone and Speech Recognition access.");
+        setNote(line.error);
         return;
       }
       if (typeof line.text !== "string") return;
@@ -404,6 +405,7 @@ function Call({ bot }: { bot: Bot }) {
         setNote("Calls need macOS dictation, which isn't available here yet.");
         return;
       }
+      if (code === 1 && window.ogb?.platform === "win32") return;
       if (code === 1) {
         setNote(
           reason === "helper-build-failed"
@@ -421,7 +423,7 @@ function Call({ bot }: { bot: Bot }) {
     return () => {
       offTranscript();
       offEnd();
-      void window.ogb?.speechStop();
+      void callSpeech()?.speechStop();
     };
     // busy/approval are intentionally initial snapshots. Their live changes
     // are handled below without tearing down native event listeners.

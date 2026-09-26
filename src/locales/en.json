@@ -3537,5 +3537,8 @@
   "transfer.field.voiceNotes": "Voice notes",
   "transfer.field.notifications": "Notifications",
   "transfer.field.section": "Team",
-  "transfer.field.managedSections": "Managed teams"
+  "transfer.field.managedSections": "Managed teams",
+  "call.stt.unavailable": "Speech recognition is unavailable in this app build.",
+  "call.stt.setup": "Choose a local speech model or a transcription provider in Settings → Transcription. Windows voice typing cannot transcribe calls automatically.",
+  "call.stt.startFailed": "The microphone could not start. Check microphone access."
 }

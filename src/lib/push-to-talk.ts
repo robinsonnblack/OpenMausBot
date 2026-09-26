@@ -1,3 +1,4 @@
+import { callSpeech } from "./call-speech";
 import { useEffect, useRef, useState } from "react";
 
 import { currentCall } from "./call";
@@ -30,7 +31,7 @@ export function usePushToTalk(targetId: string, enabled: boolean, onError: () =>
   }, [enabled]);
 
   useEffect(() => {
-    const bridge = window.ogb;
+    const bridge = callSpeech();
     if (!bridge?.speechFinish) return;
 
     const finish = () => {

@@ -1,3 +1,4 @@
+import { callSpeech } from "./call-speech";
 // Which conversation is on a call, window-wide.
 //
 // It lives in lib rather than inside the call UI because two very
@@ -27,7 +28,7 @@ export function startCall(targetId: string) {
   // Switching calls must silence both halves before ownership changes; the
   // old overlay may not unmount until React's next render.
   speaker.stop();
-  void window.ogb?.speechStop();
+  void callSpeech()?.speechStop();
   current = targetId;
   notify();
 }
@@ -39,7 +40,7 @@ export function endCall(targetId?: string): boolean {
   if (current === null) return false;
   current = null;
   speaker.stop();
-  void window.ogb?.speechStop();
+  void callSpeech()?.speechStop();
   notify();
   return true;
 }
