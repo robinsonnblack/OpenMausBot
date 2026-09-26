@@ -47,7 +47,7 @@ class PhoneSectionCopyTest {
         )
         // A discovered computer that answered without an address.
         assertTrue(
-            source.contains("Enter the address shown in Phone settings instead."),
+            source.contains("R.string.android_pairing_missing_address") && resources.contains("Enter the address shown in Phone settings instead."),
             "the discovery fallback must name Phone settings",
         )
         // The tailnet hint, and the manual-address footnote.
@@ -81,10 +81,9 @@ class PhoneSectionCopyTest {
     fun `a revoked phone is told which desktop section removed it`() {
         val source = sourceFile("ui/RootScreen.kt").readText()
 
+        val resources = locate("src/main/res/values/strings.xml").readText().replace("\\'", "'")
         assertTrue(
-            source.contains(
-                "It was removed from the computer's Phone settings, or the pairing was reset.",
-            ),
+            source.contains("R.string.android_unpaired_explanation") && resources.contains("It was removed from the computer's Phone settings, or the pairing was reset."),
             "the unpaired screen must name Phone settings",
         )
     }

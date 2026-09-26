@@ -747,6 +747,7 @@ class SpeechDictationTurnTest {
                     override val isOnDevice: Boolean = false
                     override fun start(request: RecognitionRequest, listener: SpeechEngine.Listener) {
                         this@TurnFakeFactory.listener = listener
+                        listener.onReady()
                     }
                     override fun cancel() = Unit
                     override fun destroy() = Unit

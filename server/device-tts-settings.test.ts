@@ -1,6 +1,6 @@
 import { constants, createDecipheriv, generateKeyPairSync, privateDecrypt } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { sealDeviceTtsSettings } from "./device-tts-settings";
+import { sealDeviceTtsSettings } from "./device-tts-settings.ts";
 
 describe("phone voice credential import", () => {
   it("seals only the selected provider profile to the requesting phone", () => {
